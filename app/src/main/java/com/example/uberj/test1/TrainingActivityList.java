@@ -31,8 +31,8 @@ public class TrainingActivityList extends Activity {
 
         // specify an adapter (see also next example)
         ArrayList<TrainingCardData> trainingActivities = new ArrayList();
-        trainingActivities.add(new TrainingCardData("Letter Groups", "na", new Intent(this, KeyboardActivity.class)));
-        trainingActivities.add(new TrainingCardData("Letter Training", "na", new Intent(this, MainActivity.class)));
+        trainingActivities.add(new TrainingCardData("Letter Groups", R.string.letter_group_description, new Intent(this, KeyboardActivity.class)));
+        trainingActivities.add(new TrainingCardData("Letter Training", R.string.letter_training_description, new Intent(this, MainActivity.class)));
         mAdapter = new TrainingActivityAdapter(trainingActivities);
         mRecyclerView.setAdapter(mAdapter);
     }

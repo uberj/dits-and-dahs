@@ -4,12 +4,12 @@ import android.content.Intent;
 
 class TrainingCardData {
     private final String name;
-    private final String description;
+    private final int descriptionId;
     private final Intent onClickIntent;
 
-    public TrainingCardData(String name, String description, Intent intent) {
+    public TrainingCardData(String name, int descriptionId, Intent intent) {
         this.name = name;
-        this.description = description;
+        this.descriptionId = descriptionId;
         this.onClickIntent = intent;
     }
 
@@ -17,8 +17,8 @@ class TrainingCardData {
         return name;
     }
 
-    public String getDescription() {
-        return description;
+    public int getDescription() {
+        return descriptionId;
     }
 
     public Intent getOnClickIntent() {
