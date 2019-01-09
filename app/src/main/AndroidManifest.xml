@@ -18,7 +18,7 @@
         </activity>
         <activity android:name=".KeyboardActivity" />
         <activity android:name=".TrainingActivityList" />
-        <activity android:name=".LetterGroupTrainingStartScreenActivity"></activity>
+        <activity android:name=".LetterTrainingStartScreenActivity"></activity>
     </application>
 
 </manifest>

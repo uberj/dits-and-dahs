@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.NumberPicker;
 
-public class LetterGroupTrainingStartScreenActivity extends AppCompatActivity {
+public class LetterTrainingStartScreenActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +28,14 @@ public class LetterGroupTrainingStartScreenActivity extends AppCompatActivity {
         secondsPicker.setFormatter(i -> String.format("%02d", i));
 
         Button startButton = findViewById(R.id.start_button);
-        startButton.setOnClickListener(v -> startActivity(new Intent(getApplicationContext(), KeyboardActivity.class)));
+        startButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getApplicationContext(), KeyboardActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putInt(KeyboardActivity.DURATION_SECONDS, secondsPicker.getValue());
+            bundle.putInt(KeyboardActivity.DURATION_MINUTES, minutesPicker.getValue());
+            bundle.putString(KeyboardActivity.SESSION_TYPE, KeyboardActivity.SessionType.LETTER_TRAINING.name());
+            startActivity(intent);
+        });
 
 
 

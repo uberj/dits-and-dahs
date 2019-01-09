@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:layout_marginHorizontal="20dp"
-    tools:context=".LetterGroupTrainingStartScreenActivity">
+    tools:context=".LetterTrainingStartScreenActivity">
 
     <TableLayout
         android:layout_width="329dp"
