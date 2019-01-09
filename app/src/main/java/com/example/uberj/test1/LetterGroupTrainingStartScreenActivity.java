@@ -1,9 +1,12 @@
 package com.example.uberj.test1;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+import android.widget.NumberPicker;
 
 public class LetterGroupTrainingStartScreenActivity extends AppCompatActivity {
 
@@ -12,8 +15,26 @@ public class LetterGroupTrainingStartScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_letter_group_training_start_screen);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        NumberPicker minutesPicker = findViewById(R.id.number_picker_minutes);
+        minutesPicker.setMaxValue(60);
+        minutesPicker.setMinValue(0);
+        minutesPicker.setValue(1);
+        minutesPicker.setFormatter(i -> String.format("%02d", i));
+
+        NumberPicker secondsPicker = findViewById(R.id.number_picker_seconds);
+        secondsPicker.setMaxValue(60);
+        secondsPicker.setMinValue(0);
+        secondsPicker.setValue(0);
+        secondsPicker.setFormatter(i -> String.format("%02d", i));
+
+        Button startButton = findViewById(R.id.start_button);
+        startButton.setOnClickListener(v -> startActivity(new Intent(getApplicationContext(), KeyboardActivity.class)));
+
+
+
     }
 
     public void goToCharacterAnalysis(View view) {
+        this.startActivity(new Intent(this, CharacterAnalysis.class));
     }
 }

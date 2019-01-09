@@ -6,12 +6,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:layout_marginStart="20dp"
-    android:layout_marginEnd="20dp"
+    android:layout_marginHorizontal="20dp"
     tools:context=".LetterGroupTrainingStartScreenActivity">
 
     <TableLayout
-        android:layout_width="wrap_content"
+        android:layout_width="329dp"
         android:layout_height="match_parent"
         android:gravity="center">
 
@@ -132,17 +131,17 @@
         </TableRow>
 
         <TableRow
-            android:gravity="center"
             android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_marginTop="10dp"
-            android:layout_height="match_parent">
+            android:gravity="center">
 
             <TextView
                 android:id="@+id/textView10"
                 android:layout_width="wrap_content"
-                android:onClick="goToCharacterAnalysis"
-                android:clickable="true"
                 android:layout_height="wrap_content"
+                android:clickable="true"
+                android:onClick="goToCharacterAnalysis"
                 android:text="Character Analysis" />
 
         </TableRow>
@@ -151,12 +150,14 @@
 
     <View
         android:id="@+id/divider3"
-        android:layout_width="1dp"
+        android:layout_width="3dp"
         android:layout_height="match_parent"
+        android:layout_marginHorizontal="20dp"
         android:layout_weight="1"
-        android:background="?android:attr/listDivider" />
+        />
 
     <TableLayout
+        android:gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="match_parent">
 
@@ -166,7 +167,7 @@
             android:gravity="center">
 
             <TextView
-                android:id="@+id/session-length_"
+                android:id="@+id/session-length"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
@@ -174,16 +175,21 @@
                 android:text="Session length:" />
 
             <NumberPicker
-                android:id="@+id/number_picker_"
+                android:id="@+id/number_picker_minutes"
                 android:layout_width="17dp"
                 android:layout_height="wrap_content" />
 
             <TextView
-                android:id="@+id/duration-units_"
+                android:id="@+id/duration-separator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                android:text="Minutes" />
+                android:layout_marginEnd="3dp"
+                android:layout_marginStart="3dp"
+                android:text=":" />
+            <NumberPicker
+                android:id="@+id/number_picker_seconds"
+                android:layout_width="17dp"
+                android:layout_height="wrap_content" />
         </TableRow>
 
         <TableRow
@@ -192,7 +198,7 @@
             android:layout_height="match_parent" >
 
             <Button
-                android:id="@+id/start-button_"
+                android:id="@+id/start-button"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
