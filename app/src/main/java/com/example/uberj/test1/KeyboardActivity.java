@@ -1,5 +1,6 @@
 package com.example.uberj.test1;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ public class KeyboardActivity extends AppCompatActivity {
     public static final String SESSION_TYPE = "session-type";
     public static final String WPM_AVERAGE = "wpm-average";
     public static final String ERROR_RATE = "error-rate";
+    private static final String DURATION_REMAINING_MILIS = "duration-remaining-milis";
     private String sessionType;
     private int durationMinutesRequested;
     private int durationSecondsRequested;
@@ -24,6 +26,7 @@ public class KeyboardActivity extends AppCompatActivity {
     private float errorRate = -1;
     private CountDownTimer countDownTimer;
     private long durationMilisRequested;
+    private Menu menu;
 
     public enum SessionType {
         LETTER_TRAINING,
@@ -38,7 +41,10 @@ public class KeyboardActivity extends AppCompatActivity {
         setContentView(R.layout.keyboard_activity);
         Toolbar keyboardToolbar = findViewById(R.id.keyboard_toolbar);
         keyboardToolbar.inflateMenu(R.menu.keyboard);
+        setSupportActionBar(keyboardToolbar);
+
         Bundle receiveBundle = getIntent().getExtras();
+        assert receiveBundle != null;
         sessionType = receiveBundle.getString(SESSION_TYPE);
         durationMinutesRequested = receiveBundle.getInt(DURATION_MINUTES, 0);
         durationSecondsRequested = receiveBundle.getInt(DURATION_SECONDS, 0);
@@ -46,6 +52,7 @@ public class KeyboardActivity extends AppCompatActivity {
         isPlaying = true;
         countDownTimer = buildCountDownTimer(1000 * (durationMinutesRequested * 60 + durationSecondsRequested));
         countDownTimer.start();
+
     }
 
     private CountDownTimer buildCountDownTimer(long durationsMillis) {
@@ -61,26 +68,53 @@ public class KeyboardActivity extends AppCompatActivity {
             }
 
             public void onFinish() {
-                Intent intent = new Intent(curActivity, LetterTrainingStartScreenActivity.class);
-                Bundle sendBundle = new Bundle();
-                // TODO, send over stats after session is done
-                sendBundle.putString(KeyboardActivity.SESSION_TYPE, sessionType);
-                sendBundle.putInt(KeyboardActivity.DURATION_MINUTES, durationMinutesRequested);
-                sendBundle.putInt(KeyboardActivity.DURATION_SECONDS, durationSecondsRequested);
-                sendBundle.putFloat(KeyboardActivity.WPM_AVERAGE, wpmAverage);
-                sendBundle.putFloat(KeyboardActivity.WPM_AVERAGE, errorRate);
-                intent.putExtras(sendBundle);
-                startActivity(intent);
+                Intent data = buildResultIntent();
+                setResult(0, data);
             }
         };
     }
 
+    private Intent buildResultIntent() {
+        Intent intent = new Intent();
+        Bundle sendBundle = new Bundle();
+        sendBundle.putString(KeyboardActivity.SESSION_TYPE, sessionType);
+        sendBundle.putLong(KeyboardActivity.DURATION_REMAINING_MILIS, durationMilisRemaining);
+        sendBundle.putFloat(KeyboardActivity.WPM_AVERAGE, wpmAverage);
+        sendBundle.putFloat(KeyboardActivity.WPM_AVERAGE, errorRate);
+        intent.putExtras(sendBundle);
+        return intent;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (durationMilisRemaining != 0) {
+            countDownTimer.pause();
+            isPlaying = false;
+            MenuItem playPauseIcon = menu.findItem(R.id.keyboard_pause_play);
+            playPauseIcon.setIcon(R.mipmap.ic_play);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setCancelable(false);
+            builder.setMessage("Do you want to end this session?");
+            builder.setPositiveButton("Yes", (dialog, which) -> {
+                Intent data = buildResultIntent();
+                setResult(0, data);
+                finish();
+            });
+            builder.setNegativeButton("No", (dialog, which) -> dialog.cancel());
+            AlertDialog alert = builder.create();
+            alert.show();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        this.menu = menu;
         getMenuInflater().inflate(R.menu.keyboard, menu);
         return super.onCreateOptionsMenu(menu);
     }
-
 
     public void onClickPlayPauseHandler(MenuItem m) {
         if (isPlaying) {
