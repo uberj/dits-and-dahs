@@ -1,14 +1,14 @@
 package com.example.uberj.test1;
 
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import java.util.Locale;
 
 public class KeyboardActivity extends AppCompatActivity {
     public static final String DURATION_MINUTES = "duration-minutes";
@@ -17,10 +17,13 @@ public class KeyboardActivity extends AppCompatActivity {
     public static final String WPM_AVERAGE = "wpm-average";
     public static final String ERROR_RATE = "error-rate";
     private String sessionType;
-    private int durationMinutes;
-    private int durationSeconds;
+    private int durationMinutesRequested;
+    private int durationSecondsRequested;
+    private long durationMilisRemaining;
     private float wpmAverage = -1;
     private float errorRate = -1;
+    private CountDownTimer countDownTimer;
+    private long durationMilisRequested;
 
     public enum SessionType {
         LETTER_TRAINING,
@@ -32,27 +35,29 @@ public class KeyboardActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.keyboard_activity);
         Toolbar keyboardToolbar = findViewById(R.id.keyboard_toolbar);
         keyboardToolbar.inflateMenu(R.menu.keyboard);
         Bundle receiveBundle = getIntent().getExtras();
         sessionType = receiveBundle.getString(SESSION_TYPE);
-        durationMinutes = receiveBundle.getInt(DURATION_MINUTES, 0);
-        durationSeconds = receiveBundle.getInt(DURATION_SECONDS, 0);
+        durationMinutesRequested = receiveBundle.getInt(DURATION_MINUTES, 0);
+        durationSecondsRequested = receiveBundle.getInt(DURATION_SECONDS, 0);
+        durationMilisRequested = 1000 * (durationMinutesRequested * 60 + durationSecondsRequested);
         isPlaying = true;
-        startSessionTimer(durationMinutes * durationSeconds * 1000);
+        countDownTimer = buildCountDownTimer(1000 * (durationMinutesRequested * 60 + durationSecondsRequested));
+        countDownTimer.start();
     }
 
-    private void startSessionTimer(int durationsMillis) {
+    private CountDownTimer buildCountDownTimer(long durationsMillis) {
         TextView timeRemainingView = findViewById(R.id.toolbar_title_time_remaining);
         KeyboardActivity curActivity = this;
-        new CountDownTimer(durationsMillis, 1000) {
-
+        return new CountDownTimer(durationsMillis, 1000) {
             public void onTick(long millisUntilFinished) {
-                long minutesRemaining = (millisUntilFinished / 1000) / 60;
-                long secondsRemaining = (millisUntilFinished / 1000) % 60;
-                timeRemainingView.setText(String.format("%02d:%02d remaining", minutesRemaining, secondsRemaining) );
+                long secondsUntilFinished = millisUntilFinished / 1000;
+                long minutesRemaining = secondsUntilFinished / 60;
+                long secondsRemaining = secondsUntilFinished % 60;
+                timeRemainingView.setText(String.format(Locale.ENGLISH, "%02d:%02d remaining", minutesRemaining, secondsRemaining));
+                durationMilisRemaining = millisUntilFinished;
             }
 
             public void onFinish() {
@@ -60,22 +65,14 @@ public class KeyboardActivity extends AppCompatActivity {
                 Bundle sendBundle = new Bundle();
                 // TODO, send over stats after session is done
                 sendBundle.putString(KeyboardActivity.SESSION_TYPE, sessionType);
-                sendBundle.putInt(KeyboardActivity.DURATION_MINUTES, durationMinutes);
-                sendBundle.putInt(KeyboardActivity.DURATION_SECONDS, durationSeconds);
+                sendBundle.putInt(KeyboardActivity.DURATION_MINUTES, durationMinutesRequested);
+                sendBundle.putInt(KeyboardActivity.DURATION_SECONDS, durationSecondsRequested);
                 sendBundle.putFloat(KeyboardActivity.WPM_AVERAGE, wpmAverage);
                 sendBundle.putFloat(KeyboardActivity.WPM_AVERAGE, errorRate);
                 intent.putExtras(sendBundle);
                 startActivity(intent);
             }
-        }.start();
-    }
-
-    private void setPausePlayIcon(MenuItem v) {
-        if (isPlaying) {
-            v.setIcon(R.mipmap.ic_play);
-        } else {
-            v.setIcon(R.mipmap.ic_pause);
-        }
+        };
     }
 
     @Override
@@ -86,7 +83,13 @@ public class KeyboardActivity extends AppCompatActivity {
 
 
     public void onClickPlayPauseHandler(MenuItem m) {
+        if (isPlaying) {
+            m.setIcon(R.mipmap.ic_play);
+            countDownTimer.pause();
+        } else {
+            m.setIcon(R.mipmap.ic_pause);
+            countDownTimer.resume();
+        }
         isPlaying = !isPlaying;
-        setPausePlayIcon(m);
     }
 }

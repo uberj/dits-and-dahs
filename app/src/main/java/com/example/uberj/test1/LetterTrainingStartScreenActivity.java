@@ -21,7 +21,6 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
         Optional<Bundle> receiveBundle = Optional.ofNullable(getIntent().getExtras());
         receiveBundle.ifPresent(this::setPreviousDetails);
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         NumberPicker minutesPicker = findViewById(R.id.number_picker_minutes);
         minutesPicker.setMaxValue(60);
         minutesPicker.setMinValue(0);
