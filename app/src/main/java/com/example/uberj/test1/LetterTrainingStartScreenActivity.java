@@ -7,6 +7,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.NumberPicker;
+import android.widget.TextView;
+
+import java.util.Locale;
+import java.util.Optional;
 
 public class LetterTrainingStartScreenActivity extends AppCompatActivity {
 
@@ -14,6 +18,9 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_letter_group_training_start_screen);
+        Optional<Bundle> receiveBundle = Optional.ofNullable(getIntent().getExtras());
+        receiveBundle.ifPresent(this::setPreviousDetails);
+
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         NumberPicker minutesPicker = findViewById(R.id.number_picker_minutes);
         minutesPicker.setMaxValue(60);
@@ -25,20 +32,36 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
         secondsPicker.setMaxValue(60);
         secondsPicker.setMinValue(0);
         secondsPicker.setValue(0);
-        secondsPicker.setFormatter(i -> String.format("%02d", i));
+        secondsPicker.setFormatter(i -> String.format(Locale.ENGLISH, "%02d", i));
 
         Button startButton = findViewById(R.id.start_button);
         startButton.setOnClickListener(v -> {
-            Intent intent = new Intent(getApplicationContext(), KeyboardActivity.class);
+            Intent sendBundle = new Intent(getApplicationContext(), KeyboardActivity.class);
             Bundle bundle = new Bundle();
             bundle.putInt(KeyboardActivity.DURATION_SECONDS, secondsPicker.getValue());
             bundle.putInt(KeyboardActivity.DURATION_MINUTES, minutesPicker.getValue());
             bundle.putString(KeyboardActivity.SESSION_TYPE, KeyboardActivity.SessionType.LETTER_TRAINING.name());
-            startActivity(intent);
+            sendBundle.putExtras(bundle);
+            startActivity(sendBundle);
         });
+    }
 
-
-
+    private void setPreviousDetails(Bundle bundle) {
+        int prevDurationMinutes = bundle.getInt(KeyboardActivity.DURATION_MINUTES, -1);
+        int prevDurationSeconds = bundle.getInt(KeyboardActivity.DURATION_SECONDS, -1);
+        float wpmAverage = bundle.getFloat(KeyboardActivity.WPM_AVERAGE, -1);
+        float errorRate = bundle.getFloat(KeyboardActivity.ERROR_RATE, -1);
+        ((TextView) findViewById(R.id.prev_session_duration_time)).setText(
+                prevDurationMinutes >= 0 && prevDurationSeconds >= 0 ?
+                        String.format(Locale.ENGLISH, "%02d:%02d", prevDurationMinutes, prevDurationSeconds) :
+                        "N/A"
+        );
+        ((TextView) findViewById(R.id.prev_session_wpm_average)).setText(
+                wpmAverage >= 0 ? String.format(Locale.ENGLISH, "%.2f", wpmAverage) : "N/A"
+        );
+        ((TextView) findViewById(R.id.prev_session_error_rate)).setText(
+                errorRate >= 0 ? String.format(Locale.ENGLISH, "%.2f", errorRate) : "N/A"
+        );
     }
 
     public void goToCharacterAnalysis(View view) {
