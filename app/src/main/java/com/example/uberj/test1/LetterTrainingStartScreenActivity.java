@@ -28,7 +28,7 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
         minutesPicker.setFormatter(i -> String.format("%02d", i));
 
         NumberPicker secondsPicker = findViewById(R.id.number_picker_seconds);
-        secondsPicker.setMaxValue(60);
+        secondsPicker.setMaxValue(59);
         secondsPicker.setMinValue(0);
         secondsPicker.setValue(0);
         secondsPicker.setFormatter(i -> String.format(Locale.ENGLISH, "%02d", i));
@@ -45,11 +45,20 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            Optional<Bundle> receiveBundle = Optional.ofNullable(data.getExtras());
+            receiveBundle.ifPresent(this::setPreviousDetails);
+        }
+    }
+
     private void setPreviousDetails(Bundle bundle) {
-        int prevDurationMinutes = bundle.getInt(KeyboardActivity.DURATION_MINUTES, -1);
-        int prevDurationSeconds = bundle.getInt(KeyboardActivity.DURATION_SECONDS, -1);
+        int prevDurationRemainingMilis = bundle.getInt(KeyboardActivity.DURATION_REMAINING_MILIS, -1);
         float wpmAverage = bundle.getFloat(KeyboardActivity.WPM_AVERAGE, -1);
         float errorRate = bundle.getFloat(KeyboardActivity.ERROR_RATE, -1);
+        int prevDurationMinutes = (prevDurationRemainingMilis / 1000) / 60;
+        int prevDurationSeconds = (prevDurationRemainingMilis / 1000) % 60;
         ((TextView) findViewById(R.id.prev_session_duration_time)).setText(
                 prevDurationMinutes >= 0 && prevDurationSeconds >= 0 ?
                         String.format(Locale.ENGLISH, "%02d:%02d", prevDurationMinutes, prevDurationSeconds) :

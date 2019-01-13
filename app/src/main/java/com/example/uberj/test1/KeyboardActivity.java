@@ -1,5 +1,6 @@
 package com.example.uberj.test1;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -17,7 +18,7 @@ public class KeyboardActivity extends AppCompatActivity {
     public static final String SESSION_TYPE = "session-type";
     public static final String WPM_AVERAGE = "wpm-average";
     public static final String ERROR_RATE = "error-rate";
-    private static final String DURATION_REMAINING_MILIS = "duration-remaining-milis";
+    public static final String DURATION_REMAINING_MILIS = "duration-remaining-milis";
     private String sessionType;
     private int durationMinutesRequested;
     private int durationSecondsRequested;
@@ -50,14 +51,13 @@ public class KeyboardActivity extends AppCompatActivity {
         durationSecondsRequested = receiveBundle.getInt(DURATION_SECONDS, 0);
         durationMilisRequested = 1000 * (durationMinutesRequested * 60 + durationSecondsRequested);
         isPlaying = true;
-        countDownTimer = buildCountDownTimer(1000 * (durationMinutesRequested * 60 + durationSecondsRequested));
+        countDownTimer = buildCountDownTimer(1000 * (durationMinutesRequested * 60 + durationSecondsRequested + 1));
         countDownTimer.start();
 
     }
 
     private CountDownTimer buildCountDownTimer(long durationsMillis) {
         TextView timeRemainingView = findViewById(R.id.toolbar_title_time_remaining);
-        KeyboardActivity curActivity = this;
         return new CountDownTimer(durationsMillis, 1000) {
             public void onTick(long millisUntilFinished) {
                 long secondsUntilFinished = millisUntilFinished / 1000;
@@ -69,7 +69,8 @@ public class KeyboardActivity extends AppCompatActivity {
 
             public void onFinish() {
                 Intent data = buildResultIntent();
-                setResult(0, data);
+                setResult(Activity.RESULT_OK, data);
+                finish();
             }
         };
     }
@@ -98,7 +99,7 @@ public class KeyboardActivity extends AppCompatActivity {
             builder.setMessage("Do you want to end this session?");
             builder.setPositiveButton("Yes", (dialog, which) -> {
                 Intent data = buildResultIntent();
-                setResult(0, data);
+                setResult(Activity.RESULT_OK, data);
                 finish();
             });
             builder.setNegativeButton("No", (dialog, which) -> dialog.cancel());
