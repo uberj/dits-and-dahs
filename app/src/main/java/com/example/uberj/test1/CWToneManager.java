@@ -57,6 +57,8 @@ public class CWToneManager {
 
     private static int farnsWorthSpace = 3;
     private static int freqOfToneHz = 440;
+    private static int silenceSymbolsAfterDitDah = 1;
+    private static int farnsWorthConstant = 1;
 
     /*
         16 = 1 + 7 + 7 + 1 = .--.
@@ -77,21 +79,24 @@ public class CWToneManager {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             totalNumSymbols += numSymbols(c);
+            if (!symbolIsSilent(c)) {
+                totalNumSymbols += silenceSymbolsAfterDitDah;
+            }
         }
 
         float symbolsPerSecond = (wpm * 50f) / 60f;
         float symbolDuration = 1 / symbolsPerSecond;
-        float numSamplesPerSymbol = symbolDuration * sampleRateHz;
+        int numSamplesPerSymbol = (int) (symbolDuration * sampleRateHz);
         Log.d(TAG, "Entire Duration: " + symbolsPerSecond * totalNumSymbols);
 
-        int totalNumSamples = (int) (totalNumSymbols * numSamplesPerSymbol);
+        int totalNumSamples = totalNumSymbols * numSamplesPerSymbol;
         double rawSnd[] = new double[totalNumSamples];
 
         int sndIdx = 0;
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             int curNumberSymbols = numSymbols(c);
-            int numSamples = (int) (curNumberSymbols * numSamplesPerSymbol);
+            int numSamples = curNumberSymbols * numSamplesPerSymbol;
             Log.d(TAG, "Tone letter: " + c + "\n" +
                     "Number of symbols: " + curNumberSymbols + "\n" +
                     "Sample rate: " + sampleRateHz + "\n" +
@@ -105,6 +110,17 @@ public class CWToneManager {
                     rawSnd[sndIdx++] = 0;
                 } else {
                     rawSnd[sndIdx++] = Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
+                }
+            }
+
+            if (!symbolIsSilent(c)) {
+                int silencePadSamples = numSamplesPerSymbol * silenceSymbolsAfterDitDah;
+                for (int j = 0; j < silencePadSamples; ++j) {
+                    if (symbolIsSilent(c)) {
+                        rawSnd[sndIdx++] = 0;
+                    } else {
+                        rawSnd[sndIdx++] = Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
+                    }
                 }
             }
         }
@@ -174,17 +190,17 @@ public class CWToneManager {
     // Notes:
     //  * 3 dits per dash
     //  * 7 dits per space
+
     public static int numSymbols(char c) {
-        int farnsWorthSpace = 10;
         switch (c) {
             case '-':
-                return 7;
+                return 3;
             case '.':
                 return 1;
             case '/':
                 return 3;
             case ' ':
-                return farnsWorthSpace;
+                return farnsWorthConstant * 7;
             default:
                 throw new RuntimeException("Unhandled char case " + c);
 
@@ -197,8 +213,8 @@ public class CWToneManager {
     }
 
     void playSound(){
-        byte[] generatedSnd1 = buildSnd("./-/-/.");
-        //byte[] generatedSnd1 = buildSnd(".--./.-/.-./../...");
+        //byte[] generatedSnd1 = buildSnd("....");
+        byte[] generatedSnd1 = buildSnd(".--./.-/.-./../...");
         //byte[] generatedSnd1 = buildSampleTone();
         final AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
                 sampleRateHz, AudioFormat.CHANNEL_OUT_MONO,
