@@ -29,6 +29,8 @@ public class KeyboardActivity extends AppCompatActivity {
     private CountDownTimer countDownTimer;
     private long durationMilisRequested;
     private Menu menu;
+    private Thread audioThread;
+    private CWToneManager cwToneManager;
 
     public enum SessionType {
         LETTER_TRAINING,
@@ -91,6 +93,7 @@ public class KeyboardActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        new CWToneManager().playSound();
         if (durationMilisRemaining != 0) {
             countDownTimer.pause();
             isPlaying = false;

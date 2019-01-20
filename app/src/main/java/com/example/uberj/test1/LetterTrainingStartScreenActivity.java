@@ -36,13 +36,14 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
 
         Button startButton = findViewById(R.id.start_button);
         startButton.setOnClickListener(v -> {
-            Intent sendBundle = new Intent(getApplicationContext(), KeyboardActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putInt(KeyboardActivity.DURATION_REQUESTED_SECONDS, secondsPicker.getValue());
-            bundle.putInt(KeyboardActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getValue());
-            bundle.putString(KeyboardActivity.SESSION_TYPE, KeyboardActivity.SessionType.LETTER_TRAINING.name());
-            sendBundle.putExtras(bundle);
-            startActivityForResult(sendBundle, KEYBOARD_REQUEST_CODE);  // NOTE: Ignore request code for now. might become important later
+            new CWToneManager().playSound();
+//            Intent sendBundle = new Intent(getApplicationContext(), KeyboardActivity.class);
+//            Bundle bundle = new Bundle();
+//            bundle.putInt(KeyboardActivity.DURATION_REQUESTED_SECONDS, secondsPicker.getValue());
+//            bundle.putInt(KeyboardActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getValue());
+//            bundle.putString(KeyboardActivity.SESSION_TYPE, KeyboardActivity.SessionType.LETTER_TRAINING.name());
+//            sendBundle.putExtras(bundle);
+//            startActivityForResult(sendBundle, KEYBOARD_REQUEST_CODE);  // NOTE: Ignore request code for now. might become important later
         });
     }
 
