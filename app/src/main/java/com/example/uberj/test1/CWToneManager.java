@@ -197,7 +197,7 @@ public class CWToneManager {
 
     void playSound(){
         //byte[] generatedSnd1 = buildSnd("....");
-        byte[] generatedSnd1 = buildSnd(".--./.-/.-./../...");
+        byte[] generatedSnd1 = buildSnd("..../- .../- ../- ./-");
         //byte[] generatedSnd1 = buildSampleTone();
         final AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
                 sampleRateHz, AudioFormat.CHANNEL_OUT_MONO,
