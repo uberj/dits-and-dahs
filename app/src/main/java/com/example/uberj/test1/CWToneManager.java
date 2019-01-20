@@ -58,7 +58,7 @@ public class CWToneManager {
     private static int farnsWorthSpace = 3;
     private static int freqOfToneHz = 440;
     private static int silenceSymbolsAfterDitDah = 1;
-    private static int farnsWorthConstant = 1;
+    private static int farnsworthWordConstant = 1;
 
     /*
         16 = 1 + 7 + 7 + 1 = .--.
@@ -96,68 +96,51 @@ public class CWToneManager {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             int curNumberSymbols = numSymbols(c);
-            int numSamples = curNumberSymbols * numSamplesPerSymbol;
+            int numSamplesForCurSymbol = curNumberSymbols * numSamplesPerSymbol;
             Log.d(TAG, "Tone letter: " + c + "\n" +
                     "Number of symbols: " + curNumberSymbols + "\n" +
                     "Sample rate: " + sampleRateHz + "\n" +
                     "Baud: " + symbolsPerSecond + "\n" +
-                    "Tone length1 (seconds): " + (curNumberSymbols * symbolDuration) + "\n" +
-                    "Tone length2 (seconds): " + (numSamplesPerSymbol * curNumberSymbols) / sampleRateHz);
+                    "Tone length1 (seconds): " + (curNumberSymbols * symbolDuration));
 
-            // fill out the array
-            for (int j = 0; j < numSamples; ++j) {
-                if (symbolIsSilent(c)) {
+            // fill out the array with symbol
+            if (symbolIsSilent(c)) {
+                for (int j = 0; j < numSamplesForCurSymbol; ++j) {
                     rawSnd[sndIdx++] = 0;
-                } else {
+                }
+            } else {
+                int rampSamples = (int) (numSamplesPerSymbol * 0.10); // 5% ramp up
+
+                for (int j = 0; j < rampSamples; j++) {
+                    rawSnd[sndIdx++] = ((float) j/(float) rampSamples) * Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
+                }
+                for (int j = rampSamples; j < numSamplesForCurSymbol - rampSamples; j++) {
                     rawSnd[sndIdx++] = Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
+                }
+
+                int x = rampSamples;
+                for (int j = numSamplesForCurSymbol - rampSamples; j < numSamplesForCurSymbol; j++) {
+                    rawSnd[sndIdx++] = ((float) x/(float) rampSamples) * Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
+                    x--;
                 }
             }
 
+            // fill out the array with space if needed
             if (!symbolIsSilent(c)) {
                 int silencePadSamples = numSamplesPerSymbol * silenceSymbolsAfterDitDah;
                 for (int j = 0; j < silencePadSamples; ++j) {
-                    if (symbolIsSilent(c)) {
-                        rawSnd[sndIdx++] = 0;
-                    } else {
-                        rawSnd[sndIdx++] = Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
-                    }
+                    rawSnd[sndIdx++] = 0;
                 }
             }
         }
 
-//        int i;
-//        int idx = 0;
-//        int ramp = totalNumSamples / 20; // Amplitude ramp as a percent of sample count
-//        byte pcmSnd[] = new byte[2 * totalNumSamples];
-//
-//        for (i = 0; i < ramp; ++i) {  // Ramp amplitude up (to avoid clicks)
-//            // Ramp up to maximum
-//            final short val = (short) (rawSnd[i] * 32767 * i / ramp);
-//            // in 16 bit wav PCM, first byte is the low order byte
-//            pcmSnd[idx++] = (byte) (val & 0x00ff);
-//            pcmSnd[idx++] = (byte) ((val & 0xff00) >>> 8);
-//        }
-//
-//        for (i = ramp; i < totalNumSamples - ramp;
-//             ++i) {                        // Max amplitude for most of the samples
-//            // scale to maximum amplitude
-//            final short val = (short) (rawSnd[i] * 32767);
-//            // in 16 bit wav PCM, first byte is the low order byte
-//            pcmSnd[idx++] = (byte) (val & 0x00ff);
-//            pcmSnd[idx++] = (byte) ((val & 0xff00) >>> 8);
-//        }
-//
-//        for (i = totalNumSamples - ramp; i < totalNumSamples; ++i) { // Ramp amplitude down
-//            // Ramp down to zero
-//            final short val = (short) (rawSnd[i] * 32767 * (totalNumSamples - i) / ramp);
-//            // in 16 bit wav PCM, first byte is the low order byte
-//            pcmSnd[idx++] = (byte) (val & 0x00ff);
-//            pcmSnd[idx++] = (byte) ((val & 0xff00) >>> 8);
-//        }
+        return pcmConvert(rawSnd);
+    }
 
+    private static byte[] pcmConvert(double[] rawSnd) {
         // convert to 16 bit pcm sound array
         // assumes the sample buffer is normalised.
-        byte pcmSnd[] = new byte[2 * totalNumSamples];
+        byte pcmSnd[] = new byte[2 * rawSnd.length];
         int idx = 0;
         for (final double dval : rawSnd) {
             // scale to maximum amplitude
@@ -200,7 +183,7 @@ public class CWToneManager {
             case '/':
                 return 3;
             case ' ':
-                return farnsWorthConstant * 7;
+                return farnsworthWordConstant * 7;
             default:
                 throw new RuntimeException("Unhandled char case " + c);
 
@@ -222,31 +205,5 @@ public class CWToneManager {
                 AudioTrack.MODE_STATIC);
         audioTrack.write(generatedSnd1, 0, generatedSnd1.length);
         audioTrack.play();
-    }
-
-    private byte[] buildSampleTone() {
-        int numSamples = sampleRateHz * 10;  // 3 seconds
-        double rawSnd[] = new double[numSamples];
-        for (int i = 0; i < numSamples; ++i) {
-            if ((i / sampleRateHz) % 2 == 0) {
-                rawSnd[i] = 0;
-            } else {
-                rawSnd[i] = Math.sin((2 * Math.PI * i * freqOfToneHz) / sampleRateHz);
-            }
-        }
-
-        // convert to 16 bit pcm sound array
-        // assumes the sample buffer is normalised.
-        byte pcmSnd[] = new byte[2 * numSamples];
-        int idx = 0;
-        for (final double dval : rawSnd) {
-            // scale to maximum amplitude
-            final short val = (short) ((dval * 32767));
-            // in 16 bit wav pcm, first byte is the low order byte
-            pcmSnd[idx++] = (byte) (val & 0x00ff);
-            pcmSnd[idx++] = (byte) ((val & 0xff00) >>> 8);
-        }
-
-        return pcmSnd;
     }
 }
