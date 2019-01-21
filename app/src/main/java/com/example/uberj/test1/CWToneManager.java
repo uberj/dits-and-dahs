@@ -103,11 +103,6 @@ public class CWToneManager {
             char c = s.charAt(i);
             int curNumberSymbols = numSymbols(c);
             int numSamplesForCurSymbol = curNumberSymbols * numSamplesPerSymbol;
-            Log.d(TAG, "Tone letter: " + c + "\n" +
-                    "Number of symbols: " + curNumberSymbols + "\n" +
-                    "Sample rate: " + sampleRateHz + "\n" +
-                    "Baud: " + symbolsPerSecond + "\n" +
-                    "Tone length1 (seconds): " + (curNumberSymbols * symbolDuration));
 
             // fill out the array with symbol
             if (symbolIsSilent(c)) {
@@ -201,7 +196,7 @@ public class CWToneManager {
 
     }
 
-    void playSound(){
+    void playSoundTest(){
         //byte[] generatedSnd1 = buildSnd("....");
         byte[] generatedSnd1 = buildSnd("..../- .../- ../- ./-");
         //byte[] generatedSnd1 = buildSampleTone();
@@ -214,6 +209,7 @@ public class CWToneManager {
     }
 
     public void playLetter(String requestedMessage) {
+        Log.d(TAG, "Requested message: " + requestedMessage);
         String pattern = LETTER_TONES.get(requestedMessage.toUpperCase());
         if (pattern == null) {
             throw new RuntimeException("No pattern found for letter: " + requestedMessage);

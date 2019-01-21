@@ -10,7 +10,7 @@ public class LetterTrainingEngine {
     private String currentLetter = null;
     private Thread audioThread;
     private volatile boolean threadKeepAlive = true;
-    private volatile boolean isPaused = true;
+    private volatile boolean isPaused = false;
     private Runnable audioLoop;
 
     public LetterTrainingEngine(List<String> playableKeys) {

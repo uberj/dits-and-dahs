@@ -115,7 +115,6 @@ abstract class KeyboardSessionActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        new CWToneManager().playSound();
         if (durationMilisRemaining != 0) {
             countDownTimer.pause();
             isPlaying = false;
