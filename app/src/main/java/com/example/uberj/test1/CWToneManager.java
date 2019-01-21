@@ -5,6 +5,8 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.util.Log;
 
+import com.google.common.collect.ImmutableMap;
+
 public class CWToneManager {
     private static final String TAG = "CWToneManager";
     // originally from http://marblemice.blogspot.com/2010/04/generate-and-play-tone-in-android.html
@@ -14,45 +16,49 @@ public class CWToneManager {
     private static final int wpm = 20;
     private static final int sampleRateHz = 44100;
 
-//    private static final ImmutableMap<String, byte[]> LETTER_TONES = ImmutableMap.<String, byte[]>builder()
-//            .put("a", buildSnd(".-"))
-//            .put("b", buildSnd("...-"))
-//            .put("c", buildSnd(".-.-"))
-//            .put("d", buildSnd("-.."))
-//            .put("e", buildSnd("."))
-//            .put("f", buildSnd("..-."))
-//            .put("g", buildSnd("--."))
-//            .put("h", buildSnd("...."))
-//            .put("i", buildSnd(".."))
-//            .put("j", buildSnd(".---"))
-//            .put("k", buildSnd("-.-"))
-//            .put("l", buildSnd(".-.."))
-//            .put("m", buildSnd("--"))
-//            .put("n", buildSnd("-."))
-//            .put("o", buildSnd("---"))
-//            .put("p", buildSnd(".--."))
-//            .put("q", buildSnd("--.-"))
-//            .put("r", buildSnd(".-."))
-//            .put("s", buildSnd("..."))
-//            .put("t", buildSnd("-"))
-//            .put("u", buildSnd("..-"))
-//            .put("v", buildSnd("-..."))
-//            .put("w", buildSnd(".--"))
-//            .put("x", buildSnd("-..-"))
-//            .put("y", buildSnd("-.--"))
-//            .put("z", buildSnd("--.."))
-//            .put("1", buildSnd(".----"))
-//            .put("2", buildSnd("..---"))
-//            .put("3", buildSnd("...--"))
-//            .put("4", buildSnd("....-"))
-//            .put("5", buildSnd("....."))
-//            .put("6", buildSnd("-...."))
-//            .put("7", buildSnd("--..."))
-//            .put("8", buildSnd("---.."))
-//            .put("9", buildSnd("----."))
-//            .put("0", buildSnd("-----"))
-//            .put(" ", buildSnd(" "))
-//            .build();
+    private static final ImmutableMap<String, String> LETTER_TONES = ImmutableMap.<String, String>builder()
+            .put("A", ".-")
+            .put("B", "...-")
+            .put("C", ".-.-")
+            .put("D", "-..")
+            .put("E", ".")
+            .put("F", "..-.")
+            .put("G", "--.")
+            .put("H", "....")
+            .put("I", "..")
+            .put("J", ".---")
+            .put("K", "-.-")
+            .put("L", ".-..")
+            .put("M", "--")
+            .put("N", "-.")
+            .put("O", "---")
+            .put("P", ".--.")
+            .put("Q", "--.-")
+            .put("R", ".-.")
+            .put("S", "...")
+            .put("T", "-")
+            .put("U", "..-")
+            .put("V", "-...")
+            .put("W", ".--")
+            .put("X", "-..-")
+            .put("Y", "-.--")
+            .put("Z", "--..")
+            .put("1", ".----")
+            .put("2", "..---")
+            .put("3", "...--")
+            .put("4", "....-")
+            .put("5", ".....")
+            .put("6", "-....")
+            .put("7", "--...")
+            .put("8", "---..")
+            .put("9", "----.")
+            .put("0", "-----")
+            .put(" ", " ")
+            .put("SK", "...-.-")
+            .put("AR", ".-.-.")
+            .put("73", "--......--")
+            .put("BT", "-...-")
+            .build();
 
 
     private static int farnsWorthSpace = 3;
@@ -204,6 +210,23 @@ public class CWToneManager {
                 AudioFormat.ENCODING_PCM_16BIT, generatedSnd1.length,
                 AudioTrack.MODE_STATIC);
         audioTrack.write(generatedSnd1, 0, generatedSnd1.length);
+        audioTrack.play();
+    }
+
+    public void playLetter(String requestedMessage) {
+        String pattern = LETTER_TONES.get(requestedMessage.toUpperCase());
+        if (pattern == null) {
+            throw new RuntimeException("No pattern found for letter: " + requestedMessage);
+        }
+
+        byte[] generatedSnd = buildSnd(pattern);
+        // TODO, do this audioTrack init only once. requires playing with buffer size
+        // TODO, move to android 26 AudioTrack builder
+        final AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
+                sampleRateHz, AudioFormat.CHANNEL_OUT_MONO,
+                AudioFormat.ENCODING_PCM_16BIT, generatedSnd.length,
+                AudioTrack.MODE_STATIC);
+        audioTrack.write(generatedSnd, 0, generatedSnd.length);
         audioTrack.play();
     }
 }

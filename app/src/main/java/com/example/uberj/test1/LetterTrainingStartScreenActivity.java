@@ -36,11 +36,11 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
 
         Button startButton = findViewById(R.id.start_button);
         startButton.setOnClickListener(v -> {
-            Intent sendBundle = new Intent(getApplicationContext(), KeyboardActivity.class);
+            Intent sendBundle = new Intent(getApplicationContext(), LetterTrainingKeyboardSessionActivity.class);
             Bundle bundle = new Bundle();
-            bundle.putInt(KeyboardActivity.DURATION_REQUESTED_SECONDS, secondsPicker.getValue());
-            bundle.putInt(KeyboardActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getValue());
-            bundle.putString(KeyboardActivity.SESSION_TYPE, KeyboardActivity.SessionType.LETTER_TRAINING.name());
+            bundle.putInt(KeyboardSessionActivity.DURATION_REQUESTED_SECONDS, secondsPicker.getValue());
+            bundle.putInt(KeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getValue());
+            bundle.putString(KeyboardSessionActivity.SESSION_TYPE, KeyboardSessionActivity.SessionType.LETTER_TRAINING.name());
             sendBundle.putExtras(bundle);
             startActivityForResult(sendBundle, KEYBOARD_REQUEST_CODE);  // NOTE: Ignore request code for now. might become important later
         });
@@ -55,10 +55,10 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
     }
 
     private void setPreviousDetails(Bundle bundle) {
-        long prevDurationRemainingMilis = bundle.getLong(KeyboardActivity.DURATION_REMAINING_MILIS, -1);
-        long prevDurationRequestedMilis = bundle.getLong(KeyboardActivity.DURATION_REQUESTED_MILIS, -1);
-        float wpmAverage = bundle.getFloat(KeyboardActivity.WPM_AVERAGE, -1);
-        float errorRate = bundle.getFloat(KeyboardActivity.ERROR_RATE, -1);
+        long prevDurationRemainingMilis = bundle.getLong(KeyboardSessionActivity.DURATION_REMAINING_MILIS, -1);
+        long prevDurationRequestedMilis = bundle.getLong(KeyboardSessionActivity.DURATION_REQUESTED_MILIS, -1);
+        float wpmAverage = bundle.getFloat(KeyboardSessionActivity.WPM_AVERAGE, -1);
+        float errorRate = bundle.getFloat(KeyboardSessionActivity.ERROR_RATE, -1);
         long prevDurationMilis = prevDurationRequestedMilis - prevDurationRemainingMilis;
         long prevDurationMinutes = (prevDurationMilis / 1000) / 60;
         long prevDurationSeconds = (prevDurationMilis / 1000) % 60;

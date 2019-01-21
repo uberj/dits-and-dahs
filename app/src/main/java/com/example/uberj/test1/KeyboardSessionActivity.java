@@ -8,11 +8,14 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Locale;
 
-public class KeyboardActivity extends AppCompatActivity {
+abstract class KeyboardSessionActivity extends AppCompatActivity {
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
     public static final String DURATION_REQUESTED_SECONDS = "duration-requested-seconds";
     public static final String SESSION_TYPE = "session-type";
@@ -29,15 +32,34 @@ public class KeyboardActivity extends AppCompatActivity {
     private CountDownTimer countDownTimer;
     private long durationMilisRequested;
     private Menu menu;
-    private Thread audioThread;
-    private CWToneManager cwToneManager;
+
+    public abstract void keyboardButtonClicked(View button);
 
     public enum SessionType {
         LETTER_TRAINING,
         GROUP_TRAINING
     }
 
-    public boolean isPlaying;
+    private boolean isPlaying;
+
+    public static ArrayList<View> getViewsByTag(ViewGroup root, String tag) {
+        ArrayList<View> views = new ArrayList<View>();
+        final int childCount = root.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final View child = root.getChildAt(i);
+            if (child instanceof ViewGroup) {
+                views.addAll(getViewsByTag((ViewGroup) child, tag));
+            }
+
+            final Object tagObj = child.getTag();
+            if (tagObj != null && tagObj.equals(tag)) {
+                views.add(child);
+            }
+
+        }
+
+        return views;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,11 +104,11 @@ public class KeyboardActivity extends AppCompatActivity {
     private Intent buildResultIntent() {
         Intent intent = new Intent();
         Bundle sendBundle = new Bundle();
-        sendBundle.putString(KeyboardActivity.SESSION_TYPE, sessionType);
-        sendBundle.putLong(KeyboardActivity.DURATION_REMAINING_MILIS, durationMilisRemaining);
-        sendBundle.putLong(KeyboardActivity.DURATION_REQUESTED_MILIS, durationMilisRequested);
-        sendBundle.putFloat(KeyboardActivity.WPM_AVERAGE, wpmAverage);
-        sendBundle.putFloat(KeyboardActivity.WPM_AVERAGE, errorRate);
+        sendBundle.putString(KeyboardSessionActivity.SESSION_TYPE, sessionType);
+        sendBundle.putLong(KeyboardSessionActivity.DURATION_REMAINING_MILIS, durationMilisRemaining);
+        sendBundle.putLong(KeyboardSessionActivity.DURATION_REQUESTED_MILIS, durationMilisRequested);
+        sendBundle.putFloat(KeyboardSessionActivity.WPM_AVERAGE, wpmAverage);
+        sendBundle.putFloat(KeyboardSessionActivity.WPM_AVERAGE, errorRate);
         intent.putExtras(sendBundle);
         return intent;
     }
@@ -126,12 +148,19 @@ public class KeyboardActivity extends AppCompatActivity {
 
     public void onClickPlayPauseHandler(MenuItem m) {
         if (isPlaying) {
+            // Pause
             m.setIcon(R.mipmap.ic_play);
             countDownTimer.pause();
+            pauseSession();
         } else {
             m.setIcon(R.mipmap.ic_pause);
             countDownTimer.resume();
+            resumeSession();
         }
         isPlaying = !isPlaying;
     }
+
+    protected abstract void resumeSession();
+
+    protected abstract void pauseSession();
 }
