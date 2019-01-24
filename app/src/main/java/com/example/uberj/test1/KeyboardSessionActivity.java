@@ -116,11 +116,17 @@ abstract class KeyboardSessionActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (durationMilisRemaining != 0) {
+            // Manage internal state
             countDownTimer.pause();
             isPlaying = false;
+            // Call subclasses to pause themselves
+            pauseSession();
+
+            // Update UI to indicate paused session. Player will need to manually trigger play to resume
             MenuItem playPauseIcon = menu.findItem(R.id.keyboard_pause_play);
             playPauseIcon.setIcon(R.mipmap.ic_play);
 
+            // Build alert and show to user for exit confirmation
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setCancelable(false);
             builder.setMessage("Do you want to end this session?");
