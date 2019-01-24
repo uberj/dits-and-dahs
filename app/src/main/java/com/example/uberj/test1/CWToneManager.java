@@ -208,7 +208,7 @@ public class CWToneManager {
         audioTrack.play();
     }
 
-    public void playLetter(String requestedMessage) {
+    public void playLetter(String requestedMessage) throws InterruptedException {
         Log.d(TAG, "Requested message: " + requestedMessage);
         String pattern = LETTER_TONES.get(requestedMessage.toUpperCase());
         if (pattern == null) {
@@ -224,5 +224,17 @@ public class CWToneManager {
                 AudioTrack.MODE_STATIC);
         audioTrack.write(generatedSnd, 0, generatedSnd.length);
         audioTrack.play();
+
+        // Trying to make this method block until "audioTrack.play()" is done.
+        // Polling for lack of change in the PlaybackHeadPosition seems to work.
+        // It probably isn't the best way to do it, but idk, it seems to work!
+        int playbackHeadPosition1;
+        int playbackHeadPosition2;
+        do {
+            playbackHeadPosition1 = audioTrack.getPlaybackHeadPosition();
+            Thread.sleep(100);
+            playbackHeadPosition2 = audioTrack.getPlaybackHeadPosition();
+
+        } while (playbackHeadPosition1 != playbackHeadPosition2);
     }
 }

@@ -3,13 +3,15 @@ package com.example.uberj.test1;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.Semaphore;
 
 public class LetterTrainingEngine {
+    private static final Semaphore mutex = new Semaphore(1);
+
     private final Random r = new Random();
     private final CWToneManager cwToneManager;
     private List<String> playableKeys;
     private String currentLetter = null;
-    private String audioLock = "audioLock"; // TODO, sometimes if you select the right letter while the tone is being played things play over itself
     private Thread audioThread;
     private volatile boolean threadKeepAlive = true;
     private volatile boolean isPaused = false;
@@ -42,18 +44,35 @@ public class LetterTrainingEngine {
         currentLetter = playableKeys.get(r.nextInt(playableKeys.size()));
         audioLoop = () -> {
             while (true) {
-                if (!threadKeepAlive) {
-                    return;
+                if (mutex.tryAcquire(1)) {
+                    // Got the lock
+                    try {
+                        // Process record
+                        if (!threadKeepAlive) {
+                            return;
+                        }
+
+                        try {
+                            // play it letter
+                            cwToneManager.playLetter(currentLetter);
+                            // start the callback timer to play again
+                            Thread.sleep(getSleepPeriodMilis());
+                        } catch (InterruptedException e) {
+                            return;
+                        }
+                    } finally {
+                        // Make sure to unlock so that we don't cause a deadlock
+                        mutex.release(1);
+                    }
+                } else {
+                    // Someone else had the lock
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        return;
+                    }
                 }
-                // pick a letter
-                // play it
-                cwToneManager.playLetter(currentLetter);
-                // initStart the callback timer to play again
-                try {
-                    Thread.sleep(getSleepPeriodMilis());
-                } catch (InterruptedException e) {
-                    return;
-                }
+
 
             }
         };
