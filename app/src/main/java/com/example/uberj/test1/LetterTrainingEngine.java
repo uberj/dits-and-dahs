@@ -1,6 +1,7 @@
 package com.example.uberj.test1;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 public class LetterTrainingEngine {
@@ -8,6 +9,7 @@ public class LetterTrainingEngine {
     private final CWToneManager cwToneManager;
     private List<String> playableKeys;
     private String currentLetter = null;
+    private String audioLock = "audioLock"; // TODO, sometimes if you select the right letter while the tone is being played things play over itself
     private Thread audioThread;
     private volatile boolean threadKeepAlive = true;
     private volatile boolean isPaused = false;
@@ -18,19 +20,22 @@ public class LetterTrainingEngine {
         this.playableKeys = playableKeys;
     }
 
-    public void guess(String guess) {
+    public Optional<Boolean> guess(String guess) {
         // If its right
         if (isPaused) {
-            return;
+            return Optional.empty();
         }
 
+        boolean isCorrectGuess = false;
         if (guess.equals(currentLetter)) {
             currentLetter = playableKeys.get(r.nextInt(playableKeys.size()));
+            isCorrectGuess = true;
         }
 
         audioThread.interrupt();
         audioThread = new Thread(audioLoop);
         audioThread.start();
+        return Optional.of(isCorrectGuess);
     }
 
     public void initStart() {
