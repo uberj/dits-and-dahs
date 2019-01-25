@@ -73,6 +73,18 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
     }
 
     @Override
+    public void onPause() {
+        engine.pause();
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        engine.resume();
+        super.onResume();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Starts the timer
         super.onCreate(savedInstanceState);

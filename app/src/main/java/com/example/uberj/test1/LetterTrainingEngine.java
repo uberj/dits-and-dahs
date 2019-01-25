@@ -11,7 +11,7 @@ public class LetterTrainingEngine {
     private final Random r = new Random();
     private final CWToneManager cwToneManager;
     private List<String> playableKeys;
-    private String currentLetter = null;
+    private String currentLetter;
     private Thread audioThread;
     private volatile boolean threadKeepAlive = true;
     private volatile boolean isPaused = false;
@@ -89,12 +89,18 @@ public class LetterTrainingEngine {
     }
 
     public void resume() {
+        if (!isPaused) {
+            return;
+        }
         audioThread = new Thread(audioLoop);
         audioThread.start();
         isPaused = false;
     }
 
     public void pause() {
+        if (isPaused) {
+            return;
+        }
         isPaused = true;
         audioThread.interrupt();
     }

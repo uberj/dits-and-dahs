@@ -62,6 +62,21 @@ abstract class KeyboardSessionActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        countDownTimer.pause();
+    }
+
+    @Override
+    public void onResume() {
+        if (countDownTimer.isPaused()) {
+            countDownTimer.resume();
+        }
+        super.onResume();
+    }
+
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.keyboard_activity);

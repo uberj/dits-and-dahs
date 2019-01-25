@@ -87,6 +87,10 @@ public abstract class CountDownTimer {
         mCancelled = true;
     }
 
+    public boolean isPaused() {
+        return mPaused;
+    }
+
     /**
      * Start the countdown.
      */
