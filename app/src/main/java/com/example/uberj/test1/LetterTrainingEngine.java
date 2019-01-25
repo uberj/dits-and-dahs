@@ -22,6 +22,8 @@ public class LetterTrainingEngine {
         this.playableKeys = playableKeys;
         this.audioLoop = () -> {
             while (true) {
+                // This isn't working, multiple things are playing
+                // I think I shouldn't call interrupt and instead flip a volitile to indicate the cancel request
                 if (mutex.tryAcquire(1)) {
                     // Got the lock
                     try {
@@ -44,11 +46,7 @@ public class LetterTrainingEngine {
                     }
                 } else {
                     // Someone else had the lock
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                        return;
-                    }
+                    return;
                 }
 
 
