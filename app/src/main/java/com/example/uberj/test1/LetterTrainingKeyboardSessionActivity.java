@@ -95,7 +95,7 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         }
 
         engine = new LetterTrainingEngine(playableKeys);
-        engine.initStart();
+        engine.initEngine();
     }
 
     private HashMap<String, Integer> getInitialCompentencyWeights(List<String> playableKeys) {

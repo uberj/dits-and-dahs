@@ -20,29 +20,7 @@ public class LetterTrainingEngine {
     public LetterTrainingEngine(List<String> playableKeys) {
         this.cwToneManager = new CWToneManager();
         this.playableKeys = playableKeys;
-    }
-
-    public Optional<Boolean> guess(String guess) {
-        // If its right
-        if (isPaused) {
-            return Optional.empty();
-        }
-
-        boolean isCorrectGuess = false;
-        if (guess.equals(currentLetter)) {
-            currentLetter = playableKeys.get(r.nextInt(playableKeys.size()));
-            isCorrectGuess = true;
-        }
-
-        audioThread.interrupt();
-        audioThread = new Thread(audioLoop);
-        audioThread.start();
-        return Optional.of(isCorrectGuess);
-    }
-
-    public void initStart() {
-        currentLetter = playableKeys.get(r.nextInt(playableKeys.size()));
-        audioLoop = () -> {
+        this.audioLoop = () -> {
             while (true) {
                 if (mutex.tryAcquire(1)) {
                     // Got the lock
@@ -76,6 +54,28 @@ public class LetterTrainingEngine {
 
             }
         };
+    }
+
+    public Optional<Boolean> guess(String guess) {
+        // If its right
+        if (isPaused) {
+            return Optional.empty();
+        }
+
+        boolean isCorrectGuess = false;
+        if (guess.equals(currentLetter)) {
+            currentLetter = playableKeys.get(r.nextInt(playableKeys.size()));
+            isCorrectGuess = true;
+        }
+
+        audioThread.interrupt();
+        audioThread = new Thread(audioLoop);
+        audioThread.start();
+        return Optional.of(isCorrectGuess);
+    }
+
+    public void initEngine() {
+        currentLetter = playableKeys.get(r.nextInt(playableKeys.size()));
         audioThread = new Thread(audioLoop);
         audioThread.start();
     }
