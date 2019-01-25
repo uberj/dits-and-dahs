@@ -12,10 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.uberj.test1.storage.TrainingSessionType;
+
 import java.util.ArrayList;
 import java.util.Locale;
 
-abstract class KeyboardSessionActivity extends AppCompatActivity {
+public abstract class KeyboardSessionActivity extends AppCompatActivity {
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
     public static final String DURATION_REQUESTED_SECONDS = "duration-requested-seconds";
     public static final String SESSION_TYPE = "session-type";
@@ -23,7 +25,7 @@ abstract class KeyboardSessionActivity extends AppCompatActivity {
     public static final String ERROR_RATE = "error-rate";
     public static final String DURATION_REMAINING_MILIS = "duration-remaining-milis";
     public static final String DURATION_REQUESTED_MILIS = "duration-requested-milis";
-    private String sessionType;
+    private TrainingSessionType sessionType;
     private int durationMinutesRequested;
     private int durationSecondsRequested;
     private long durationMilisRemaining;
@@ -34,11 +36,6 @@ abstract class KeyboardSessionActivity extends AppCompatActivity {
     private Menu menu;
 
     public abstract void keyboardButtonClicked(View button);
-
-    public enum SessionType {
-        LETTER_TRAINING,
-        GROUP_TRAINING
-    }
 
     private boolean isPlaying;
 
@@ -86,7 +83,7 @@ abstract class KeyboardSessionActivity extends AppCompatActivity {
 
         Bundle receiveBundle = getIntent().getExtras();
         assert receiveBundle != null;
-        sessionType = receiveBundle.getString(SESSION_TYPE);
+        sessionType = TrainingSessionType.valueOf(receiveBundle.getString(SESSION_TYPE));
         durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
         durationSecondsRequested = receiveBundle.getInt(DURATION_REQUESTED_SECONDS, 0);
         durationMilisRequested = 1000 * (durationMinutesRequested * 60 + durationSecondsRequested);
@@ -119,7 +116,7 @@ abstract class KeyboardSessionActivity extends AppCompatActivity {
     private Intent buildResultIntent() {
         Intent intent = new Intent();
         Bundle sendBundle = new Bundle();
-        sendBundle.putString(KeyboardSessionActivity.SESSION_TYPE, sessionType);
+        sendBundle.putString(KeyboardSessionActivity.SESSION_TYPE, sessionType.name());
         sendBundle.putLong(KeyboardSessionActivity.DURATION_REMAINING_MILIS, durationMilisRemaining);
         sendBundle.putLong(KeyboardSessionActivity.DURATION_REQUESTED_MILIS, durationMilisRequested);
         sendBundle.putFloat(KeyboardSessionActivity.WPM_AVERAGE, wpmAverage);

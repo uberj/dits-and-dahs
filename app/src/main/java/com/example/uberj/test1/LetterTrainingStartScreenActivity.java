@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 
+import com.example.uberj.test1.storage.TrainingSessionType;
+
 import java.util.Locale;
 import java.util.Optional;
 
@@ -40,7 +42,7 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
             Bundle bundle = new Bundle();
             bundle.putInt(KeyboardSessionActivity.DURATION_REQUESTED_SECONDS, secondsPicker.getValue());
             bundle.putInt(KeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getValue());
-            bundle.putString(KeyboardSessionActivity.SESSION_TYPE, KeyboardSessionActivity.SessionType.LETTER_TRAINING.name());
+            bundle.putString(KeyboardSessionActivity.SESSION_TYPE, TrainingSessionType.LETTER_TRAINING.name());
             sendBundle.putExtras(bundle);
             startActivityForResult(sendBundle, KEYBOARD_REQUEST_CODE);  // NOTE: Ignore request code for now. might become important later
         });
