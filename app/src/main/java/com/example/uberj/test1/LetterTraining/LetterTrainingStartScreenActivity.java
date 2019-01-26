@@ -1,4 +1,4 @@
-package com.example.uberj.test1;
+package com.example.uberj.test1.LetterTraining;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +8,9 @@ import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 
+import com.example.uberj.test1.CharacterAnalysis;
+import com.example.uberj.test1.KeyboardSessionActivity;
+import com.example.uberj.test1.R;
 import com.example.uberj.test1.storage.TrainingSessionType;
 
 import java.util.Locale;

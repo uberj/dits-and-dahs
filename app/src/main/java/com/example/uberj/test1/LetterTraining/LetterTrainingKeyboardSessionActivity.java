@@ -1,10 +1,12 @@
-package com.example.uberj.test1;
+package com.example.uberj.test1.LetterTraining;
 
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.example.uberj.test1.KeyboardSessionActivity;
+import com.example.uberj.test1.ProgressGradient;
 import com.google.common.collect.Maps;
 
 import java.util.ArrayList;

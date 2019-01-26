@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import com.example.uberj.test1.LetterTraining.LetterTrainingStartScreenActivity;
+
 import java.util.ArrayList;
 
 

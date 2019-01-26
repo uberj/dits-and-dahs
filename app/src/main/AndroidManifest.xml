@@ -11,14 +11,14 @@
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
         </activity>
-        <activity android:name=".LetterTrainingKeyboardSessionActivity"
+        <activity android:name=".LetterTraining.LetterTrainingKeyboardSessionActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:screenOrientation="landscape"
             >
         </activity>
         <activity android:name=".TrainingActivityList" />
         <activity
-            android:name=".LetterTrainingStartScreenActivity"
+            android:name=".LetterTraining.LetterTrainingStartScreenActivity"
             android:screenOrientation="landscape"
             >
             <intent-filter>
