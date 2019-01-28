@@ -1,10 +1,12 @@
 package com.example.uberj.test1.LetterTraining;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.example.uberj.test1.CWToneManager;
 import com.example.uberj.test1.KeyboardSessionActivity;
 import com.example.uberj.test1.ProgressGradient;
 import com.example.uberj.test1.storage.LetterTrainingSession;
@@ -18,15 +20,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivity {
+    private static final String TAG = "LetterTrainingKeyboardSessionActivity";
     private static final int MISSED_LETTER_POINTS_REMOVED = 10;
     private static final int CORRECT_LETTER_POINTS_ADDED = 5;
-    private float wpmAverage = -1;
-    private float errorRate = -1;
-    private int totalUniqueLettersPlayed;
+    private int totalUniqueLettersChosen;
     private int totalCorrectGuesses;
+    private int totalAccurateSymbolsGuessed;
     private int totalIncorrectGuesses;
     private long endTimeEpocMilis = -1;
-    private String currentLetterPlaying = null;
     private final LetterTrainingSessionRepository sessionRepository = new LetterTrainingSessionRepository(this);
 
     private LetterTrainingEngine engine;
@@ -47,13 +48,14 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
 
         String letter = buttonId.replace("key", "");
         Optional<Boolean> guess = engine.guess(letter);
-        guess.ifPresent(aBoolean -> updateCompetencyWeights(letter, aBoolean));
+        guess.ifPresent(wasCorrectGuess -> updateCompetencyWeights(letter, wasCorrectGuess));
     }
 
     private void updateCompetencyWeights(String letter, boolean wasCorrectGuess) {
         ensureCompetencyWeight(letter);
         if (wasCorrectGuess) {
             totalCorrectGuesses++;
+            totalAccurateSymbolsGuessed += CWToneManager.numSymbols(letter);
             competencyWeights.computeIfPresent(letter,
                     (cLetter, existingCompetency) -> Math.min(100, existingCompetency + CORRECT_LETTER_POINTS_ADDED));
         } else {
@@ -113,18 +115,20 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
             updateProgressBarForLetter(letter);
         }
 
-        engine = new LetterTrainingEngine(this::letterPlayedCallback, playableKeys);
+        Bundle receiveBundle = getIntent().getExtras();
+        assert receiveBundle != null;
+        int wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
+
+        engine = new LetterTrainingEngine(wpmRequested, this::letterPlayedCallback, this::letterChosenCallback, playableKeys);
         engine.initEngine();
     }
 
+    private void letterChosenCallback(String letterChosen) {
+        totalUniqueLettersChosen++;
+        Log.d(TAG, "new letter: " + totalUniqueLettersChosen);
+    }
+
     private void letterPlayedCallback(String letterPlayed) {
-        // The engine will always call a different letter when the user gets the current one right.
-        // So, to count the number of unique letters played we count the number of times the letterPlayed
-        // changes and add one.
-        if (!letterPlayed.equals(currentLetterPlaying)) {
-            currentLetterPlaying = letterPlayed;
-            totalUniqueLettersPlayed++;
-        }
     }
 
     @Override
@@ -141,10 +145,23 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         trainingSession.endTimeEpocMilis = System.currentTimeMillis();
         trainingSession.durationWorkedMilis = durationWorkedMilis;
         trainingSession.completed = durationWorkedMilis == 0;
-        trainingSession.wpmAverage = wpmAverage;
-        trainingSession.errorRate = errorRate;
+        trainingSession.wpmAverage = calcWpmAverage(durationWorkedMilis);
+        trainingSession.errorRate = (float) totalIncorrectGuesses / (float) (totalCorrectGuesses + totalIncorrectGuesses);
 
+        Log.d(TAG, "totalCorrectGuesses: " + totalCorrectGuesses);
+        Log.d(TAG, "totalIncorrectGuesses: " + totalCorrectGuesses);
+        Log.d(TAG, "totalUniqueLettersChosen: " + totalUniqueLettersChosen);
         sessionRepository.insertSession(trainingSession);
+    }
+
+    private float calcWpmAverage(long durationWorkedMilis) {
+        int spacesBetweenLetters = (totalCorrectGuesses - 1) * 3;
+        // accurateWords = (accurateSymbols / 50)
+        float accurateSymbols = (float) (totalAccurateSymbolsGuessed + spacesBetweenLetters);
+        float accurateWords = accurateSymbols / 50f;
+        // wpmAverage = accurateWords / minutes
+        float minutesWorked = (float) (durationWorkedMilis / 1000) / 60;
+        return accurateWords / minutesWorked;
     }
 
     private HashMap<String, Integer> getInitialCompetencyWeights(List<String> playableKeys) {

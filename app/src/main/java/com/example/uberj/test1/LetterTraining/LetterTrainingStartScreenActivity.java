@@ -41,13 +41,14 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
 
         Button startButton = findViewById(R.id.start_button);
         startButton.setOnClickListener(v -> {
-            Intent sendBundle = new Intent(getApplicationContext(), LetterTrainingKeyboardSessionActivity.class);
+            Intent sendIntent = new Intent(getApplicationContext(), LetterTrainingKeyboardSessionActivity.class);
             Bundle bundle = new Bundle();
+            bundle.putInt(KeyboardSessionActivity.WPM_REQUESTED, 20);
             bundle.putInt(KeyboardSessionActivity.DURATION_REQUESTED_SECONDS, secondsPicker.getValue());
             bundle.putInt(KeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getValue());
             bundle.putString(KeyboardSessionActivity.SESSION_TYPE, TrainingSessionType.LETTER_TRAINING.name());
-            sendBundle.putExtras(bundle);
-            startActivityForResult(sendBundle, KEYBOARD_REQUEST_CODE);  // NOTE: Ignore request code for now. might become important later
+            sendIntent.putExtras(bundle);
+            startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);  // NOTE: Ignore request code for now. might become important later
         });
     }
 
@@ -75,7 +76,7 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
                     wpmAverage >= 0 ? String.format(Locale.ENGLISH, "%.2f", wpmAverage) : "N/A"
             );
             ((TextView) findViewById(R.id.prev_session_error_rate)).setText(
-                    errorRate >= 0 ? String.format(Locale.ENGLISH, "%.2f", errorRate) : "N/A"
+                    errorRate >= 0 ? (int) (100 * errorRate) + "%" : "N/A"
             );
         });
     }

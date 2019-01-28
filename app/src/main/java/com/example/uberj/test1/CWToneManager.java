@@ -13,7 +13,7 @@ public class CWToneManager {
     // and modified by Steve Pomeroy <steve@staticfree.info>
     // again modified by Jacques Uber <mail@uberj.com>
 
-    private static final int wpm = 20;
+    private final int wpm;
     private static final int sampleRateHz = 44100;
 
     private static final ImmutableMap<String, String> LETTER_TONES = ImmutableMap.<String, String>builder()
@@ -79,7 +79,7 @@ public class CWToneManager {
     -------------------
        50 (symbols in "paris"
      */
-    public static byte[] buildSnd(String s) {
+    public static byte[] buildSnd(int wpm, String s) {
         // calculate number of symbols
         int totalNumSymbols = 0;
         for (int i = 0; i < s.length(); i++) {
@@ -168,12 +168,29 @@ public class CWToneManager {
         }
     }
 
+    public static float baud(int wpm) {
+        return (wpm * 50f) / 60f;
+    }
+
     // ditsPerSecond = (wpm * 50 dits) / 60 seconds
     // numSamplesPerDit = ditsPerSecond * sampleRateHz
     //
     // Notes:
     //  * 3 dits per dash
     //  * 7 dits per space
+
+    public static int numSymbols(String s) {
+        int total = 0;
+        String ditDahs = LETTER_TONES.get(s);
+        if (ditDahs == null) {
+            throw new RuntimeException("Unknown letter: " + s);
+        }
+
+        for (char c : ditDahs.toCharArray()) {
+            total+= numSymbols(c);
+        }
+        return total;
+    }
 
     public static int numSymbols(char c) {
         switch (c) {
@@ -192,13 +209,13 @@ public class CWToneManager {
     }
 
 
-    public CWToneManager() {
-
+    public CWToneManager(int wpm) {
+        this.wpm = wpm;
     }
 
     void playSoundTest(){
         //byte[] generatedSnd1 = buildSnd("....");
-        byte[] generatedSnd1 = buildSnd("..../- .../- ../- ./-");
+        byte[] generatedSnd1 = buildSnd(20, "..../- .../- ../- ./-");
         //byte[] generatedSnd1 = buildSampleTone();
         final AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
                 sampleRateHz, AudioFormat.CHANNEL_OUT_MONO,
@@ -215,7 +232,7 @@ public class CWToneManager {
             throw new RuntimeException("No pattern found for letter: " + requestedMessage);
         }
 
-        byte[] generatedSnd = buildSnd(pattern);
+        byte[] generatedSnd = buildSnd(wpm, pattern);
         // TODO, do this audioTrack init only once. requires playing with buffer size
         // TODO, move to android 26 AudioTrack builder
         final AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,

@@ -13,7 +13,7 @@ public class LetterTrainingEngine {
 
     private final Random r = new Random();
     private final CWToneManager cwToneManager;
-    private final Consumer<String> letterPlayedCallback;
+    private final Consumer<String> letterChosenCallback;
     private List<String> playableKeys;
     private String currentLetter;
     private Thread audioThread;
@@ -21,9 +21,9 @@ public class LetterTrainingEngine {
     private volatile boolean isPaused = false;
     private Runnable audioLoop;
 
-    public LetterTrainingEngine(Consumer<String> letterPlayedCallback, List<String> playableKeys) {
-        this.letterPlayedCallback = letterPlayedCallback;
-        this.cwToneManager = new CWToneManager();
+    public LetterTrainingEngine(int wpm, final Consumer<String> letterPlayedCallback, Consumer<String> letterChosenCallback, List<String> playableKeys) {
+        this.letterChosenCallback = letterChosenCallback;
+        this.cwToneManager = new CWToneManager(wpm);
         this.playableKeys = playableKeys;
         this.audioLoop = () -> {
             while (true) {
@@ -70,11 +70,8 @@ public class LetterTrainingEngine {
         if (guess.equals(currentLetter)) {
             // Make sure we always choose a different letter. this makes the handler of the
             // letterPlayedCallback able to calculate number of letters played a lot easier
-            String nextLetter;
-            do {
-                nextLetter = playableKeys.get(r.nextInt(playableKeys.size()));
-            } while (nextLetter.equals(currentLetter));
-            currentLetter = nextLetter;
+            currentLetter = playableKeys.get(r.nextInt(playableKeys.size()));
+            letterChosenCallback.accept(currentLetter);
             isCorrectGuess = true;
         }
 
@@ -86,6 +83,7 @@ public class LetterTrainingEngine {
 
     public void initEngine() {
         currentLetter = playableKeys.get(r.nextInt(playableKeys.size()));
+        letterChosenCallback.accept(currentLetter);
         audioThread = new Thread(audioLoop);
         audioThread.start();
     }

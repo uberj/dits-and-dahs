@@ -25,6 +25,7 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
     public static final String ERROR_RATE = "error-rate";
     public static final String DURATION_REMAINING_MILIS = "duration-remaining-milis";
     public static final String DURATION_REQUESTED_MILIS = "duration-requested-milis";
+    public static final String WPM_REQUESTED = "wpm-requested";
     private int durationMinutesRequested;
     private int durationSecondsRequested;
     protected long durationMilisRemaining;
