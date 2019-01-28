@@ -7,6 +7,8 @@ import android.widget.Button;
 
 import com.example.uberj.test1.KeyboardSessionActivity;
 import com.example.uberj.test1.ProgressGradient;
+import com.example.uberj.test1.storage.LetterTrainingSession;
+import com.example.uberj.test1.storage.LetterTrainingSessionRepository;
 import com.google.common.collect.Maps;
 
 import java.util.ArrayList;
@@ -18,6 +20,14 @@ import java.util.stream.Collectors;
 public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivity {
     private static final int MISSED_LETTER_POINTS_REMOVED = 10;
     private static final int CORRECT_LETTER_POINTS_ADDED = 5;
+    private float wpmAverage = -1;
+    private float errorRate = -1;
+    private int totalUniqueLettersPlayed;
+    private int totalCorrectGuesses;
+    private int totalIncorrectGuesses;
+    private long endTimeEpocMilis = -1;
+    private String currentLetterPlaying = null;
+    private final LetterTrainingSessionRepository sessionRepository = new LetterTrainingSessionRepository(this);
 
     private LetterTrainingEngine engine;
     HashMap<String, Integer> competencyWeights = null;
@@ -43,9 +53,11 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
     private void updateCompetencyWeights(String letter, boolean wasCorrectGuess) {
         ensureCompetencyWeight(letter);
         if (wasCorrectGuess) {
+            totalCorrectGuesses++;
             competencyWeights.computeIfPresent(letter,
                     (cLetter, existingCompetency) -> Math.min(100, existingCompetency + CORRECT_LETTER_POINTS_ADDED));
         } else {
+            totalIncorrectGuesses++;
             competencyWeights.computeIfPresent(letter,
                     (cLetter, existingCompetency) -> Math.max(0, existingCompetency - MISSED_LETTER_POINTS_REMOVED));
         }
@@ -71,18 +83,23 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
     @Override
     public void onDestroy() {
         engine.destroy();
+        if (endTimeEpocMilis < 0) {
+            endTimeEpocMilis = System.currentTimeMillis();
+        }
         super.onDestroy();
     }
 
     @Override
     public void onPause() {
         engine.pause();
+        endTimeEpocMilis = System.currentTimeMillis();
         super.onPause();
     }
 
     @Override
     public void onResume() {
         engine.resume();
+        endTimeEpocMilis = -1;
         super.onResume();
     }
 
@@ -91,16 +108,46 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         // Starts the timer
         super.onCreate(savedInstanceState);
         List<String> playableKeys = getPlayableKeys();
-        competencyWeights = getInitialCompentencyWeights(playableKeys);
+        competencyWeights = getInitialCompetencyWeights(playableKeys);
         for (String letter : competencyWeights.keySet()) {
             updateProgressBarForLetter(letter);
         }
 
-        engine = new LetterTrainingEngine(playableKeys);
+        engine = new LetterTrainingEngine(this::letterPlayedCallback, playableKeys);
         engine.initEngine();
     }
 
-    private HashMap<String, Integer> getInitialCompentencyWeights(List<String> playableKeys) {
+    private void letterPlayedCallback(String letterPlayed) {
+        // The engine will always call a different letter when the user gets the current one right.
+        // So, to count the number of unique letters played we count the number of times the letterPlayed
+        // changes and add one.
+        if (!letterPlayed.equals(currentLetterPlaying)) {
+            currentLetterPlaying = letterPlayed;
+            totalUniqueLettersPlayed++;
+        }
+    }
+
+    @Override
+    protected void finishSession(Bundle data) {
+        LetterTrainingSession trainingSession = new LetterTrainingSession();
+
+        if (endTimeEpocMilis < 0) {
+            trainingSession.endTimeEpocMilis = System.currentTimeMillis();
+        } else {
+            trainingSession.endTimeEpocMilis = endTimeEpocMilis;
+        }
+        long durationWorkedMilis = durationMilisRequested - durationMilisRemaining;
+
+        trainingSession.endTimeEpocMilis = System.currentTimeMillis();
+        trainingSession.durationWorkedMilis = durationWorkedMilis;
+        trainingSession.completed = durationWorkedMilis == 0;
+        trainingSession.wpmAverage = wpmAverage;
+        trainingSession.errorRate = errorRate;
+
+        sessionRepository.insertSession(trainingSession);
+    }
+
+    private HashMap<String, Integer> getInitialCompetencyWeights(List<String> playableKeys) {
         // TODO, load old weights from w/e they come from
         HashMap<String, Integer> map = Maps.newHashMap();
         for (String playableKey : playableKeys) {

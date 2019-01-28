@@ -6,24 +6,27 @@ import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
 @Entity
-public class TrainingSession {
+public class LetterTrainingSession {
     @PrimaryKey(autoGenerate = true)
     public int uid;
 
-    @ColumnInfo(name = "end_time_epoch")
+    @ColumnInfo(name = "endTimeEpocMilis")
     @NonNull
-    public Integer endTimeEpoc;
+    public Long endTimeEpocMilis;
 
-    @ColumnInfo(name = "session_type")
+    @ColumnInfo(name = "durationWorkedMilis")
     @NonNull
-    public String sessionType;
-
-    @ColumnInfo(name = "duration_worked")
-    @NonNull
-    public Long duration_worked;
+    public Long durationWorkedMilis;
 
     @ColumnInfo(name = "completed")
     @NonNull
     public Boolean completed;
 
+    @ColumnInfo(name = "wpmAverage")
+    @NonNull
+    public float wpmAverage;
+
+    @ColumnInfo(name = "errorRate")
+    @NonNull
+    public float errorRate;
 }

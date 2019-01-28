@@ -6,14 +6,14 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
-@Database(entities = {TrainingSession.class}, version = 1)
+@Database(entities = {LetterTrainingSession.class}, version = 1)
 public abstract class TheDatabase extends RoomDatabase {
     public static final String THE_DATABASE_NAME = "the_database";
 
     public abstract TrainingSessionDAO trainingSessionDAO();
     private static TheDatabase INSTANCE;
 
-    static TheDatabase getDatabase(final Context context) {
+    public static TheDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
             synchronized (TheDatabase.class) {
                 if (INSTANCE == null) {

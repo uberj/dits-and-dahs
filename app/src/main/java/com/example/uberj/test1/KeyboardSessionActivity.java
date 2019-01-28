@@ -25,15 +25,13 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
     public static final String ERROR_RATE = "error-rate";
     public static final String DURATION_REMAINING_MILIS = "duration-remaining-milis";
     public static final String DURATION_REQUESTED_MILIS = "duration-requested-milis";
-    private TrainingSessionType sessionType;
     private int durationMinutesRequested;
     private int durationSecondsRequested;
-    private long durationMilisRemaining;
-    private float wpmAverage = -1;
-    private float errorRate = -1;
+    protected long durationMilisRemaining;
     private CountDownTimer countDownTimer;
-    private long durationMilisRequested;
+    protected long durationMilisRequested;
     private Menu menu;
+    private TrainingSessionType sessionType;
 
     public abstract void keyboardButtonClicked(View button);
 
@@ -108,19 +106,18 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
                 durationMilisRemaining = 0;
                 Intent data = buildResultIntent();
                 setResult(Activity.RESULT_OK, data);
+                finishSession(data.getExtras());
                 finish();
             }
         };
     }
 
+    protected abstract void finishSession(Bundle data);
+
     private Intent buildResultIntent() {
+        // TODO, clean this up
         Intent intent = new Intent();
         Bundle sendBundle = new Bundle();
-        sendBundle.putString(KeyboardSessionActivity.SESSION_TYPE, sessionType.name());
-        sendBundle.putLong(KeyboardSessionActivity.DURATION_REMAINING_MILIS, durationMilisRemaining);
-        sendBundle.putLong(KeyboardSessionActivity.DURATION_REQUESTED_MILIS, durationMilisRequested);
-        sendBundle.putFloat(KeyboardSessionActivity.WPM_AVERAGE, wpmAverage);
-        sendBundle.putFloat(KeyboardSessionActivity.WPM_AVERAGE, errorRate);
         intent.putExtras(sendBundle);
         return intent;
     }
@@ -146,6 +143,7 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
                 durationMilisRemaining -= 1000; // Duration always seems to be off by -1s when back is pressed
                 Intent data = buildResultIntent();
                 setResult(Activity.RESULT_OK, data);
+                finishSession(data.getExtras());
                 finish();
             });
             builder.setNegativeButton("No", (dialog, which) -> dialog.cancel());

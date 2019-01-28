@@ -27,21 +27,19 @@ public class TheDatabaseTest {
 
     @Test
     public void testCreateReadSession()  {
-        Assert.assertTrue(trainingSessionDAO.getAllSessions().isEmpty());
-        TrainingSession trainingSession = new TrainingSession();
-        trainingSession.endTimeEpoc = 444;
+        Assert.assertTrue(trainingSessionDAO.getAllSessions().getValue().isEmpty());
+        LetterTrainingSession trainingSession = new LetterTrainingSession();
+        trainingSession.endTimeEpocMilis = 444l;
         trainingSession.completed = true;
-        trainingSession.duration_worked = 100l;
-        trainingSession.sessionType = TrainingSessionType.LETTER_TRAINING.name();
+        trainingSession.durationWorkedMilis = 100l;
         trainingSessionDAO.insertSession(trainingSession);
 
-        List<TrainingSession> allSessions = trainingSessionDAO.getAllSessions();
+        List<LetterTrainingSession> allSessions = trainingSessionDAO.getAllSessions().getValue();
         Assert.assertEquals(1, allSessions.size());
-        TrainingSession trainingSession1 = allSessions.get(0);
-        Assert.assertEquals(trainingSession.duration_worked, trainingSession1.duration_worked);
+        LetterTrainingSession trainingSession1 = allSessions.get(0);
+        Assert.assertEquals(trainingSession.durationWorkedMilis, trainingSession1.durationWorkedMilis);
         Assert.assertEquals(trainingSession.completed, trainingSession1.completed);
-        Assert.assertEquals(trainingSession.sessionType, trainingSession1.sessionType);
-        Assert.assertEquals(trainingSession.endTimeEpoc, trainingSession1.endTimeEpoc);
+        Assert.assertEquals(trainingSession.endTimeEpocMilis, trainingSession1.endTimeEpocMilis);
     }
 
 }

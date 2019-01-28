@@ -6,12 +6,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
+import java.util.function.Consumer;
 
 public class LetterTrainingEngine {
     private static final Semaphore mutex = new Semaphore(1);
 
     private final Random r = new Random();
     private final CWToneManager cwToneManager;
+    private final Consumer<String> letterPlayedCallback;
     private List<String> playableKeys;
     private String currentLetter;
     private Thread audioThread;
@@ -19,7 +21,8 @@ public class LetterTrainingEngine {
     private volatile boolean isPaused = false;
     private Runnable audioLoop;
 
-    public LetterTrainingEngine(List<String> playableKeys) {
+    public LetterTrainingEngine(Consumer<String> letterPlayedCallback, List<String> playableKeys) {
+        this.letterPlayedCallback = letterPlayedCallback;
         this.cwToneManager = new CWToneManager();
         this.playableKeys = playableKeys;
         this.audioLoop = () -> {
@@ -38,6 +41,7 @@ public class LetterTrainingEngine {
                             // play it letter
                             cwToneManager.playLetter(currentLetter);
                             // start the callback timer to play again
+                            letterPlayedCallback.accept(currentLetter);
                             Thread.sleep(getSleepPeriodMilis());
                         } catch (InterruptedException e) {
                             return;
@@ -64,7 +68,13 @@ public class LetterTrainingEngine {
 
         boolean isCorrectGuess = false;
         if (guess.equals(currentLetter)) {
-            currentLetter = playableKeys.get(r.nextInt(playableKeys.size()));
+            // Make sure we always choose a different letter. this makes the handler of the
+            // letterPlayedCallback able to calculate number of letters played a lot easier
+            String nextLetter;
+            do {
+                nextLetter = playableKeys.get(r.nextInt(playableKeys.size()));
+            } while (!nextLetter.equals(currentLetter));
+            currentLetter = nextLetter;
             isCorrectGuess = true;
         }
 

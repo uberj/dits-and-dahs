@@ -4,7 +4,7 @@ import android.graphics.Color;
 
 import com.google.common.collect.ImmutableMap;
 
-class ProgressGradient {
+public class ProgressGradient {
 
     /* Red - Yellow - Green */
     private static final ImmutableMap<Integer, String> weightToColor = ImmutableMap.<Integer, String>builder()
