@@ -73,7 +73,7 @@ public class LetterTrainingEngine {
             String nextLetter;
             do {
                 nextLetter = playableKeys.get(r.nextInt(playableKeys.size()));
-            } while (!nextLetter.equals(currentLetter));
+            } while (nextLetter.equals(currentLetter));
             currentLetter = nextLetter;
             isCorrectGuess = true;
         }
