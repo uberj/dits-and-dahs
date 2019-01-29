@@ -5,15 +5,18 @@ import com.example.uberj.test1.CWToneManager;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
 public class LetterTrainingEngine {
-    private static final Semaphore mutex = new Semaphore(1);
+    private static final String guessGate = "guessGate";
+    private static final String pauseGate = "pauseGate";
+    private static final String audioGate = "audioGate";
+    private static final String TAG = "LetterTrainingEngine";
 
     private final Random r = new Random();
     private final CWToneManager cwToneManager;
     private final Consumer<String> letterChosenCallback;
+    private volatile boolean waitingForGuess;
     private List<String> playableKeys;
     private String currentLetter;
     private Thread audioThread;
@@ -27,37 +30,74 @@ public class LetterTrainingEngine {
         this.playableKeys = playableKeys;
         this.audioLoop = () -> {
             while (true) {
-                // This isn't working, multiple things are playing
-                // I think I shouldn't call interrupt and instead flip a volitile to indicate the cancel request
-                if (mutex.tryAcquire(1)) {
-                    // Got the lock
-                    try {
-                        // Process record
-                        if (!threadKeepAlive) {
-                            return;
-                        }
+                /*/
+                This loop will wait for ex
 
-                        try {
-                            // play it letter
-                            cwToneManager.playLetter(currentLetter);
-                            // start the callback timer to play again
-                            letterPlayedCallback.accept(currentLetter);
-                            Thread.sleep(getSleepPeriodMilis());
-                        } catch (InterruptedException e) {
-                            return;
+                Pause
+                -----
+                - When the engine is paused
+                    * No timeout
+                    * resume() should be the only one to trigger this notify
+
+                Playing
+                -------
+                - When the tone manager is playing audio
+                    * Timeout happens after audio tone is done
+                    * Nobody should end this?
+
+                WaitGuess
+                ---------
+                - When the engine is waiting for the player to guess
+                    * Timeout happens after getGuessWaitTimeMilis()
+                    * pause() and guess() should end this
+
+                /*/
+                while (isPaused)  {
+                    try {
+                        synchronized (pauseGate) {
+                            pauseGate.wait();
                         }
-                    } finally {
-                        // Make sure to unlock so that we don't cause a deadlock
-                        mutex.release(1);
+                    } catch (InterruptedException e) {
+                        return;
                     }
-                } else {
-                    // Someone else had the lock
+                }
+
+                if (!threadKeepAlive) {
                     return;
                 }
 
+                CWToneManager.PCMDetails pcmDetails = cwToneManager.calcPCMDetails(currentLetter);
+                long waitTimeMilis = (long) (1000L * ((1F / pcmDetails.symbolsPerSecond) * pcmDetails.totalNumberSymbols));
 
+                // play it letter
+                cwToneManager.playLetter(currentLetter);
+
+                try {  // Wait until the letter is done playing
+                    synchronized (audioGate) {
+                        audioGate.wait(waitTimeMilis);
+                    }
+                } catch (InterruptedException e) {
+                    return;
+                }
+
+                // start the callback timer to play again
+                letterPlayedCallback.accept(currentLetter);
+
+                waitingForGuess = true;
+                synchronized (guessGate) {
+                    try {
+                        guessGate.wait(getGuessWaitTimeMilis());
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                }
+                waitingForGuess = false;
             }
         };
+    }
+
+    private long getGuessWaitTimeMilis() {
+        return 3000;
     }
 
     public Optional<Boolean> guess(String guess) {
@@ -75,9 +115,10 @@ public class LetterTrainingEngine {
             isCorrectGuess = true;
         }
 
-        audioThread.interrupt();
-        audioThread = new Thread(audioLoop);
-        audioThread.start();
+        synchronized (guessGate) {
+            guessGate.notify();
+        }
+
         return Optional.of(isCorrectGuess);
     }
 
@@ -88,21 +129,18 @@ public class LetterTrainingEngine {
         audioThread.start();
     }
 
-    private long getSleepPeriodMilis() {
-        return 3000;
-    }
-
     public void destroy() {
-        threadKeepAlive = false;
+        audioThread.interrupt();
     }
 
     public void resume() {
         if (!isPaused) {
             return;
         }
-        audioThread = new Thread(audioLoop);
-        audioThread.start();
         isPaused = false;
+        synchronized (pauseGate) {
+            pauseGate.notify();
+        }
     }
 
     public void pause() {
@@ -110,6 +148,12 @@ public class LetterTrainingEngine {
             return;
         }
         isPaused = true;
-        audioThread.interrupt();
+        synchronized (audioGate) {
+            audioGate.notify();
+        }
+
+        synchronized (guessGate) {
+            guessGate.notify();
+        }
     }
 }

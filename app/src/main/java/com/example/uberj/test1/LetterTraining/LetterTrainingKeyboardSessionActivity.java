@@ -147,6 +147,9 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         trainingSession.completed = durationWorkedMilis == 0;
         trainingSession.wpmAverage = calcWpmAverage(durationWorkedMilis);
         trainingSession.errorRate = (float) totalIncorrectGuesses / (float) (totalCorrectGuesses + totalIncorrectGuesses);
+        if (trainingSession.errorRate == Float.NaN) {
+            trainingSession.errorRate = -1;
+        }
 
         Log.d(TAG, "totalCorrectGuesses: " + totalCorrectGuesses);
         Log.d(TAG, "totalIncorrectGuesses: " + totalCorrectGuesses);

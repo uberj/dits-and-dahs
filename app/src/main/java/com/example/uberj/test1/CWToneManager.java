@@ -16,7 +16,7 @@ public class CWToneManager {
     private final int wpm;
     private static final int sampleRateHz = 44100;
 
-    private static final ImmutableMap<String, String> LETTER_TONES = ImmutableMap.<String, String>builder()
+    private static final ImmutableMap<String, String> LETTER_DEFINITIONS = ImmutableMap.<String, String>builder()
             .put("A", ".-")
             .put("B", "...-")
             .put("C", ".-.-")
@@ -80,29 +80,14 @@ public class CWToneManager {
        50 (symbols in "paris"
      */
     public static byte[] buildSnd(int wpm, String s) {
-        // calculate number of symbols
-        int totalNumSymbols = 0;
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            totalNumSymbols += numSymbols(c);
-            if (!symbolIsSilent(c)) {
-                totalNumSymbols += silenceSymbolsAfterDitDah;
-            }
-        }
-
-        float symbolsPerSecond = (wpm * 50f) / 60f;
-        float symbolDuration = 1 / symbolsPerSecond;
-        int numSamplesPerSymbol = (int) (symbolDuration * sampleRateHz);
-        Log.d(TAG, "Entire Duration: " + symbolsPerSecond * totalNumSymbols);
-
-        int totalNumSamples = totalNumSymbols * numSamplesPerSymbol;
-        double rawSnd[] = new double[totalNumSamples];
+        PCMDetails pcmDetails = calcPCMDetails(wpm, s);
+        double rawSnd[] = new double[pcmDetails.totalNumberSamples];
 
         int sndIdx = 0;
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             int curNumberSymbols = numSymbols(c);
-            int numSamplesForCurSymbol = curNumberSymbols * numSamplesPerSymbol;
+            int numSamplesForCurSymbol = curNumberSymbols * pcmDetails.numSamplesPerSymbol;
 
             // fill out the array with symbol
             if (symbolIsSilent(c)) {
@@ -110,7 +95,7 @@ public class CWToneManager {
                     rawSnd[sndIdx++] = 0;
                 }
             } else {
-                int rampSamples = (int) (numSamplesPerSymbol * 0.10); // 5% ramp up
+                int rampSamples = (int) (pcmDetails.numSamplesPerSymbol * 0.10); // 5% ramp up
 
                 for (int j = 0; j < rampSamples; j++) {
                     rawSnd[sndIdx++] = ((float) j/(float) rampSamples) * Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
@@ -128,7 +113,7 @@ public class CWToneManager {
 
             // fill out the array with space if needed
             if (!symbolIsSilent(c)) {
-                int silencePadSamples = numSamplesPerSymbol * silenceSymbolsAfterDitDah;
+                int silencePadSamples = pcmDetails.numSamplesPerSymbol * silenceSymbolsAfterDitDah;
                 for (int j = 0; j < silencePadSamples; ++j) {
                     rawSnd[sndIdx++] = 0;
                 }
@@ -136,6 +121,47 @@ public class CWToneManager {
         }
 
         return pcmConvert(rawSnd);
+    }
+
+
+    public static class PCMDetails {
+        public int totalNumberSymbols;
+        public int totalNumberSamples;
+        public int numSamplesPerSymbol;
+        public float symbolsPerSecond;
+    }
+
+    public PCMDetails calcPCMDetails(String s) {
+        String ditDah = LETTER_DEFINITIONS.get(s);
+        if (ditDah == null) {
+            throw new RuntimeException("Unknown letter " + s);
+        }
+        return calcPCMDetails(wpm, ditDah);
+    }
+
+    private static PCMDetails calcPCMDetails(int wpm, String s) {
+        // calculate number of symbols
+        int totalNumSymbols = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            totalNumSymbols += numSymbols(c);
+            if (!symbolIsSilent(c)) {
+                totalNumSymbols += silenceSymbolsAfterDitDah;
+            }
+        }
+
+        float symbolsPerSecond = (wpm * 50f) / 60f;
+        float symbolDuration = 1 / symbolsPerSecond;
+        int numSamplesPerSymbol = (int) (symbolDuration * sampleRateHz);
+        Log.d(TAG, "Entire Duration: " + symbolsPerSecond * totalNumSymbols);
+
+        int totalNumSamples = totalNumSymbols * numSamplesPerSymbol;
+        PCMDetails pcmDetails = new PCMDetails();
+        pcmDetails.numSamplesPerSymbol = numSamplesPerSymbol;
+        pcmDetails.symbolsPerSecond = symbolsPerSecond;
+        pcmDetails.totalNumberSymbols = totalNumSymbols;
+        pcmDetails.totalNumberSamples = totalNumSamples;
+        return pcmDetails;
     }
 
     private static byte[] pcmConvert(double[] rawSnd) {
@@ -181,7 +207,7 @@ public class CWToneManager {
 
     public static int numSymbols(String s) {
         int total = 0;
-        String ditDahs = LETTER_TONES.get(s);
+        String ditDahs = LETTER_DEFINITIONS.get(s);
         if (ditDahs == null) {
             throw new RuntimeException("Unknown letter: " + s);
         }
@@ -208,7 +234,6 @@ public class CWToneManager {
         }
     }
 
-
     public CWToneManager(int wpm) {
         this.wpm = wpm;
     }
@@ -225,9 +250,9 @@ public class CWToneManager {
         audioTrack.play();
     }
 
-    public void playLetter(String requestedMessage) throws InterruptedException {
+    public void playLetter(String requestedMessage) {
         Log.d(TAG, "Requested message: " + requestedMessage);
-        String pattern = LETTER_TONES.get(requestedMessage.toUpperCase());
+        String pattern = LETTER_DEFINITIONS.get(requestedMessage.toUpperCase());
         if (pattern == null) {
             throw new RuntimeException("No pattern found for letter: " + requestedMessage);
         }
@@ -241,17 +266,5 @@ public class CWToneManager {
                 AudioTrack.MODE_STATIC);
         audioTrack.write(generatedSnd, 0, generatedSnd.length);
         audioTrack.play();
-
-        // Trying to make this method block until "audioTrack.play()" is done.
-        // Polling for lack of change in the PlaybackHeadPosition seems to work.
-        // It probably isn't the best way to do it, but idk, it seems to work!
-        int playbackHeadPosition1;
-        int playbackHeadPosition2;
-        do {
-            playbackHeadPosition1 = audioTrack.getPlaybackHeadPosition();
-            Thread.sleep(100);
-            playbackHeadPosition2 = audioTrack.getPlaybackHeadPosition();
-
-        } while (playbackHeadPosition1 != playbackHeadPosition2);
     }
 }
