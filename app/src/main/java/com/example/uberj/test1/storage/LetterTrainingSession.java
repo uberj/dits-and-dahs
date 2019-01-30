@@ -10,13 +10,13 @@ public class LetterTrainingSession {
     @PrimaryKey(autoGenerate = true)
     public int uid;
 
-    @ColumnInfo(name = "endTimeEpocMilis")
+    @ColumnInfo(name = "endTimeEpocMillis")
     @NonNull
-    public Long endTimeEpocMilis;
+    public Long endTimeEpocMillis;
 
-    @ColumnInfo(name = "durationWorkedMilis")
+    @ColumnInfo(name = "durationWorkedMillis")
     @NonNull
-    public Long durationWorkedMilis;
+    public Long durationWorkedMillis;
 
     @ColumnInfo(name = "completed")
     @NonNull

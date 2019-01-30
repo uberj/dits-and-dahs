@@ -37,17 +37,17 @@ public class TheDatabaseTest {
                 .awaitValue()
                 .assertValue(List::isEmpty);
         final LetterTrainingSession trainingSession = new LetterTrainingSession();
-        trainingSession.endTimeEpocMilis = 444l;
+        trainingSession.endTimeEpocMillis = 444l;
         trainingSession.completed = true;
-        trainingSession.durationWorkedMilis = 100l;
+        trainingSession.durationWorkedMillis = 100l;
         trainingSessionDAO.insertSession(trainingSession);
 
         TestObserver.test(trainingSessionDAO.getAllSessions())
                 .awaitValue()
                 .assertValue((ss) -> ss.size() == 1)
-                .assertValue((ss) -> ss.get(0).durationWorkedMilis.equals(trainingSession.durationWorkedMilis))
+                .assertValue((ss) -> ss.get(0).durationWorkedMillis.equals(trainingSession.durationWorkedMillis))
                 .assertValue((ss) -> ss.get(0).completed == trainingSession.completed)
-                .assertValue((ss) -> ss.get(0).endTimeEpocMilis.equals(trainingSession.endTimeEpocMilis));
+                .assertValue((ss) -> ss.get(0).endTimeEpocMillis.equals(trainingSession.endTimeEpocMillis));
     }
 
     @Test

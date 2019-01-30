@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 
 @Dao
 public interface TrainingSessionDAO {
-    @Query("SELECT * FROM LetterTrainingSession ORDER BY endTimeEpocMilis DESC")
+    @Query("SELECT * FROM LetterTrainingSession ORDER BY endTimeEpocMillis DESC")
     LiveData<List<LetterTrainingSession>> getAllSessions();
 
     default void getLatestSession(Consumer<Optional<LetterTrainingSession>> observerCallback) {

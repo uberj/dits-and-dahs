@@ -64,9 +64,9 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
         trainingSessionDAO.getLatestSession((latestSession) -> {
             float wpmAverage = latestSession.map(ts -> ts.wpmAverage).orElse(-1f);
             float errorRate = latestSession.map(ts -> ts.errorRate).orElse(-1f);
-            long prevDurationMilis = latestSession.map((ts) -> ts.durationWorkedMilis).orElse(-1l);
-            long prevDurationMinutes = (prevDurationMilis / 1000) / 60;
-            long prevDurationSeconds = (prevDurationMilis / 1000) % 60;
+            long prevDurationMillis = latestSession.map((ts) -> ts.durationWorkedMillis).orElse(-1l);
+            long prevDurationMinutes = (prevDurationMillis / 1000) / 60;
+            long prevDurationSeconds = (prevDurationMillis / 1000) % 60;
             ((TextView) findViewById(R.id.prev_session_duration_time)).setText(
                     prevDurationMinutes >= 0 && prevDurationSeconds >= 0 ?
                             String.format(Locale.ENGLISH, "%02d:%02d", prevDurationMinutes, prevDurationSeconds) :

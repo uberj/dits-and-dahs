@@ -21,16 +21,12 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
     public static final String DURATION_REQUESTED_SECONDS = "duration-requested-seconds";
     public static final String SESSION_TYPE = "session-type";
-    public static final String WPM_AVERAGE = "wpm-average";
-    public static final String ERROR_RATE = "error-rate";
-    public static final String DURATION_REMAINING_MILIS = "duration-remaining-milis";
-    public static final String DURATION_REQUESTED_MILIS = "duration-requested-milis";
     public static final String WPM_REQUESTED = "wpm-requested";
     private int durationMinutesRequested;
     private int durationSecondsRequested;
-    protected long durationMilisRemaining;
+    protected long durationMillisRemaining;
+    protected long durationMillisRequested;
     private CountDownTimer countDownTimer;
-    protected long durationMilisRequested;
     private Menu menu;
     private TrainingSessionType sessionType;
 
@@ -85,7 +81,7 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
         sessionType = TrainingSessionType.valueOf(receiveBundle.getString(SESSION_TYPE));
         durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
         durationSecondsRequested = receiveBundle.getInt(DURATION_REQUESTED_SECONDS, 0);
-        durationMilisRequested = 1000 * (durationMinutesRequested * 60 + durationSecondsRequested);
+        durationMillisRequested = 1000 * (durationMinutesRequested * 60 + durationSecondsRequested);
         isPlaying = true;
         countDownTimer = buildCountDownTimer(1000 * (durationMinutesRequested * 60 + durationSecondsRequested + 1));
         countDownTimer.start();
@@ -100,11 +96,11 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
                 long minutesRemaining = secondsUntilFinished / 60;
                 long secondsRemaining = secondsUntilFinished % 60;
                 timeRemainingView.setText(String.format(Locale.ENGLISH, "%02d:%02d remaining", minutesRemaining, secondsRemaining));
-                durationMilisRemaining = millisUntilFinished;
+                durationMillisRemaining = millisUntilFinished;
             }
 
             public void onFinish() {
-                durationMilisRemaining = 0;
+                durationMillisRemaining = 0;
                 Intent data = buildResultIntent();
                 setResult(Activity.RESULT_OK, data);
                 finishSession(data.getExtras());
@@ -125,7 +121,7 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (durationMilisRemaining != 0) {
+        if (durationMillisRemaining != 0) {
             // Manage internal state
             countDownTimer.pause();
             isPlaying = false;
@@ -141,7 +137,7 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
             builder.setCancelable(false);
             builder.setMessage("Do you want to end this session?");
             builder.setPositiveButton("Yes", (dialog, which) -> {
-                durationMilisRemaining -= 1000; // Duration always seems to be off by -1s when back is pressed
+                durationMillisRemaining -= 1000; // Duration always seems to be off by -1s when back is pressed
                 Intent data = buildResultIntent();
                 setResult(Activity.RESULT_OK, data);
                 finishSession(data.getExtras());

@@ -48,7 +48,7 @@ public class LetterTrainingEngine {
                 WaitGuess
                 ---------
                 - When the engine is waiting for the player to guess
-                    * Timeout happens after getGuessWaitTimeMilis()
+                    * Timeout happens after getGuessWaitTimeMillis()
                     * pause() and guess() should end this
 
                 /*/
@@ -67,14 +67,14 @@ public class LetterTrainingEngine {
                 }
 
                 CWToneManager.PCMDetails pcmDetails = cwToneManager.calcPCMDetails(currentLetter);
-                long waitTimeMilis = (long) (1000L * ((1F / pcmDetails.symbolsPerSecond) * pcmDetails.totalNumberSymbols));
+                long waitTimeMillis = (long) (1000L * ((1F / pcmDetails.symbolsPerSecond) * pcmDetails.totalNumberSymbols));
 
                 // play it letter
                 cwToneManager.playLetter(currentLetter);
 
                 try {  // Wait until the letter is done playing
                     synchronized (audioGate) {
-                        audioGate.wait(waitTimeMilis);
+                        audioGate.wait(waitTimeMillis);
                     }
                 } catch (InterruptedException e) {
                     return;
@@ -86,7 +86,7 @@ public class LetterTrainingEngine {
                 waitingForGuess = true;
                 synchronized (guessGate) {
                     try {
-                        guessGate.wait(getGuessWaitTimeMilis());
+                        guessGate.wait(getGuessWaitTimeMillis());
                     } catch (InterruptedException e) {
                         return;
                     }
@@ -96,7 +96,7 @@ public class LetterTrainingEngine {
         };
     }
 
-    private long getGuessWaitTimeMilis() {
+    private long getGuessWaitTimeMillis() {
         return 3000;
     }
 

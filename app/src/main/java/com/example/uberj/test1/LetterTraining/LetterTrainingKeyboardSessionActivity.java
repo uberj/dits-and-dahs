@@ -28,7 +28,7 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
     private int totalCorrectGuesses;
     private int totalAccurateSymbolsGuessed;
     private int totalIncorrectGuesses;
-    private long endTimeEpocMilis = -1;
+    private long endTimeEpocMillis = -1;
     private final Repository repository = new Repository(this);
 
     private LetterTrainingEngine engine;
@@ -86,8 +86,8 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
     @Override
     public void onDestroy() {
         engine.destroy();
-        if (endTimeEpocMilis < 0) {
-            endTimeEpocMilis = System.currentTimeMillis();
+        if (endTimeEpocMillis < 0) {
+            endTimeEpocMillis = System.currentTimeMillis();
         }
         super.onDestroy();
     }
@@ -95,14 +95,14 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
     @Override
     public void onPause() {
         engine.pause();
-        endTimeEpocMilis = System.currentTimeMillis();
+        endTimeEpocMillis = System.currentTimeMillis();
         super.onPause();
     }
 
     @Override
     public void onResume() {
         engine.resume();
-        endTimeEpocMilis = -1;
+        endTimeEpocMillis = -1;
         super.onResume();
     }
 
@@ -133,17 +133,17 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
     protected void finishSession(Bundle data) {
         LetterTrainingSession trainingSession = new LetterTrainingSession();
 
-        if (endTimeEpocMilis < 0) {
-            trainingSession.endTimeEpocMilis = System.currentTimeMillis();
+        if (endTimeEpocMillis < 0) {
+            trainingSession.endTimeEpocMillis = System.currentTimeMillis();
         } else {
-            trainingSession.endTimeEpocMilis = endTimeEpocMilis;
+            trainingSession.endTimeEpocMillis = endTimeEpocMillis;
         }
-        long durationWorkedMilis = durationMilisRequested - durationMilisRemaining;
+        long durationWorkedMillis = durationMillisRequested - durationMillisRemaining;
 
-        trainingSession.endTimeEpocMilis = System.currentTimeMillis();
-        trainingSession.durationWorkedMilis = durationWorkedMilis;
-        trainingSession.completed = durationWorkedMilis == 0;
-        trainingSession.wpmAverage = calcWpmAverage(durationWorkedMilis);
+        trainingSession.endTimeEpocMillis = System.currentTimeMillis();
+        trainingSession.durationWorkedMillis = durationWorkedMillis;
+        trainingSession.completed = durationWorkedMillis == 0;
+        trainingSession.wpmAverage = calcWpmAverage(durationWorkedMillis);
         trainingSession.errorRate = (float) totalIncorrectGuesses / (float) (totalCorrectGuesses + totalIncorrectGuesses);
         if (Float.isNaN(trainingSession.errorRate)) {
             trainingSession.errorRate = -1;
@@ -159,13 +159,13 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         repository.insertMostRecentCompetencyWeights(endWeights);
     }
 
-    private float calcWpmAverage(long durationWorkedMilis) {
+    private float calcWpmAverage(long durationWorkedMillis) {
         int spacesBetweenLetters = (totalCorrectGuesses - 1) * 3;
         // accurateWords = (accurateSymbols / 50)
         float accurateSymbols = (float) (totalAccurateSymbolsGuessed + spacesBetweenLetters);
         float accurateWords = accurateSymbols / 50f;
         // wpmAverage = accurateWords / minutes
-        float minutesWorked = (float) (durationWorkedMilis / 1000) / 60;
+        float minutesWorked = (float) (durationWorkedMillis / 1000) / 60;
         return accurateWords / minutesWorked;
     }
 
