@@ -9,13 +9,14 @@ import android.widget.Button;
 import com.example.uberj.test1.CWToneManager;
 import com.example.uberj.test1.KeyboardSessionActivity;
 import com.example.uberj.test1.ProgressGradient;
+import com.example.uberj.test1.storage.CompetencyWeights;
 import com.example.uberj.test1.storage.LetterTrainingSession;
 import com.example.uberj.test1.storage.Repository;
 import com.google.common.collect.Maps;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,7 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
     private final Repository repository = new Repository(this);
 
     private LetterTrainingEngine engine;
-    HashMap<String, Integer> competencyWeights = null;
+    private Map<String, Integer> competencyWeights = null;
 
     private List<String> getPlayableKeys() {
         View rootView = getWindow().getDecorView().findViewById(android.R.id.content);
@@ -110,10 +111,7 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         // Starts the timer
         super.onCreate(savedInstanceState);
         List<String> playableKeys = getPlayableKeys();
-        competencyWeights = getInitialCompetencyWeights(playableKeys);
-        for (String letter : competencyWeights.keySet()) {
-            updateProgressBarForLetter(letter);
-        }
+        setupInitialCompetencyWeights(playableKeys);
 
         Bundle receiveBundle = getIntent().getExtras();
         assert receiveBundle != null;
@@ -147,7 +145,7 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         trainingSession.completed = durationWorkedMilis == 0;
         trainingSession.wpmAverage = calcWpmAverage(durationWorkedMilis);
         trainingSession.errorRate = (float) totalIncorrectGuesses / (float) (totalCorrectGuesses + totalIncorrectGuesses);
-        if (trainingSession.errorRate == Float.NaN) {
+        if (Float.isNaN(trainingSession.errorRate)) {
             trainingSession.errorRate = -1;
         }
 
@@ -155,6 +153,10 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         Log.d(TAG, "totalIncorrectGuesses: " + totalCorrectGuesses);
         Log.d(TAG, "totalUniqueLettersChosen: " + totalUniqueLettersChosen);
         repository.insertLetterTrainingSession(trainingSession);
+
+        CompetencyWeights endWeights = new CompetencyWeights();
+        endWeights.weights = competencyWeights;
+        repository.insertMostRecentCompetencyWeights(endWeights);
     }
 
     private float calcWpmAverage(long durationWorkedMilis) {
@@ -167,13 +169,28 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         return accurateWords / minutesWorked;
     }
 
-    private HashMap<String, Integer> getInitialCompetencyWeights(List<String> playableKeys) {
-        // TODO, load old weights from w/e they come from
-        HashMap<String, Integer> map = Maps.newHashMap();
-        for (String playableKey : playableKeys) {
-            map.put(playableKey, 0);
-        }
-        return map;
+    private void setupInitialCompetencyWeights(List<String> playableKeys) {
+        repository.competencyWeightsDAO.getAllCompetencyWeights()
+                .observeForever((weights) -> {
+                    if (weights == null || weights.size() == 0) {
+                        competencyWeights = Maps.newHashMap();
+                        for (String playableKey : playableKeys) {
+                            competencyWeights.put(playableKey, 0);
+                        }
+                    } else {
+                        CompetencyWeights previousCompetencyWeights = weights.get(0);
+                        competencyWeights = previousCompetencyWeights.weights;
+                        for (String playableKey : playableKeys) {
+                            if (!competencyWeights.containsKey(playableKey)) {
+                                competencyWeights.put(playableKey, 0);
+                            }
+                        }
+                    }
+
+                    for (String letter : competencyWeights.keySet()) {
+                        updateProgressBarForLetter(letter);
+                    }
+                });
     }
 
     @Override

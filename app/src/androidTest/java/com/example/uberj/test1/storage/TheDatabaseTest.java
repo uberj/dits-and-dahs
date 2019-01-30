@@ -61,9 +61,9 @@ public class TheDatabaseTest {
 
         CompetencyWeights competencyWeights = new CompetencyWeights();
         Map<String, Integer> weights = Maps.newHashMap();
-        weights.put("a", 1);
-        weights.put("b", 2);
-        weights.put("c", 3);
+        weights.put("A", 1);
+        weights.put("B", 2);
+        weights.put("C", 3);
         competencyWeights.weights = weights;
         competencyWeights.createdAtEpocMillis = System.currentTimeMillis();
         competencyWeightsDAO.insertCompetencyWeights(competencyWeights);
