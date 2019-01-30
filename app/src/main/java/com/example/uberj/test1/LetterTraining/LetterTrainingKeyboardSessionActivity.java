@@ -10,7 +10,7 @@ import com.example.uberj.test1.CWToneManager;
 import com.example.uberj.test1.KeyboardSessionActivity;
 import com.example.uberj.test1.ProgressGradient;
 import com.example.uberj.test1.storage.LetterTrainingSession;
-import com.example.uberj.test1.storage.LetterTrainingSessionRepository;
+import com.example.uberj.test1.storage.Repository;
 import com.google.common.collect.Maps;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
     private int totalAccurateSymbolsGuessed;
     private int totalIncorrectGuesses;
     private long endTimeEpocMilis = -1;
-    private final LetterTrainingSessionRepository sessionRepository = new LetterTrainingSessionRepository(this);
+    private final Repository repository = new Repository(this);
 
     private LetterTrainingEngine engine;
     HashMap<String, Integer> competencyWeights = null;
@@ -154,7 +154,7 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         Log.d(TAG, "totalCorrectGuesses: " + totalCorrectGuesses);
         Log.d(TAG, "totalIncorrectGuesses: " + totalCorrectGuesses);
         Log.d(TAG, "totalUniqueLettersChosen: " + totalUniqueLettersChosen);
-        sessionRepository.insertSession(trainingSession);
+        repository.insertLetterTrainingSession(trainingSession);
     }
 
     private float calcWpmAverage(long durationWorkedMilis) {

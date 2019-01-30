@@ -1,21 +1,26 @@
 package com.example.uberj.test1.storage;
 
+import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
-import org.junit.Assert;
+import com.example.uberj.test1.TestObserver;
+import com.google.common.collect.Maps;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
+import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
 public class TheDatabaseTest {
 
     private TheDatabase theDatabase;
     private TrainingSessionDAO trainingSessionDAO;
+    private CompetencyWeightsDAO competencyWeightsDAO;
 
     @Before
     public void setUp() {
@@ -23,23 +28,56 @@ public class TheDatabaseTest {
         context.deleteDatabase(TheDatabase.THE_DATABASE_NAME);
         theDatabase = TheDatabase.getDatabase(context);
         trainingSessionDAO = theDatabase.trainingSessionDAO();
+        competencyWeightsDAO = theDatabase.competencyWeightsDAO();
     }
 
     @Test
-    public void testCreateReadSession()  {
-        Assert.assertTrue(trainingSessionDAO.getAllSessions().getValue().isEmpty());
-        LetterTrainingSession trainingSession = new LetterTrainingSession();
+    public void testCreateReadLetterTrainingSession() throws InterruptedException {
+        TestObserver.test(trainingSessionDAO.getAllSessions())
+                .awaitValue()
+                .assertValue(List::isEmpty);
+        final LetterTrainingSession trainingSession = new LetterTrainingSession();
         trainingSession.endTimeEpocMilis = 444l;
         trainingSession.completed = true;
         trainingSession.durationWorkedMilis = 100l;
         trainingSessionDAO.insertSession(trainingSession);
 
-        List<LetterTrainingSession> allSessions = trainingSessionDAO.getAllSessions().getValue();
-        Assert.assertEquals(1, allSessions.size());
-        LetterTrainingSession trainingSession1 = allSessions.get(0);
-        Assert.assertEquals(trainingSession.durationWorkedMilis, trainingSession1.durationWorkedMilis);
-        Assert.assertEquals(trainingSession.completed, trainingSession1.completed);
-        Assert.assertEquals(trainingSession.endTimeEpocMilis, trainingSession1.endTimeEpocMilis);
+        TestObserver.test(trainingSessionDAO.getAllSessions())
+                .awaitValue()
+                .assertValue((ss) -> ss.size() == 1)
+                .assertValue((ss) -> ss.get(0).durationWorkedMilis.equals(trainingSession.durationWorkedMilis))
+                .assertValue((ss) -> ss.get(0).completed == trainingSession.completed)
+                .assertValue((ss) -> ss.get(0).endTimeEpocMilis.equals(trainingSession.endTimeEpocMilis));
+    }
+
+    @Test
+    public void testCRUDCompetencyWeights() throws InterruptedException {
+        {
+            LiveData<List<CompetencyWeights>> competencyWeights = competencyWeightsDAO.getAllCompetencyWeights();
+            TestObserver.test(competencyWeights)
+                    .awaitValue()
+                    .assertValue(List::isEmpty);
+        }
+
+        CompetencyWeights competencyWeights = new CompetencyWeights();
+        Map<String, Integer> weights = Maps.newHashMap();
+        weights.put("a", 1);
+        weights.put("b", 2);
+        weights.put("c", 3);
+        competencyWeights.weights = weights;
+        competencyWeights.createdAtEpocMillis = System.currentTimeMillis();
+        competencyWeightsDAO.insertCompetencyWeights(competencyWeights);
+
+        competencyWeights.createdAtEpocMillis = System.currentTimeMillis();
+        competencyWeightsDAO.insertCompetencyWeights(competencyWeights);
+
+        LiveData<List<CompetencyWeights>> allCompetencyWeights = competencyWeightsDAO.getAllCompetencyWeights();
+        System.out.println(allCompetencyWeights.getValue());
+        TestObserver.test(allCompetencyWeights)
+                .awaitNextValue()
+                .assertValue((ss) -> ss.size() == 2)
+                .assertValue((ss) -> ss.get(0).createdAtEpocMillis == competencyWeights.createdAtEpocMillis)
+                .assertValue((ss) -> ss.get(0).weights.entrySet().equals(competencyWeights.weights.entrySet()));
     }
 
 }
