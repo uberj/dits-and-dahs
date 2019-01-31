@@ -28,7 +28,6 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
     protected long durationMillisRequested;
     private CountDownTimer countDownTimer;
     private Menu menu;
-    private TrainingSessionType sessionType;
 
     public abstract void keyboardButtonClicked(View button);
 
@@ -67,6 +66,19 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
         super.onResume();
     }
 
+    protected View getLetterProgressBar(String letter) {
+        int progressBarId = getResources().getIdentifier("progressBarForKey" + getButtonLetterIdName(letter), "id", getApplicationContext().getPackageName());
+        return findViewById(progressBarId);
+    }
+
+    private String getButtonLetterIdName(String buttonLetter) {
+        if (buttonLetter.equals("/")) {
+            return "SLASH";
+        } else {
+            return buttonLetter;
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +90,6 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
 
         Bundle receiveBundle = getIntent().getExtras();
         assert receiveBundle != null;
-        sessionType = TrainingSessionType.valueOf(receiveBundle.getString(SESSION_TYPE));
         durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
         durationSecondsRequested = receiveBundle.getInt(DURATION_REQUESTED_SECONDS, 0);
         durationMillisRequested = 1000 * (durationMinutesRequested * 60 + durationSecondsRequested);

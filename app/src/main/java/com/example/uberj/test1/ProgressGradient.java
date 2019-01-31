@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 
 public class ProgressGradient {
 
+    public static final int DISABLED = Color.parseColor("#DCDCDC") ;
     /* Red - Yellow - Green */
     private static final ImmutableMap<Integer, String> weightToColor = ImmutableMap.<Integer, String>builder()
             .put(100, "#57bb8a")

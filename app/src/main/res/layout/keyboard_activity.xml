@@ -194,6 +194,16 @@
         </LinearLayout>
     </TableRow>
     <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent">
+        <LinearLayout android:layout_width="0dip" android:layout_weight="1" android:layout_height="match_parent" android:orientation="vertical">
+            <Button android:tag="inplay" android:onClick="keyboardButtonClicked" android:text="/" android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/keySLASH"/>
+            <View android:tag="progressbar" android:id="@+id/progressBarForKeySLASH" android:layout_marginTop="@dimen/progressBarTopMargin" android:layout_marginStart="@dimen/progressBarStartEndMargin" android:layout_marginEnd="@dimen/progressBarStartEndMargin" android:layout_width="match_parent" android:layout_height="@dimen/progressBarHeight" android:background="@drawable/progress_bar"/>
+        </LinearLayout>
+        <LinearLayout android:layout_width="0dip" android:layout_weight="1" android:layout_height="match_parent" android:orientation="vertical">
+            <Button android:tag="inplay" android:onClick="keyboardButtonClicked" android:text="." android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/key."/>
+            <View android:tag="progressbar" android:id="@+id/progressBarForKey." android:layout_marginTop="@dimen/progressBarTopMargin" android:layout_marginStart="@dimen/progressBarStartEndMargin" android:layout_marginEnd="@dimen/progressBarStartEndMargin" android:layout_width="match_parent" android:layout_height="@dimen/progressBarHeight" android:background="@drawable/progress_bar"/>
+        </LinearLayout>
+    </TableRow>
+    <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent">
         <Button android:onClick="keyboardButtonClicked" android:text="DEL" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:id="@+id/keyDEL"/>
         <Button android:onClick="keyboardButtonClicked" android:text="SPC" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:id="@+id/keySPC"/>
     </TableRow>

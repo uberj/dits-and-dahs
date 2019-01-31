@@ -16,15 +16,14 @@ public class LetterTrainingEngine {
     private final Random r = new Random();
     private final CWToneManager cwToneManager;
     private final Consumer<String> letterChosenCallback;
-    private volatile boolean waitingForGuess;
+    private volatile boolean threadKeepAlive = true;
+    private volatile boolean isPaused = false;
     private List<String> playableKeys;
     private String currentLetter;
     private Thread audioThread;
-    private volatile boolean threadKeepAlive = true;
-    private volatile boolean isPaused = false;
     private Runnable audioLoop;
 
-    public LetterTrainingEngine(int wpm, final Consumer<String> letterPlayedCallback, Consumer<String> letterChosenCallback, List<String> playableKeys) {
+    public LetterTrainingEngine(int wpm, Consumer<String> letterChosenCallback, List<String> playableKeys) {
         this.letterChosenCallback = letterChosenCallback;
         this.cwToneManager = new CWToneManager(wpm);
         this.playableKeys = playableKeys;
@@ -81,9 +80,7 @@ public class LetterTrainingEngine {
                 }
 
                 // start the callback timer to play again
-                letterPlayedCallback.accept(currentLetter);
 
-                waitingForGuess = true;
                 synchronized (guessGate) {
                     try {
                         guessGate.wait(getGuessWaitTimeMillis());
@@ -91,7 +88,6 @@ public class LetterTrainingEngine {
                         return;
                     }
                 }
-                waitingForGuess = false;
             }
         };
     }
@@ -110,8 +106,7 @@ public class LetterTrainingEngine {
         if (guess.equals(currentLetter)) {
             // Make sure we always choose a different letter. this makes the handler of the
             // letterPlayedCallback able to calculate number of letters played a lot easier
-            currentLetter = playableKeys.get(r.nextInt(playableKeys.size()));
-            letterChosenCallback.accept(currentLetter);
+            chooseDifferentLetter();
             isCorrectGuess = true;
         }
 
@@ -122,9 +117,13 @@ public class LetterTrainingEngine {
         return Optional.of(isCorrectGuess);
     }
 
-    public void initEngine() {
+    private void chooseDifferentLetter() {
         currentLetter = playableKeys.get(r.nextInt(playableKeys.size()));
         letterChosenCallback.accept(currentLetter);
+    }
+
+    public void initEngine() {
+        chooseDifferentLetter();
         audioThread = new Thread(audioLoop);
         audioThread.start();
     }
@@ -154,6 +153,13 @@ public class LetterTrainingEngine {
 
         synchronized (guessGate) {
             guessGate.notify();
+        }
+    }
+
+    public void setPlayableKeys(List<String> playableKeys) {
+        this.playableKeys = playableKeys;
+        if (!playableKeys.contains(currentLetter)) {
+            chooseDifferentLetter();
         }
     }
 }
