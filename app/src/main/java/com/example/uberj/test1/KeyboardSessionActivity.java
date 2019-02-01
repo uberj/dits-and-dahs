@@ -65,11 +65,29 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
     }
 
     protected View getLetterProgressBar(String letter) {
-        int progressBarId = getResources().getIdentifier("progressBarForKey" + getButtonLetterIdName(letter), "id", getApplicationContext().getPackageName());
+        int progressBarId = getResources().getIdentifier("progressBarForKey" + buttonLetterToIdName(letter), "id", getApplicationContext().getPackageName());
         return findViewById(progressBarId);
     }
 
-    private String getButtonLetterIdName(String buttonLetter) {
+    protected String getButtonLetter(View v) {
+        String buttonId = getResources().getResourceEntryName(v.getId());
+        if (!buttonId.startsWith("key")) {
+            throw new RuntimeException("unknown button " + buttonId);
+        }
+
+        return idNameToButtonLetter(buttonId.replace("key", ""));
+    }
+
+
+    private static String idNameToButtonLetter(String idName) {
+        if (idName.equals("SLASH")) {
+            return "/";
+        } else {
+            return idName;
+        }
+    }
+
+    private static String buttonLetterToIdName(String buttonLetter) {
         if (buttonLetter.equals("/")) {
             return "SLASH";
         } else {

@@ -1,12 +1,21 @@
 package com.example.uberj.test1.LetterTraining;
 
-import com.example.uberj.test1.CWToneManager;
+import android.util.Log;
 
+import com.example.uberj.test1.CWToneManager;
+import com.google.common.collect.Lists;
+
+import org.apache.commons.math3.distribution.EnumeratedDistribution;
+import org.apache.commons.math3.util.Pair;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
+
+import javax.annotation.Nonnull;
 
 public class LetterTrainingEngine {
     private static final int MISSED_LETTER_POINTS_REMOVED = 10;
@@ -16,6 +25,8 @@ public class LetterTrainingEngine {
     private static final String pauseGate = "pauseGate";
     private static final String audioGate = "audioGate";
     private static final String TAG = "LetterTrainingEngine";
+    private static final int LETTER_WEIGHT_MAX = 100;
+    private static final int LETTER_WEIGHT_MIN = 0;
 
     private final Random r = new Random();
     private final CWToneManager cwToneManager;
@@ -28,7 +39,7 @@ public class LetterTrainingEngine {
     private Runnable audioLoop;
     private final Map<String, Integer> competencyWeights;
 
-    public LetterTrainingEngine(int wpm, Consumer<String> letterChosenCallback, List<String> playableKeys, Map<String, Integer> competencyWeights) {
+    public LetterTrainingEngine(int wpm, Consumer<String> letterChosenCallback, List<String> playableKeys, @Nonnull Map<String, Integer> competencyWeights) {
         this.letterChosenCallback = letterChosenCallback;
         this.cwToneManager = new CWToneManager(wpm);
         this.playableKeys = playableKeys;
@@ -122,18 +133,36 @@ public class LetterTrainingEngine {
 
         if (isCorrectGuess) {
             competencyWeights.computeIfPresent(guess,
-                    (cLetter, existingCompetency) -> Math.min(100, existingCompetency + CORRECT_LETTER_POINTS_ADDED));
+                    (cLetter, existingCompetency) -> Math.min(LETTER_WEIGHT_MAX, existingCompetency + CORRECT_LETTER_POINTS_ADDED));
         } else {
             competencyWeights.computeIfPresent(guess,
-                    (cLetter, existingCompetency) -> Math.max(0, existingCompetency - MISSED_LETTER_POINTS_REMOVED));
+                    (cLetter, existingCompetency) -> Math.max(LETTER_WEIGHT_MIN, existingCompetency - MISSED_LETTER_POINTS_REMOVED));
         }
 
         return Optional.of(isCorrectGuess);
     }
 
     private void chooseDifferentLetter() {
-        currentLetter = playableKeys.get(r.nextInt(playableKeys.size()));
+        List<Pair<String, Double>> pmfCompetencyWeights = buildPmfCompetencyWeights(playableKeys);
+        currentLetter = new EnumeratedDistribution<>(pmfCompetencyWeights).sample();
         letterChosenCallback.accept(currentLetter);
+    }
+
+    private List<Pair<String,Double>> buildPmfCompetencyWeights(List<String> playableKeys) {
+        ArrayList<Pair<String, Double>> pmf = Lists.newArrayList();
+        for (Map.Entry<String, Integer> entry : competencyWeights.entrySet()) {
+            String letter = entry.getKey();
+            int letterWeight = entry.getValue();
+            if (!playableKeys.contains(letter)) {
+                continue;
+            }
+
+            pmf.add(new Pair<>(letter, LETTER_WEIGHT_MAX - (double) letterWeight));
+        }
+        for (Pair<String, Double> weight : pmf) {
+            Log.d(TAG, String.format("%s: %s", weight.getFirst(), weight.getSecond()));
+        }
+        return pmf;
     }
 
     public void initEngine() {

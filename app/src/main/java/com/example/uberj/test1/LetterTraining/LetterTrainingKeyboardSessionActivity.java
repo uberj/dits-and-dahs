@@ -95,15 +95,6 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         guess.ifPresent(wasCorrectGuess -> updateCompetencyWeights(letter, wasCorrectGuess));
     }
 
-    private String getButtonLetter(View v) {
-        String buttonId = getResources().getResourceEntryName(v.getId());
-        if (!buttonId.startsWith("key")) {
-            throw new RuntimeException("unknown button " + buttonId);
-        }
-
-        return buttonId.replace("key", "");
-    }
-
     private void updateCompetencyWeights(String letter, boolean wasCorrectGuess) {
         if (wasCorrectGuess) {
             totalCorrectGuesses++;
@@ -126,7 +117,9 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
 
     @Override
     public void onDestroy() {
-        engine.destroy();
+        if (engine != null) {
+            engine.destroy();
+        }
         if (endTimeEpocMillis < 0) {
             endTimeEpocMillis = System.currentTimeMillis();
         }
@@ -135,8 +128,10 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
 
     @Override
     public void onPause() {
-        engine.pause();
-        endTimeEpocMillis = System.currentTimeMillis();
+        if (engine != null) {
+            engine.pause();
+            endTimeEpocMillis = System.currentTimeMillis();
+        }
         super.onPause();
     }
 
@@ -147,6 +142,20 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
             endTimeEpocMillis = -1;
         }
         super.onResume();
+    }
+
+    @Override
+    protected void resumeSession() {
+        if (engine != null) {
+            engine.resume();
+        }
+    }
+
+    @Override
+    protected void pauseSession() {
+        if (engine != null) {
+            engine.pause();
+        }
     }
 
     @Override
@@ -246,18 +255,5 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         // wpmAverage = accurateWords / minutes
         float minutesWorked = (float) (durationWorkedMillis / 1000) / 60;
         return accurateWords / minutesWorked;
-    }
-
-    private void setupInitialCompetencyWeights(List<Button> playableButtons) {
-    }
-
-    @Override
-    protected void resumeSession() {
-        engine.resume();
-    }
-
-    @Override
-    protected void pauseSession() {
-        engine.pause();
     }
 }
