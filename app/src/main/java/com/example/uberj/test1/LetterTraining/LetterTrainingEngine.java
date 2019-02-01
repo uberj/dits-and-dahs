@@ -3,11 +3,15 @@ package com.example.uberj.test1.LetterTraining;
 import com.example.uberj.test1.CWToneManager;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
 
 public class LetterTrainingEngine {
+    private static final int MISSED_LETTER_POINTS_REMOVED = 10;
+    private static final int CORRECT_LETTER_POINTS_ADDED = 5;
+
     private static final String guessGate = "guessGate";
     private static final String pauseGate = "pauseGate";
     private static final String audioGate = "audioGate";
@@ -22,11 +26,13 @@ public class LetterTrainingEngine {
     private String currentLetter;
     private Thread audioThread;
     private Runnable audioLoop;
+    private final Map<String, Integer> competencyWeights;
 
-    public LetterTrainingEngine(int wpm, Consumer<String> letterChosenCallback, List<String> playableKeys) {
+    public LetterTrainingEngine(int wpm, Consumer<String> letterChosenCallback, List<String> playableKeys, Map<String, Integer> competencyWeights) {
         this.letterChosenCallback = letterChosenCallback;
         this.cwToneManager = new CWToneManager(wpm);
         this.playableKeys = playableKeys;
+        this.competencyWeights = competencyWeights;
         this.audioLoop = () -> {
             while (true) {
                 /*/
@@ -114,6 +120,14 @@ public class LetterTrainingEngine {
             guessGate.notify();
         }
 
+        if (isCorrectGuess) {
+            competencyWeights.computeIfPresent(guess,
+                    (cLetter, existingCompetency) -> Math.min(100, existingCompetency + CORRECT_LETTER_POINTS_ADDED));
+        } else {
+            competencyWeights.computeIfPresent(guess,
+                    (cLetter, existingCompetency) -> Math.max(0, existingCompetency - MISSED_LETTER_POINTS_REMOVED));
+        }
+
         return Optional.of(isCorrectGuess);
     }
 
@@ -161,5 +175,9 @@ public class LetterTrainingEngine {
         if (!playableKeys.contains(currentLetter)) {
             chooseDifferentLetter();
         }
+    }
+
+    public int getCompetencyWeight(String letter) {
+        return competencyWeights.get(letter);
     }
 }

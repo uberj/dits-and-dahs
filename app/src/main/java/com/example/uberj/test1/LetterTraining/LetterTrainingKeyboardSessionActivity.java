@@ -24,8 +24,6 @@ import java.util.stream.Collectors;
 
 public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivity {
     private static final String TAG = "LetterTrainingKeyboardSessionActivity";
-    private static final int MISSED_LETTER_POINTS_REMOVED = 10;
-    private static final int CORRECT_LETTER_POINTS_ADDED = 5;
 
     private static final float ENABLED_BUTTON_ALPHA = 1f;
     private static final float ENABLED_PROGRESS_BAR_ALPHA = 0.65f;
@@ -107,16 +105,11 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
     }
 
     private void updateCompetencyWeights(String letter, boolean wasCorrectGuess) {
-        ensureCompetencyWeight(letter);
         if (wasCorrectGuess) {
             totalCorrectGuesses++;
             totalAccurateSymbolsGuessed += CWToneManager.numSymbols(letter);
-            competencyWeights.computeIfPresent(letter,
-                    (cLetter, existingCompetency) -> Math.min(100, existingCompetency + CORRECT_LETTER_POINTS_ADDED));
         } else {
             totalIncorrectGuesses++;
-            competencyWeights.computeIfPresent(letter,
-                    (cLetter, existingCompetency) -> Math.max(0, existingCompetency - MISSED_LETTER_POINTS_REMOVED));
         }
 
         updateProgressBarForLetter(letter);
@@ -124,18 +117,11 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
 
     private void updateProgressBarForLetter(String letter) {
         View progressBar = getLetterProgressBar(letter);
-        ensureCompetencyWeight(letter);
-        Integer competencyWeight = competencyWeights.get(letter);
+        Integer competencyWeight = engine.getCompetencyWeight(letter);
         Integer color = ProgressGradient.forWeight(competencyWeight);
         Log.d(TAG, String.format("Setting progress bar for %s color %s", letter, color));
         progressBar.setBackgroundColor(color);
         progressBar.setAlpha(ENABLED_PROGRESS_BAR_ALPHA);
-    }
-
-    private void ensureCompetencyWeight(String letter) {
-        if (!competencyWeights.containsKey(letter)) {
-            throw new RuntimeException("No competency weight for " + letter);
-        }
     }
 
     @Override
@@ -156,8 +142,10 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
 
     @Override
     public void onResume() {
-        engine.resume();
-        endTimeEpocMillis = -1;
+        if (engine != null) {
+            engine.resume();
+            endTimeEpocMillis = -1;
+        }
         super.onResume();
     }
 
@@ -166,19 +154,48 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         // Starts the timer
         super.onCreate(savedInstanceState);
         allPlayableButtons = getButtonsTagedAsPlayable();
-        setupInitialCompetencyWeights(allPlayableButtons);
-
-        List<String> inPlayKeyNames = setupInitialInPlayButtons(allPlayableButtons)
-                .stream()
-                .map(btn -> btn.getText().toString())
-                .collect(Collectors.toList());
 
         Bundle receiveBundle = getIntent().getExtras();
         assert receiveBundle != null;
         int wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
 
-        engine = new LetterTrainingEngine(wpmRequested, this::letterChosenCallback, inPlayKeyNames);
-        engine.initEngine();
+        final List<String> playableKeys = allPlayableButtons.stream().map(btn -> btn.getText().toString()).collect(Collectors.toList());
+        repository.competencyWeightsDAO.getAllCompetencyWeights()
+                .observeForever((weightsFromStorage) -> {
+                    competencyWeights = buildInitialCompetencyWeights(weightsFromStorage, playableKeys);
+                    List<String> inPlayKeyNames = setupInitialInPlayButtons(allPlayableButtons)
+                            .stream()
+                            .map(btn -> btn.getText().toString())
+                            .collect(Collectors.toList());
+
+                    engine = new LetterTrainingEngine(wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights);
+
+                    for (String letter : competencyWeights.keySet()) {
+                        updateProgressBarForLetter(letter);
+                    }
+
+                    engine.initEngine();
+                });
+    }
+
+    private Map<String, Integer> buildInitialCompetencyWeights(List<CompetencyWeights> weights, List<String> playableKeys) {
+        Map<String, Integer> competencyWeights;
+        if (weights == null || weights.size() == 0) {
+            competencyWeights = Maps.newHashMap();
+            for (String playableKey : playableKeys) {
+                competencyWeights.put(playableKey, 0);
+            }
+        } else {
+            CompetencyWeights previousCompetencyWeights = weights.get(0);
+            competencyWeights = previousCompetencyWeights.weights;
+            for (String playableKey : playableKeys) {
+                if (!competencyWeights.containsKey(playableKey)) {
+                    competencyWeights.put(playableKey, 0);
+                }
+            }
+        }
+
+        return competencyWeights;
     }
 
     private List<Button> setupInitialInPlayButtons(List<Button> playableButtons) {
@@ -232,28 +249,6 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
     }
 
     private void setupInitialCompetencyWeights(List<Button> playableButtons) {
-        final List<String> playableKeys = playableButtons.stream().map(btn -> btn.getText().toString()).collect(Collectors.toList());
-        repository.competencyWeightsDAO.getAllCompetencyWeights()
-                .observeForever((weights) -> {
-                    if (weights == null || weights.size() == 0) {
-                        competencyWeights = Maps.newHashMap();
-                        for (String playableKey : playableKeys) {
-                            competencyWeights.put(playableKey, 0);
-                        }
-                    } else {
-                        CompetencyWeights previousCompetencyWeights = weights.get(0);
-                        competencyWeights = previousCompetencyWeights.weights;
-                        for (String playableKey : playableKeys) {
-                            if (!competencyWeights.containsKey(playableKey)) {
-                                competencyWeights.put(playableKey, 0);
-                            }
-                        }
-                    }
-
-                    for (String letter : competencyWeights.keySet()) {
-                        updateProgressBarForLetter(letter);
-                    }
-                });
     }
 
     @Override
