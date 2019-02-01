@@ -70,8 +70,10 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
             long prevDurationMinutes = (prevDurationMillis / 1000) / 60;
             long prevDurationSeconds = (prevDurationMillis / 1000) % 60;
             if (prevDurationRequestedMillis >= 0) {
-                minutesPicker.setValue((int) prevDurationMinutes);
-                secondsPicker.setValue((int) prevDurationSeconds);
+                long prevDurationRequestedMinutes = (prevDurationRequestedMillis / 1000) / 60;
+                long prevDurationRequestedSeconds = (prevDurationRequestedMillis / 1000) % 60;
+                minutesPicker.setValue((int) prevDurationRequestedMinutes);
+                secondsPicker.setValue((int) prevDurationRequestedSeconds);
             } else {
                 minutesPicker.setValue(1);
                 secondsPicker.setValue(0);

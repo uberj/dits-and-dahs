@@ -9,7 +9,7 @@ import android.content.Context;
 
 import com.example.uberj.test1.storage.converters.StringToIntegerMapConverter;
 
-@Database(entities = {LetterTrainingSession.class, CompetencyWeights.class}, version = 4)
+@Database(entities = {CompetencyWeights.class, LetterTrainingSession.class}, version = 4)
 @TypeConverters({StringToIntegerMapConverter.class})
 public abstract class TheDatabase extends RoomDatabase {
     public static final String THE_DATABASE_NAME = "the_database";

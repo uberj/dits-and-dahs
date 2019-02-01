@@ -74,7 +74,6 @@ public class TheDatabaseTest {
         competencyWeightsDAO.insertCompetencyWeights(competencyWeights);
 
         LiveData<List<CompetencyWeights>> allCompetencyWeights = competencyWeightsDAO.getAllCompetencyWeights();
-        System.out.println(allCompetencyWeights.getValue());
         TestObserver.test(allCompetencyWeights)
                 .awaitNextValue()
                 .assertValue((ss) -> ss.size() == 2)
