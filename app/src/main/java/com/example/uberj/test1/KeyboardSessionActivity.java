@@ -12,8 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.uberj.test1.storage.TrainingSessionType;
-
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -24,8 +22,8 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
     public static final String WPM_REQUESTED = "wpm-requested";
     private int durationMinutesRequested;
     private int durationSecondsRequested;
-    protected long durationMillisRemaining;
-    protected long durationMillisRequested;
+    protected long durationRemainingMillis;
+    protected long durationRequestedMillis;
     private CountDownTimer countDownTimer;
     private Menu menu;
 
@@ -92,7 +90,7 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
         assert receiveBundle != null;
         durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
         durationSecondsRequested = receiveBundle.getInt(DURATION_REQUESTED_SECONDS, 0);
-        durationMillisRequested = 1000 * (durationMinutesRequested * 60 + durationSecondsRequested);
+        durationRequestedMillis = 1000 * (durationMinutesRequested * 60 + durationSecondsRequested);
         isPlaying = true;
         countDownTimer = buildCountDownTimer(1000 * (durationMinutesRequested * 60 + durationSecondsRequested + 1));
         countDownTimer.start();
@@ -107,11 +105,11 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
                 long minutesRemaining = secondsUntilFinished / 60;
                 long secondsRemaining = secondsUntilFinished % 60;
                 timeRemainingView.setText(String.format(Locale.ENGLISH, "%02d:%02d remaining", minutesRemaining, secondsRemaining));
-                durationMillisRemaining = millisUntilFinished;
+                durationRemainingMillis = millisUntilFinished;
             }
 
             public void onFinish() {
-                durationMillisRemaining = 0;
+                durationRemainingMillis = 0;
                 Intent data = buildResultIntent();
                 setResult(Activity.RESULT_OK, data);
                 finishSession(data.getExtras());
@@ -132,7 +130,7 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (durationMillisRemaining != 0) {
+        if (durationRemainingMillis != 0) {
             // Manage internal state
             countDownTimer.pause();
             isPlaying = false;
@@ -148,7 +146,7 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
             builder.setCancelable(false);
             builder.setMessage("Do you want to end this session?");
             builder.setPositiveButton("Yes", (dialog, which) -> {
-                durationMillisRemaining -= 1000; // Duration always seems to be off by -1s when back is pressed
+                durationRemainingMillis -= 1000; // Duration always seems to be off by -1s when back is pressed
                 Intent data = buildResultIntent();
                 setResult(Activity.RESULT_OK, data);
                 finishSession(data.getExtras());

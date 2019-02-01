@@ -188,10 +188,6 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
 
     private void letterChosenCallback(String letterChosen) {
         totalUniqueLettersChosen++;
-        Log.d(TAG, "new letter: " + totalUniqueLettersChosen);
-    }
-
-    private void letterPlayedCallback(String letterPlayed) {
     }
 
     @Override
@@ -203,9 +199,10 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         } else {
             trainingSession.endTimeEpocMillis = endTimeEpocMillis;
         }
-        long durationWorkedMillis = durationMillisRequested - durationMillisRemaining;
+        long durationWorkedMillis = durationRequestedMillis - durationRemainingMillis;
 
         trainingSession.endTimeEpocMillis = System.currentTimeMillis();
+        trainingSession.durationRequestedMillis = durationRequestedMillis;
         trainingSession.durationWorkedMillis = durationWorkedMillis;
         trainingSession.completed = durationWorkedMillis == 0;
         trainingSession.wpmAverage = calcWpmAverage(durationWorkedMillis);

@@ -18,6 +18,10 @@ public class LetterTrainingSession {
     @NonNull
     public Long durationWorkedMillis;
 
+    @ColumnInfo(name = "durationRequestedMillis")
+    @NonNull
+    public Long durationRequestedMillis;
+
     @ColumnInfo(name = "completed")
     @NonNull
     public Boolean completed;

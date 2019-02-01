@@ -19,7 +19,7 @@ import java.util.Map;
 public class TheDatabaseTest {
 
     private TheDatabase theDatabase;
-    private TrainingSessionDAO trainingSessionDAO;
+    private LetterTrainingSessionDAO letterTrainingSessionDAO;
     private CompetencyWeightsDAO competencyWeightsDAO;
 
     @Before
@@ -27,27 +27,29 @@ public class TheDatabaseTest {
         final Context context = InstrumentationRegistry.getTargetContext();
         context.deleteDatabase(TheDatabase.THE_DATABASE_NAME);
         theDatabase = TheDatabase.getDatabase(context);
-        trainingSessionDAO = theDatabase.trainingSessionDAO();
+        letterTrainingSessionDAO = theDatabase.trainingSessionDAO();
         competencyWeightsDAO = theDatabase.competencyWeightsDAO();
     }
 
     @Test
     public void testCreateReadLetterTrainingSession() throws InterruptedException {
-        TestObserver.test(trainingSessionDAO.getAllSessions())
+        TestObserver.test(letterTrainingSessionDAO.getAllSessions())
                 .awaitValue()
                 .assertValue(List::isEmpty);
         final LetterTrainingSession trainingSession = new LetterTrainingSession();
         trainingSession.endTimeEpocMillis = 444l;
         trainingSession.completed = true;
         trainingSession.durationWorkedMillis = 100l;
-        trainingSessionDAO.insertSession(trainingSession);
+        trainingSession.durationRequestedMillis = 99l;
+        letterTrainingSessionDAO.insertSession(trainingSession);
 
-        TestObserver.test(trainingSessionDAO.getAllSessions())
+        TestObserver.test(letterTrainingSessionDAO.getAllSessions())
                 .awaitValue()
                 .assertValue((ss) -> ss.size() == 1)
                 .assertValue((ss) -> ss.get(0).durationWorkedMillis.equals(trainingSession.durationWorkedMillis))
                 .assertValue((ss) -> ss.get(0).completed == trainingSession.completed)
-                .assertValue((ss) -> ss.get(0).endTimeEpocMillis.equals(trainingSession.endTimeEpocMillis));
+                .assertValue((ss) -> ss.get(0).endTimeEpocMillis.equals(trainingSession.endTimeEpocMillis))
+                .assertValue((ss) -> ss.get(0).durationRequestedMillis.equals(trainingSession.durationRequestedMillis));
     }
 
     @Test

@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 @Dao
-public interface TrainingSessionDAO {
+public interface LetterTrainingSessionDAO {
     @Query("SELECT * FROM LetterTrainingSession ORDER BY endTimeEpocMillis DESC")
     LiveData<List<LetterTrainingSession>> getAllSessions();
 
