@@ -28,11 +28,11 @@ public class LetterTrainingEngine {
     private static final int LETTER_WEIGHT_MAX = 100;
     private static final int LETTER_WEIGHT_MIN = 0;
 
-    private final Random r = new Random();
     private final CWToneManager cwToneManager;
     private final Consumer<String> letterChosenCallback;
     private volatile boolean threadKeepAlive = true;
     private volatile boolean isPaused = false;
+    private volatile boolean isInitialized = false;
     private List<String> playableKeys;
     private String currentLetter;
     private Thread audioThread;
@@ -159,9 +159,6 @@ public class LetterTrainingEngine {
 
             pmf.add(new Pair<>(letter, LETTER_WEIGHT_MAX - (double) letterWeight));
         }
-        for (Pair<String, Double> weight : pmf) {
-            Log.d(TAG, String.format("%s: %s", weight.getFirst(), weight.getSecond()));
-        }
         return pmf;
     }
 
@@ -169,14 +166,18 @@ public class LetterTrainingEngine {
         chooseDifferentLetter();
         audioThread = new Thread(audioLoop);
         audioThread.start();
+        isInitialized = true;
     }
 
     public void destroy() {
-        audioThread.interrupt();
+        threadKeepAlive = false;
+        if (audioThread != null) {
+            audioThread.interrupt();
+        }
     }
 
     public void resume() {
-        if (!isPaused) {
+        if (!isPaused || !isInitialized) {
             return;
         }
         isPaused = false;
@@ -186,7 +187,7 @@ public class LetterTrainingEngine {
     }
 
     public void pause() {
-        if (isPaused) {
+        if (isPaused || !isInitialized) {
             return;
         }
         isPaused = true;
@@ -208,5 +209,9 @@ public class LetterTrainingEngine {
 
     public int getCompetencyWeight(String letter) {
         return competencyWeights.get(letter);
+    }
+
+    public List<String> getPlayableKeys() {
+        return playableKeys;
     }
 }

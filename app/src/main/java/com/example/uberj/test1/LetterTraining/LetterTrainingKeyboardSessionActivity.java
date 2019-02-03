@@ -13,6 +13,7 @@ import com.example.uberj.test1.ProgressGradient;
 import com.example.uberj.test1.storage.CompetencyWeights;
 import com.example.uberj.test1.storage.LetterTrainingSession;
 import com.example.uberj.test1.storage.Repository;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -26,10 +27,10 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
     private static final String TAG = "LetterTrainingKeyboardSessionActivity";
 
     private static final float ENABLED_BUTTON_ALPHA = 1f;
-    private static final float ENABLED_PROGRESS_BAR_ALPHA = 0.65f;
+    private static final float ENABLED_PROGRESS_BAR_ALPHA = 0.75f;
 
-    private static final float DISABLED_BUTTON_ALPHA = 0.45f;
-    private static final float DISABLED_PROGRESS_BAR_ALPHA = 0.35f;
+    private static final float DISABLED_BUTTON_ALPHA = 0.35f;
+    private static final float DISABLED_PROGRESS_BAR_ALPHA = 0.25f;
 
     private int totalUniqueLettersChosen;
     private int totalCorrectGuesses;
@@ -110,16 +111,13 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         View progressBar = getLetterProgressBar(letter);
         Integer competencyWeight = engine.getCompetencyWeight(letter);
         Integer color = ProgressGradient.forWeight(competencyWeight);
-        Log.d(TAG, String.format("Setting progress bar for %s color %s", letter, color));
         progressBar.setBackgroundColor(color);
         progressBar.setAlpha(ENABLED_PROGRESS_BAR_ALPHA);
     }
 
     @Override
     public void onDestroy() {
-        if (engine != null) {
-            engine.destroy();
-        }
+        engine.destroy();
         if (endTimeEpocMillis < 0) {
             endTimeEpocMillis = System.currentTimeMillis();
         }
@@ -128,10 +126,8 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
 
     @Override
     public void onPause() {
-        if (engine != null) {
-            engine.pause();
-            endTimeEpocMillis = System.currentTimeMillis();
-        }
+        engine.pause();
+        endTimeEpocMillis = System.currentTimeMillis();
         super.onPause();
     }
 
@@ -160,43 +156,67 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Starts the timer
         super.onCreate(savedInstanceState);
         allPlayableButtons = getButtonsTagedAsPlayable();
 
         Bundle receiveBundle = getIntent().getExtras();
         assert receiveBundle != null;
         int wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
+        Log.d(TAG, "onCreated Called in LTKS");
 
-        final List<String> playableKeys = allPlayableButtons.stream().map(btn -> btn.getText().toString()).collect(Collectors.toList());
-        repository.competencyWeightsDAO.getAllCompetencyWeights()
-                .observeForever((weightsFromStorage) -> {
-                    competencyWeights = buildInitialCompetencyWeights(weightsFromStorage, playableKeys);
-                    List<String> inPlayKeyNames = setupInitialInPlayButtons(allPlayableButtons)
-                            .stream()
-                            .map(btn -> btn.getText().toString())
-                            .collect(Collectors.toList());
+        final List<String> allInPlayKeyNames = allPlayableButtons.stream().map(btn -> btn.getText().toString()).collect(Collectors.toList());
+        repository.competencyWeightsDAO.getLatestSession((previousWeight) -> {
+            Log.d(TAG, "Latest session loaded");
+            List<String> inPlayKeyNames;
+            if (previousWeight.isPresent()) {
+                competencyWeights = buildInitialCompetencyWeights(previousWeight.get(), allInPlayKeyNames);
+                inPlayKeyNames = buildInitialInPlayKeyNames(previousWeight.get());
+                Log.d(TAG, "No previous session weights");
+            } else {
+                competencyWeights = buildBlankWeights(allInPlayKeyNames);
+                inPlayKeyNames = buildFirstTwoKeyList();
+                Log.d(TAG, "Using previous session\nInplay: " + Joiner.on(", ").join(inPlayKeyNames));
+            }
 
-                    engine = new LetterTrainingEngine(wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights);
+            engine = new LetterTrainingEngine(wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights);
+            updateLayoutUsingTheseLetters(inPlayKeyNames);
+            for (String letter : competencyWeights.keySet()) {
+                updateProgressBarForLetter(letter);
+            }
 
-                    for (String letter : competencyWeights.keySet()) {
-                        updateProgressBarForLetter(letter);
-                    }
-
-                    engine.initEngine();
-                });
+            engine.initEngine();
+            startTimer();
+        });
     }
 
-    private Map<String, Integer> buildInitialCompetencyWeights(List<CompetencyWeights> weights, List<String> playableKeys) {
+    private List<String> buildFirstTwoKeyList() {
+        return Lists.newArrayList(
+                KochLetterSequence.sequence.get(0),
+                KochLetterSequence.sequence.get(1)
+        );
+    }
+
+    private List<String> buildInitialInPlayKeyNames(CompetencyWeights competencyWeights) {
+        if (competencyWeights.activeLetters == null || competencyWeights.activeLetters.size() == 0) {
+            return buildFirstTwoKeyList();
+        }
+        return competencyWeights.activeLetters;
+    }
+
+    private Map<String,Integer> buildBlankWeights(List<String> playableKeys) {
+        Map<String, Integer> competencyWeights = Maps.newHashMap();
+        for (String playableKey : playableKeys) {
+            competencyWeights.put(playableKey, 0);
+        }
+        return competencyWeights;
+    }
+
+    private Map<String, Integer> buildInitialCompetencyWeights(CompetencyWeights weights, List<String> playableKeys) {
         Map<String, Integer> competencyWeights;
-        if (weights == null || weights.size() == 0) {
-            competencyWeights = Maps.newHashMap();
-            for (String playableKey : playableKeys) {
-                competencyWeights.put(playableKey, 0);
-            }
+        if (weights.weights.size() == 0) {
+            competencyWeights = buildBlankWeights(playableKeys);
         } else {
-            CompetencyWeights previousCompetencyWeights = weights.get(0);
-            competencyWeights = previousCompetencyWeights.weights;
+            competencyWeights = weights.weights;
             for (String playableKey : playableKeys) {
                 if (!competencyWeights.containsKey(playableKey)) {
                     competencyWeights.put(playableKey, 0);
@@ -207,17 +227,13 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         return competencyWeights;
     }
 
-    private List<Button> setupInitialInPlayButtons(List<Button> playableButtons) {
-        // TODO: read from storage which keys are enabled
-        return playableButtons;
-    }
-
     private void letterChosenCallback(String letterChosen) {
         totalUniqueLettersChosen++;
     }
 
     @Override
     protected void finishSession(Bundle data) {
+        engine.destroy();
         LetterTrainingSession trainingSession = new LetterTrainingSession();
 
         if (endTimeEpocMillis < 0) {
@@ -244,6 +260,7 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
 
         CompetencyWeights endWeights = new CompetencyWeights();
         endWeights.weights = competencyWeights;
+        endWeights.activeLetters = engine.getPlayableKeys();
         repository.insertMostRecentCompetencyWeights(endWeights);
     }
 

@@ -5,6 +5,7 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -18,4 +19,7 @@ public class CompetencyWeights {
 
     @ColumnInfo(name = "weights")
     public Map<String, Integer> weights;
+
+    @ColumnInfo(name = "activeLetters")
+    public List<String> activeLetters;
 }

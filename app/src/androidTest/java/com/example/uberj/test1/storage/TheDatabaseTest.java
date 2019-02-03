@@ -6,9 +6,10 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.example.uberj.test1.TestObserver;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -18,12 +19,12 @@ import java.util.Map;
 @RunWith(AndroidJUnit4.class)
 public class TheDatabaseTest {
 
-    private TheDatabase theDatabase;
-    private LetterTrainingSessionDAO letterTrainingSessionDAO;
-    private CompetencyWeightsDAO competencyWeightsDAO;
+    private static TheDatabase theDatabase;
+    private static LetterTrainingSessionDAO letterTrainingSessionDAO;
+    private static CompetencyWeightsDAO competencyWeightsDAO;
 
-    @Before
-    public void setUp() {
+    @BeforeClass
+    public static void setUp() {
         final Context context = InstrumentationRegistry.getTargetContext();
         context.deleteDatabase(TheDatabase.THE_DATABASE_NAME);
         theDatabase = TheDatabase.getDatabase(context);
@@ -66,7 +67,9 @@ public class TheDatabaseTest {
         weights.put("A", 1);
         weights.put("B", 2);
         weights.put("C", 3);
+        List<String> activeLetters = Lists.newArrayList("1", "2", "3");
         competencyWeights.weights = weights;
+        competencyWeights.activeLetters = activeLetters;
         competencyWeights.createdAtEpocMillis = System.currentTimeMillis();
         competencyWeightsDAO.insertCompetencyWeights(competencyWeights);
 
@@ -78,7 +81,8 @@ public class TheDatabaseTest {
                 .awaitNextValue()
                 .assertValue((ss) -> ss.size() == 2)
                 .assertValue((ss) -> ss.get(0).createdAtEpocMillis == competencyWeights.createdAtEpocMillis)
-                .assertValue((ss) -> ss.get(0).weights.entrySet().equals(competencyWeights.weights.entrySet()));
+                .assertValue((ss) -> ss.get(0).weights.entrySet().equals(competencyWeights.weights.entrySet()))
+                .assertValue((ss) -> ss.get(0).activeLetters.equals(competencyWeights.activeLetters));
     }
 
 }

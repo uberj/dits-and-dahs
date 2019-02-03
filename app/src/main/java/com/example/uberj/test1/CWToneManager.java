@@ -155,7 +155,6 @@ public class CWToneManager {
         float symbolsPerSecond = (wpm * 50f) / 60f;
         float symbolDuration = 1 / symbolsPerSecond;
         int numSamplesPerSymbol = (int) (symbolDuration * sampleRateHz);
-        Log.d(TAG, "Entire Duration: " + symbolsPerSecond * totalNumSymbols);
 
         int totalNumSamples = totalNumSymbols * numSamplesPerSymbol;
         PCMDetails pcmDetails = new PCMDetails();

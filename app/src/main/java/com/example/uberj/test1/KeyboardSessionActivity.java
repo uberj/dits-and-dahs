@@ -53,13 +53,13 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-        countDownTimer.pause();
+        pauseTimer();
     }
 
     @Override
     public void onResume() {
         if (countDownTimer.isPaused()) {
-            countDownTimer.resume();
+            resumeTimer();
         }
         super.onResume();
     }
@@ -111,8 +111,6 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
         durationRequestedMillis = 1000 * (durationMinutesRequested * 60 + durationSecondsRequested);
         isPlaying = true;
         countDownTimer = buildCountDownTimer(1000 * (durationMinutesRequested * 60 + durationSecondsRequested + 1));
-        countDownTimer.start();
-
     }
 
     private CountDownTimer buildCountDownTimer(long durationsMillis) {
@@ -150,7 +148,7 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (durationRemainingMillis != 0) {
             // Manage internal state
-            countDownTimer.pause();
+            pauseTimer();
             isPlaying = false;
             // Call subclasses to pause themselves
             pauseSession();
@@ -189,14 +187,27 @@ public abstract class KeyboardSessionActivity extends AppCompatActivity {
         if (isPlaying) {
             // Pause
             m.setIcon(R.mipmap.ic_play);
-            countDownTimer.pause();
+            pauseTimer();
             pauseSession();
         } else {
             m.setIcon(R.mipmap.ic_pause);
-            countDownTimer.resume();
+            resumeTimer();
             resumeSession();
         }
         isPlaying = !isPlaying;
+    }
+
+
+    protected void startTimer() {
+        countDownTimer.start();
+    }
+
+    protected void pauseTimer() {
+        countDownTimer.pause();
+    }
+
+    protected void resumeTimer() {
+        countDownTimer.pause();
     }
 
     protected abstract void resumeSession();

@@ -17,7 +17,7 @@ public interface LetterTrainingSessionDAO {
     default void getLatestSession(Consumer<Optional<LetterTrainingSession>> observerCallback) {
         LiveData<List<LetterTrainingSession>> getCallback = getAllSessions();
         getCallback.observeForever((allSessions) -> {
-            if (allSessions.isEmpty()) {
+            if (allSessions == null || allSessions.isEmpty()) {
                 observerCallback.accept(Optional.empty());
             } else {
                 observerCallback.accept(Optional.of(allSessions.get(0)));

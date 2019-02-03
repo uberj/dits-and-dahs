@@ -6,6 +6,8 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 @Dao
 public interface CompetencyWeightsDAO {
@@ -14,4 +16,15 @@ public interface CompetencyWeightsDAO {
 
     @Insert
     void insertCompetencyWeights(CompetencyWeights competencyWeights);
+
+    default void getLatestSession(Consumer<Optional<CompetencyWeights>> observerCallback) {
+        LiveData<List<CompetencyWeights>> getCallback = getAllCompetencyWeights();
+        getCallback.observeForever((allWeights) -> {
+            if (allWeights == null || allWeights.isEmpty()) {
+                observerCallback.accept(Optional.empty());
+            } else {
+                observerCallback.accept(Optional.of(allWeights.get(0)));
+            }
+        });
+    }
 }
