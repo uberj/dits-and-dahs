@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.uberj.test1.CWToneManager;
@@ -247,6 +248,7 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
 
     private CountDownTimer buildCountDownTimer(long durationsMillis) {
         TextView timeRemainingView = findViewById(R.id.toolbar_title_time_remaining);
+        ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
         return new CountDownTimer(durationsMillis, 1000) {
             public void onTick(long millisUntilFinished) {
                 long secondsUntilFinished = millisUntilFinished / 1000;
@@ -254,6 +256,9 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
                 long secondsRemaining = secondsUntilFinished % 60;
                 timeRemainingView.setText(String.format(Locale.ENGLISH, "%02d:%02d remaining", minutesRemaining, secondsRemaining));
                 durationRemainingMillis = millisUntilFinished;
+                int progress = Math.round((((float) millisUntilFinished / (float) durationRequestedMillis)) * 100f);
+                System.out.println("progress: " + progress);
+                timerProgressBar.setProgress(progress, true);
             }
 
             public void onFinish() {
