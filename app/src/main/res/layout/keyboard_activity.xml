@@ -5,6 +5,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:screenOrientation="landscape"
+    android:id="@+id/keyboard-base"
     app:layout_constraintWidth_max="wrap">
     <android.support.v7.widget.Toolbar
         android:id="@+id/keyboard_toolbar"
@@ -21,8 +22,8 @@
             android:layout_gravity="center"
             android:id="@+id/toolbar-title-time-remaining" />
     </android.support.v7.widget.Toolbar>
+    <!--
     <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent">
-
         <LinearLayout android:layout_width="0dip" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical">
             <Button android:id="@+id/key1" android:layout_width="match_parent" android:layout_height="wrap_content" android:onClick="keyboardButtonClicked" android:tag="inplay" android:text="1" />
             <View android:tag="progressbar" android:id="@+id/progressBarForKey1" android:layout_marginTop="@dimen/progressBarTopMargin" android:layout_marginStart="@dimen/progressBarStartEndMargin" android:layout_marginEnd="@dimen/progressBarStartEndMargin" android:layout_width="match_parent" android:layout_height="@dimen/progressBarHeight" android:background="@drawable/progress_bar" />
@@ -207,4 +208,5 @@
         <Button android:onClick="keyboardButtonClicked" android:text="DEL" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:id="@+id/keyDEL"/>
         <Button android:onClick="keyboardButtonClicked" android:text="SPC" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:id="@+id/keySPC"/>
     </TableRow>
+    -->
 </TableLayout>

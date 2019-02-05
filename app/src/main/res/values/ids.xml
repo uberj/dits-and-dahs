@@ -82,8 +82,12 @@
     <item name="progressBarForKey73" type="id"/>
     <item name="keySLASH" type="id"/>
     <item name="progressBarForKeySLASH" type="id"/>
-    <item name="key." type="id"/>
-    <item name="progressBarForKey." type="id"/>
+    <item name="keyDOT" type="id"/>
+    <item name="progressBarForKeyPERIOD" type="id"/>
+    <item name="keyPERIOD" type="id"/>
+    <item name="progressBarForKeyQUESTION" type="id"/>
+    <item name="keyCOMMA" type="id"/>
+    <item name="progressBarForKeyCOMMA" type="id"/>
     <item name="keyDEL" type="id"/>
     <item name="keySPC" type="id"/>
 </resources>

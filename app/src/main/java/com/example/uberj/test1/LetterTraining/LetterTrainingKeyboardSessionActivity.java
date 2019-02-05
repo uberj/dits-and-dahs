@@ -1,29 +1,52 @@
 package com.example.uberj.test1.LetterTraining;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.example.uberj.test1.CWToneManager;
-import com.example.uberj.test1.KeyboardSessionActivity;
+import com.example.uberj.test1.CountDownTimer;
+import com.example.uberj.test1.DynamicKeyboard;
 import com.example.uberj.test1.KochLetterSequence;
 import com.example.uberj.test1.ProgressGradient;
+import com.example.uberj.test1.R;
+import com.example.uberj.test1.keyboards.SimpleLetters;
 import com.example.uberj.test1.storage.CompetencyWeights;
 import com.example.uberj.test1.storage.LetterTrainingSession;
 import com.example.uberj.test1.storage.Repository;
-import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivity {
+public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
+    public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
+    public static final String DURATION_REQUESTED_SECONDS = "duration-requested-seconds";
+    public static final String SESSION_TYPE = "session-type";
+    public static final String WPM_REQUESTED = "wpm-requested";
+    private int durationMinutesRequested;
+    private int durationSecondsRequested;
+    protected long durationRemainingMillis;
+    protected long durationRequestedMillis;
+    private CountDownTimer countDownTimer;
+    private Menu menu;
+    private boolean isPlaying;
+
     private static final String TAG = "LetterTrainingKeyboardSessionActivity";
 
     private static final float ENABLED_BUTTON_ALPHA = 1f;
@@ -40,17 +63,33 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
     private final Repository repository = new Repository(this);
 
     private LetterTrainingEngine engine;
-    private Map<String, Integer> competencyWeights = null;
     private List<Button> allPlayableButtons;
+    private DynamicKeyboard keyboard;
+    private int wpmRequested;
 
-    private List<Button> getButtonsTagedAsPlayable() {
+    public static ArrayList<View> getViewsByTag(ViewGroup root, String tag) {
+        ArrayList<View> views = new ArrayList<View>();
+        final int childCount = root.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final View child = root.getChildAt(i);
+            if (child instanceof ViewGroup) {
+                views.addAll(getViewsByTag((ViewGroup) child, tag));
+            }
+
+            final Object tagObj = child.getTag();
+            if (tagObj != null && tagObj.equals(tag)) {
+                views.add(child);
+            }
+
+        }
+
+        return views;
+    }
+
+    private List<Button> getButtonsTaggedAsPlayable() {
         View rootView = getWindow().getDecorView().findViewById(android.R.id.content);
-        ArrayList<View> inplay = KeyboardSessionActivity.getViewsByTag((ViewGroup) rootView.getParent(), "inplay");
-        List<Button> playableButtons = inplay.stream().map(v -> ((Button) v)).collect(Collectors.toList());
-        playableButtons
-                .forEach((btn) -> btn.setOnLongClickListener(this::playableKeyLongClickHandler));
-
-        return playableButtons;
+        ArrayList<View> inplay = getViewsByTag((ViewGroup) rootView.getParent(), "inplay");
+        return inplay.stream().map(v -> ((Button) v)).collect(Collectors.toList());
     }
 
     private boolean playableKeyLongClickHandler(View view) {
@@ -59,7 +98,7 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         letters up to, and including, that letter in the sequence they have provided (Default is
         Koch
         */
-        String buttonLetter = getButtonLetter(view);
+        String buttonLetter = keyboard.getButtonLetter(view);
 
         List<String> lettersToBePlayedFromNowOn = Lists.newArrayList();
         for (String letter : KochLetterSequence.sequence) {
@@ -77,21 +116,21 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
     private void updateLayoutUsingTheseLetters(List<String> updatedInPlayLetters) {
         for (Button button : allPlayableButtons) {
             String buttonLetter = button.getText().toString();
-            View progressBar = getLetterProgressBar(buttonLetter);
+            View progressBar = keyboard.getLetterProgressBar(buttonLetter);
             if (updatedInPlayLetters.contains(buttonLetter)) {
-                updateProgressBarForLetter(buttonLetter);
+                updateProgressBarColorForLetter(buttonLetter);
                 button.setAlpha(ENABLED_BUTTON_ALPHA);
                 progressBar.setAlpha(ENABLED_PROGRESS_BAR_ALPHA);
             } else {
                 button.setAlpha(DISABLED_BUTTON_ALPHA);
                 progressBar.setAlpha(DISABLED_PROGRESS_BAR_ALPHA);
+                progressBar.setBackgroundColor(ProgressGradient.DISABLED);
             }
         }
     }
 
-    @Override
     public void keyboardButtonClicked(View v) {
-        String letter = getButtonLetter(v);
+        String letter = keyboard.getButtonLetter(v);
         Optional<Boolean> guess = engine.guess(letter);
         guess.ifPresent(wasCorrectGuess -> updateCompetencyWeights(letter, wasCorrectGuess));
     }
@@ -104,15 +143,14 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
             totalIncorrectGuesses++;
         }
 
-        updateProgressBarForLetter(letter);
+        updateProgressBarColorForLetter(letter);
     }
 
-    private void updateProgressBarForLetter(String letter) {
-        View progressBar = getLetterProgressBar(letter);
+    private void updateProgressBarColorForLetter(String letter) {
+        View progressBar = keyboard.getLetterProgressBar(letter);
         Integer competencyWeight = engine.getCompetencyWeight(letter);
         Integer color = ProgressGradient.forWeight(competencyWeight);
         progressBar.setBackgroundColor(color);
-        progressBar.setAlpha(ENABLED_PROGRESS_BAR_ALPHA);
     }
 
     @Override
@@ -128,6 +166,7 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
     public void onPause() {
         engine.pause();
         endTimeEpocMillis = System.currentTimeMillis();
+        pauseTimer();
         super.onPause();
     }
 
@@ -137,18 +176,19 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
             engine.resume();
             endTimeEpocMillis = -1;
         }
+        if (countDownTimer != null && countDownTimer.isPaused()) {
+            resumeTimer();
+        }
         super.onResume();
     }
 
-    @Override
-    protected void resumeSession() {
+    private void resumeSession() {
         if (engine != null) {
             engine.resume();
         }
     }
 
-    @Override
-    protected void pauseSession() {
+    private void pauseSession() {
         if (engine != null) {
             engine.pause();
         }
@@ -157,36 +197,135 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        allPlayableButtons = getButtonsTagedAsPlayable();
-
+        setContentView(R.layout.keyboard_activity);
         Bundle receiveBundle = getIntent().getExtras();
         assert receiveBundle != null;
-        int wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
-        Log.d(TAG, "onCreated Called in LTKS");
+        durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
+        durationSecondsRequested = receiveBundle.getInt(DURATION_REQUESTED_SECONDS, 0);
+        durationRequestedMillis = 1000 * (durationMinutesRequested * 60 + durationSecondsRequested);
+        wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
+        repository.competencyWeightsDAO.getLatestSession(this::buildAndStartSession);
+    }
 
-        final List<String> allInPlayKeyNames = allPlayableButtons.stream().map(btn -> btn.getText().toString()).collect(Collectors.toList());
-        repository.competencyWeightsDAO.getLatestSession((previousWeight) -> {
-            Log.d(TAG, "Latest session loaded");
-            List<String> inPlayKeyNames;
-            if (previousWeight.isPresent()) {
-                competencyWeights = buildInitialCompetencyWeights(previousWeight.get(), allInPlayKeyNames);
-                inPlayKeyNames = buildInitialInPlayKeyNames(previousWeight.get());
-                Log.d(TAG, "No previous session weights");
-            } else {
-                competencyWeights = buildBlankWeights(allInPlayKeyNames);
-                inPlayKeyNames = buildFirstTwoKeyList();
-                Log.d(TAG, "Using previous session\nInplay: " + Joiner.on(", ").join(inPlayKeyNames));
+    private void buildAndStartSession(Optional<CompetencyWeights> previousWeight) {
+        Map<String, Integer> competencyWeights = buildInitialCompetencyWeights(previousWeight.orElse(null));
+        List<String> inPlayKeyNames = buildInitialInPlayKeyNames(previousWeight.orElse(null));
+        keyboard = new DynamicKeyboard.Builder()
+                .setContext(this)
+                .setKeys(SimpleLetters.keys)
+                .setButtonOnClickListener(this::keyboardButtonClicked)
+                .setButtonLongClickListener(this::playableKeyLongClickHandler)
+                .setButtonCallback((button) -> {
+                    if (inPlayKeyNames.contains(button.getText().toString())) {
+                        button.setAlpha(ENABLED_BUTTON_ALPHA);
+                    } else {
+                        button.setAlpha(DISABLED_BUTTON_ALPHA);
+                    }
+                })
+                .setProgressBarCallback((button, progressBar) -> {
+                    progressBar.setBackgroundColor(ProgressGradient.DISABLED);
+                    progressBar.setAlpha(ENABLED_PROGRESS_BAR_ALPHA);
+                })
+                .createKeyboardBuilder();
+        keyboard.buildAtRoot(findViewById(R.id.keyboard_base));
+
+        allPlayableButtons = getButtonsTaggedAsPlayable();
+
+        Toolbar keyboardToolbar = findViewById(R.id.keyboard_toolbar);
+        keyboardToolbar.inflateMenu(R.menu.keyboard);
+        setSupportActionBar(keyboardToolbar);
+
+        countDownTimer = buildCountDownTimer(1000 * (durationMinutesRequested * 60 + durationSecondsRequested + 1));
+
+        engine = new LetterTrainingEngine(wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights);
+        inPlayKeyNames.forEach(this::updateProgressBarColorForLetter);
+
+        engine.initEngine();
+        isPlaying = true;
+        startTimer();
+    }
+
+    private CountDownTimer buildCountDownTimer(long durationsMillis) {
+        TextView timeRemainingView = findViewById(R.id.toolbar_title_time_remaining);
+        return new CountDownTimer(durationsMillis, 1000) {
+            public void onTick(long millisUntilFinished) {
+                long secondsUntilFinished = millisUntilFinished / 1000;
+                long minutesRemaining = secondsUntilFinished / 60;
+                long secondsRemaining = secondsUntilFinished % 60;
+                timeRemainingView.setText(String.format(Locale.ENGLISH, "%02d:%02d remaining", minutesRemaining, secondsRemaining));
+                durationRemainingMillis = millisUntilFinished;
             }
 
-            engine = new LetterTrainingEngine(wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights);
-            updateLayoutUsingTheseLetters(inPlayKeyNames);
-            for (String letter : competencyWeights.keySet()) {
-                updateProgressBarForLetter(letter);
+            public void onFinish() {
+                durationRemainingMillis = 0;
+                Intent data = buildResultIntent();
+                setResult(Activity.RESULT_OK, data);
+                finishSession(data.getExtras());
+                finish();
             }
+        };
+    }
 
-            engine.initEngine();
-            startTimer();
-        });
+    @Override
+    public void onBackPressed() {
+        if (durationRemainingMillis != 0) {
+            // Manage internal state
+            pauseTimer();
+            isPlaying = false;
+            // Call subclasses to pause themselves
+            pauseSession();
+
+            // Update UI to indicate paused session. Player will need to manually trigger play to resume
+            MenuItem playPauseIcon = menu.findItem(R.id.keyboard_pause_play);
+            playPauseIcon.setIcon(R.mipmap.ic_play);
+
+            // Build alert and show to user for exit confirmation
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setCancelable(false);
+            builder.setMessage("Do you want to end this session?");
+            builder.setPositiveButton("Yes", (dialog, which) -> {
+                durationRemainingMillis -= 1000; // Duration always seems to be off by -1s when back is pressed
+                Intent data = buildResultIntent();
+                setResult(Activity.RESULT_OK, data);
+                finishSession(data.getExtras());
+                finish();
+            });
+            builder.setNegativeButton("No", (dialog, which) -> dialog.cancel());
+            AlertDialog alert = builder.create();
+            alert.show();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        this.menu = menu;
+        getMenuInflater().inflate(R.menu.keyboard, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    public void onClickPlayPauseHandler(MenuItem m) {
+        // TODO: use timer state instead of isPlaying, then remove isPlaying
+        if (isPlaying) {
+            // Pause
+            m.setIcon(R.mipmap.ic_play);
+            pauseTimer();
+            pauseSession();
+        } else {
+            m.setIcon(R.mipmap.ic_pause);
+            resumeTimer();
+            resumeSession();
+        }
+        isPlaying = !isPlaying;
+    }
+
+    private Intent buildResultIntent() {
+        // TODO, clean this up
+        Intent intent = new Intent();
+        Bundle sendBundle = new Bundle();
+        intent.putExtras(sendBundle);
+        return intent;
     }
 
     private List<String> buildFirstTwoKeyList() {
@@ -197,10 +336,10 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
     }
 
     private List<String> buildInitialInPlayKeyNames(CompetencyWeights competencyWeights) {
-        if (competencyWeights.activeLetters == null || competencyWeights.activeLetters.size() == 0) {
-            return buildFirstTwoKeyList();
+        if (competencyWeights != null && competencyWeights.activeLetters != null && competencyWeights.activeLetters.size() != 0) {
+            return competencyWeights.activeLetters;
         }
-        return competencyWeights.activeLetters;
+        return buildFirstTwoKeyList();
     }
 
     private Map<String,Integer> buildBlankWeights(List<String> playableKeys) {
@@ -211,8 +350,13 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         return competencyWeights;
     }
 
-    private Map<String, Integer> buildInitialCompetencyWeights(CompetencyWeights weights, List<String> playableKeys) {
+    private Map<String, Integer> buildInitialCompetencyWeights(CompetencyWeights weights) {
+        if (weights == null) {
+            return buildBlankWeights(SimpleLetters.allPlayableKeysNames());
+        }
+
         Map<String, Integer> competencyWeights;
+        List<String> playableKeys = SimpleLetters.allPlayableKeysNames();
         if (weights.weights.size() == 0) {
             competencyWeights = buildBlankWeights(playableKeys);
         } else {
@@ -231,8 +375,7 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         totalUniqueLettersChosen++;
     }
 
-    @Override
-    protected void finishSession(Bundle data) {
+    private void finishSession(Bundle data) {
         engine.destroy();
         LetterTrainingSession trainingSession = new LetterTrainingSession();
 
@@ -259,7 +402,7 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         repository.insertLetterTrainingSession(trainingSession);
 
         CompetencyWeights endWeights = new CompetencyWeights();
-        endWeights.weights = competencyWeights;
+        endWeights.weights = engine.getCompetencyWeights();
         endWeights.activeLetters = engine.getPlayableKeys();
         repository.insertMostRecentCompetencyWeights(endWeights);
     }
@@ -272,5 +415,17 @@ public class LetterTrainingKeyboardSessionActivity extends KeyboardSessionActivi
         // wpmAverage = accurateWords / minutes
         float minutesWorked = (float) (durationWorkedMillis / 1000) / 60;
         return accurateWords / minutesWorked;
+    }
+
+    private void startTimer() {
+        countDownTimer.start();
+    }
+
+    private void pauseTimer() {
+        countDownTimer.pause();
+    }
+
+    private void resumeTimer() {
+        countDownTimer.pause();
     }
 }

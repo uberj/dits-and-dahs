@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
@@ -157,7 +156,7 @@ public class LetterTrainingEngine {
                 continue;
             }
 
-            pmf.add(new Pair<>(letter, LETTER_WEIGHT_MAX - (double) letterWeight));
+            pmf.add(new Pair<>(letter, Math.max(1, LETTER_WEIGHT_MAX - (double) letterWeight)));
         }
         return pmf;
     }
@@ -213,5 +212,9 @@ public class LetterTrainingEngine {
 
     public List<String> getPlayableKeys() {
         return playableKeys;
+    }
+
+    public Map<String,Integer> getCompetencyWeights() {
+        return competencyWeights;
     }
 }
