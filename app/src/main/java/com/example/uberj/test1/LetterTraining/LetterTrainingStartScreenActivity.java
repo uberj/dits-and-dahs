@@ -9,11 +9,9 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.example.uberj.test1.CharacterAnalysis;
-import com.example.uberj.test1.KeyboardSessionActivity;
 import com.example.uberj.test1.R;
 import com.example.uberj.test1.storage.LetterTrainingSessionDAO;
 import com.example.uberj.test1.storage.TheDatabase;
-import com.example.uberj.test1.storage.TrainingSessionType;
 
 import java.util.Locale;
 
@@ -44,10 +42,9 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
         startButton.setOnClickListener(v -> {
             Intent sendIntent = new Intent(getApplicationContext(), LetterTrainingKeyboardSessionActivity.class);
             Bundle bundle = new Bundle();
-            bundle.putInt(KeyboardSessionActivity.WPM_REQUESTED, 20);
-            bundle.putInt(KeyboardSessionActivity.DURATION_REQUESTED_SECONDS, secondsPicker.getValue());
-            bundle.putInt(KeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getValue());
-            bundle.putString(KeyboardSessionActivity.SESSION_TYPE, TrainingSessionType.LETTER_TRAINING.name());
+            bundle.putInt(LetterTrainingKeyboardSessionActivity.WPM_REQUESTED, 20);
+            bundle.putInt(LetterTrainingKeyboardSessionActivity.DURATION_REQUESTED_SECONDS, secondsPicker.getValue());
+            bundle.putInt(LetterTrainingKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getValue());
             sendIntent.putExtras(bundle);
             startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);  // NOTE: Ignore request code for now. might become important later
         });

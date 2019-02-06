@@ -165,9 +165,9 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
 
     @Override
     public void onPause() {
+        countDownTimer.pause();
         engine.pause();
         endTimeEpocMillis = System.currentTimeMillis();
-        pauseTimer();
         super.onPause();
     }
 
@@ -178,7 +178,7 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
             endTimeEpocMillis = -1;
         }
         if (countDownTimer != null && countDownTimer.isPaused()) {
-            resumeTimer();
+            countDownTimer.resume();
         }
         super.onResume();
     }
@@ -243,21 +243,15 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
 
         engine.initEngine();
         isPlaying = true;
-        startTimer();
+        countDownTimer.start();
     }
 
     private CountDownTimer buildCountDownTimer(long durationsMillis) {
-        TextView timeRemainingView = findViewById(R.id.toolbar_title_time_remaining);
         ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
-        return new CountDownTimer(durationsMillis, 1000) {
+        return new CountDownTimer(durationsMillis, 50) {
             public void onTick(long millisUntilFinished) {
-                long secondsUntilFinished = millisUntilFinished / 1000;
-                long minutesRemaining = secondsUntilFinished / 60;
-                long secondsRemaining = secondsUntilFinished % 60;
-                timeRemainingView.setText(String.format(Locale.ENGLISH, "%02d:%02d remaining", minutesRemaining, secondsRemaining));
                 durationRemainingMillis = millisUntilFinished;
-                int progress = Math.round((((float) millisUntilFinished / (float) durationRequestedMillis)) * 100f);
-                System.out.println("progress: " + progress);
+                int progress = Math.round((((float) millisUntilFinished / (float) durationRequestedMillis)) * 1000f);
                 timerProgressBar.setProgress(progress, true);
             }
 
@@ -275,7 +269,7 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (durationRemainingMillis != 0) {
             // Manage internal state
-            pauseTimer();
+            countDownTimer.pause();
             isPlaying = false;
             // Call subclasses to pause themselves
             pauseSession();
@@ -312,14 +306,15 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
 
     public void onClickPlayPauseHandler(MenuItem m) {
         // TODO: use timer state instead of isPlaying, then remove isPlaying
-        if (isPlaying) {
-            // Pause
+        if (!countDownTimer.isPaused()) {
+            // User wants pause
             m.setIcon(R.mipmap.ic_play);
-            pauseTimer();
+            countDownTimer.pause();
             pauseSession();
         } else {
+            // User wants play
             m.setIcon(R.mipmap.ic_pause);
-            resumeTimer();
+            countDownTimer.resume();
             resumeSession();
         }
         isPlaying = !isPlaying;
@@ -422,15 +417,4 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
         return accurateWords / minutesWorked;
     }
 
-    private void startTimer() {
-        countDownTimer.start();
-    }
-
-    private void pauseTimer() {
-        countDownTimer.pause();
-    }
-
-    private void resumeTimer() {
-        countDownTimer.pause();
-    }
 }
