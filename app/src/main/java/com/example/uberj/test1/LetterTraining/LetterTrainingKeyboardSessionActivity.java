@@ -2,7 +2,11 @@ package com.example.uberj.test1.LetterTraining;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -132,8 +136,20 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
 
     public void keyboardButtonClicked(View v) {
         String letter = keyboard.getButtonLetter(v);
+        if (!engine.isValidGuess(letter)) {
+            return;
+        }
+
         Optional<Boolean> guess = engine.guess(letter);
-        guess.ifPresent(wasCorrectGuess -> updateCompetencyWeights(letter, wasCorrectGuess));
+        guess.ifPresent(wasCorrectGuess -> {
+            ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
+            if (!wasCorrectGuess) {
+                TransitionDrawable background = (TransitionDrawable) timerProgressBar.getProgressDrawable();
+                background.startTransition(0);
+                background.reverseTransition(500);
+            }
+            updateCompetencyWeights(letter, wasCorrectGuess);
+        });
     }
 
     private void updateCompetencyWeights(String letter, boolean wasCorrectGuess) {
@@ -165,7 +181,9 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
 
     @Override
     public void onPause() {
-        countDownTimer.pause();
+        if (countDownTimer != null) {
+            countDownTimer.pause();
+        }
         engine.pause();
         endTimeEpocMillis = System.currentTimeMillis();
         super.onPause();

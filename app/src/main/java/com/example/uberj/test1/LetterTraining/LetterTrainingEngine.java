@@ -217,4 +217,8 @@ public class LetterTrainingEngine {
     public Map<String,Integer> getCompetencyWeights() {
         return competencyWeights;
     }
+
+    public boolean isValidGuess(String letter) {
+        return playableKeys.contains(letter);
+    }
 }
