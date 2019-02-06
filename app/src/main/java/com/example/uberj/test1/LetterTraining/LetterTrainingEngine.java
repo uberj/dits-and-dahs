@@ -26,6 +26,7 @@ public class LetterTrainingEngine {
     private static final String TAG = "LetterTrainingEngine";
     private static final int LETTER_WEIGHT_MAX = 100;
     private static final int LETTER_WEIGHT_MIN = 0;
+    private static final int INCLUSION_COMPETENCY_CUTOFF_WEIGHT = 50;
 
     private final CWToneManager cwToneManager;
     private final Consumer<String> letterChosenCallback;
@@ -37,8 +38,10 @@ public class LetterTrainingEngine {
     private Thread audioThread;
     private Runnable audioLoop;
     private final Map<String, Integer> competencyWeights;
+    private final List<String> letterOrder;
 
-    public LetterTrainingEngine(int wpm, Consumer<String> letterChosenCallback, List<String> playableKeys, @Nonnull Map<String, Integer> competencyWeights) {
+    public LetterTrainingEngine(List<String> letterOrder, int wpm, Consumer<String> letterChosenCallback, List<String> playableKeys, @Nonnull Map<String, Integer> competencyWeights) {
+        this.letterOrder = letterOrder;
         this.letterChosenCallback = letterChosenCallback;
         this.cwToneManager = new CWToneManager(wpm);
         this.playableKeys = playableKeys;
@@ -206,6 +209,25 @@ public class LetterTrainingEngine {
         }
     }
 
+    public List<String> getNQualifiedLetters(int n) {
+        ArrayList<String> qualifiedLetters = Lists.newArrayList();
+        for (String letter : letterOrder) {
+            Integer weight = competencyWeights.get(letter);
+            if (weight == null) {
+                continue;
+            }
+            if (weight < INCLUSION_COMPETENCY_CUTOFF_WEIGHT) {
+                continue;
+            }
+
+            qualifiedLetters.add(letter);
+            if(--n == 0){
+                break;
+            }
+        }
+        return qualifiedLetters;
+    }
+
     public int getCompetencyWeight(String letter) {
         return competencyWeights.get(letter);
     }
@@ -220,5 +242,38 @@ public class LetterTrainingEngine {
 
     public boolean isValidGuess(String letter) {
         return playableKeys.contains(letter);
+    }
+
+    public boolean shouldIntroduceNewLetter() {
+        int furthestLetterIdx = -1;
+        for (String playableKey : playableKeys) {
+            furthestLetterIdx = Math.max(furthestLetterIdx, letterOrder.indexOf(playableKey));
+        }
+
+        if (furthestLetterIdx == -1) {
+            throw new RuntimeException("Something is very wrong. No playable keys found in letter order list");
+        }
+
+        String furthestLetter = letterOrder.get(furthestLetterIdx);
+        assert competencyWeights != null;
+        Integer weight = competencyWeights.get(furthestLetter);
+        if (weight == null) {
+            throw new RuntimeException("Something is very wrong. No competency weight for furthest letter " + furthestLetter);
+        }
+
+        return weight > INCLUSION_COMPETENCY_CUTOFF_WEIGHT;
+    }
+
+    public Optional<List<String>> introduceLetter() {
+        int furthestLetterIdx = -1;
+        for (String playableKey : playableKeys) {
+            furthestLetterIdx = Math.max(furthestLetterIdx, letterOrder.indexOf(playableKey));
+        }
+        if (furthestLetterIdx > letterOrder.size()) {
+            return Optional.empty();
+        }
+        String nextLetter = letterOrder.get(furthestLetterIdx + 1);
+        this.playableKeys.add(nextLetter);
+        return Optional.of(this.playableKeys);
     }
 }

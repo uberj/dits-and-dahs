@@ -2,11 +2,8 @@ package com.example.uberj.test1.LetterTraining;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.example.uberj.test1.CWToneManager;
 import com.example.uberj.test1.CountDownTimer;
@@ -34,15 +30,14 @@ import com.google.common.collect.Maps;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
+    private static final String engineMutex = "engineMutex";
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
     public static final String DURATION_REQUESTED_SECONDS = "duration-requested-seconds";
-    public static final String SESSION_TYPE = "session-type";
     public static final String WPM_REQUESTED = "wpm-requested";
     private int durationMinutesRequested;
     private int durationSecondsRequested;
@@ -141,6 +136,7 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
         }
 
         Optional<Boolean> guess = engine.guess(letter);
+
         guess.ifPresent(wasCorrectGuess -> {
             ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
             if (!wasCorrectGuess) {
@@ -149,6 +145,12 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
                 background.reverseTransition(500);
             }
             updateCompetencyWeights(letter, wasCorrectGuess);
+            synchronized (engineMutex) {
+                if (engine.shouldIntroduceNewLetter()) {
+                    Optional<List<String>> updatedLetters = engine.introduceLetter();
+                    updatedLetters.ifPresent(this::updateLayoutUsingTheseLetters);
+                }
+            }
         });
     }
 
@@ -256,7 +258,7 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
 
         countDownTimer = buildCountDownTimer(1000 * (durationMinutesRequested * 60 + durationSecondsRequested + 1));
 
-        engine = new LetterTrainingEngine(wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights);
+        engine = new LetterTrainingEngine(KochLetterSequence.sequence, wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights);
         inPlayKeyNames.forEach(this::updateProgressBarColorForLetter);
 
         engine.initEngine();
