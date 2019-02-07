@@ -1,7 +1,7 @@
 package com.example.uberj.test1;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.widget.LinearLayout;
 
 import com.example.uberj.test1.keyboards.KeyConfig;

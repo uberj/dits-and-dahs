@@ -1,9 +1,9 @@
 package com.example.uberj.test1.storage;
 
-import android.arch.lifecycle.LiveData;
+import androidx.lifecycle.LiveData;
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
 
 import com.example.uberj.test1.TestObserver;
 import com.google.common.collect.Lists;
