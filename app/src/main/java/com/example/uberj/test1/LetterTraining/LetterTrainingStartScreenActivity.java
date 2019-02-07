@@ -2,10 +2,11 @@ package com.example.uberj.test1.LetterTraining;
 
 import android.content.Intent;
 import androidx.appcompat.app.AppCompatActivity;
+import it.sephiroth.android.library.numberpicker.NumberPicker;
+
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.example.uberj.test1.CharacterAnalysis;
@@ -19,7 +20,6 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
 
     private static final int KEYBOARD_REQUEST_CODE = 0;
     private NumberPicker minutesPicker;
-    private NumberPicker secondsPicker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,12 +29,6 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
         minutesPicker = findViewById(R.id.number_picker_minutes);
         minutesPicker.setMaxValue(60);
         minutesPicker.setMinValue(0);
-        minutesPicker.setFormatter(i -> String.format("%02d", i));
-
-        secondsPicker = findViewById(R.id.number_picker_seconds);
-        secondsPicker.setMaxValue(59);
-        secondsPicker.setMinValue(0);
-        secondsPicker.setFormatter(i -> String.format(Locale.ENGLISH, "%02d", i));
 
         setPreviousDetails();
 
@@ -43,8 +37,7 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
             Intent sendIntent = new Intent(getApplicationContext(), LetterTrainingKeyboardSessionActivity.class);
             Bundle bundle = new Bundle();
             bundle.putInt(LetterTrainingKeyboardSessionActivity.WPM_REQUESTED, 20);
-            bundle.putInt(LetterTrainingKeyboardSessionActivity.DURATION_REQUESTED_SECONDS, secondsPicker.getValue());
-            bundle.putInt(LetterTrainingKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getValue());
+            bundle.putInt(LetterTrainingKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
             sendIntent.putExtras(bundle);
             startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);  // NOTE: Ignore request code for now. might become important later
         });
@@ -68,12 +61,9 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
             long prevDurationSeconds = (prevDurationMillis / 1000) % 60;
             if (prevDurationRequestedMillis >= 0) {
                 long prevDurationRequestedMinutes = (prevDurationRequestedMillis / 1000) / 60;
-                long prevDurationRequestedSeconds = (prevDurationRequestedMillis / 1000) % 60;
-                minutesPicker.setValue((int) prevDurationRequestedMinutes);
-                secondsPicker.setValue((int) prevDurationRequestedSeconds);
+                minutesPicker.setProgress((int) prevDurationRequestedMinutes);
             } else {
-                minutesPicker.setValue(1);
-                secondsPicker.setValue(0);
+                minutesPicker.setProgress(1);
             }
 
             ((TextView) findViewById(R.id.prev_session_duration_time)).setText(

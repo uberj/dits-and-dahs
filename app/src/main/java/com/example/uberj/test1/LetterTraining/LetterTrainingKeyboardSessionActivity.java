@@ -37,10 +37,8 @@ import java.util.stream.Collectors;
 public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
     private static final String engineMutex = "engineMutex";
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
-    public static final String DURATION_REQUESTED_SECONDS = "duration-requested-seconds";
     public static final String WPM_REQUESTED = "wpm-requested";
     private int durationMinutesRequested;
-    private int durationSecondsRequested;
     protected long durationRemainingMillis;
     protected long durationRequestedMillis;
     private CountDownTimer countDownTimer;
@@ -222,8 +220,7 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
         Bundle receiveBundle = getIntent().getExtras();
         assert receiveBundle != null;
         durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
-        durationSecondsRequested = receiveBundle.getInt(DURATION_REQUESTED_SECONDS, 0);
-        durationRequestedMillis = 1000 * (durationMinutesRequested * 60 + durationSecondsRequested);
+        durationRequestedMillis = 1000 * (durationMinutesRequested * 60);
         wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
         repository.competencyWeightsDAO.getLatestSession(this::buildAndStartSession);
     }
@@ -256,7 +253,7 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
         keyboardToolbar.inflateMenu(R.menu.keyboard);
         setSupportActionBar(keyboardToolbar);
 
-        countDownTimer = buildCountDownTimer(1000 * (durationMinutesRequested * 60 + durationSecondsRequested + 1));
+        countDownTimer = buildCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
 
         engine = new LetterTrainingEngine(KochLetterSequence.sequence, wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights);
         inPlayKeyNames.forEach(this::updateProgressBarColorForLetter);
