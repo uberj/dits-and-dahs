@@ -260,7 +260,8 @@
         android:text="Letter WPM:"
         app:layout_constraintBottom_toTopOf="@+id/session-length"
         app:layout_constraintStart_toEndOf="@+id/stats-barrier"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <it.sephiroth.android.library.numberpicker.NumberPicker
         android:id="@+id/wpm-number-picker"
@@ -284,6 +285,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="Duration (Minutes):"
+        android:layout_marginTop="30dp"
         app:layout_constraintBottom_toTopOf="@+id/start-button"
         app:layout_constraintStart_toEndOf="@+id/stats-barrier"
         app:layout_constraintTop_toBottomOf="@+id/session-letter-wpm" />
@@ -311,6 +313,7 @@
         android:layout_marginStart="8dp"
         android:text="Start"
         android:textAlignment="center"
+        android:layout_marginTop="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/stats-barrier"
         app:layout_constraintTop_toBottomOf="@+id/session-length" />
