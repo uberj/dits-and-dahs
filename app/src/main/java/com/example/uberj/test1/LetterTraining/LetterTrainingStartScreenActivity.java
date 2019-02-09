@@ -2,11 +2,13 @@ package com.example.uberj.test1.LetterTraining;
 
 import android.content.Intent;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.Group;
 import it.sephiroth.android.library.numberpicker.NumberPicker;
 
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.uberj.test1.CharacterAnalysis;
@@ -31,6 +33,23 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
         minutesPicker.setMinValue(0);
 
         setPreviousDetails();
+        ImageView openStatsImage = findViewById(R.id.open_stats_image);
+        ImageView closeStatsImage = findViewById(R.id.close_stats_image);
+        openStatsImage.setOnClickListener((view) -> {
+            Group statsGroup = findViewById(R.id.stats_group);
+            statsGroup.setVisibility(View.VISIBLE);
+            closeStatsImage.setVisibility(View.VISIBLE);
+            view.setVisibility(View.GONE);
+            findViewById(android.R.id.content).invalidate();
+        });
+
+        closeStatsImage.setOnClickListener((view) -> {
+            Group statsGroup = findViewById(R.id.stats_group);
+            statsGroup.setVisibility(View.GONE);
+            view.setVisibility(View.GONE);
+            openStatsImage.setVisibility(View.VISIBLE);
+            findViewById(android.R.id.content).invalidate();
+        });
 
         Button startButton = findViewById(R.id.start_button);
         startButton.setOnClickListener(v -> {

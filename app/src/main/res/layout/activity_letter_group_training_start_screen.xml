@@ -360,9 +360,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Error Rate:"
-        android:visibility="gone"
         tools:layout_editor_absoluteX="435dp"
-        tools:layout_editor_absoluteY="136dp" />
+        tools:layout_editor_absoluteY="136dp"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/prev-session-error-rate"
@@ -387,31 +387,34 @@
         android:visibility="gone"
         app:barrierAllowsGoneWidgets="false"
         app:barrierDirection="right"
-        app:constraint_referenced_ids="prev-session-error-rate,prev-session-error-rate-title,prev-session-duration-time,prev-session-wpm-title,prev-session-wpm-average,prev-session-duration-title,stats-stopper"
+        app:constraint_referenced_ids="prev-session-error-rate,prev-session-error-rate-title,prev-session-duration-time,prev-session-wpm-title,prev-session-wpm-average,prev-session-duration-title,stats-stopper,close_stats_image"
         tools:layout_editor_absoluteX="158dp" />
 
     <androidx.constraintlayout.widget.Group
-        android:id="@+id/group"
+        android:id="@+id/stats_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="prev-session-error-rate,prev-session-error-rate-title,prev-session-duration-time,prev-session-wpm-title,prev-session-wpm-average,prev-session-duration-title,stats-barrier" />
+        app:constraint_referenced_ids="prev-session-error-rate,prev-session-error-rate-title,prev-session-duration-time,prev-session-wpm-title,prev-session-wpm-average,prev-session-duration-title,stats-barrier,close_stats_image" />
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/open_stats_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/textView4"
-        app:layout_constraintTop_toTopOf="@+id/textView4"
-        app:srcCompat="@drawable/ic_navigate_next_black_24dp"
-        tools:layout_editor_absoluteX="16dp" />
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/ic_navigate_next_black_24dp" />
 
-    <TextView
-        android:id="@+id/textView4"
+    <ImageView
+        android:id="@+id/close_stats_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Show Numbers"
-        tools:layout_editor_absoluteX="40dp"
-        tools:layout_editor_absoluteY="285dp" />
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/stats-barrier"
+        app:srcCompat="@drawable/ic_navigate_before_black_24dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
