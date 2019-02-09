@@ -222,7 +222,11 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
         durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
         durationRequestedMillis = 1000 * (durationMinutesRequested * 60);
         wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
-        repository.competencyWeightsDAO.getLatestSession(this::buildAndStartSession);
+        if (savedInstanceState == null) {
+            repository.competencyWeightsDAO.getLatestSession(this::buildAndStartSession);
+        } else {
+            System.out.println("wtf");
+        }
     }
 
     private void buildAndStartSession(Optional<CompetencyWeights> previousWeight) {
