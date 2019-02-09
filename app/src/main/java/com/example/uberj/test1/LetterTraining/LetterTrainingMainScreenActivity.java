@@ -1,6 +1,6 @@
-package com.example.uberj.test1;
+package com.example.uberj.test1.LetterTraining;
 
-import com.example.uberj.test1.LetterTraining.LetterTrainingKeyboardSessionActivity;
+import com.example.uberj.test1.R;
 import com.example.uberj.test1.storage.LetterTrainingSessionDAO;
 import com.example.uberj.test1.storage.TheDatabase;
 import com.google.android.material.tabs.TabLayout;
@@ -26,7 +26,7 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
-public class Main4Activity extends AppCompatActivity {
+public class LetterTrainingMainScreenActivity extends AppCompatActivity {
     private static final int KEYBOARD_REQUEST_CODE = 0;
 
     /**
@@ -116,7 +116,7 @@ public class Main4Activity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main4, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
+            TextView textView = rootView.findViewById(R.id.section_label);
             textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
             return rootView;
         }

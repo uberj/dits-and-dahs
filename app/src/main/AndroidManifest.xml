@@ -19,11 +19,7 @@
             android:name=".DynamicKeyboardActivity"
             android:screenOrientation="landscape"></activity>
         <activity
-            android:name=".LetterTraining.LetterTrainingStartScreenActivity"
-            android:screenOrientation="landscape">
-        </activity>
-        <activity
-            android:name=".Main4Activity"
+            android:name=".LetterTraining.LetterTrainingMainScreenActivity"
             android:label="@string/title_activity_main4"
             android:screenOrientation="landscape"
             android:theme="@style/AppTheme.NoActionBar">

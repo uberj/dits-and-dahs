@@ -7,7 +7,6 @@
     android:layout_gravity="center"
     android:screenOrientation="landscape"
     android:animateLayoutChanges="true"
-    tools:context=".LetterTraining.LetterTrainingStartScreenActivity"
     tools:layout_editor_absoluteY="73dp">
 
     <!--

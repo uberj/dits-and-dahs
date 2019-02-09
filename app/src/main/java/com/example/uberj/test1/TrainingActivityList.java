@@ -4,10 +4,11 @@ package com.example.uberj.test1;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+
+import com.example.uberj.test1.LetterTraining.LetterTrainingMainScreenActivity;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.uberj.test1.LetterTraining.LetterTrainingStartScreenActivity;
 
 import java.util.ArrayList;
 
@@ -33,7 +34,7 @@ public class TrainingActivityList extends Activity {
 
         // specify an adapter (see also next example)
         ArrayList<TrainingCardData> trainingActivities = new ArrayList();
-        TrainingCardData letter_groups = new TrainingCardData("Letter Groups", R.string.letter_group_description, new Intent(this, LetterTrainingStartScreenActivity.class));
+        TrainingCardData letter_groups = new TrainingCardData("Letter Groups", R.string.letter_group_description, new Intent(this, LetterTrainingMainScreenActivity.class));
         trainingActivities.add(letter_groups);
         TrainingCardData letter_training = new TrainingCardData("Letter Training", R.string.letter_training_description, new Intent(this, MainActivity.class));
         trainingActivities.add(letter_training);
