@@ -3,6 +3,7 @@ package com.example.uberj.test1.LetterTraining;
 import android.util.Log;
 
 import com.example.uberj.test1.CWToneManager;
+import com.example.uberj.test1.storage.LetterTrainingEngineSettings;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
@@ -30,6 +31,7 @@ public class LetterTrainingEngine {
 
     private final CWToneManager cwToneManager;
     private final Consumer<String> letterChosenCallback;
+    private final int playLetterWPM;
     private volatile boolean threadKeepAlive = true;
     private volatile boolean isPaused = false;
     private volatile boolean isInitialized = false;
@@ -46,6 +48,7 @@ public class LetterTrainingEngine {
         this.cwToneManager = new CWToneManager(wpm);
         this.playableKeys = playableKeys;
         this.competencyWeights = competencyWeights;
+        this.playLetterWPM = wpm;
         this.audioLoop = () -> {
             while (true) {
                 /*/
@@ -232,14 +235,6 @@ public class LetterTrainingEngine {
         return competencyWeights.get(letter);
     }
 
-    public List<String> getPlayableKeys() {
-        return playableKeys;
-    }
-
-    public Map<String,Integer> getCompetencyWeights() {
-        return competencyWeights;
-    }
-
     public boolean isValidGuess(String letter) {
         return playableKeys.contains(letter);
     }
@@ -275,5 +270,13 @@ public class LetterTrainingEngine {
         String nextLetter = letterOrder.get(furthestLetterIdx + 1);
         this.playableKeys.add(nextLetter);
         return Optional.of(this.playableKeys);
+    }
+
+    public LetterTrainingEngineSettings getSettings() {
+        LetterTrainingEngineSettings engineSettings = new LetterTrainingEngineSettings();
+        engineSettings.weights = competencyWeights;
+        engineSettings.activeLetters = playableKeys;
+        engineSettings.playLetterWPM = playLetterWPM;
+        return engineSettings;
     }
 }

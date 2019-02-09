@@ -21,7 +21,7 @@ public class TheDatabaseTest {
 
     private static TheDatabase theDatabase;
     private static LetterTrainingSessionDAO letterTrainingSessionDAO;
-    private static CompetencyWeightsDAO competencyWeightsDAO;
+    private static LetterTrainingEngineSettingsDAO competencyWeightsDAO;
 
     @BeforeClass
     public static void setUp() {
@@ -29,7 +29,7 @@ public class TheDatabaseTest {
         context.deleteDatabase(TheDatabase.THE_DATABASE_NAME);
         theDatabase = TheDatabase.getDatabase(context);
         letterTrainingSessionDAO = theDatabase.trainingSessionDAO();
-        competencyWeightsDAO = theDatabase.competencyWeightsDAO();
+        competencyWeightsDAO = theDatabase.engineSettingsDAO();
     }
 
     @Test
@@ -56,33 +56,33 @@ public class TheDatabaseTest {
     @Test
     public void testCRUDCompetencyWeights() throws InterruptedException {
         {
-            LiveData<List<CompetencyWeights>> competencyWeights = competencyWeightsDAO.getAllCompetencyWeights();
+            LiveData<List<LetterTrainingEngineSettings>> competencyWeights = competencyWeightsDAO.getAllEngineSettings();
             TestObserver.test(competencyWeights)
                     .awaitValue()
                     .assertValue(List::isEmpty);
         }
 
-        CompetencyWeights competencyWeights = new CompetencyWeights();
+        LetterTrainingEngineSettings engineSettings = new LetterTrainingEngineSettings();
         Map<String, Integer> weights = Maps.newHashMap();
         weights.put("A", 1);
         weights.put("B", 2);
         weights.put("C", 3);
         List<String> activeLetters = Lists.newArrayList("1", "2", "3");
-        competencyWeights.weights = weights;
-        competencyWeights.activeLetters = activeLetters;
-        competencyWeights.createdAtEpocMillis = System.currentTimeMillis();
-        competencyWeightsDAO.insertCompetencyWeights(competencyWeights);
+        engineSettings.weights = weights;
+        engineSettings.activeLetters = activeLetters;
+        engineSettings.createdAtEpocMillis = System.currentTimeMillis();
+        competencyWeightsDAO.insertEngineSettings(engineSettings);
 
-        competencyWeights.createdAtEpocMillis = System.currentTimeMillis();
-        competencyWeightsDAO.insertCompetencyWeights(competencyWeights);
+        engineSettings.createdAtEpocMillis = System.currentTimeMillis();
+        competencyWeightsDAO.insertEngineSettings(engineSettings);
 
-        LiveData<List<CompetencyWeights>> allCompetencyWeights = competencyWeightsDAO.getAllCompetencyWeights();
+        LiveData<List<LetterTrainingEngineSettings>> allCompetencyWeights = competencyWeightsDAO.getAllEngineSettings();
         TestObserver.test(allCompetencyWeights)
                 .awaitNextValue()
                 .assertValue((ss) -> ss.size() == 2)
-                .assertValue((ss) -> ss.get(0).createdAtEpocMillis == competencyWeights.createdAtEpocMillis)
-                .assertValue((ss) -> ss.get(0).weights.entrySet().equals(competencyWeights.weights.entrySet()))
-                .assertValue((ss) -> ss.get(0).activeLetters.equals(competencyWeights.activeLetters));
+                .assertValue((ss) -> ss.get(0).createdAtEpocMillis == engineSettings.createdAtEpocMillis)
+                .assertValue((ss) -> ss.get(0).weights.entrySet().equals(engineSettings.weights.entrySet()))
+                .assertValue((ss) -> ss.get(0).activeLetters.equals(engineSettings.activeLetters));
     }
 
 }

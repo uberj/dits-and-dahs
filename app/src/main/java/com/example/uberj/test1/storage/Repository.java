@@ -5,21 +5,21 @@ import android.os.AsyncTask;
 
 public class Repository {
     public final LetterTrainingSessionDAO letterTrainingSessionDAO;
-    public final CompetencyWeightsDAO competencyWeightsDAO;
+    public final LetterTrainingEngineSettingsDAO competencyWeightsDAO;
 
     public Repository(Context context) {
         TheDatabase database = TheDatabase.getDatabase(context);
         letterTrainingSessionDAO = database.trainingSessionDAO();
-        competencyWeightsDAO = database.competencyWeightsDAO();
+        competencyWeightsDAO = database.engineSettingsDAO();
 
     }
 
-    public void insertMostRecentCompetencyWeights(final CompetencyWeights competencyWeights) {
-        competencyWeights.createdAtEpocMillis = System.currentTimeMillis();
+    public void insertMostRecentCompetencyWeights(final LetterTrainingEngineSettings engineSettings) {
+        engineSettings.createdAtEpocMillis = System.currentTimeMillis();
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
-                competencyWeightsDAO.insertCompetencyWeights(competencyWeights);
+                competencyWeightsDAO.insertEngineSettings(engineSettings);
                 return null;
             }
         }.execute();

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 @Entity
-public class CompetencyWeights {
+public class LetterTrainingEngineSettings {
     @PrimaryKey(autoGenerate = true)
     public int uid;
 
@@ -22,4 +22,11 @@ public class CompetencyWeights {
 
     @ColumnInfo(name = "activeLetters")
     public List<String> activeLetters;
+
+    @ColumnInfo(name = "playLetterWPM")
+    public int playLetterWPM;
+
+    @ColumnInfo(name = "durationRequestedMillis")
+    @NonNull
+    public Long durationRequestedMillis;
 }

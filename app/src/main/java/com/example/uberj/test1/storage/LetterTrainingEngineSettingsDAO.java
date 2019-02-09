@@ -10,15 +10,15 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 @Dao
-public interface CompetencyWeightsDAO {
-    @Query("SELECT * FROM CompetencyWeights ORDER BY createdAtEpocMillis DESC")
-    LiveData<List<CompetencyWeights>> getAllCompetencyWeights();
+public interface LetterTrainingEngineSettingsDAO {
+    @Query("SELECT * FROM LetterTrainingEngineSettings ORDER BY createdAtEpocMillis DESC")
+    LiveData<List<LetterTrainingEngineSettings>> getAllEngineSettings();
 
     @Insert
-    void insertCompetencyWeights(CompetencyWeights competencyWeights);
+    void insertEngineSettings(LetterTrainingEngineSettings engineSettings);
 
-    default void getLatestSession(Consumer<Optional<CompetencyWeights>> observerCallback) {
-        LiveData<List<CompetencyWeights>> getCallback = getAllCompetencyWeights();
+    default void getLatestEngineSetting(Consumer<Optional<LetterTrainingEngineSettings>> observerCallback) {
+        LiveData<List<LetterTrainingEngineSettings>> getCallback = getAllEngineSettings();
         getCallback.observeForever((allWeights) -> {
             if (allWeights == null || allWeights.isEmpty()) {
                 observerCallback.accept(Optional.empty());

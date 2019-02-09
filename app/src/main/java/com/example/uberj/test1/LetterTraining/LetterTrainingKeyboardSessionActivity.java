@@ -22,7 +22,7 @@ import com.example.uberj.test1.KochLetterSequence;
 import com.example.uberj.test1.ProgressGradient;
 import com.example.uberj.test1.R;
 import com.example.uberj.test1.keyboards.SimpleLetters;
-import com.example.uberj.test1.storage.CompetencyWeights;
+import com.example.uberj.test1.storage.LetterTrainingEngineSettings;
 import com.example.uberj.test1.storage.LetterTrainingSession;
 import com.example.uberj.test1.storage.Repository;
 import com.google.common.collect.Lists;
@@ -223,13 +223,13 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
         durationRequestedMillis = 1000 * (durationMinutesRequested * 60);
         wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
         if (savedInstanceState == null) {
-            repository.competencyWeightsDAO.getLatestSession(this::buildAndStartSession);
+            repository.competencyWeightsDAO.getLatestEngineSetting(this::buildAndStartSession);
         } else {
             System.out.println("wtf");
         }
     }
 
-    private void buildAndStartSession(Optional<CompetencyWeights> previousWeight) {
+    private void buildAndStartSession(Optional<LetterTrainingEngineSettings> previousWeight) {
         Map<String, Integer> competencyWeights = buildInitialCompetencyWeights(previousWeight.orElse(null));
         List<String> inPlayKeyNames = buildInitialInPlayKeyNames(previousWeight.orElse(null));
         keyboard = new DynamicKeyboard.Builder()
@@ -356,9 +356,9 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
         );
     }
 
-    private List<String> buildInitialInPlayKeyNames(CompetencyWeights competencyWeights) {
-        if (competencyWeights != null && competencyWeights.activeLetters != null && competencyWeights.activeLetters.size() != 0) {
-            return competencyWeights.activeLetters;
+    private List<String> buildInitialInPlayKeyNames(LetterTrainingEngineSettings engineSettings) {
+        if (engineSettings != null && engineSettings.activeLetters != null && engineSettings.activeLetters.size() != 0) {
+            return engineSettings.activeLetters;
         }
         return buildFirstTwoKeyList();
     }
@@ -371,7 +371,7 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
         return competencyWeights;
     }
 
-    private Map<String, Integer> buildInitialCompetencyWeights(CompetencyWeights weights) {
+    private Map<String, Integer> buildInitialCompetencyWeights(LetterTrainingEngineSettings weights) {
         if (weights == null) {
             return buildBlankWeights(SimpleLetters.allPlayableKeysNames());
         }
@@ -417,15 +417,11 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
             trainingSession.errorRate = -1;
         }
 
-        Log.d(TAG, "totalCorrectGuesses: " + totalCorrectGuesses);
-        Log.d(TAG, "totalIncorrectGuesses: " + totalCorrectGuesses);
-        Log.d(TAG, "totalUniqueLettersChosen: " + totalUniqueLettersChosen);
         repository.insertLetterTrainingSession(trainingSession);
 
-        CompetencyWeights endWeights = new CompetencyWeights();
-        endWeights.weights = engine.getCompetencyWeights();
-        endWeights.activeLetters = engine.getPlayableKeys();
-        repository.insertMostRecentCompetencyWeights(endWeights);
+        LetterTrainingEngineSettings settings = engine.getSettings();
+        settings.durationRequestedMillis = durationRequestedMillis;
+        repository.insertMostRecentCompetencyWeights(settings);
     }
 
     private float calcWpmAverage(long durationWorkedMillis) {

@@ -1,6 +1,7 @@
 package com.example.uberj.test1.LetterTraining;
 
 import com.example.uberj.test1.R;
+import com.example.uberj.test1.storage.LetterTrainingEngineSettingsDAO;
 import com.example.uberj.test1.storage.LetterTrainingSessionDAO;
 import com.example.uberj.test1.storage.TheDatabase;
 import com.google.android.material.tabs.TabLayout;
@@ -158,6 +159,7 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
 
     public static class StartScreenFragment extends Fragment  {
         private NumberPicker minutesPicker;
+        private NumberPicker wpmPicker;
 
         public static StartScreenFragment newInstance() {
             StartScreenFragment fragment = new StartScreenFragment();
@@ -170,10 +172,18 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.letter_training_start_screen_fragment, container, false);
             minutesPicker = rootView.findViewById(R.id.number_picker_minutes);
-            LetterTrainingSessionDAO letterTrainingSessionDAO = TheDatabase.getDatabase(rootView.getContext()).trainingSessionDAO();
-            letterTrainingSessionDAO.getLatestSession((latestSession) -> {
-                long prevDurationRequestedMillis = latestSession.map((ts) -> ts.durationRequestedMillis).orElse(-1l);
-                if (prevDurationRequestedMillis >= 0) {
+            wpmPicker = rootView.findViewById(R.id.wpm_number_picker);
+            LetterTrainingEngineSettingsDAO engineSettingsDAO = TheDatabase.getDatabase(rootView.getContext()).engineSettingsDAO();
+            engineSettingsDAO.getLatestEngineSetting((settings) -> {
+                int playLetterWPM = settings.map((ts) -> ts.playLetterWPM).orElse(-1);
+                if (playLetterWPM > 0) {
+                    wpmPicker.setProgress(playLetterWPM);
+                } else {
+                    wpmPicker.setProgress(20);
+                }
+
+                long prevDurationRequestedMillis = settings.map((ts) -> ts.durationRequestedMillis).orElse(-1l);
+                if (prevDurationRequestedMillis > 0) {
                     long prevDurationRequestedMinutes = (prevDurationRequestedMillis / 1000) / 60;
                     minutesPicker.setProgress((int) prevDurationRequestedMinutes);
                 } else {
@@ -185,7 +195,7 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
             startButton.setOnClickListener(v -> {
                 Intent sendIntent = new Intent(rootView.getContext(), LetterTrainingKeyboardSessionActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putInt(LetterTrainingKeyboardSessionActivity.WPM_REQUESTED, 20);
+                bundle.putInt(LetterTrainingKeyboardSessionActivity.WPM_REQUESTED, wpmPicker.getProgress());
                 bundle.putInt(LetterTrainingKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
                 sendIntent.putExtras(bundle);
                 startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);  // NOTE: Ignore request code for now. might become important later
