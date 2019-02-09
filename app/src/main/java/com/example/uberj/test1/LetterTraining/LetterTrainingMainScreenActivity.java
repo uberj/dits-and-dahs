@@ -64,6 +64,12 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
+        if (KEYBOARD_REQUEST_CODE == 0) {
+            mViewPager.setCurrentItem(1);
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
