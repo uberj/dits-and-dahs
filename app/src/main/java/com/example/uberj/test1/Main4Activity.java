@@ -1,5 +1,8 @@
 package com.example.uberj.test1;
 
+import com.example.uberj.test1.LetterTraining.LetterTrainingKeyboardSessionActivity;
+import com.example.uberj.test1.storage.LetterTrainingSessionDAO;
+import com.example.uberj.test1.storage.TheDatabase;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,7 +11,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+import it.sephiroth.android.library.numberpicker.NumberPicker;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,9 +21,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.Locale;
+
 public class Main4Activity extends AppCompatActivity {
+    private static final int KEYBOARD_REQUEST_CODE = 0;
 
     /**
      * The {@link androidx.viewpager.widget.PagerAdapter} that will provide
@@ -142,6 +151,8 @@ public class Main4Activity extends AppCompatActivity {
     }
 
     public static class StartScreenFragment extends Fragment  {
+        private NumberPicker minutesPicker;
+
         public static StartScreenFragment newInstance() {
             StartScreenFragment fragment = new StartScreenFragment();
             Bundle args = new Bundle();
@@ -152,9 +163,32 @@ public class Main4Activity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.letter_training_start_screen_fragment, container, false);
+            minutesPicker = rootView.findViewById(R.id.number_picker_minutes);
+            LetterTrainingSessionDAO letterTrainingSessionDAO = TheDatabase.getDatabase(rootView.getContext()).trainingSessionDAO();
+            letterTrainingSessionDAO.getLatestSession((latestSession) -> {
+                long prevDurationRequestedMillis = latestSession.map((ts) -> ts.durationRequestedMillis).orElse(-1l);
+                if (prevDurationRequestedMillis >= 0) {
+                    long prevDurationRequestedMinutes = (prevDurationRequestedMillis / 1000) / 60;
+                    minutesPicker.setProgress((int) prevDurationRequestedMinutes);
+                } else {
+                    minutesPicker.setProgress(1);
+                }
+            });
+
+            Button startButton = rootView.findViewById(R.id.start_button);
+            startButton.setOnClickListener(v -> {
+                Intent sendIntent = new Intent(rootView.getContext(), LetterTrainingKeyboardSessionActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putInt(LetterTrainingKeyboardSessionActivity.WPM_REQUESTED, 20);
+                bundle.putInt(LetterTrainingKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
+                sendIntent.putExtras(bundle);
+                startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);  // NOTE: Ignore request code for now. might become important later
+            });
+
             return rootView;
         }
     }
+
 
     public static class NumbersScreenFragment extends Fragment  {
         public static NumbersScreenFragment newInstance() {
@@ -167,7 +201,26 @@ public class Main4Activity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.letter_training_numbers_screen_fragment, container, false);
-            // TODO, load in data from here
+            LetterTrainingSessionDAO letterTrainingSessionDAO = TheDatabase.getDatabase(rootView.getContext()).trainingSessionDAO();
+            letterTrainingSessionDAO.getLatestSession((latestSession) -> {
+                float wpmAverage = latestSession.map(ts -> ts.wpmAverage).orElse(-1f);
+                float errorRate = latestSession.map(ts -> ts.errorRate).orElse(-1f);
+                long prevDurationMillis = latestSession.map((ts) -> ts.durationWorkedMillis).orElse(-1l);
+                long prevDurationMinutes = (prevDurationMillis / 1000) / 60;
+                long prevDurationSeconds = (prevDurationMillis / 1000) % 60;
+
+                ((TextView) rootView.findViewById(R.id.prev_session_duration_time)).setText(
+                        prevDurationMinutes >= 0 && prevDurationSeconds >= 0 ?
+                                String.format(Locale.ENGLISH, "%02d:%02d", prevDurationMinutes, prevDurationSeconds) :
+                                "N/A"
+                );
+                ((TextView) rootView.findViewById(R.id.prev_session_wpm_average)).setText(
+                        wpmAverage >= 0 ? String.format(Locale.ENGLISH, "%.2f", wpmAverage) : "N/A"
+                );
+                ((TextView) rootView.findViewById(R.id.prev_session_error_rate)).setText(
+                        errorRate >= 0 ? (int) (100 * errorRate) + "%" : "N/A"
+                );
+            });
             return rootView;
         }
     }
