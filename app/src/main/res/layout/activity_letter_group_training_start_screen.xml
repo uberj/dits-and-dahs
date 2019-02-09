@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:layout_gravity="center"
     android:screenOrientation="landscape"
+    android:animateLayoutChanges="true"
     tools:context=".LetterTraining.LetterTrainingStartScreenActivity"
     tools:layout_editor_absoluteY="73dp">
 
@@ -323,55 +324,64 @@
         android:id="@+id/prev-session-duration-title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:text="Duration:"
         android:visibility="visible"
-        tools:layout_editor_absoluteX="211dp"
-        tools:layout_editor_absoluteY="64dp" />
+        app:layout_constraintEnd_toStartOf="@+id/guideline17"
+        app:layout_constraintTop_toBottomOf="@+id/stats-title" />
 
     <TextView
         android:id="@+id/prev-session-duration-time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:text="N/A"
         android:visibility="visible"
-        tools:layout_editor_absoluteX="284dp"
-        tools:layout_editor_absoluteY="64dp" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-duration-title"
+        app:layout_constraintStart_toStartOf="@+id/guideline17" />
 
     <TextView
         android:id="@+id/prev-session-wpm-title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:text="WPM Average: "
         android:visibility="visible"
-        tools:layout_editor_absoluteX="214dp"
-        tools:layout_editor_absoluteY="107dp" />
+        app:layout_constraintEnd_toStartOf="@+id/guideline17"
+        app:layout_constraintTop_toBottomOf="@+id/prev-session-duration-title" />
 
     <TextView
         android:id="@+id/prev-session-wpm-average"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:text="N/A"
         android:visibility="visible"
-        tools:layout_editor_absoluteX="323dp"
-        tools:layout_editor_absoluteY="118dp" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-wpm-title"
+        app:layout_constraintStart_toStartOf="@+id/guideline17" />
 
     <TextView
         android:id="@+id/prev-session-error-rate-title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:text="Error Rate:"
         android:visibility="visible"
-        tools:layout_editor_absoluteX="281dp"
-        tools:layout_editor_absoluteY="173dp" />
+        app:layout_constraintEnd_toStartOf="@+id/guideline17"
+        app:layout_constraintTop_toBottomOf="@+id/prev-session-wpm-title" />
 
     <TextView
         android:id="@+id/prev-session-error-rate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:text="N/A"
         android:visibility="visible"
-        tools:layout_editor_absoluteX="284dp"
-        tools:layout_editor_absoluteY="229dp" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-error-rate-title"
+        app:layout_constraintStart_toStartOf="@+id/guideline17" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/stats-stopper"
@@ -395,7 +405,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="prev-session-error-rate,prev-session-error-rate-title,prev-session-duration-time,prev-session-wpm-title,prev-session-wpm-average,prev-session-duration-title,stats-barrier,close_stats_image,stats-end-cap" />
+        app:constraint_referenced_ids="prev-session-error-rate,prev-session-error-rate-title,prev-session-duration-time,prev-session-wpm-title,prev-session-wpm-average,prev-session-duration-title,stats-barrier,close_stats_image,stats-end-cap,stats-title" />
 
     <ImageView
         android:id="@+id/open_stats_image"
@@ -424,5 +434,29 @@
         android:layout_marginEnd="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         tools:layout_editor_absoluteY="16dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline17"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline18"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.2" />
+
+    <TextView
+        android:id="@+id/stats-title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="Previous Session Numbers"
+        app:layout_constraintEnd_toStartOf="@+id/guideline17"
+        app:layout_constraintTop_toTopOf="@+id/guideline18" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

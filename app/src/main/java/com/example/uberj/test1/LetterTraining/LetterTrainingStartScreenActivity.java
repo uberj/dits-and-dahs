@@ -87,7 +87,6 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
                 minutesPicker.setProgress(1);
             }
 
-            /*
             ((TextView) findViewById(R.id.prev_session_duration_time)).setText(
                     prevDurationMinutes >= 0 && prevDurationSeconds >= 0 ?
                             String.format(Locale.ENGLISH, "%02d:%02d", prevDurationMinutes, prevDurationSeconds) :
@@ -99,7 +98,6 @@ public class LetterTrainingStartScreenActivity extends AppCompatActivity {
             ((TextView) findViewById(R.id.prev_session_error_rate)).setText(
                     errorRate >= 0 ? (int) (100 * errorRate) + "%" : "N/A"
             );
-            */
         });
     }
 
