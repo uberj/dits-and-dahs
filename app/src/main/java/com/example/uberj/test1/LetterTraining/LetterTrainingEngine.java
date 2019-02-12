@@ -1,7 +1,5 @@
 package com.example.uberj.test1.LetterTraining;
 
-import android.util.Log;
-
 import com.example.uberj.test1.CWToneManager;
 import com.example.uberj.test1.storage.LetterTrainingEngineSettings;
 import com.google.common.collect.Lists;
@@ -16,6 +14,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
+
+import timber.log.Timber;
 
 public class LetterTrainingEngine {
     private static final int MISSED_LETTER_POINTS_REMOVED = 10;
@@ -32,7 +32,7 @@ public class LetterTrainingEngine {
     private final CWToneManager cwToneManager;
     private final Consumer<String> letterChosenCallback;
     private final int playLetterWPM;
-    private volatile boolean threadKeepAlive = true;
+    private static volatile boolean audioThreadKeepAlive = true;
     private volatile boolean isPaused = false;
     private volatile boolean isInitialized = false;
     private List<String> playableKeys;
@@ -50,66 +50,57 @@ public class LetterTrainingEngine {
         this.competencyWeights = competencyWeights;
         this.playLetterWPM = wpm;
         this.audioLoop = () -> {
-            while (true) {
-                /*/
-                This loop will wait for ex
+            try {
+                while (Thread.currentThread() == audioThread) {
+                    /*/
+                    This loop will wait for ex
 
-                Pause
-                -----
-                - When the engine is paused
-                    * No timeout
-                    * resume() should be the only one to trigger this notify
+                    Pause
+                    -----
+                    - When the engine is paused
+                        * No timeout
+                        * resume() should be the only one to trigger this notify
 
-                Playing
-                -------
-                - When the tone manager is playing audio
-                    * Timeout happens after audio tone is done
-                    * Nobody should end this?
+                    Playing
+                    -------
+                    - When the tone manager is playing audio
+                        * Timeout happens after audio tone is done
+                        * Nobody should end this?
 
-                WaitGuess
-                ---------
-                - When the engine is waiting for the player to guess
-                    * Timeout happens after getGuessWaitTimeMillis()
-                    * pause() and guess() should end this
+                    WaitGuess
+                    ---------
+                    - When the engine is waiting for the player to guess
+                        * Timeout happens after getGuessWaitTimeMillis()
+                        * pause() and guess() should end this
 
-                /*/
-                while (isPaused)  {
-                    try {
+                    /*/
+                    while (isPaused)  {
                         synchronized (pauseGate) {
                             pauseGate.wait();
                         }
-                    } catch (InterruptedException e) {
-                        return;
                     }
-                }
 
-                if (!threadKeepAlive) {
-                    return;
-                }
+                    CWToneManager.PCMDetails pcmDetails = cwToneManager.calcPCMDetails(currentLetter);
+                    long waitTimeMillis = (long) (1000L * ((1F / pcmDetails.symbolsPerSecond) * pcmDetails.totalNumberSymbols));
 
-                CWToneManager.PCMDetails pcmDetails = cwToneManager.calcPCMDetails(currentLetter);
-                long waitTimeMillis = (long) (1000L * ((1F / pcmDetails.symbolsPerSecond) * pcmDetails.totalNumberSymbols));
+                    // play it letter
+                    if (audioThreadKeepAlive) {
+                        cwToneManager.playLetter(currentLetter);
+                    }
 
-                // play it letter
-                cwToneManager.playLetter(currentLetter);
-
-                try {  // Wait until the letter is done playing
                     synchronized (audioGate) {
                         audioGate.wait(waitTimeMillis);
                     }
-                } catch (InterruptedException e) {
-                    return;
-                }
 
-                // start the callback timer to play again
+                    // start the callback timer to play again
 
-                synchronized (guessGate) {
-                    try {
+                    synchronized (guessGate) {
                         guessGate.wait(getGuessWaitTimeMillis());
-                    } catch (InterruptedException e) {
-                        return;
                     }
                 }
+            } catch (InterruptedException e) {
+                Timber.d(e, "Audio loop exiting");
+                return;
             }
         };
     }
@@ -172,13 +163,15 @@ public class LetterTrainingEngine {
         audioThread = new Thread(audioLoop);
         audioThread.start();
         isInitialized = true;
+        audioThreadKeepAlive = true;
     }
 
     public void destroy() {
-        threadKeepAlive = false;
         if (audioThread != null) {
             audioThread.interrupt();
+            audioThread = null;
         }
+        audioThreadKeepAlive = false;
     }
 
     public void resume() {

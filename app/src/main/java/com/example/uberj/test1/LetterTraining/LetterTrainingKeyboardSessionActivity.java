@@ -7,7 +7,6 @@ import android.os.Bundle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,6 +35,7 @@ import java.util.stream.Collectors;
 
 public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
     private static final String engineMutex = "engineMutex";
+    public static final String REQUEST_WEIGHTS_RESET = "request-weights-reset";
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
     public static final String WPM_REQUESTED = "wpm-requested";
     private int durationMinutesRequested;
@@ -64,6 +64,7 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
     private List<Button> allPlayableButtons;
     private DynamicKeyboard keyboard;
     private int wpmRequested;
+    private boolean resetWeights;
 
     public static ArrayList<View> getViewsByTag(ViewGroup root, String tag) {
         ArrayList<View> views = new ArrayList<View>();
@@ -219,18 +220,16 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
         setContentView(R.layout.keyboard_activity);
         Bundle receiveBundle = getIntent().getExtras();
         assert receiveBundle != null;
+        resetWeights = receiveBundle.getBoolean(REQUEST_WEIGHTS_RESET, false);
         durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
         durationRequestedMillis = 1000 * (durationMinutesRequested * 60);
         wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
-        if (savedInstanceState == null) {
-            repository.competencyWeightsDAO.getLatestEngineSetting(this::buildAndStartSession);
-        } else {
-            System.out.println("wtf");
-        }
+        repository.competencyWeightsDAO.getLatestEngineSetting(this, this::buildAndStartSession);
     }
 
     private void buildAndStartSession(Optional<LetterTrainingEngineSettings> previousWeight) {
-        Map<String, Integer> competencyWeights = buildInitialCompetencyWeights(previousWeight.orElse(null));
+        Map<String, Integer> competencyWeights = buildInitialCompetencyWeights(resetWeights ? null : previousWeight.orElse(null));
+
         List<String> inPlayKeyNames = buildInitialInPlayKeyNames(previousWeight.orElse(null));
         keyboard = new DynamicKeyboard.Builder()
                 .setContext(this)

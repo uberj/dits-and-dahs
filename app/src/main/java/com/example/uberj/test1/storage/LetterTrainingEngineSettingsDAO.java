@@ -1,5 +1,6 @@
 package com.example.uberj.test1.storage;
 
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
@@ -17,13 +18,14 @@ public interface LetterTrainingEngineSettingsDAO {
     @Insert
     void insertEngineSettings(LetterTrainingEngineSettings engineSettings);
 
-    default void getLatestEngineSetting(Consumer<Optional<LetterTrainingEngineSettings>> observerCallback) {
+    default void getLatestEngineSetting(LifecycleOwner owner, Consumer<Optional<LetterTrainingEngineSettings>> observerCallback) {
         LiveData<List<LetterTrainingEngineSettings>> getCallback = getAllEngineSettings();
-        getCallback.observeForever((allWeights) -> {
+        getCallback.observe(owner, (allWeights) -> {
             if (allWeights == null || allWeights.isEmpty()) {
                 observerCallback.accept(Optional.empty());
             } else {
                 observerCallback.accept(Optional.of(allWeights.get(0)));
+                getCallback.removeObservers(owner);
             }
         });
     }

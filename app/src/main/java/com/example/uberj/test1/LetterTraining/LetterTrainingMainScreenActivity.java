@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.util.Locale;
@@ -48,7 +49,7 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main4);
+        setContentView(R.layout.letter_training_start_screen_container);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -160,6 +161,7 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
     public static class StartScreenFragment extends Fragment  {
         private NumberPicker minutesPicker;
         private NumberPicker wpmPicker;
+        private CheckBox resetLetterWeights;
 
         public static StartScreenFragment newInstance() {
             StartScreenFragment fragment = new StartScreenFragment();
@@ -173,8 +175,9 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
             View rootView = inflater.inflate(R.layout.letter_training_start_screen_fragment, container, false);
             minutesPicker = rootView.findViewById(R.id.number_picker_minutes);
             wpmPicker = rootView.findViewById(R.id.wpm_number_picker);
+            resetLetterWeights = rootView.findViewById(R.id.reset_weights);
             LetterTrainingEngineSettingsDAO engineSettingsDAO = TheDatabase.getDatabase(rootView.getContext()).engineSettingsDAO();
-            engineSettingsDAO.getLatestEngineSetting((settings) -> {
+            engineSettingsDAO.getLatestEngineSetting(this, (settings) -> {
                 int playLetterWPM = settings.map((ts) -> ts.playLetterWPM).orElse(-1);
                 if (playLetterWPM > 0) {
                     wpmPicker.setProgress(playLetterWPM);
@@ -197,8 +200,10 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
                 Bundle bundle = new Bundle();
                 bundle.putInt(LetterTrainingKeyboardSessionActivity.WPM_REQUESTED, wpmPicker.getProgress());
                 bundle.putInt(LetterTrainingKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
+                bundle.putBoolean(LetterTrainingKeyboardSessionActivity.REQUEST_WEIGHTS_RESET, resetLetterWeights.isChecked());
                 sendIntent.putExtras(bundle);
-                startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);  // NOTE: Ignore request code for now. might become important later
+                startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);
+                resetLetterWeights.setChecked(false);
             });
 
             return rootView;
