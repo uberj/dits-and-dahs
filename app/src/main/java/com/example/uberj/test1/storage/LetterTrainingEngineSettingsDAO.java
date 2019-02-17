@@ -15,18 +15,9 @@ public interface LetterTrainingEngineSettingsDAO {
     @Query("SELECT * FROM LetterTrainingEngineSettings ORDER BY createdAtEpocMillis DESC")
     LiveData<List<LetterTrainingEngineSettings>> getAllEngineSettings();
 
+    @Query("SELECT * FROM LetterTrainingEngineSettings ORDER BY createdAtEpocMillis DESC LIMIT 1")
+    LiveData<List<LetterTrainingEngineSettings>> getLatestEngineSetting();
+
     @Insert
     void insertEngineSettings(LetterTrainingEngineSettings engineSettings);
-
-    default void getLatestEngineSetting(LifecycleOwner owner, Consumer<Optional<LetterTrainingEngineSettings>> observerCallback) {
-        LiveData<List<LetterTrainingEngineSettings>> getCallback = getAllEngineSettings();
-        getCallback.observe(owner, (allWeights) -> {
-            if (allWeights == null || allWeights.isEmpty()) {
-                observerCallback.accept(Optional.empty());
-            } else {
-                observerCallback.accept(Optional.of(allWeights.get(0)));
-                getCallback.removeObservers(owner);
-            }
-        });
-    }
 }

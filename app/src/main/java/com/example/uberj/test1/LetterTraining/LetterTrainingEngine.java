@@ -34,7 +34,7 @@ public class LetterTrainingEngine {
     private final int playLetterWPM;
     private static volatile boolean audioThreadKeepAlive = true;
     private volatile boolean isPaused = false;
-    private volatile boolean isInitialized = false;
+    private volatile boolean engineIsStarted = false;
     private List<String> playableKeys;
     private String currentLetter;
     private Thread audioThread;
@@ -102,6 +102,7 @@ public class LetterTrainingEngine {
                 Timber.d(e, "Audio loop exiting");
                 return;
             }
+            Timber.d("Audio loop exiting outside of loop");
         };
     }
 
@@ -158,24 +159,25 @@ public class LetterTrainingEngine {
         return pmf;
     }
 
-    public void initEngine() {
+    public void prime() {
         chooseDifferentLetter();
         audioThread = new Thread(audioLoop);
+    }
+
+    public void start() {
         audioThread.start();
-        isInitialized = true;
+        engineIsStarted = true;
         audioThreadKeepAlive = true;
     }
 
     public void destroy() {
-        if (audioThread != null) {
-            audioThread.interrupt();
-            audioThread = null;
-        }
         audioThreadKeepAlive = false;
+        audioThread.interrupt();
+        audioThread = null;
     }
 
     public void resume() {
-        if (!isPaused || !isInitialized) {
+        if (!isPaused || !engineIsStarted) {
             return;
         }
         isPaused = false;
@@ -185,7 +187,7 @@ public class LetterTrainingEngine {
     }
 
     public void pause() {
-        if (isPaused || !isInitialized) {
+        if (isPaused || !engineIsStarted) {
             return;
         }
         isPaused = true;
@@ -205,26 +207,11 @@ public class LetterTrainingEngine {
         }
     }
 
-    public List<String> getNQualifiedLetters(int n) {
-        ArrayList<String> qualifiedLetters = Lists.newArrayList();
-        for (String letter : letterOrder) {
-            Integer weight = competencyWeights.get(letter);
-            if (weight == null) {
-                continue;
-            }
-            if (weight < INCLUSION_COMPETENCY_CUTOFF_WEIGHT) {
-                continue;
-            }
-
-            qualifiedLetters.add(letter);
-            if(--n == 0){
-                break;
-            }
-        }
-        return qualifiedLetters;
-    }
-
     public int getCompetencyWeight(String letter) {
+        if (!competencyWeights.containsKey(letter)) {
+            competencyWeights.put(letter, 0);
+            return 0;
+        }
         return competencyWeights.get(letter);
     }
 

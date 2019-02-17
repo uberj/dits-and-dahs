@@ -5,12 +5,12 @@ import android.os.AsyncTask;
 
 public class Repository {
     public final LetterTrainingSessionDAO letterTrainingSessionDAO;
-    public final LetterTrainingEngineSettingsDAO competencyWeightsDAO;
+    public final LetterTrainingEngineSettingsDAO engineSettingsDAO;
 
     public Repository(Context context) {
         TheDatabase database = TheDatabase.getDatabase(context);
         letterTrainingSessionDAO = database.trainingSessionDAO();
-        competencyWeightsDAO = database.engineSettingsDAO();
+        engineSettingsDAO = database.engineSettingsDAO();
 
     }
 
@@ -19,7 +19,7 @@ public class Repository {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
-                competencyWeightsDAO.insertEngineSettings(engineSettings);
+                engineSettingsDAO.insertEngineSettings(engineSettings);
                 return null;
             }
         }.execute();

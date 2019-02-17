@@ -1,9 +1,7 @@
 package com.example.uberj.test1.LetterTraining;
 
 import com.example.uberj.test1.R;
-import com.example.uberj.test1.storage.LetterTrainingEngineSettingsDAO;
-import com.example.uberj.test1.storage.LetterTrainingSessionDAO;
-import com.example.uberj.test1.storage.TheDatabase;
+import com.example.uberj.test1.storage.LetterTrainingEngineSettings;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 import it.sephiroth.android.library.numberpicker.NumberPicker;
 
@@ -162,6 +161,8 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
         private NumberPicker minutesPicker;
         private NumberPicker wpmPicker;
         private CheckBox resetLetterWeights;
+        private LetterTrainingMainScreenViewModel sessionViewModel;
+
 
         public static StartScreenFragment newInstance() {
             StartScreenFragment fragment = new StartScreenFragment();
@@ -176,16 +177,22 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
             minutesPicker = rootView.findViewById(R.id.number_picker_minutes);
             wpmPicker = rootView.findViewById(R.id.wpm_number_picker);
             resetLetterWeights = rootView.findViewById(R.id.reset_weights);
-            LetterTrainingEngineSettingsDAO engineSettingsDAO = TheDatabase.getDatabase(rootView.getContext()).engineSettingsDAO();
-            engineSettingsDAO.getLatestEngineSetting(this, (settings) -> {
-                int playLetterWPM = settings.map((ts) -> ts.playLetterWPM).orElse(-1);
+            sessionViewModel = ViewModelProviders.of(this).get(LetterTrainingMainScreenViewModel.class);
+            sessionViewModel.getLatestEngineSettings().observe(this, (mostRecentSettings) -> {
+                int playLetterWPM = -1;
+                long prevDurationRequestedMillis = -1;
+                if (!mostRecentSettings.isEmpty()) {
+                    LetterTrainingEngineSettings engineSettings = mostRecentSettings.get(0);
+                    playLetterWPM = engineSettings.playLetterWPM;
+                    prevDurationRequestedMillis = engineSettings.durationRequestedMillis;
+                }
+
                 if (playLetterWPM > 0) {
                     wpmPicker.setProgress(playLetterWPM);
                 } else {
                     wpmPicker.setProgress(20);
                 }
 
-                long prevDurationRequestedMillis = settings.map((ts) -> ts.durationRequestedMillis).orElse(-1l);
                 if (prevDurationRequestedMillis > 0) {
                     long prevDurationRequestedMinutes = (prevDurationRequestedMillis / 1000) / 60;
                     minutesPicker.setProgress((int) prevDurationRequestedMinutes);
@@ -212,6 +219,8 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
 
 
     public static class NumbersScreenFragment extends Fragment  {
+        private LetterTrainingMainScreenViewModel sessionViewModel;
+
         public static NumbersScreenFragment newInstance() {
             NumbersScreenFragment fragment = new NumbersScreenFragment();
             Bundle args = new Bundle();
@@ -222,11 +231,18 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.letter_training_numbers_screen_fragment, container, false);
-            LetterTrainingSessionDAO letterTrainingSessionDAO = TheDatabase.getDatabase(rootView.getContext()).trainingSessionDAO();
-            letterTrainingSessionDAO.getLatestSession((latestSession) -> {
-                float wpmAverage = latestSession.map(ts -> ts.wpmAverage).orElse(-1f);
-                float errorRate = latestSession.map(ts -> ts.errorRate).orElse(-1f);
-                long prevDurationMillis = latestSession.map((ts) -> ts.durationWorkedMillis).orElse(-1l);
+            sessionViewModel = ViewModelProviders.of(this).get(LetterTrainingMainScreenViewModel.class);
+            sessionViewModel.getLatestSession().observe(this, (mostRecentSession) -> {
+                float wpmAverage = -1;
+                float errorRate = -1;
+                long prevDurationMillis = -1;
+                if (!mostRecentSession.isEmpty()) {
+                    wpmAverage = mostRecentSession.get(0).wpmAverage;
+                    errorRate = mostRecentSession.get(0).errorRate;
+                    prevDurationMillis = mostRecentSession.get(0).durationWorkedMillis;
+
+                }
+
                 long prevDurationMinutes = (prevDurationMillis / 1000) / 60;
                 long prevDurationSeconds = (prevDurationMillis / 1000) % 60;
 
@@ -242,6 +258,7 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
                         errorRate >= 0 ? (int) (100 * errorRate) + "%" : "N/A"
                 );
             });
+
             return rootView;
         }
     }
