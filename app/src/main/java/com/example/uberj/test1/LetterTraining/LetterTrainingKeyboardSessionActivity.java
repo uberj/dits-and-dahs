@@ -120,10 +120,17 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
         guess.ifPresent(wasCorrectGuess -> {
             ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
             if (!wasCorrectGuess) {
-                TransitionDrawable background = (TransitionDrawable) timerProgressBar.getProgressDrawable();
-                background.startTransition(0);
-                background.reverseTransition(500);
+                Drawable incorrectDrawable = getResources().getDrawable(R.drawable.incorrect_guess_timer_bar_progress_background, getTheme());
+                timerProgressBar.setProgressDrawable(incorrectDrawable);
+            } else {
+                Drawable correctDrawable = getResources().getDrawable(R.drawable.correct_guess_timer_bar_progress_background, getTheme());
+                timerProgressBar.setProgressDrawable(correctDrawable);
             }
+
+            TransitionDrawable background = (TransitionDrawable) timerProgressBar.getProgressDrawable();
+            background.startTransition(0);
+            background.reverseTransition(500);
+
             viewModel.updateCompetencyWeights(letter, wasCorrectGuess);
             updateProgressBarColorForLetter(letter);
 

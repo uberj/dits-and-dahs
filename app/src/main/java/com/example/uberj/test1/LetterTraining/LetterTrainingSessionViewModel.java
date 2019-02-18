@@ -32,7 +32,7 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
     private int totalIncorrectGuesses;
     private CountDownTimer countDownTimer;
     private final Repository repository;
-    protected MutableLiveData<Long> durationRemainingMillis = new MutableLiveData<>(-1l);
+    private final MutableLiveData<Long> durationRemainingMillis = new MutableLiveData<>(-1L);
     private long endTimeEpocMillis = -1;
 
     private LetterTrainingEngine engine;

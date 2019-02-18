@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transition xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+    <!-- The drawables used here can be solid colors, gradients, shapes, images, etc. -->
+    <item android:drawable="@drawable/progress_horizontal_from_sdk" />
+    <item android:drawable="@drawable/correct_timer_bar_background" />
+</transition>
