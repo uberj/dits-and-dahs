@@ -1,8 +1,8 @@
 package com.example.uberj.test1.LetterTraining;
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import androidx.appcompat.app.AlertDialog;
@@ -188,7 +188,8 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
                     .setButtonOnClickListener(this::keyboardButtonClicked)
                     .setButtonLongClickListener(this::playableKeyLongClickHandler)
                     .setButtonCallback((button) -> {
-                        if (viewModel.getInPlayKeyNames().contains(button.getText().toString())) {
+                        String letter = button.getText().toString();
+                        if (viewModel.getInPlayKeyNames().contains(letter)) {
                             button.setAlpha(ENABLED_BUTTON_ALPHA);
                         } else {
                             button.setAlpha(DISABLED_BUTTON_ALPHA);
@@ -200,14 +201,28 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
                     })
                     .createKeyboardBuilder();
             keyboard.buildAtRoot(findViewById(R.id.keyboard_base));
+            for (String letter : viewModel.getInPlayKeyNames()) {
+                updateProgressBarColorForLetter(letter);
+            }
             viewModel.startTheEngine();
+        });
+
+        ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
+        viewModel.getDurationRemainingMillis().observe(this, (remainingMillis) -> {
+            if (remainingMillis == 0) {
+                finish();
+                return;
+            }
+
+            int progress = Math.round((((float) remainingMillis / (float) viewModel.getDurationRequestedMillis())) * 1000f);
+            timerProgressBar.setProgress(progress, true);
         });
 
     }
 
     @Override
     public void onBackPressed() {
-        if (viewModel.getDurationRemainingMillis() != 0) {
+        if (viewModel.getDurationRemainingMillis().getValue() != 0) {
             viewModel.pause();
 
             // Update UI to indicate paused session. Player will need to manually trigger play to resume
@@ -220,7 +235,7 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
             builder.setMessage("Do you want to end this session?");
             builder.setPositiveButton("Yes", (dialog, which) -> {
                 // Duration always seems to be off by -1s when back is pressed
-                viewModel.setDurationRemainingMillis(viewModel.getDurationRemainingMillis() - 1000 );
+                viewModel.setDurationRemainingMillis(viewModel.getDurationRemainingMillis().getValue() - 1000 );
                 Intent data = buildResultIntent();
                 setResult(Activity.RESULT_OK, data);
                 finish();

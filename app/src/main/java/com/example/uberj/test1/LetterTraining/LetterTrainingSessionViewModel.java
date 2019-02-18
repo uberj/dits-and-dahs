@@ -18,6 +18,7 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import timber.log.Timber;
@@ -31,7 +32,7 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
     private int totalIncorrectGuesses;
     private CountDownTimer countDownTimer;
     private final Repository repository;
-    protected long durationRemainingMillis;
+    protected MutableLiveData<Long> durationRemainingMillis = new MutableLiveData<>(-1l);
     private long endTimeEpocMillis = -1;
 
     private LetterTrainingEngine engine;
@@ -43,7 +44,6 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
     private final int wpmRequested;
 
     private List<String> inPlayKeyNames;
-    private static final String TAG = "LetterTrainingSessionViewModel";
 
     public LetterTrainingSessionViewModel(@NonNull Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested) {
         super(application);
@@ -79,6 +79,9 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
         return repository.engineSettingsDAO.getLatestEngineSetting();
     }
 
+    public long getDurationRequestedMillis() {
+        return durationRequestedMillis;
+    }
 
 
     public void primeTheEngine(LetterTrainingEngineSettings previousSettings) {
@@ -104,11 +107,11 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
     private CountDownTimer setupCountDownTimer(long durationsMillis) {
         return new CountDownTimer(durationsMillis, 50) {
             public void onTick(long millisUntilFinished) {
-                durationRemainingMillis = millisUntilFinished;
+                durationRemainingMillis.setValue(millisUntilFinished);
             }
 
             public void onFinish() {
-                durationRemainingMillis = 0;
+                durationRemainingMillis.setValue(0l);
             }
         };
     }
@@ -187,7 +190,7 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
         } else {
             trainingSession.endTimeEpocMillis = endTimeEpocMillis;
         }
-        long durationWorkedMillis = durationRequestedMillis - durationRemainingMillis;
+        long durationWorkedMillis = durationRequestedMillis - durationRemainingMillis.getValue();
 
         trainingSession.endTimeEpocMillis = System.currentTimeMillis();
         trainingSession.durationRequestedMillis = durationRequestedMillis;
@@ -250,12 +253,11 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
         totalUniqueLettersChosen++;
     }
 
-    public long getDurationRemainingMillis() {
+    public LiveData<Long> getDurationRemainingMillis() {
         return durationRemainingMillis;
     }
 
-    public LetterTrainingSessionViewModel setDurationRemainingMillis(long durationRemainingMillis) {
-        this.durationRemainingMillis = durationRemainingMillis;
-        return this;
+    public void setDurationRemainingMillis(long durationRemainingMillis) {
+        this.durationRemainingMillis.setValue(durationRemainingMillis);
     }
 }
