@@ -9,6 +9,7 @@
         android:id="@+id/session-letter-wpm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:text="Letter WPM:"
         app:layout_constraintBottom_toTopOf="@+id/session-length"
         app:layout_constraintStart_toStartOf="@+id/stats-stopper"
@@ -35,6 +36,7 @@
         android:id="@+id/session-length"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="30dp"
         android:text="Duration (Minutes):"
         app:layout_constraintBottom_toTopOf="@+id/start-button"
@@ -61,6 +63,7 @@
         android:id="@+id/start-button"
         android:layout_width="204dp"
         android:layout_height="38dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="30dp"
         android:text="Start"
         android:textAlignment="center"
@@ -74,7 +77,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.21" />
+        app:layout_constraintGuide_percent="0.3" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline17"
