@@ -23,8 +23,6 @@ public class LetterTrainingEngine {
 
     private static final String guessGate = "guessGate";
     private static final String pauseGate = "pauseGate";
-    private static final String audioGate = "audioGate";
-    private static final String TAG = "LetterTrainingEngine";
     private static final int LETTER_WEIGHT_MAX = 100;
     private static final int LETTER_WEIGHT_MIN = 0;
     private static final int INCLUSION_COMPETENCY_CUTOFF_WEIGHT = 50;
@@ -53,19 +51,13 @@ public class LetterTrainingEngine {
             try {
                 while (Thread.currentThread() == audioThread) {
                     /*/
-                    This loop will wait for ex
+                    This loop will wait for
 
                     Pause
                     -----
                     - When the engine is paused
                         * No timeout
                         * resume() should be the only one to trigger this notify
-
-                    Playing
-                    -------
-                    - When the tone manager is playing audio
-                        * Timeout happens after audio tone is done
-                        * Nobody should end this?
 
                     WaitGuess
                     ---------
@@ -80,16 +72,9 @@ public class LetterTrainingEngine {
                         }
                     }
 
-                    CWToneManager.PCMDetails pcmDetails = cwToneManager.calcPCMDetails(currentLetter);
-                    long waitTimeMillis = (long) (1000L * ((1F / pcmDetails.symbolsPerSecond) * pcmDetails.totalNumberSymbols));
-
                     // play it letter
                     if (audioThreadKeepAlive) {
                         cwToneManager.playLetter(currentLetter);
-                    }
-
-                    synchronized (audioGate) {
-                        audioGate.wait(waitTimeMillis);
                     }
 
                     // start the callback timer to play again
@@ -192,9 +177,6 @@ public class LetterTrainingEngine {
             return;
         }
         isPaused = true;
-        synchronized (audioGate) {
-            audioGate.notify();
-        }
 
         synchronized (guessGate) {
             guessGate.notify();
