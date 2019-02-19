@@ -62,12 +62,12 @@
     <Button
         android:id="@+id/start-button"
         android:layout_width="204dp"
-        android:layout_height="38dp"
-        android:layout_marginStart="8dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:text="Start"
         android:textAlignment="center"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/number_picker_minutes"
         app:layout_constraintStart_toStartOf="@+id/stats-stopper"
         app:layout_constraintTop_toBottomOf="@+id/session-length" />
 
@@ -97,6 +97,7 @@
         android:id="@+id/reset-weights"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
         android:layout_marginTop="24dp"
         android:text="Reset letter weights"
         app:layout_constraintStart_toStartOf="@+id/stats-stopper"
