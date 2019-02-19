@@ -174,6 +174,7 @@ public class LetterTrainingEngine {
         audioThreadKeepAlive = false;
         audioThread.interrupt();
         audioThread = null;
+        cwToneManager.destroy();
     }
 
     public void resume() {

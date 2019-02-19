@@ -1,5 +1,6 @@
 package com.example.uberj.test1;
 
+import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -7,12 +8,11 @@ import android.util.Log;
 
 import com.google.common.collect.ImmutableMap;
 
-public class CWToneManager {
-    private static final String TAG = "CWToneManager";
-    // originally from http://marblemice.blogspot.com/2010/04/generate-and-play-tone-in-android.html
-    // and modified by Steve Pomeroy <steve@staticfree.info>
-    // again modified by Jacques Uber <mail@uberj.com>
+import java.util.Arrays;
 
+import timber.log.Timber;
+
+public class CWToneManager {
     private final int wpm;
     private static final int sampleRateHz = 44100;
 
@@ -69,6 +69,8 @@ public class CWToneManager {
     private static int freqOfToneHz = 440;
     private static int silenceSymbolsAfterDitDah = 1;
     private static int farnsworthWordConstant = 1;
+    private final AudioTrack player;
+    private final int minBufferSize;
 
     /*
         16 = 1 + 7 + 7 + 1 = .--.
@@ -239,35 +241,55 @@ public class CWToneManager {
 
     public CWToneManager(int wpm) {
         this.wpm = wpm;
+
+        int channelOutStereo = AudioFormat.CHANNEL_OUT_MONO;
+        int encoding = AudioFormat.ENCODING_PCM_16BIT;
+        minBufferSize = AudioTrack.getMinBufferSize(sampleRateHz, channelOutStereo, encoding);
+        player = new AudioTrack.Builder()
+                .setAudioAttributes(new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build())
+                .setAudioFormat(new AudioFormat.Builder()
+                        .setEncoding(encoding)
+                        .setSampleRate(sampleRateHz)
+                        .setChannelMask(channelOutStereo)
+                        .build())
+                .setBufferSizeInBytes(minBufferSize)
+                .build();
+        player.play();
+
+    }
+
+    public void destroy() {
+        player.stop();
+        player.release();
     }
 
     void playSoundTest(){
         //byte[] generatedSnd1 = buildSnd("....");
-        byte[] generatedSnd1 = buildSnd(20, "..../- .../- ../- ./-");
-        //byte[] generatedSnd1 = buildSampleTone();
-        final AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
-                sampleRateHz, AudioFormat.CHANNEL_OUT_MONO,
-                AudioFormat.ENCODING_PCM_16BIT, generatedSnd1.length,
-                AudioTrack.MODE_STATIC);
-        audioTrack.write(generatedSnd1, 0, generatedSnd1.length);
-        audioTrack.play();
+        byte[] generatedSnd1 = buildSnd(50, "... --- ...");
+        for (int j = 0; j < 44; j++) {
+        }
     }
 
     public void playLetter(String requestedMessage) {
-        Log.d(TAG, "Requested message: " + requestedMessage);
+        Timber.d("Requested message: %s", requestedMessage);
         String pattern = LETTER_DEFINITIONS.get(requestedMessage.toUpperCase());
         if (pattern == null) {
             throw new RuntimeException("No pattern found for letter: " + requestedMessage);
         }
 
         byte[] generatedSnd = buildSnd(wpm, pattern);
-        // TODO, do this audioTrack init only once. requires playing with buffer size
-        // TODO, move to android 26 AudioTrack builder
-        final AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
-                sampleRateHz, AudioFormat.CHANNEL_OUT_MONO,
-                AudioFormat.ENCODING_PCM_16BIT, generatedSnd.length,
-                AudioTrack.MODE_STATIC);
-        audioTrack.write(generatedSnd, 0, generatedSnd.length);
-        audioTrack.play();
+        for (int i = 0; i < generatedSnd.length; i += minBufferSize) {
+            int size;
+            if (i + minBufferSize > generatedSnd.length) {
+                size = generatedSnd.length - i;
+            } else {
+                size = minBufferSize;
+            }
+            player.write(generatedSnd, i, size);
+        }
+
     }
 }
