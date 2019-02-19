@@ -32,4 +32,7 @@ public class KeyConfig {
     public static KeyConfig s() {
         return new KeyConfig(null, 0.5f, false, KeyType.HALF_SPACE);
     }
+    public static KeyConfig s(float weight) {
+        return new KeyConfig(null, weight, false, KeyType.HALF_SPACE);
+    }
 }

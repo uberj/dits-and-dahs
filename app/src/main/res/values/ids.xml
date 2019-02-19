@@ -58,8 +58,6 @@
     <item name="progressBarForKeyK" type="id"/>
     <item name="keyL" type="id"/>
     <item name="progressBarForKeyL" type="id"/>
-    <item name="keyBT" type="id"/>
-    <item name="progressBarForKeyBT" type="id"/>
     <item name="keyZ" type="id"/>
     <item name="progressBarForKeyZ" type="id"/>
     <item name="keyX" type="id"/>
@@ -88,6 +86,8 @@
     <item name="progressBarForKeyQUESTION" type="id"/>
     <item name="keyCOMMA" type="id"/>
     <item name="progressBarForKeyCOMMA" type="id"/>
+    <item name="keyEQUALS" type="id"/>
+    <item name="progressBarForKeyEQUALS" type="id"/>
     <item name="keyDEL" type="id"/>
     <item name="keySPC" type="id"/>
 </resources>

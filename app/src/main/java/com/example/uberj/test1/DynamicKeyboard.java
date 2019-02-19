@@ -144,6 +144,8 @@ public class DynamicKeyboard {
             return ",";
         } else if (idName.equals("QUESTION")) {
             return "?";
+        } else if (idName.equals("EQUALS")) {
+            return "=";
         } else {
             return idName;
         }
@@ -158,6 +160,8 @@ public class DynamicKeyboard {
             return "PERIOD";
         } else if (buttonLetter.equals("?")) {
             return "QUESTION";
+        } else if (buttonLetter.equals("=")) {
+            return "EQUALS";
         } else {
             return buttonLetter;
         }
@@ -173,32 +177,20 @@ public class DynamicKeyboard {
 
     private Button makeButton(String keyName, KeyConfig keyConfig) {
         Button button = new Button(context);
-        /* <Button
-            android:onClick="keyboardButtonClicked"
-            android:tag="inplay"
-            android:text="1" />
-         */
-        // android:id="@+id/key1"
         int buttonId = context.getResources().getIdentifier(getButtonIdName(keyName), "id", context.getPackageName());
         button.setId(buttonId);
 
-        // android:text="1"
         button.setText(keyName);
-        // android:tag="inplay"
         if (keyConfig.isPlayable) {
             button.setTag("inplay");
         }
 
-        // android:layout_width="match_parent"
-        // android:layout_height="wrap_content"
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         button.setLayoutParams(layoutParams);
 
-        //button.setOnClickListener() -> );
         button.setOnClickListener(this.buttonOnClickListener);
-        //button.setOnLongClickListener() -> );
         button.setOnLongClickListener(this.buttonLongClickListener);
 
         this.buttonCallback.accept(button);
@@ -210,34 +202,16 @@ public class DynamicKeyboard {
         View progressBar = new View(context);
         progressBar.setTag("progressBar");
 
-        /* <View android:tag="progressbar"
-                android:layout_marginTop="@dimen/progressBarTopMargin"
-                android:layout_marginStart="@dimen/progressBarStartEndMargin"
-                android:layout_marginEnd="@dimen/progressBarStartEndMargin"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/progressBarHeight"
-                android:background="@drawable/progress_bar"/>
-         */
-
-        // android:id="@+id/progressBarForKey73"
         int progressBarId = context.getResources().getIdentifier(getProgressBarIdName(keyName), "id", context.getPackageName());
         progressBar.setId(progressBarId);
-        // android:layout_width="match_parent"
-        // android:layout_height="@dimen/progressBarHeight"
         int dimension = Math.round(context.getResources().getDimension(R.dimen.progressBarHeight));
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 dimension);
         int topMargin = Math.round(context.getResources().getDimension(R.dimen.progressBarTopMargin));
         int startEndMargin = Math.round(context.getResources().getDimension(R.dimen.progressBarStartEndMargin));
-        /*
-                android:layout_marginTop="@dimen/progressBarTopMargin"
-                android:layout_marginStart="@dimen/progressBarStartEndMargin"
-                android:layout_marginEnd="@dimen/progressBarStartEndMargin"
-         */
         layoutParams.setMargins(startEndMargin, topMargin, startEndMargin, 0);
 
-        // android:background="@drawable/progress_bar"/>
         progressBar.setBackground(context.getResources().getDrawable(R.drawable.progress_bar, context.getTheme()));
 
 

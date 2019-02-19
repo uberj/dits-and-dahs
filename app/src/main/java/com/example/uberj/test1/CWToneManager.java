@@ -18,7 +18,7 @@ public class CWToneManager {
 
     private static final ImmutableMap<String, String> LETTER_DEFINITIONS = ImmutableMap.<String, String>builder()
             .put("A", ".-")
-            .put("B", "...-")
+            .put("B", "-...")
             .put("C", ".-.-")
             .put("D", "-..")
             .put("E", ".")
@@ -38,7 +38,7 @@ public class CWToneManager {
             .put("S", "...")
             .put("T", "-")
             .put("U", "..-")
-            .put("V", "-...")
+            .put("V", "...-")
             .put("W", ".--")
             .put("X", "-..-")
             .put("Y", "-.--")
@@ -58,14 +58,10 @@ public class CWToneManager {
             .put(".", ".-.-.-")
             .put(",", "--..--")
             .put("?", "..--..")
-            .put("SK", "...-.-")
-            .put("AR", ".-.-.")
-            .put("73", "--......--")
-            .put("BT", "-...-")
+            .put("=", "-...-")
             .build();
 
 
-    private static int farnsWorthSpace = 3;
     private static int freqOfToneHz = 440;
     private static int silenceSymbolsAfterDitDah = 1;
     private static int farnsworthWordConstant = 1;

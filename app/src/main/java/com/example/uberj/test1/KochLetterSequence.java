@@ -20,7 +20,7 @@ public class KochLetterSequence {
             .add(".")
             .add("J")
             .add("Z")
-            .add("BT")
+            .add("=")
             .add("F")
             .add("O")
             .add("Y")
