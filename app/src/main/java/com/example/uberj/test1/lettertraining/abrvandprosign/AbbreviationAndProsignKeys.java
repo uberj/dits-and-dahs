@@ -9,6 +9,42 @@ import static com.example.uberj.test1.keyboards.KeyConfig.p;
 import static com.example.uberj.test1.keyboards.KeyConfig.s;
 
 public class AbbreviationAndProsignKeys implements Keys {
+    /*
+    /
+73
+=
+QRL
+QRM
+QRN
+QRQ
+QRS
+QRZ
+QSB
+QSY
+QTH
+agn
+ant
+cq
+dx
+es
+fb
+ga
+ge
+hi
+hr
+hw
+name
+nr
+om
+pse
+pwr
+r
+rst
+rtu
+tnx
+tu
+wx
+     */
     @Override
     public ImmutableList<ImmutableList<KeyConfig>> getKeys() {
         return ImmutableList.of(

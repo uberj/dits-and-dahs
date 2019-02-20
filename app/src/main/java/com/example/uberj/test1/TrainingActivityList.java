@@ -34,9 +34,17 @@ public class TrainingActivityList extends Activity {
 
         // specify an adapter (see also next example)
         ArrayList<TrainingCardData> trainingActivities = new ArrayList();
-        TrainingCardData letter_groups = new TrainingCardData("Letter Groups", R.string.letter_group_description, new Intent(this, BaseStartScreenActivity.class));
+        TrainingCardData letter_groups = new TrainingCardData(
+                "Letter Groups",
+                R.string.letter_group_description,
+                new Intent(this, BaseStartScreenActivity.class)
+        );
         trainingActivities.add(letter_groups);
-        TrainingCardData letter_training = new TrainingCardData("Letter Training", R.string.letter_training_description, new Intent(this, MainActivity.class));
+        TrainingCardData letter_training = new TrainingCardData(
+                "Letter Training",
+                R.string.letter_training_description,
+                new Intent(this, MainActivity.class)
+        );
         trainingActivities.add(letter_training);
         mAdapter = new TrainingActivityAdapter(trainingActivities);
         mRecyclerView.setAdapter(mAdapter);
