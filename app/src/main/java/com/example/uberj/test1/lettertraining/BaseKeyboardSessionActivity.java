@@ -1,4 +1,4 @@
-package com.example.uberj.test1.LetterTraining;
+package com.example.uberj.test1.lettertraining;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -21,8 +21,9 @@ import com.example.uberj.test1.DynamicKeyboard;
 import com.example.uberj.test1.KochLetterSequence;
 import com.example.uberj.test1.ProgressGradient;
 import com.example.uberj.test1.R;
-import com.example.uberj.test1.keyboards.SimpleLetters;
+import com.example.uberj.test1.keyboards.Keys;
 import com.example.uberj.test1.storage.LetterTrainingEngineSettings;
+import com.example.uberj.test1.storage.SessionType;
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
+public abstract class BaseKeyboardSessionActivity extends AppCompatActivity {
     private static final String engineMutex = "engineMutex";
     public static final String REQUEST_WEIGHTS_RESET = "request-weights-reset";
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
@@ -177,8 +178,14 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
         int durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
         int wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
 
-        viewModel = ViewModelProviders.of(this, new LetterTrainingSessionViewModel.Factory(
-                this.getApplication(), resetWeights, durationMinutesRequested, wpmRequested)
+        viewModel = ViewModelProviders.of(this,
+                new LetterTrainingSessionViewModel.Factory(
+                        this.getApplication(),
+                        resetWeights,
+                        durationMinutesRequested,
+                        wpmRequested,
+                        getSessionType(),
+                        getSessionKeys())
         ).get(LetterTrainingSessionViewModel.class);
 
         viewModel.getLatestEngineSetting().observe(this, (prevSettings) -> {
@@ -189,9 +196,10 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
                 settings = prevSettings.get(0);
             }
             viewModel.primeTheEngine(settings);
+            Keys sessionKeys = getSessionKeys();
             keyboard = new DynamicKeyboard.Builder()
                     .setContext(this)
-                    .setKeys(SimpleLetters.keys)
+                    .setKeys(sessionKeys.getKeys())
                     .setButtonOnClickListener(this::keyboardButtonClicked)
                     .setButtonLongClickListener(this::playableKeyLongClickHandler)
                     .setButtonCallback((button) -> {
@@ -226,6 +234,10 @@ public class LetterTrainingKeyboardSessionActivity extends AppCompatActivity {
         });
 
     }
+
+    protected abstract Keys getSessionKeys();
+
+    public abstract SessionType getSessionType();
 
     @Override
     public void onBackPressed() {

@@ -5,7 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.example.uberj.test1.LetterTraining.LetterTrainingMainScreenActivity;
+import com.example.uberj.test1.lettertraining.BaseStartScreenActivity;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,7 +34,7 @@ public class TrainingActivityList extends Activity {
 
         // specify an adapter (see also next example)
         ArrayList<TrainingCardData> trainingActivities = new ArrayList();
-        TrainingCardData letter_groups = new TrainingCardData("Letter Groups", R.string.letter_group_description, new Intent(this, LetterTrainingMainScreenActivity.class));
+        TrainingCardData letter_groups = new TrainingCardData("Letter Groups", R.string.letter_group_description, new Intent(this, BaseStartScreenActivity.class));
         trainingActivities.add(letter_groups);
         TrainingCardData letter_training = new TrainingCardData("Letter Training", R.string.letter_training_description, new Intent(this, MainActivity.class));
         trainingActivities.add(letter_training);

@@ -12,11 +12,11 @@ import java.util.function.Consumer;
 
 @Dao
 public interface LetterTrainingEngineSettingsDAO {
-    @Query("SELECT * FROM LetterTrainingEngineSettings ORDER BY createdAtEpocMillis DESC")
-    LiveData<List<LetterTrainingEngineSettings>> getAllEngineSettings();
+    @Query("SELECT * FROM LetterTrainingEngineSettings WHERE sessionType = :sessionType ORDER BY createdAtEpocMillis DESC")
+    LiveData<List<LetterTrainingEngineSettings>> getAllEngineSettings(String sessionType);
 
-    @Query("SELECT * FROM LetterTrainingEngineSettings ORDER BY createdAtEpocMillis DESC LIMIT 1")
-    LiveData<List<LetterTrainingEngineSettings>> getLatestEngineSetting();
+    @Query("SELECT * FROM LetterTrainingEngineSettings WHERE sessionType = :sessionType ORDER BY createdAtEpocMillis DESC LIMIT 1")
+    LiveData<List<LetterTrainingEngineSettings>> getLatestEngineSetting(String sessionType);
 
     @Insert
     void insertEngineSettings(LetterTrainingEngineSettings engineSettings);

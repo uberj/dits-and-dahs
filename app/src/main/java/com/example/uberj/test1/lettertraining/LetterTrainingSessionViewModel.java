@@ -1,14 +1,15 @@
-package com.example.uberj.test1.LetterTraining;
+package com.example.uberj.test1.lettertraining;
 
 import android.app.Application;
 
 import com.example.uberj.test1.CWToneManager;
 import com.example.uberj.test1.CountDownTimer;
 import com.example.uberj.test1.KochLetterSequence;
-import com.example.uberj.test1.keyboards.SimpleLetters;
+import com.example.uberj.test1.keyboards.Keys;
 import com.example.uberj.test1.storage.LetterTrainingEngineSettings;
 import com.example.uberj.test1.storage.LetterTrainingSession;
 import com.example.uberj.test1.storage.Repository;
+import com.example.uberj.test1.storage.SessionType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -25,33 +26,36 @@ import timber.log.Timber;
 
 class LetterTrainingSessionViewModel extends AndroidViewModel {
     private static final String sessionStartLock = "Lock";
-    private boolean sessiontHasBeenStarted = false;
-    private int totalUniqueLettersChosen;
-    private int totalCorrectGuesses;
-    private int totalAccurateSymbolsGuessed;
-    private int totalIncorrectGuesses;
-    private CountDownTimer countDownTimer;
     private final Repository repository;
-    private final MutableLiveData<Long> durationRemainingMillis = new MutableLiveData<>(-1L);
-    private long endTimeEpocMillis = -1;
-
-    private LetterTrainingEngine engine;
 
     private final Boolean resetWeights;
     // TODO remove minutes requested in favor of millis requested
     private final int durationMinutesRequested;
     private final long durationRequestedMillis;
     private final int wpmRequested;
+    private final SessionType sessionType;
+    private final Keys keys;
 
     private List<String> inPlayKeyNames;
+    private CountDownTimer countDownTimer;
+    private final MutableLiveData<Long> durationRemainingMillis = new MutableLiveData<>(-1L);
+    private boolean sessiontHasBeenStarted = false;
+    private int totalUniqueLettersChosen;
+    private int totalCorrectGuesses;
+    private int totalAccurateSymbolsGuessed;
+    private int totalIncorrectGuesses;
+    private long endTimeEpocMillis = -1;
+    private LetterTrainingEngine engine;
 
-    public LetterTrainingSessionViewModel(@NonNull Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested) {
+    public LetterTrainingSessionViewModel(@NonNull Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, SessionType sessionType, Keys keys) {
         super(application);
         this.resetWeights = resetWeights;
         this.durationMinutesRequested = durationMinutesRequested;
         this.durationRequestedMillis = 1000 * (durationMinutesRequested * 60);
         this.wpmRequested = wpmRequested;
         this.repository = new Repository(application);
+        this.sessionType = sessionType;
+        this.keys = keys;
     }
 
     public static class Factory implements ViewModelProvider.Factory {
@@ -59,24 +63,28 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
         private final Boolean resetWeights;
         private final int durationMinutesRequested;
         private final int wpmRequested;
+        private final SessionType sessionType;
+        private final Keys keys;
 
 
-        public Factory(Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested) {
+        public Factory(Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, SessionType sessionType, Keys keys) {
             this.application = application;
             this.resetWeights = resetWeights;
             this.durationMinutesRequested = durationMinutesRequested;
             this.wpmRequested = wpmRequested;
+            this.sessionType = sessionType;
+            this.keys = keys;
         }
 
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
-            return (T) new LetterTrainingSessionViewModel(application, resetWeights, durationMinutesRequested, wpmRequested);
+            return (T) new LetterTrainingSessionViewModel(application, resetWeights, durationMinutesRequested, wpmRequested, sessionType, keys);
         }
     }
 
     public LiveData<List<LetterTrainingEngineSettings>> getLatestEngineSetting() {
-        return repository.engineSettingsDAO.getLatestEngineSetting();
+        return repository.engineSettingsDAO.getLatestEngineSetting(sessionType.name());
     }
 
     public long getDurationRequestedMillis() {
@@ -148,11 +156,11 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
 
     private Map<String, Integer> buildInitialCompetencyWeights(LetterTrainingEngineSettings weights) {
         if (weights == null) {
-            return buildBlankWeights(SimpleLetters.allPlayableKeysNames());
+            return buildBlankWeights(keys.allPlayableKeysNames());
         }
 
         Map<String, Integer> competencyWeights;
-        List<String> playableKeys = SimpleLetters.allPlayableKeysNames();
+        List<String> playableKeys = keys.allPlayableKeysNames();
         if (weights.weights.size() == 0) {
             competencyWeights = buildBlankWeights(playableKeys);
         } else {
@@ -198,6 +206,7 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
         trainingSession.completed = durationWorkedMillis == 0;
         trainingSession.wpmAverage = calcWpmAverage(durationWorkedMillis);
         trainingSession.errorRate = (float) totalIncorrectGuesses / (float) (totalCorrectGuesses + totalIncorrectGuesses);
+        trainingSession.sessionType = sessionType.name();
         if (Float.isNaN(trainingSession.errorRate)) {
             trainingSession.errorRate = -1;
         }
@@ -206,6 +215,7 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
 
         LetterTrainingEngineSettings settings = engine.getSettings();
         settings.durationRequestedMillis = durationRequestedMillis;
+        settings.sessionType = sessionType.name();
         repository.insertMostRecentCompetencyWeights(settings);
     }
 

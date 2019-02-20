@@ -1,4 +1,4 @@
-package com.example.uberj.test1.LetterTraining;
+package com.example.uberj.test1.lettertraining;
 
 import com.example.uberj.test1.CWToneManager;
 import com.example.uberj.test1.storage.LetterTrainingEngineSettings;
@@ -74,6 +74,7 @@ public class LetterTrainingEngine {
 
                     // play it letter
                     if (audioThreadKeepAlive) {
+                        Timber.d("Playing letter: %s", currentLetter);
                         cwToneManager.playLetter(currentLetter);
                     }
 

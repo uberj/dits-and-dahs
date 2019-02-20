@@ -1,7 +1,8 @@
-package com.example.uberj.test1.LetterTraining;
+package com.example.uberj.test1.lettertraining;
 
 import com.example.uberj.test1.R;
 import com.example.uberj.test1.storage.LetterTrainingEngineSettings;
+import com.example.uberj.test1.storage.SessionType;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,7 +28,7 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
-public class LetterTrainingMainScreenActivity extends AppCompatActivity {
+public abstract class BaseStartScreenActivity extends AppCompatActivity {
     private static final int KEYBOARD_REQUEST_CODE = 0;
 
     /**
@@ -52,7 +53,7 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), getSessionActivityClass(), getSessionType());
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = findViewById(R.id.container);
@@ -64,6 +65,8 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
     }
+
+    protected abstract SessionType getSessionType();
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
@@ -135,8 +138,13 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        public SectionsPagerAdapter(FragmentManager fm) {
+        private final Class<? extends BaseKeyboardSessionActivity> sessionActivityClass;
+        private final SessionType sessionType;
+
+        public SectionsPagerAdapter(FragmentManager fm, Class<? extends BaseKeyboardSessionActivity> sessionActivityClass, SessionType sessionType) {
             super(fm);
+            this.sessionActivityClass = sessionActivityClass;
+            this.sessionType = sessionType;
         }
 
         @Override
@@ -144,9 +152,9 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
             if (position == 0) {
-                return StartScreenFragment.newInstance();
+                return StartScreenFragment.newInstance(sessionType, sessionActivityClass);
             } else {
-                return NumbersScreenFragment.newInstance();
+                return NumbersScreenFragment.newInstance(sessionType);
             }
         }
 
@@ -162,13 +170,25 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
         private NumberPicker wpmPicker;
         private CheckBox resetLetterWeights;
         private LetterTrainingMainScreenViewModel sessionViewModel;
+        private Class<? extends BaseKeyboardSessionActivity> sessionActivityClass;
+        private SessionType sessionType;
 
 
-        public static StartScreenFragment newInstance() {
+        public static StartScreenFragment newInstance(SessionType sessionType, Class<? extends BaseKeyboardSessionActivity> sessionActivityClass) {
             StartScreenFragment fragment = new StartScreenFragment();
+            fragment.setSessionActivityClass(sessionActivityClass);
+            fragment.setSessionType(sessionType);
             Bundle args = new Bundle();
             fragment.setArguments(args);
             return fragment;
+        }
+
+        private void setSessionActivityClass(Class<? extends BaseKeyboardSessionActivity> sessionActivityClass) {
+            this.sessionActivityClass = sessionActivityClass;
+        }
+
+        public void setSessionType(SessionType sessionType) {
+            this.sessionType = sessionType;
         }
 
         @Override
@@ -178,9 +198,9 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
             wpmPicker = rootView.findViewById(R.id.wpm_number_picker);
             resetLetterWeights = rootView.findViewById(R.id.reset_weights);
             sessionViewModel = ViewModelProviders.of(this).get(LetterTrainingMainScreenViewModel.class);
-            sessionViewModel.getLatestEngineSettings().observe(this, (mostRecentSettings) -> {
+            sessionViewModel.getLatestEngineSettings(sessionType).observe(this, (mostRecentSettings) -> {
                 int playLetterWPM = -1;
-                long prevDurationRequestedMillis = -1;
+                long prevDurationRequestedMillis = -1L;
                 if (!mostRecentSettings.isEmpty()) {
                     LetterTrainingEngineSettings engineSettings = mostRecentSettings.get(0);
                     playLetterWPM = engineSettings.playLetterWPM;
@@ -203,11 +223,11 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
 
             Button startButton = rootView.findViewById(R.id.start_button);
             startButton.setOnClickListener(v -> {
-                Intent sendIntent = new Intent(rootView.getContext(), LetterTrainingKeyboardSessionActivity.class);
+                Intent sendIntent = new Intent(rootView.getContext(), sessionActivityClass);
                 Bundle bundle = new Bundle();
-                bundle.putInt(LetterTrainingKeyboardSessionActivity.WPM_REQUESTED, wpmPicker.getProgress());
-                bundle.putInt(LetterTrainingKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
-                bundle.putBoolean(LetterTrainingKeyboardSessionActivity.REQUEST_WEIGHTS_RESET, resetLetterWeights.isChecked());
+                bundle.putInt(BaseKeyboardSessionActivity.WPM_REQUESTED, wpmPicker.getProgress());
+                bundle.putInt(BaseKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
+                bundle.putBoolean(BaseKeyboardSessionActivity.REQUEST_WEIGHTS_RESET, resetLetterWeights.isChecked());
                 sendIntent.putExtras(bundle);
                 startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);
                 resetLetterWeights.setChecked(false);
@@ -215,24 +235,32 @@ public class LetterTrainingMainScreenActivity extends AppCompatActivity {
 
             return rootView;
         }
+
     }
 
+    public abstract Class<? extends BaseKeyboardSessionActivity> getSessionActivityClass();
 
     public static class NumbersScreenFragment extends Fragment  {
         private LetterTrainingMainScreenViewModel sessionViewModel;
+        private SessionType sessionType;
 
-        public static NumbersScreenFragment newInstance() {
+        public static NumbersScreenFragment newInstance(SessionType sessionType) {
             NumbersScreenFragment fragment = new NumbersScreenFragment();
+            fragment.setSessionType(sessionType);
             Bundle args = new Bundle();
             fragment.setArguments(args);
             return fragment;
+        }
+
+        public void setSessionType(SessionType sessionType) {
+            this.sessionType = sessionType;
         }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.letter_training_numbers_screen_fragment, container, false);
             sessionViewModel = ViewModelProviders.of(this).get(LetterTrainingMainScreenViewModel.class);
-            sessionViewModel.getLatestSession().observe(this, (mostRecentSession) -> {
+            sessionViewModel.getLatestSession(sessionType).observe(this, (mostRecentSession) -> {
                 float wpmAverage = -1;
                 float errorRate = -1;
                 long prevDurationMillis = -1;
