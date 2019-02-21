@@ -65,21 +65,29 @@
             android:layout_marginStart="8dp"
             android:text="When the timer bar moves all the way to the left, the session will end."
             android:textAlignment="viewStart"
-            app:layout_constraintBottom_toBottomOf="@+id/imageView7"
-            app:layout_constraintStart_toEndOf="@+id/imageView7"
-            app:layout_constraintTop_toTopOf="@+id/imageView7" />
+            app:layout_constraintBottom_toBottomOf="@+id/timer_bar_example_container"
+            app:layout_constraintStart_toEndOf="@+id/timer_bar_example_container"
+            app:layout_constraintTop_toTopOf="@+id/timer_bar_example_container" />
 
-        <ImageView
-            android:id="@+id/imageView7"
-            android:layout_width="97dp"
-            android:layout_height="78dp"
+        <FrameLayout
+            android:id="@+id/timer_bar_example_container"
+            android:layout_width="78dp"
+            android:layout_height="4dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginTop="32dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/imageView6"
-            app:srcCompat="@drawable/timer_bar_example" />
+            app:layout_constraintTop_toBottomOf="@+id/incorrect_guess_example_container"
+            >
+            <ProgressBar
+                android:id="@+id/example-of-running-timer-progress-bar"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:max="1000"
+                android:progressDrawable="@drawable/correct_guess_timer_bar_progress_background"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/textView"
@@ -88,29 +96,49 @@
             android:layout_marginEnd="20dp"
             android:text="An incorrect guess will blink the status bar red"
             android:textAlignment="viewEnd"
-            app:layout_constraintBottom_toBottomOf="@+id/imageView6"
-            app:layout_constraintEnd_toStartOf="@+id/imageView6"
-            app:layout_constraintTop_toTopOf="@+id/imageView6" />
+            app:layout_constraintBottom_toBottomOf="@+id/incorrect_guess_example_container"
+            app:layout_constraintEnd_toStartOf="@+id/incorrect_guess_example_container"
+            app:layout_constraintTop_toTopOf="@+id/incorrect_guess_example_container" />
 
-        <ImageView
-            android:id="@+id/imageView5"
-            android:layout_width="97dp"
-            android:layout_height="78dp"
+        <FrameLayout
+            android:id="@+id/correct_guess_example_container"
+            android:layout_width="78dp"
+            android:layout_height="4dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="32dp"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toTopOf="@+id/guideline3"
-            app:srcCompat="@drawable/correct_guess_green_example" />
+            >
+            <ProgressBar
+                android:id="@+id/correct-example-timer-progress-bar"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:max="1000"
+                android:progress="750"
+                android:progressDrawable="@drawable/correct_guess_timer_bar_progress_background"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                />
+        </FrameLayout>
 
-        <ImageView
-            android:id="@+id/imageView6"
-            android:layout_width="97dp"
-            android:layout_height="78dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
+        <FrameLayout
+            android:id="@+id/incorrect_guess_example_container"
+            android:layout_width="78dp"
+            android:layout_height="4dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="64dp"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
-            app:layout_constraintTop_toBottomOf="@+id/imageView5"
-            app:srcCompat="@drawable/correct_guess_green_example" />
+            app:layout_constraintTop_toBottomOf="@+id/correct_guess_example_container"
+            >
+
+            <ProgressBar
+                android:id="@+id/incorrect-example-timer-progress-bar"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:max="1000"
+                android:progress="750"
+                android:progressDrawable="@drawable/incorrect_guess_timer_bar_progress_background" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/textView3"
@@ -119,9 +147,9 @@
             android:layout_marginStart="32dp"
             android:text="A correct guess will blink the status bar green."
             android:textAlignment="viewStart"
-            app:layout_constraintBottom_toBottomOf="@+id/imageView5"
-            app:layout_constraintStart_toEndOf="@+id/imageView5"
-            app:layout_constraintTop_toTopOf="@+id/imageView5" />
+            app:layout_constraintBottom_toBottomOf="@+id/correct_guess_example_container"
+            app:layout_constraintStart_toEndOf="@+id/correct_guess_example_container"
+            app:layout_constraintTop_toTopOf="@+id/correct_guess_example_container" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline"
