@@ -3,6 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/help-menu-button"
+        android:orderInCategory="300"
+        android:title="Help"
+        android:onClick="onClickHelpButton"
+        android:icon="@drawable/ic_help_icon"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/keyboard-pause-play"
         android:orderInCategory="300"
         android:title="Pause"

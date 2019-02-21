@@ -1,15 +1,17 @@
 package com.example.uberj.test1.lettertraining;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProviders;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.ViewModelProviders;
-
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -295,4 +297,11 @@ public abstract class BaseKeyboardSessionActivity extends AppCompatActivity {
     }
 
 
+    public void onClickHelpButton(MenuItem item) {
+        DialogFragment dialog = getHelpDialog();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        dialog.show(transaction, dialog.getTag());
+    }
+
+    protected abstract DialogFragment getHelpDialog();
 }

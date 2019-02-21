@@ -1,6 +1,7 @@
 package com.example.uberj.test1;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
+
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -8,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.Space;
 
 import com.example.uberj.test1.keyboards.KeyConfig;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import java.util.function.BiConsumer;
@@ -15,14 +17,14 @@ import java.util.function.Consumer;
 
 public class DynamicKeyboard {
 
-    private final AppCompatActivity context;
+    private final FragmentActivity context;
     private final ImmutableList<ImmutableList<KeyConfig>> keys;
     private final Button.OnClickListener buttonOnClickListener;
     private final Button.OnLongClickListener buttonLongClickListener;
     private final Consumer<Button> buttonCallback;
     private final BiConsumer<Button, View> progressBarCallback;
 
-    public DynamicKeyboard(AppCompatActivity context, ImmutableList<ImmutableList<KeyConfig>> keys, View.OnClickListener buttonOnClickListener, View.OnLongClickListener buttonLongClickListener, Consumer<Button> buttonCallback, BiConsumer<Button, View> progressBarCallback) {
+    public DynamicKeyboard(FragmentActivity context, ImmutableList<ImmutableList<KeyConfig>> keys, View.OnClickListener buttonOnClickListener, View.OnLongClickListener buttonLongClickListener, Consumer<Button> buttonCallback, BiConsumer<Button, View> progressBarCallback) {
         this.context = context;
         this.keys = keys;
         this.buttonOnClickListener = buttonOnClickListener;
@@ -32,14 +34,14 @@ public class DynamicKeyboard {
     }
 
     public static final class Builder {
-        private AppCompatActivity context;
+        private FragmentActivity context;
         private ImmutableList<ImmutableList<KeyConfig>> keys;
         private View.OnClickListener buttonOnClickListener;
         private View.OnLongClickListener buttonLongClickListener;
         private Consumer<Button> buttonCallback;
         private BiConsumer<Button, View> progressBarCallback;
 
-        public Builder setContext(AppCompatActivity context) {
+        public Builder setContext(FragmentActivity context) {
             this.context = context;
             return this;
         }
@@ -70,6 +72,10 @@ public class DynamicKeyboard {
         }
 
         public DynamicKeyboard createKeyboardBuilder() {
+            Preconditions.checkNotNull(context);
+            Preconditions.checkNotNull(keys);
+            Preconditions.checkNotNull(progressBarCallback);
+            Preconditions.checkNotNull(buttonCallback);
             return new DynamicKeyboard(context, keys, buttonOnClickListener, buttonLongClickListener, buttonCallback, progressBarCallback);
         }
     }
