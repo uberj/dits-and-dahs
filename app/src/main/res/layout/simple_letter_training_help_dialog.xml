@@ -1,176 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
-        <LinearLayout
-            android:id="@+id/example_letter_key"
-            android:layout_width="78dp"
-            android:layout_height="78dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="40dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/guideline3"
-            app:layout_constraintEnd_toStartOf="@+id/guideline2"
-            app:layout_constraintTop_toBottomOf="@+id/imageView14"
-            app:layout_constraintVertical_bias="0.0"
-            android:orientation="horizontal" />
-
-        <TextView
-            android:id="@+id/textView12"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="32dp"
-            android:text="Guess which letter was played by clicking a button."
-            android:textAlignment="viewEnd"
-            app:layout_constraintBottom_toBottomOf="@+id/example_letter_key"
-            app:layout_constraintEnd_toStartOf="@+id/example_letter_key"
-            app:layout_constraintTop_toTopOf="@+id/example_letter_key" />
-
-        <ImageView
-            android:id="@+id/imageView14"
-            android:layout_width="97dp"
-            android:layout_height="78dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:background="@color/colorPrimary"
-            app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_music_icon" />
-
-        <TextView
-            android:id="@+id/textView11"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:text="Listen to the tone that is played."
-            android:textAlignment="viewStart"
-            app:layout_constraintBottom_toBottomOf="@+id/imageView14"
-            app:layout_constraintStart_toEndOf="@+id/imageView14"
-            app:layout_constraintTop_toTopOf="@+id/imageView14" />
-
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="When the timer bar moves all the way to the left, the session will end."
-            android:textAlignment="viewStart"
-            app:layout_constraintBottom_toBottomOf="@+id/timer_bar_example_container"
-            app:layout_constraintStart_toEndOf="@+id/timer_bar_example_container"
-            app:layout_constraintTop_toTopOf="@+id/timer_bar_example_container" />
-
-        <FrameLayout
-            android:id="@+id/timer_bar_example_container"
-            android:layout_width="78dp"
-            android:layout_height="4dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="32dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/incorrect_guess_example_container"
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             >
-            <ProgressBar
-                android:id="@+id/example-of-running-timer-progress-bar"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:max="1000"
-                android:progressDrawable="@drawable/correct_guess_timer_bar_progress_background"
+            <androidx.viewpager.widget.PagerTitleStrip
+                android:id="@+id/pager_title_strip"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                />
-        </FrameLayout>
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:background="#33b5e5"
+                android:textColor="#fff"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp" />
+        </androidx.viewpager.widget.ViewPager>
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:text="An incorrect guess will blink the status bar red"
-            android:textAlignment="viewEnd"
-            app:layout_constraintBottom_toBottomOf="@+id/incorrect_guess_example_container"
-            app:layout_constraintEnd_toStartOf="@+id/incorrect_guess_example_container"
-            app:layout_constraintTop_toTopOf="@+id/incorrect_guess_example_container" />
-
-        <FrameLayout
-            android:id="@+id/correct_guess_example_container"
-            android:layout_width="78dp"
-            android:layout_height="4dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="32dp"
-            app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toTopOf="@+id/guideline3"
-            >
-            <ProgressBar
-                android:id="@+id/correct-example-timer-progress-bar"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:max="1000"
-                android:progress="750"
-                android:progressDrawable="@drawable/correct_guess_timer_bar_progress_background"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                />
-        </FrameLayout>
-
-        <FrameLayout
-            android:id="@+id/incorrect_guess_example_container"
-            android:layout_width="78dp"
-            android:layout_height="4dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="64dp"
-            app:layout_constraintEnd_toStartOf="@+id/guideline2"
-            app:layout_constraintTop_toBottomOf="@+id/correct_guess_example_container"
-            >
-
-            <ProgressBar
-                android:id="@+id/incorrect-example-timer-progress-bar"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:max="1000"
-                android:progress="750"
-                android:progressDrawable="@drawable/incorrect_guess_timer_bar_progress_background" />
-        </FrameLayout>
-
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:text="A correct guess will blink the status bar green."
-            android:textAlignment="viewStart"
-            app:layout_constraintBottom_toBottomOf="@+id/correct_guess_example_container"
-            app:layout_constraintStart_toEndOf="@+id/correct_guess_example_container"
-            app:layout_constraintTop_toTopOf="@+id/correct_guess_example_container" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_begin="73dp" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_end="78dp" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_begin="183dp" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+</RelativeLayout>
