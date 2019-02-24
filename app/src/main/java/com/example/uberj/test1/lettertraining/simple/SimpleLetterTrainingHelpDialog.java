@@ -89,6 +89,7 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment {
         Adapter adapter = new Adapter(getChildFragmentManager());
         adapter.addFragment(new HelpScreen1(), "HelpScreen1");
         adapter.addFragment(new HelpScreen2(), "HelpScreen2");
+        adapter.addFragment(new HelpScreen3(), "HelpScreen3");
         viewPager.setAdapter(adapter);
     }
 
@@ -114,16 +115,16 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment {
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             super.onCreateView(inflater, container, savedInstanceState);
-            View inflate = inflater.inflate(R.layout.simple_letter_training_help_dialog_screen1, container, false);
-            DynamicKeyboard builder = new DynamicKeyboard.Builder()
-                    .setContext(getActivity())
-                    .setKeys(ImmutableList.of(ImmutableList.of(KeyConfig.l("N"))))
-                    .setButtonCallback((b) -> {})
-                    .setProgressBarCallback((p, v) -> {})
-                    .createKeyboardBuilder();
+            View inflate = inflater.inflate(R.layout.simple_letter_training_help_dialog_screen2, container, false);
+            return inflate;
+        }
+    }
 
-            LinearLayout exampleLetterKeyContainer = inflate.findViewById(R.id.example_letter_key);
-            builder.buildAtRoot(exampleLetterKeyContainer);
+    public static class HelpScreen3 extends Fragment {
+        @Override
+        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            super.onCreateView(inflater, container, savedInstanceState);
+            View inflate = inflater.inflate(R.layout.simple_letter_training_help_dialog_screen3, container, false);
             return inflate;
         }
     }
