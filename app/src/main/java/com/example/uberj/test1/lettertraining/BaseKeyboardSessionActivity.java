@@ -4,10 +4,11 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
@@ -33,7 +34,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public abstract class BaseKeyboardSessionActivity extends AppCompatActivity {
+public abstract class BaseKeyboardSessionActivity extends AppCompatActivity implements DialogInterface.OnDismissListener {
     private static final String engineMutex = "engineMutex";
     public static final String REQUEST_WEIGHTS_RESET = "request-weights-reset";
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
@@ -297,10 +298,16 @@ public abstract class BaseKeyboardSessionActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        viewModel.resume();
+    }
+
     public void onClickHelpButton(MenuItem item) {
+        viewModel.pause();
         DialogFragment dialog = getHelpDialog();
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        dialog.show(transaction, dialog.getTag());
+        FragmentManager supportFragmentManager = getSupportFragmentManager();
+        dialog.show(supportFragmentManager, dialog.getTag());
     }
 
     protected abstract DialogFragment getHelpDialog();
