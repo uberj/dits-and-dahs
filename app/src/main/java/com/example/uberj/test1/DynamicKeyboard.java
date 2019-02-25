@@ -71,7 +71,7 @@ public class DynamicKeyboard {
             return this;
         }
 
-        public DynamicKeyboard createKeyboardBuilder() {
+        public DynamicKeyboard build() {
             Preconditions.checkNotNull(context);
             Preconditions.checkNotNull(keys);
             Preconditions.checkNotNull(progressBarCallback);
@@ -123,6 +123,12 @@ public class DynamicKeyboard {
 
     private String getProgressBarIdName(String letter) {
         return "progressBarForKey" + buttonLetterToIdName(letter);
+    }
+
+    public Button getButton(String letter) {
+        String buttonName = getButtonIdName(letter);
+        int buttonId = context.getResources().getIdentifier(buttonName, "id", context.getApplicationContext().getPackageName());
+        return context.findViewById(buttonId);
     }
 
     public View getLetterProgressBar(String letter) {

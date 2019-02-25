@@ -41,11 +41,11 @@ public abstract class BaseKeyboardSessionActivity extends AppCompatActivity impl
     public static final String WPM_REQUESTED = "wpm-requested";
     private Menu menu;
 
-    private static final float ENABLED_BUTTON_ALPHA = 1f;
-    private static final float ENABLED_PROGRESS_BAR_ALPHA = 0.75f;
+    public static final float ENABLED_BUTTON_ALPHA = 1f;
+    public static final float ENABLED_PROGRESS_BAR_ALPHA = 0.75f;
 
-    private static final float DISABLED_BUTTON_ALPHA = 0.35f;
-    private static final float DISABLED_PROGRESS_BAR_ALPHA = 0.25f;
+    public static final float DISABLED_BUTTON_ALPHA = 0.35f;
+    public static final float DISABLED_PROGRESS_BAR_ALPHA = 0.25f;
 
     private DynamicKeyboard keyboard;
 
@@ -217,7 +217,7 @@ public abstract class BaseKeyboardSessionActivity extends AppCompatActivity impl
                         progressBar.setBackgroundColor(ProgressGradient.DISABLED);
                         progressBar.setAlpha(ENABLED_PROGRESS_BAR_ALPHA);
                     })
-                    .createKeyboardBuilder();
+                    .build();
             keyboard.buildAtRoot(findViewById(R.id.keyboard_base));
             for (String letter : viewModel.getInPlayKeyNames()) {
                 updateProgressBarColorForLetter(letter);

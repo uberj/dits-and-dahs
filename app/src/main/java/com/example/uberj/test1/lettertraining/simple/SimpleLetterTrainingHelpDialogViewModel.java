@@ -2,6 +2,13 @@ package com.example.uberj.test1.lettertraining.simple;
 
 import android.app.Application;
 
+import com.example.uberj.test1.keyboards.KeyConfig;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import androidx.annotation.NonNull;
@@ -9,17 +16,70 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 class SimpleLetterTrainingHelpDialogViewModel extends AndroidViewModel {
-    private boolean animateThreadKeepAlive = true;
+    public static final ImmutableList<String> EXAMPLE_LETTERS = ImmutableList.of("H", "J", "K", "N", "M");
+    public static final ImmutableList<ImmutableList<KeyConfig>> EXAMPLE_BOARD_KEYS = ImmutableList.of(
+            ImmutableList.of(KeyConfig.l("H"), KeyConfig.l("J"), KeyConfig.l("K")),
+            ImmutableList.of(KeyConfig.s(), KeyConfig.l("N"), KeyConfig.l("M"), KeyConfig.s())
+    );
 
+    private boolean animateThreadKeepAlive = true;
+    public final MutableLiveData<Map<String, Integer>> weights = new MutableLiveData<>(buildBlankWeights());
+    public final MutableLiveData<List<String>> inPlayLetterKeys = new MutableLiveData<>(Lists.newArrayList());
     public final MutableLiveData<Integer> timerCountDownProgress = new MutableLiveData<>(1);
     public final MutableLiveData<Integer> incorrectGuessCounter = new MutableLiveData<>(1);
     public final MutableLiveData<Integer> correctGuessCounter = new MutableLiveData<>(1);
 
     public SimpleLetterTrainingHelpDialogViewModel(@NonNull Application application) {
         super(application);
+        // Init weights
         animate(this::updateExampleCountDownProgress, 0, 50);
         animate(this::updateCorrectGuessCounter, 0, 4000);
         animate(this::updateIncorrectGuessCounter, 2000, 4000);
+        animate(this::updateExampleWeights, 0, 1000);
+        animate(this::updateExampleInPlayKeys, 2000, 5000);
+    }
+
+    private static Map<String, Integer> buildBlankWeights() {
+        Map<String, Integer> w = Maps.newHashMap();
+        for (String letter : EXAMPLE_LETTERS) {
+            w.put(letter, 0);
+        }
+        return w;
+    }
+
+    private Void updateExampleInPlayKeys() {
+        List<String> updatedInPlayKeys = Lists.newArrayList();
+        for (String letter : EXAMPLE_LETTERS) {
+            Integer weight = weights.getValue().get(letter);
+            if (weight == 100) {
+                updatedInPlayKeys.add(letter);
+            } else {
+                updatedInPlayKeys.add(letter);
+                inPlayLetterKeys.postValue(updatedInPlayKeys);
+                return null;
+            }
+        }
+
+        // Everything was 100 so lets restart;
+        inPlayLetterKeys.postValue(Lists.newArrayList());
+        weights.postValue(buildBlankWeights());
+        return null;
+    }
+
+    private Void updateExampleWeights() {
+        for (String letter : inPlayLetterKeys.getValue()) {
+            Map<String, Integer> weightMap = weights.getValue();
+            Integer weight = weightMap.get(letter);
+            if (weight == 100) {
+                continue;
+            }
+            weight = Math.min(100, weight + 10);
+            weightMap.put(letter, weight);
+            weights.postValue(weightMap);
+            break;
+        }
+
+        return null;
     }
 
     private void animate(Callable<Void> step, int delay, int sleepDurationMillis) {

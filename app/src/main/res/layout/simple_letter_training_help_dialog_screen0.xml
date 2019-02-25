@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:id="@+id/example_letter_key"
+        android:id="@+id/example_letter"
         android:layout_width="60dp"
         android:layout_height="53dp"
         android:layout_marginTop="56dp"
@@ -22,10 +22,10 @@
         android:text="Guess which letter was played by clicking a button."
         android:textAlignment="viewEnd"
         android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="@+id/example_letter_key"
-        app:layout_constraintEnd_toStartOf="@+id/example_letter_key"
+        app:layout_constraintBottom_toBottomOf="@+id/example_letter"
+        app:layout_constraintEnd_toStartOf="@+id/example_letter"
         app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toTopOf="@+id/example_letter_key" />
+        app:layout_constraintTop_toTopOf="@+id/example_letter" />
 
     <ImageView
         android:id="@+id/imageView14"

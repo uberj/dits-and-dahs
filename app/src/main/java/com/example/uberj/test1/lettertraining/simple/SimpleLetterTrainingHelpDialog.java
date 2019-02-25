@@ -15,13 +15,16 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.example.uberj.test1.DynamicKeyboard;
+import com.example.uberj.test1.ProgressGradient;
 import com.example.uberj.test1.R;
 import com.example.uberj.test1.keyboards.KeyConfig;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,6 +34,11 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
+
+import static com.example.uberj.test1.lettertraining.BaseKeyboardSessionActivity.DISABLED_BUTTON_ALPHA;
+import static com.example.uberj.test1.lettertraining.BaseKeyboardSessionActivity.DISABLED_PROGRESS_BAR_ALPHA;
+import static com.example.uberj.test1.lettertraining.BaseKeyboardSessionActivity.ENABLED_BUTTON_ALPHA;
+import static com.example.uberj.test1.lettertraining.BaseKeyboardSessionActivity.ENABLED_PROGRESS_BAR_ALPHA;
 
 public class SimpleLetterTrainingHelpDialog extends DialogFragment implements NextPrevTabHandler, DismissibleFragment {
     private ViewPager viewPager;
@@ -118,7 +126,8 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
         Adapter adapter = new Adapter(getChildFragmentManager());
         adapter.addFragment(new HelpScreen0(), "Listen and Guess");
         adapter.addFragment(new HelpScreen1(), "The timer bar");
-        adapter.addFragment(new HelpScreen2(), "Ready?");
+        adapter.addFragment(new HelpScreen2(), "Progress");
+        adapter.addFragment(new HelpScreen3(), "Ready?");
         viewPager.setAdapter(adapter);
     }
 
@@ -132,9 +141,9 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
                     .setKeys(ImmutableList.of(ImmutableList.of(KeyConfig.l("M"))))
                     .setButtonCallback((b) -> {})
                     .setProgressBarCallback((p, v) -> {})
-                    .createKeyboardBuilder();
+                    .build();
 
-            LinearLayout exampleLetterKeyContainer = inflate.findViewById(R.id.example_letter_key);
+            LinearLayout exampleLetterKeyContainer = inflate.findViewById(R.id.example_letter);
             builder.buildAtRoot(exampleLetterKeyContainer);
 
             ImageView nextTab = inflate.findViewById(R.id.next_help_tab0);
@@ -190,9 +199,72 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
             super.onCreateView(inflater, container, savedInstanceState);
             View inflate = inflater.inflate(R.layout.simple_letter_training_help_dialog_screen2, container, false);
 
+            SimpleLetterTrainingHelpDialogViewModel viewModel = ViewModelProviders
+                    .of(Objects.requireNonNull(getActivity()))
+                    .get(SimpleLetterTrainingHelpDialogViewModel.class);
+
+            DynamicKeyboard keyboard = new DynamicKeyboard.Builder()
+                    .setContext(getActivity())
+                    .setKeys(SimpleLetterTrainingHelpDialogViewModel.EXAMPLE_BOARD_KEYS)
+                    .setButtonCallback((b) -> {})
+                    .setProgressBarCallback((p, v) -> {})
+                    .build();
+            LinearLayout exampleLetterKeyContainer = inflate.findViewById(R.id.example_letters);
+            keyboard.buildAtRoot(exampleLetterKeyContainer);
+
+            BiConsumer<String, Map<String, Integer>> progressBarUpdater = (letter, weights) -> {
+                View progressBar = keyboard.getLetterProgressBar(letter);
+                Integer competencyWeight = weights.get(letter);
+                Integer color = ProgressGradient.forWeight(competencyWeight);
+                progressBar.setBackgroundColor(color);
+            };
+
+            viewModel.inPlayLetterKeys.observe(this, (inPlayKeys) -> {
+                for (String key : SimpleLetterTrainingHelpDialogViewModel.EXAMPLE_LETTERS) {
+                    Button button = keyboard.getButton(key);
+                    View progressBar = keyboard.getLetterProgressBar(key);
+                    if (inPlayKeys.contains(key)) {
+                        String buttonLetter = button.getText().toString();
+                        progressBarUpdater.accept(buttonLetter, viewModel.weights.getValue());
+                        button.setAlpha(ENABLED_BUTTON_ALPHA);
+                        progressBar.setAlpha(ENABLED_PROGRESS_BAR_ALPHA);
+
+                    } else {
+                        button.setAlpha(DISABLED_BUTTON_ALPHA);
+                        progressBar.setAlpha(DISABLED_PROGRESS_BAR_ALPHA);
+                        progressBar.setBackgroundColor(ProgressGradient.DISABLED);
+                    }
+                }
+            });
+
+            viewModel.weights.observe(this, (weights) -> {
+                for (String letter : SimpleLetterTrainingHelpDialogViewModel.EXAMPLE_LETTERS) {
+                    progressBarUpdater.accept(letter, weights);
+                }
+            });
+
+
+            ImageView nextTab = inflate.findViewById(R.id.next_help_tab2);
+            nextTab.setOnClickListener((view) ->
+                    ((NextPrevTabHandler)Objects.requireNonNull(getParentFragment())).requestTab(3));
+
             ImageView prevTab = inflate.findViewById(R.id.prev_help_tab2);
             prevTab.setOnClickListener((view) ->
                     ((NextPrevTabHandler)Objects.requireNonNull(getParentFragment())).requestTab(1));
+            return inflate;
+        }
+
+    }
+
+    public static class HelpScreen3 extends Fragment {
+        @Override
+        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            super.onCreateView(inflater, container, savedInstanceState);
+            View inflate = inflater.inflate(R.layout.simple_letter_training_help_dialog_screen3, container, false);
+
+            ImageView prevTab = inflate.findViewById(R.id.prev_help_tab3);
+            prevTab.setOnClickListener((view) ->
+                    ((NextPrevTabHandler)Objects.requireNonNull(getParentFragment())).requestTab(2));
 
             Button continueButton = inflate.findViewById(R.id.continue_session_button);
             continueButton.setOnClickListener((view) ->
