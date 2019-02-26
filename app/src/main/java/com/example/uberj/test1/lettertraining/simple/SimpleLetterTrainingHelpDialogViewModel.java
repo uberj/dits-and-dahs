@@ -35,7 +35,7 @@ class SimpleLetterTrainingHelpDialogViewModel extends AndroidViewModel {
         animate(this::updateExampleCountDownProgress, 0, 50);
         animate(this::updateCorrectGuessCounter, 0, 4000);
         animate(this::updateIncorrectGuessCounter, 2000, 4000);
-        animate(this::updateExampleWeights, 0, 1000);
+        animate(this::updateExampleWeights, 0, 500);
         animate(this::updateExampleInPlayKeys, 2000, 5000);
     }
 
@@ -51,7 +51,7 @@ class SimpleLetterTrainingHelpDialogViewModel extends AndroidViewModel {
         List<String> updatedInPlayKeys = Lists.newArrayList();
         for (String letter : EXAMPLE_LETTERS) {
             Integer weight = weights.getValue().get(letter);
-            if (weight == 100) {
+            if (weight >= 75) {
                 updatedInPlayKeys.add(letter);
             } else {
                 updatedInPlayKeys.add(letter);
@@ -61,7 +61,7 @@ class SimpleLetterTrainingHelpDialogViewModel extends AndroidViewModel {
         }
 
         // Everything was 100 so lets restart;
-        inPlayLetterKeys.postValue(Lists.newArrayList());
+        inPlayLetterKeys.postValue(Lists.newArrayList(EXAMPLE_LETTERS.get(0)));
         weights.postValue(buildBlankWeights());
         return null;
     }

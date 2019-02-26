@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.example.uberj.test1.DynamicKeyboard;
@@ -200,8 +201,10 @@ public abstract class BaseKeyboardSessionActivity extends AppCompatActivity impl
             }
             viewModel.primeTheEngine(settings);
             Keys sessionKeys = getSessionKeys();
+            LinearLayout keyboardContainer = findViewById(R.id.keyboard_base);
             keyboard = new DynamicKeyboard.Builder()
                     .setContext(this)
+                    .setRootView(keyboardContainer)
                     .setKeys(sessionKeys.getKeys())
                     .setButtonOnClickListener(this::keyboardButtonClicked)
                     .setButtonLongClickListener(this::playableKeyLongClickHandler)
@@ -218,7 +221,7 @@ public abstract class BaseKeyboardSessionActivity extends AppCompatActivity impl
                         progressBar.setAlpha(ENABLED_PROGRESS_BAR_ALPHA);
                     })
                     .build();
-            keyboard.buildAtRoot(findViewById(R.id.keyboard_base));
+            keyboard.buildAtRoot();
             for (String letter : viewModel.getInPlayKeyNames()) {
                 updateProgressBarColorForLetter(letter);
             }

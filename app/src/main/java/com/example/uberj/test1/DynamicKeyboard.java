@@ -23,18 +23,21 @@ public class DynamicKeyboard {
     private final Button.OnLongClickListener buttonLongClickListener;
     private final Consumer<Button> buttonCallback;
     private final BiConsumer<Button, View> progressBarCallback;
+    private final LinearLayout rootView;
 
-    public DynamicKeyboard(FragmentActivity context, ImmutableList<ImmutableList<KeyConfig>> keys, View.OnClickListener buttonOnClickListener, View.OnLongClickListener buttonLongClickListener, Consumer<Button> buttonCallback, BiConsumer<Button, View> progressBarCallback) {
+    public DynamicKeyboard(FragmentActivity context, ImmutableList<ImmutableList<KeyConfig>> keys, View.OnClickListener buttonOnClickListener, View.OnLongClickListener buttonLongClickListener, Consumer<Button> buttonCallback, BiConsumer<Button, View> progressBarCallback, LinearLayout rootView) {
         this.context = context;
         this.keys = keys;
         this.buttonOnClickListener = buttonOnClickListener;
         this.buttonLongClickListener = buttonLongClickListener;
         this.buttonCallback = buttonCallback;
         this.progressBarCallback = progressBarCallback;
+        this.rootView = rootView;
     }
 
     public static final class Builder {
         private FragmentActivity context;
+        private LinearLayout rootView;
         private ImmutableList<ImmutableList<KeyConfig>> keys;
         private View.OnClickListener buttonOnClickListener;
         private View.OnLongClickListener buttonLongClickListener;
@@ -71,16 +74,22 @@ public class DynamicKeyboard {
             return this;
         }
 
+        public Builder setRootView(LinearLayout rootView) {
+            this.rootView = rootView;
+            return this;
+        }
+
         public DynamicKeyboard build() {
             Preconditions.checkNotNull(context);
+            Preconditions.checkNotNull(rootView);
             Preconditions.checkNotNull(keys);
             Preconditions.checkNotNull(progressBarCallback);
             Preconditions.checkNotNull(buttonCallback);
-            return new DynamicKeyboard(context, keys, buttonOnClickListener, buttonLongClickListener, buttonCallback, progressBarCallback);
+            return new DynamicKeyboard(context, keys, buttonOnClickListener, buttonLongClickListener, buttonCallback, progressBarCallback, rootView);
         }
     }
 
-    public void buildAtRoot(LinearLayout rootView) {
+    public void buildAtRoot() {
         for (ImmutableList<KeyConfig> row : keys) {
             LinearLayout curRow = new LinearLayout(context);
             curRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -128,13 +137,13 @@ public class DynamicKeyboard {
     public Button getButton(String letter) {
         String buttonName = getButtonIdName(letter);
         int buttonId = context.getResources().getIdentifier(buttonName, "id", context.getApplicationContext().getPackageName());
-        return context.findViewById(buttonId);
+        return rootView.findViewById(buttonId);
     }
 
     public View getLetterProgressBar(String letter) {
         String progressBarIdName = getProgressBarIdName(letter);
         int progressBarId = context.getResources().getIdentifier(progressBarIdName, "id", context.getApplicationContext().getPackageName());
-        return context.findViewById(progressBarId);
+        return rootView.findViewById(progressBarId);
     }
 
     public String getButtonLetter(View v) {

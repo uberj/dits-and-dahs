@@ -40,6 +40,7 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity {
      * androidx.fragment.app.FragmentStatePagerAdapter.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
+    private SessionType sessionType = getSessionType();
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -53,7 +54,7 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity {
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), getSessionActivityClass(), getSessionType());
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), getSessionActivityClass());
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = findViewById(R.id.container);
@@ -139,12 +140,10 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity {
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         private final Class<? extends BaseKeyboardSessionActivity> sessionActivityClass;
-        private final SessionType sessionType;
 
-        public SectionsPagerAdapter(FragmentManager fm, Class<? extends BaseKeyboardSessionActivity> sessionActivityClass, SessionType sessionType) {
+        public SectionsPagerAdapter(FragmentManager fm, Class<? extends BaseKeyboardSessionActivity> sessionActivityClass) {
             super(fm);
             this.sessionActivityClass = sessionActivityClass;
-            this.sessionType = sessionType;
         }
 
         @Override

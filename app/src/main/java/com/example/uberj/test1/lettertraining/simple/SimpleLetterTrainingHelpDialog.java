@@ -136,15 +136,16 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
         public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             super.onCreateView(inflater, container, savedInstanceState);
             View inflate = inflater.inflate(R.layout.simple_letter_training_help_dialog_screen0, container, false);
+            LinearLayout exampleLetterKeyContainer = inflate.findViewById(R.id.example_letter);
             DynamicKeyboard builder = new DynamicKeyboard.Builder()
+                    .setRootView(exampleLetterKeyContainer)
                     .setContext(getActivity())
                     .setKeys(ImmutableList.of(ImmutableList.of(KeyConfig.l("M"))))
                     .setButtonCallback((b) -> {})
                     .setProgressBarCallback((p, v) -> {})
                     .build();
 
-            LinearLayout exampleLetterKeyContainer = inflate.findViewById(R.id.example_letter);
-            builder.buildAtRoot(exampleLetterKeyContainer);
+            builder.buildAtRoot();
 
             ImageView nextTab = inflate.findViewById(R.id.next_help_tab0);
             nextTab.setOnClickListener((view) ->
@@ -203,17 +204,21 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
                     .of(Objects.requireNonNull(getActivity()))
                     .get(SimpleLetterTrainingHelpDialogViewModel.class);
 
+            LinearLayout exampleLetterKeyContainer = inflate.findViewById(R.id.example_letters);
             DynamicKeyboard keyboard = new DynamicKeyboard.Builder()
+                    .setRootView(exampleLetterKeyContainer)
                     .setContext(getActivity())
                     .setKeys(SimpleLetterTrainingHelpDialogViewModel.EXAMPLE_BOARD_KEYS)
                     .setButtonCallback((b) -> {})
                     .setProgressBarCallback((p, v) -> {})
                     .build();
-            LinearLayout exampleLetterKeyContainer = inflate.findViewById(R.id.example_letters);
-            keyboard.buildAtRoot(exampleLetterKeyContainer);
+            keyboard.buildAtRoot();
 
             BiConsumer<String, Map<String, Integer>> progressBarUpdater = (letter, weights) -> {
                 View progressBar = keyboard.getLetterProgressBar(letter);
+                if (progressBar == null) {
+                    return;
+                }
                 Integer competencyWeight = weights.get(letter);
                 Integer color = ProgressGradient.forWeight(competencyWeight);
                 progressBar.setBackgroundColor(color);
@@ -222,7 +227,12 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
             viewModel.inPlayLetterKeys.observe(this, (inPlayKeys) -> {
                 for (String key : SimpleLetterTrainingHelpDialogViewModel.EXAMPLE_LETTERS) {
                     Button button = keyboard.getButton(key);
+                    if (button == null) {
+                        continue;
+                    }
+
                     View progressBar = keyboard.getLetterProgressBar(key);
+
                     if (inPlayKeys.contains(key)) {
                         String buttonLetter = button.getText().toString();
                         progressBarUpdater.accept(buttonLetter, viewModel.weights.getValue());
@@ -239,7 +249,9 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
 
             viewModel.weights.observe(this, (weights) -> {
                 for (String letter : SimpleLetterTrainingHelpDialogViewModel.EXAMPLE_LETTERS) {
-                    progressBarUpdater.accept(letter, weights);
+                    if (viewModel.inPlayLetterKeys.getValue().contains(letter)) {
+                        progressBarUpdater.accept(letter, weights);
+                    }
                 }
             });
 
