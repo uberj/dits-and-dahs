@@ -2,6 +2,7 @@ package com.example.uberj.test1.lettertraining;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.ActionMenuItemView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
@@ -17,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ActionMenuView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -35,7 +37,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public abstract class BaseKeyboardSessionActivity extends AppCompatActivity implements DialogInterface.OnDismissListener {
+public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity implements DialogInterface.OnDismissListener {
     private static final String engineMutex = "engineMutex";
     public static final String REQUEST_WEIGHTS_RESET = "request-weights-reset";
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
@@ -308,6 +310,8 @@ public abstract class BaseKeyboardSessionActivity extends AppCompatActivity impl
 
     @Override
     public void onDismiss(DialogInterface dialog) {
+        MenuItem item = menu.findItem(R.id.keyboard_pause_play);
+        item.setIcon(R.mipmap.ic_pause);
         viewModel.resume();
     }
 

@@ -1,6 +1,6 @@
 package com.example.uberj.test1.lettertraining.simple;
 
-import com.example.uberj.test1.lettertraining.BaseKeyboardSessionActivity;
+import com.example.uberj.test1.lettertraining.SocraticKeyboardSessionActivity;
 import com.example.uberj.test1.lettertraining.BaseStartScreenActivity;
 import com.example.uberj.test1.storage.SessionType;
 
@@ -13,7 +13,7 @@ public class SimpleStartScreenActivity extends BaseStartScreenActivity {
     }
 
     @Override
-    public Class<? extends BaseKeyboardSessionActivity> getSessionActivityClass() {
+    public Class<? extends SocraticKeyboardSessionActivity> getSessionActivityClass() {
         return SimpleLetterTrainingActivity.class;
     }
 

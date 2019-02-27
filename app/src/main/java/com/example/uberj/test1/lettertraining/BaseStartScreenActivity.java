@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.lifecycle.ViewModelProviders;
@@ -146,9 +147,9 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        private final Class<? extends BaseKeyboardSessionActivity> sessionActivityClass;
+        private final Class<? extends FragmentActivity> sessionActivityClass;
 
-        public SectionsPagerAdapter(FragmentManager fm, Class<? extends BaseKeyboardSessionActivity> sessionActivityClass) {
+        public SectionsPagerAdapter(FragmentManager fm, Class<? extends FragmentActivity> sessionActivityClass) {
             super(fm);
             this.sessionActivityClass = sessionActivityClass;
         }
@@ -176,11 +177,11 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
         private NumberPicker wpmPicker;
         private CheckBox resetLetterWeights;
         private LetterTrainingMainScreenViewModel sessionViewModel;
-        private Class<? extends BaseKeyboardSessionActivity> sessionActivityClass;
+        private Class<? extends FragmentActivity> sessionActivityClass;
         private SessionType sessionType;
 
 
-        public static StartScreenFragment newInstance(SessionType sessionType, Class<? extends BaseKeyboardSessionActivity> sessionActivityClass) {
+        public static StartScreenFragment newInstance(SessionType sessionType, Class<? extends FragmentActivity> sessionActivityClass) {
             StartScreenFragment fragment = new StartScreenFragment();
             fragment.setSessionActivityClass(sessionActivityClass);
             fragment.setSessionType(sessionType);
@@ -189,7 +190,7 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
             return fragment;
         }
 
-        private void setSessionActivityClass(Class<? extends BaseKeyboardSessionActivity> sessionActivityClass) {
+        private void setSessionActivityClass(Class<? extends FragmentActivity> sessionActivityClass) {
             this.sessionActivityClass = sessionActivityClass;
         }
 
@@ -250,9 +251,9 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
             startButton.setOnClickListener(v -> {
                 Intent sendIntent = new Intent(rootView.getContext(), sessionActivityClass);
                 Bundle bundle = new Bundle();
-                bundle.putInt(BaseKeyboardSessionActivity.WPM_REQUESTED, wpmPicker.getProgress());
-                bundle.putInt(BaseKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
-                bundle.putBoolean(BaseKeyboardSessionActivity.REQUEST_WEIGHTS_RESET, resetLetterWeights.isChecked());
+                bundle.putInt(SocraticKeyboardSessionActivity.WPM_REQUESTED, wpmPicker.getProgress());
+                bundle.putInt(SocraticKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
+                bundle.putBoolean(SocraticKeyboardSessionActivity.REQUEST_WEIGHTS_RESET, resetLetterWeights.isChecked());
                 sendIntent.putExtras(bundle);
                 startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);
                 resetLetterWeights.setChecked(false);
@@ -263,7 +264,7 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
 
     }
 
-    public abstract Class<? extends BaseKeyboardSessionActivity> getSessionActivityClass();
+    public abstract Class<? extends FragmentActivity> getSessionActivityClass();
 
     public static class NumbersScreenFragment extends Fragment  {
         private LetterTrainingMainScreenViewModel sessionViewModel;

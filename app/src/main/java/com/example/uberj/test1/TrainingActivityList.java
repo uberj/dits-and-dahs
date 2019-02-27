@@ -5,7 +5,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.example.uberj.test1.lettertraining.BaseStartScreenActivity;
+import com.example.uberj.test1.lettertraining.randomletters.RandomLettersStartScreenActivity;
+import com.example.uberj.test1.lettertraining.simple.SimpleStartScreenActivity;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,19 +34,21 @@ public class TrainingActivityList extends Activity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        ArrayList<TrainingCardData> trainingActivities = new ArrayList();
-        TrainingCardData letter_groups = new TrainingCardData(
-                "Letter Groups",
-                R.string.letter_group_description,
-                new Intent(this, BaseStartScreenActivity.class)
-        );
-        trainingActivities.add(letter_groups);
+        ArrayList<TrainingCardData> trainingActivities = new ArrayList<>();
         TrainingCardData letter_training = new TrainingCardData(
-                "Letter Training",
-                R.string.letter_training_description,
-                new Intent(this, MainActivity.class)
+                "Letters",
+                R.string.letter_training_description_what,
+                R.string.letter_training_description_why,
+                new Intent(this, SimpleStartScreenActivity.class)
         );
         trainingActivities.add(letter_training);
+        TrainingCardData letter_groups = new TrainingCardData(
+                "Letter Groups",
+                R.string.random_letters_description_what,
+                R.string.random_letters_description_why,
+                new Intent(this, RandomLettersStartScreenActivity.class)
+        );
+        trainingActivities.add(letter_groups);
         mAdapter = new TrainingActivityAdapter(trainingActivities);
         mRecyclerView.setAdapter(mAdapter);
     }

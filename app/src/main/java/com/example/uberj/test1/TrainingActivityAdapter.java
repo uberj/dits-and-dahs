@@ -50,8 +50,10 @@ public class TrainingActivityAdapter extends RecyclerView.Adapter<TrainingActivi
         TrainingCardData trainingActivity = mDataset.get(position);
         TextView activityName = holder.mLinearLayout.findViewById(R.id.activityName);
         activityName.setText(trainingActivity.getName());
-        TextView activityDescription = holder.mLinearLayout.findViewById(R.id.activityDescription);
-        activityDescription.setText(trainingActivity.getDescription());
+        TextView activityWhatDescription = holder.mLinearLayout.findViewById(R.id.activityWhatDescription);
+        activityWhatDescription.setText(trainingActivity.getWhatDescription());
+        TextView activityWhyDescription = holder.mLinearLayout.findViewById(R.id.activityWhyDescription);
+        activityWhyDescription.setText(trainingActivity.getWhyDescription());
         RelativeLayout relativeLayout = holder.mLinearLayout.findViewById(R.id.activityCard);
         relativeLayout.setOnClickListener((view) -> view.getContext().startActivity(trainingActivity.getOnClickIntent()));
 
