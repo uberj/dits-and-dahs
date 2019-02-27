@@ -13,7 +13,7 @@ import com.example.uberj.test1.storage.converters.StringToIntegerMapConverter;
 @Database(entities = {
         LetterTrainingEngineSettings.class,
         LetterTrainingSession.class
-}, version = 6)
+}, version = 1)
 @TypeConverters({
         StringToIntegerMapConverter.class,
         StringListConverter.class

@@ -116,6 +116,11 @@ public abstract class BaseKeyboardSessionActivity extends AppCompatActivity impl
 
     public void keyboardButtonClicked(View v) {
         String letter = keyboard.getButtonLetter(v);
+        if (viewModel.isPaused()) {
+            viewModel.getEngine().playLetter(letter);
+            return;
+        }
+
         if (!viewModel.getEngine().isValidGuess(letter)) {
             return;
         }

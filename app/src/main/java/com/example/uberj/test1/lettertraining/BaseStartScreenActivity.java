@@ -5,6 +5,7 @@ import com.example.uberj.test1.storage.LetterTrainingEngineSettings;
 import com.example.uberj.test1.storage.SessionType;
 import com.google.android.material.tabs.TabLayout;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.fragment.app.Fragment;
@@ -24,6 +25,7 @@ import android.view.ViewGroup;
 
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Locale;
@@ -191,8 +193,21 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity {
         }
 
         @Override
+        public void onSaveInstanceState(@NonNull Bundle outState) {
+            outState.putString("sessionType", sessionType.name());
+            super.onSaveInstanceState(outState);
+        }
+
+        @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            if (savedInstanceState != null) {
+                sessionType = SessionType.valueOf(savedInstanceState.getString("sessionType"));
+            }
+
             View rootView = inflater.inflate(R.layout.letter_training_start_screen_fragment, container, false);
+            ImageView helpWPM = rootView.findViewById(R.id.wpmhelp);
+            helpWPM.setTooltipText("Words Per Minute");
+
             minutesPicker = rootView.findViewById(R.id.number_picker_minutes);
             wpmPicker = rootView.findViewById(R.id.wpm_number_picker);
             resetLetterWeights = rootView.findViewById(R.id.reset_weights);
@@ -256,7 +271,17 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity {
         }
 
         @Override
+        public void onSaveInstanceState(@NonNull Bundle outState) {
+            outState.putString("sessionType", sessionType.name());
+            super.onSaveInstanceState(outState);
+        }
+
+        @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            if (savedInstanceState != null) {
+                sessionType = SessionType.valueOf(savedInstanceState.getString("sessionType"));
+            }
+
             View rootView = inflater.inflate(R.layout.letter_training_numbers_screen_fragment, container, false);
             sessionViewModel = ViewModelProviders.of(this).get(LetterTrainingMainScreenViewModel.class);
             sessionViewModel.getLatestSession(sessionType).observe(this, (mostRecentSession) -> {

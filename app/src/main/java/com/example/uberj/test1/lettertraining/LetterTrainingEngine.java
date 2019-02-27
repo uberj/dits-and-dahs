@@ -19,7 +19,7 @@ import timber.log.Timber;
 
 public class LetterTrainingEngine {
     private static final int MISSED_LETTER_POINTS_REMOVED = 10;
-    private static final int CORRECT_LETTER_POINTS_ADDED = 5;
+    private static final int CORRECT_LETTER_POINTS_ADDED = 2;
 
     private static final String guessGate = "guessGate";
     private static final String pauseGate = "pauseGate";
@@ -204,23 +204,17 @@ public class LetterTrainingEngine {
     }
 
     public boolean shouldIntroduceNewLetter() {
-        int furthestLetterIdx = -1;
+        // The player should be competent at every letter on the board before a new one is introduced
         for (String playableKey : playableKeys) {
-            furthestLetterIdx = Math.max(furthestLetterIdx, letterOrder.indexOf(playableKey));
+            Integer weight = competencyWeights.get(playableKey);
+            if (weight == null) {
+                throw new RuntimeException("Something is very wrong. No competency weight for furthest letter " + weight);
+            }
+            if (weight < INCLUSION_COMPETENCY_CUTOFF_WEIGHT) {
+                return false;
+            }
         }
-
-        if (furthestLetterIdx == -1) {
-            throw new RuntimeException("Something is very wrong. No playable keys found in letter order list");
-        }
-
-        String furthestLetter = letterOrder.get(furthestLetterIdx);
-        assert competencyWeights != null;
-        Integer weight = competencyWeights.get(furthestLetter);
-        if (weight == null) {
-            throw new RuntimeException("Something is very wrong. No competency weight for furthest letter " + furthestLetter);
-        }
-
-        return weight > INCLUSION_COMPETENCY_CUTOFF_WEIGHT;
+        return true;
     }
 
     public Optional<List<String>> introduceLetter() {
@@ -242,5 +236,9 @@ public class LetterTrainingEngine {
         engineSettings.activeLetters = playableKeys;
         engineSettings.playLetterWPM = playLetterWPM;
         return engineSettings;
+    }
+
+    public void playLetter(String letter) {
+        cwToneManager.playLetter(letter);
     }
 }

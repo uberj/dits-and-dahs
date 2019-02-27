@@ -83,9 +83,9 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
     }
 
     @Override
-    public void requestTab(int curTab) {
-        // curTab is 1 indexed, so its value is actually the correct "next" value
-        viewPager.setCurrentItem(Math.min(viewPager.getChildCount() - 1, curTab), true);
+    public void requestTab(int requestTab) {
+        // requestTab is 1 indexed, so its value is actually the correct "next" value
+        viewPager.setCurrentItem(Math.min(viewPager.getChildCount(), requestTab), true);
     }
 
     @Override
@@ -125,9 +125,10 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
     private void setupViewPager(ViewPager viewPager) {
         Adapter adapter = new Adapter(getChildFragmentManager());
         adapter.addFragment(new HelpScreen0(), "Listen and Guess");
-        adapter.addFragment(new HelpScreen1(), "The timer bar");
-        adapter.addFragment(new HelpScreen2(), "Progress");
-        adapter.addFragment(new HelpScreen3(), "Ready?");
+        adapter.addFragment(new HelpScreen1(), "Playing a letter tone");
+        adapter.addFragment(new HelpScreen2(), "The timer bar");
+        adapter.addFragment(new HelpScreen3(), "Progress");
+        adapter.addFragment(new HelpScreen4(), "Ready?");
         viewPager.setAdapter(adapter);
     }
 
@@ -159,6 +160,33 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
         public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             super.onCreateView(inflater, container, savedInstanceState);
             View inflate = inflater.inflate(R.layout.simple_letter_training_help_dialog_screen1, container, false);
+            LinearLayout exampleLetterKeyContainer = inflate.findViewById(R.id.example_letter_2);
+            DynamicKeyboard builder = new DynamicKeyboard.Builder()
+                    .setRootView(exampleLetterKeyContainer)
+                    .setContext(getActivity())
+                    .setKeys(ImmutableList.of(ImmutableList.of(KeyConfig.l("M"))))
+                    .setButtonCallback((b) -> {})
+                    .setProgressBarCallback((p, v) -> {})
+                    .build();
+
+            builder.buildAtRoot();
+
+            ImageView nextTab = inflate.findViewById(R.id.next_help_tab1);
+            nextTab.setOnClickListener((view) ->
+                    ((NextPrevTabHandler)Objects.requireNonNull(getParentFragment())).requestTab(2));
+
+            ImageView prevTab = inflate.findViewById(R.id.prev_help_tab1);
+            prevTab.setOnClickListener((view) ->
+                    ((NextPrevTabHandler)Objects.requireNonNull(getParentFragment())).requestTab(0));
+            return inflate;
+        }
+    }
+
+    public static class HelpScreen2 extends Fragment {
+        @Override
+        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            super.onCreateView(inflater, container, savedInstanceState);
+            View inflate = inflater.inflate(R.layout.simple_letter_training_help_dialog_screen2, container, false);
 
             SimpleLetterTrainingHelpDialogViewModel viewModel = ViewModelProviders
                     .of(Objects.requireNonNull(getActivity()))
@@ -182,23 +210,23 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
                 background.reverseTransition(500);
             });
 
-            ImageView nextTab = inflate.findViewById(R.id.next_help_tab1);
+            ImageView nextTab = inflate.findViewById(R.id.next_help_tab2);
             nextTab.setOnClickListener((view) ->
-                    ((NextPrevTabHandler)Objects.requireNonNull(getParentFragment())).requestTab(2));
+                    ((NextPrevTabHandler)Objects.requireNonNull(getParentFragment())).requestTab(3));
 
-            ImageView prevTab = inflate.findViewById(R.id.prev_help_tab1);
+            ImageView prevTab = inflate.findViewById(R.id.prev_help_tab2);
             prevTab.setOnClickListener((view) ->
-                    ((NextPrevTabHandler)Objects.requireNonNull(getParentFragment())).requestTab(0));
+                    ((NextPrevTabHandler)Objects.requireNonNull(getParentFragment())).requestTab(1));
 
             return inflate;
         }
     }
 
-    public static class HelpScreen2 extends Fragment {
+    public static class HelpScreen3 extends Fragment {
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             super.onCreateView(inflater, container, savedInstanceState);
-            View inflate = inflater.inflate(R.layout.simple_letter_training_help_dialog_screen2, container, false);
+            View inflate = inflater.inflate(R.layout.simple_letter_training_help_dialog_screen3, container, false);
 
             SimpleLetterTrainingHelpDialogViewModel viewModel = ViewModelProviders
                     .of(Objects.requireNonNull(getActivity()))
@@ -256,27 +284,27 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
             });
 
 
-            ImageView nextTab = inflate.findViewById(R.id.next_help_tab2);
+            ImageView nextTab = inflate.findViewById(R.id.next_help_tab3);
             nextTab.setOnClickListener((view) ->
-                    ((NextPrevTabHandler)Objects.requireNonNull(getParentFragment())).requestTab(3));
+                    ((NextPrevTabHandler)Objects.requireNonNull(getParentFragment())).requestTab(4));
 
-            ImageView prevTab = inflate.findViewById(R.id.prev_help_tab2);
+            ImageView prevTab = inflate.findViewById(R.id.prev_help_tab3);
             prevTab.setOnClickListener((view) ->
-                    ((NextPrevTabHandler)Objects.requireNonNull(getParentFragment())).requestTab(1));
+                    ((NextPrevTabHandler)Objects.requireNonNull(getParentFragment())).requestTab(2));
             return inflate;
         }
 
     }
 
-    public static class HelpScreen3 extends Fragment {
+    public static class HelpScreen4 extends Fragment {
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             super.onCreateView(inflater, container, savedInstanceState);
-            View inflate = inflater.inflate(R.layout.simple_letter_training_help_dialog_screen3, container, false);
+            View inflate = inflater.inflate(R.layout.simple_letter_training_help_dialog_screen4, container, false);
 
-            ImageView prevTab = inflate.findViewById(R.id.prev_help_tab3);
+            ImageView prevTab = inflate.findViewById(R.id.prev_help_tab4);
             prevTab.setOnClickListener((view) ->
-                    ((NextPrevTabHandler)Objects.requireNonNull(getParentFragment())).requestTab(2));
+                    ((NextPrevTabHandler)Objects.requireNonNull(getParentFragment())).requestTab(3));
 
             Button continueButton = inflate.findViewById(R.id.continue_session_button);
             continueButton.setOnClickListener((view) ->
