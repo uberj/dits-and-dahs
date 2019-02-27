@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/default_timer_bar_background">
-    <solid android:color="#63de4f" />
+    <corners android:radius="5dip" />
+    <gradient
+        android:startColor="#81c784"
+        android:centerColor="#66ff4a"
+        android:centerY="0.75"
+        android:endColor="#45a562"
+        android:angle="270"
+        />
 </shape>
