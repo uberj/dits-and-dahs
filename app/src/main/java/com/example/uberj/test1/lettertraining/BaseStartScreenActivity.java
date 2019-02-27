@@ -8,6 +8,7 @@ import com.google.android.material.tabs.TabLayout;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -30,7 +31,7 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
-public abstract class BaseStartScreenActivity extends AppCompatActivity {
+public abstract class BaseStartScreenActivity extends AppCompatActivity implements DialogFragmentProvider {
     private static final int KEYBOARD_REQUEST_CODE = 0;
 
     /**
@@ -66,7 +67,6 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity {
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
-
     }
 
     protected abstract SessionType getSessionType();
@@ -98,6 +98,11 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public FragmentManager getHelpDialogFragmentManager() {
+        return getSupportFragmentManager();
     }
 
     /**
@@ -206,7 +211,13 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity {
 
             View rootView = inflater.inflate(R.layout.letter_training_start_screen_fragment, container, false);
             ImageView helpWPM = rootView.findViewById(R.id.wpmhelp);
-            helpWPM.setTooltipText("Words Per Minute");
+            helpWPM.setOnClickListener((l) -> {
+                DialogFragmentProvider provider = (DialogFragmentProvider) getActivity();
+                DialogFragment dialog = provider.getHelpDialog();
+                FragmentManager supportFragmentManager = provider.getHelpDialogFragmentManager();
+                dialog.show(supportFragmentManager, dialog.getTag());
+            });
+
 
             minutesPicker = rootView.findViewById(R.id.number_picker_minutes);
             wpmPicker = rootView.findViewById(R.id.wpm_number_picker);
