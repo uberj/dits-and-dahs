@@ -1,7 +1,7 @@
 package com.example.uberj.test1.socratic;
 
 import com.example.uberj.test1.CWToneManager;
-import com.example.uberj.test1.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.test1.socratic.storage.SocraticTrainingEngineSettings;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;

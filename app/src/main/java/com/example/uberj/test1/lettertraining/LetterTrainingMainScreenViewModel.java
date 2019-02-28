@@ -2,10 +2,10 @@ package com.example.uberj.test1.lettertraining;
 
 import android.app.Application;
 
-import com.example.uberj.test1.storage.SocraticTrainingEngineSettings;
-import com.example.uberj.test1.storage.SocraticTrainingSession;
+import com.example.uberj.test1.socratic.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.test1.socratic.storage.SocraticTrainingSession;
 import com.example.uberj.test1.storage.Repository;
-import com.example.uberj.test1.storage.SocraticSessionType;
+import com.example.uberj.test1.socratic.storage.SocraticSessionType;
 
 import java.util.List;
 
@@ -22,10 +22,10 @@ public class LetterTrainingMainScreenViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<SocraticTrainingEngineSettings>> getLatestEngineSettings(SocraticSessionType sessionType) {
-        return repository.engineSettingsDAO.getLatestEngineSetting(sessionType.name());
+        return repository.socraticEngineSettingsDAO.getLatestEngineSetting(sessionType.name());
     }
 
     public LiveData<List<SocraticTrainingSession>> getLatestSession(SocraticSessionType sessionType) {
-        return repository.letterTrainingSessionDAO.getLatestSession(sessionType.name());
+        return repository.socraticTrainingSessionDAO.getLatestSession(sessionType.name());
     }
 }

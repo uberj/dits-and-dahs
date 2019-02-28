@@ -3,33 +3,67 @@ package com.example.uberj.test1.storage;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.example.uberj.test1.socratic.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.test1.socratic.storage.SocraticTrainingEngineSettingsDAO;
+import com.example.uberj.test1.socratic.storage.SocraticTrainingSession;
+import com.example.uberj.test1.socratic.storage.SocraticTrainingSessionDAO;
+import com.example.uberj.test1.transcribe.storage.TranscribeSessionDAO;
+import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettings;
+import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettingsDAO;
+import com.example.uberj.test1.transcribe.storage.TranscribeTrainingSession;
+
 public class Repository {
-    public final SocraticTrainingSessionDAO letterTrainingSessionDAO;
-    public final SocraticTrainingEngineSettingsDAO engineSettingsDAO;
+    public final SocraticTrainingSessionDAO socraticTrainingSessionDAO;
+    public final SocraticTrainingEngineSettingsDAO socraticEngineSettingsDAO;
+    public final TranscribeSessionDAO transcribeTrainingSessionDAO;
+    public final TranscribeTrainingEngineSettingsDAO transcribeEngineSettingsDAO;
 
     public Repository(Context context) {
         TheDatabase database = TheDatabase.getDatabase(context);
-        letterTrainingSessionDAO = database.trainingSessionDAO();
-        engineSettingsDAO = database.engineSettingsDAO();
+        socraticTrainingSessionDAO = database.socraticTrainingSessionDAO();
+        socraticEngineSettingsDAO = database.socraticEngineSettingsDAO();
+        transcribeEngineSettingsDAO = database.transcribeEngineSettingsDAO();
+        transcribeTrainingSessionDAO = database.transcribeTrainingSessionDAO();
 
     }
 
-    public void insertMostRecentCompetencyWeights(final SocraticTrainingEngineSettings engineSettings) {
+    public void insertSocraticEngineSettings(final SocraticTrainingEngineSettings engineSettings) {
         engineSettings.createdAtEpocMillis = System.currentTimeMillis();
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
-                engineSettingsDAO.insertEngineSettings(engineSettings);
+                socraticEngineSettingsDAO.insertEngineSettings(engineSettings);
                 return null;
             }
         }.execute();
     }
 
-    public void insertLetterTrainingSession(final SocraticTrainingSession session) {
+    public void insertSocraticTrainingSession(final SocraticTrainingSession session) {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
-                letterTrainingSessionDAO.insertSession(session);
+                socraticTrainingSessionDAO.insertSession(session);
+                return null;
+            }
+        }.execute();
+    }
+
+    public void insertTranscribeEngineSettings(final TranscribeTrainingEngineSettings engineSettings) {
+        engineSettings.createdAtEpocMillis = System.currentTimeMillis();
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                transcribeEngineSettingsDAO.insertEngineSettings(engineSettings);
+                return null;
+            }
+        }.execute();
+    }
+
+    public void insertTranscribeTrainingSession(final TranscribeTrainingSession session) {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                transcribeTrainingSessionDAO.insertSession(session);
                 return null;
             }
         }.execute();

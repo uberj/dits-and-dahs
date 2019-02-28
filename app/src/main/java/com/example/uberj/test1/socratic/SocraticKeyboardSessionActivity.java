@@ -26,8 +26,8 @@ import com.example.uberj.test1.KochLetterSequence;
 import com.example.uberj.test1.ProgressGradient;
 import com.example.uberj.test1.R;
 import com.example.uberj.test1.keyboards.Keys;
-import com.example.uberj.test1.storage.SocraticTrainingEngineSettings;
-import com.example.uberj.test1.storage.SocraticSessionType;
+import com.example.uberj.test1.socratic.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.test1.socratic.storage.SocraticSessionType;
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;

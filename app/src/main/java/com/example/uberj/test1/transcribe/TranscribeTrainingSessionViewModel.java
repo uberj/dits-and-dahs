@@ -4,9 +4,9 @@ import android.app.Application;
 
 import com.example.uberj.test1.CountDownTimer;
 import com.example.uberj.test1.keyboards.Keys;
-import com.example.uberj.test1.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.test1.socratic.storage.SocraticTrainingEngineSettings;
 import com.example.uberj.test1.storage.Repository;
-import com.example.uberj.test1.storage.SocraticSessionType;
+import com.example.uberj.test1.socratic.storage.SocraticSessionType;
 
 import java.util.List;
 
@@ -69,7 +69,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<SocraticTrainingEngineSettings>> getLatestEngineSetting() {
-        return repository.engineSettingsDAO.getLatestEngineSetting(sessionType.name());
+        return repository.socraticEngineSettingsDAO.getLatestEngineSetting(sessionType.name());
     }
 
     public void primeTheEngine(SocraticTrainingEngineSettings previousSettings) {

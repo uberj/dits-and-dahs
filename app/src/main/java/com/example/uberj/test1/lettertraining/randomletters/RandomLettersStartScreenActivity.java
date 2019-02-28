@@ -1,7 +1,7 @@
 package com.example.uberj.test1.lettertraining.randomletters;
 
 import com.example.uberj.test1.lettertraining.BaseStartScreenActivity;
-import com.example.uberj.test1.storage.SocraticSessionType;
+import com.example.uberj.test1.socratic.storage.SocraticSessionType;
 
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;

@@ -6,6 +6,11 @@ import androidx.test.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
 
 import com.example.uberj.test1.TestObserver;
+import com.example.uberj.test1.socratic.storage.SocraticSessionType;
+import com.example.uberj.test1.socratic.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.test1.socratic.storage.SocraticTrainingEngineSettingsDAO;
+import com.example.uberj.test1.socratic.storage.SocraticTrainingSession;
+import com.example.uberj.test1.socratic.storage.SocraticTrainingSessionDAO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -28,13 +33,13 @@ public class TheDatabaseTest {
         final Context context = InstrumentationRegistry.getTargetContext();
         context.deleteDatabase(TheDatabase.THE_DATABASE_NAME);
         theDatabase = TheDatabase.getDatabase(context);
-        letterTrainingSessionDAO = theDatabase.trainingSessionDAO();
-        competencyWeightsDAO = theDatabase.engineSettingsDAO();
+        letterTrainingSessionDAO = theDatabase.socraticTrainingSessionDAO();
+        competencyWeightsDAO = theDatabase.socraticEngineSettingsDAO();
     }
 
     @Test
     public void testCreateReadLetterTrainingSession() throws InterruptedException {
-        TestObserver.test(letterTrainingSessionDAO.getAllSessions())
+        TestObserver.test(letterTrainingSessionDAO.getAllSessions(SocraticSessionType.LETTER_ONLY.name()))
                 .awaitValue()
                 .assertValue(List::isEmpty);
         final SocraticTrainingSession trainingSession = new SocraticTrainingSession();
@@ -44,7 +49,7 @@ public class TheDatabaseTest {
         trainingSession.durationRequestedMillis = 99l;
         letterTrainingSessionDAO.insertSession(trainingSession);
 
-        TestObserver.test(letterTrainingSessionDAO.getAllSessions())
+        TestObserver.test(letterTrainingSessionDAO.getAllSessions(SocraticSessionType.LETTER_ONLY.name()))
                 .awaitValue()
                 .assertValue((ss) -> ss.size() == 1)
                 .assertValue((ss) -> ss.get(0).durationWorkedMillis.equals(trainingSession.durationWorkedMillis))
@@ -56,7 +61,7 @@ public class TheDatabaseTest {
     @Test
     public void testCRUDCompetencyWeights() throws InterruptedException {
         {
-            LiveData<List<SocraticTrainingEngineSettings>> competencyWeights = competencyWeightsDAO.getAllEngineSettings();
+            LiveData<List<SocraticTrainingEngineSettings>> competencyWeights = competencyWeightsDAO.getAllEngineSettings(SocraticSessionType.LETTER_ONLY.name());
             TestObserver.test(competencyWeights)
                     .awaitValue()
                     .assertValue(List::isEmpty);
@@ -76,7 +81,7 @@ public class TheDatabaseTest {
         engineSettings.createdAtEpocMillis = System.currentTimeMillis();
         competencyWeightsDAO.insertEngineSettings(engineSettings);
 
-        LiveData<List<SocraticTrainingEngineSettings>> allCompetencyWeights = competencyWeightsDAO.getAllEngineSettings();
+        LiveData<List<SocraticTrainingEngineSettings>> allCompetencyWeights = competencyWeightsDAO.getAllEngineSettings(SocraticSessionType.LETTER_ONLY.name());
         TestObserver.test(allCompetencyWeights)
                 .awaitNextValue()
                 .assertValue((ss) -> ss.size() == 2)

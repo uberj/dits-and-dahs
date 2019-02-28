@@ -2,8 +2,8 @@ package com.example.uberj.test1.lettertraining;
 
 import com.example.uberj.test1.R;
 import com.example.uberj.test1.socratic.SocraticKeyboardSessionActivity;
-import com.example.uberj.test1.storage.SocraticTrainingEngineSettings;
-import com.example.uberj.test1.storage.SocraticSessionType;
+import com.example.uberj.test1.socratic.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.test1.socratic.storage.SocraticSessionType;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;

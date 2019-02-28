@@ -9,8 +9,8 @@ import android.widget.ProgressBar;
 import com.example.uberj.test1.DynamicKeyboard;
 import com.example.uberj.test1.R;
 import com.example.uberj.test1.keyboards.Keys;
-import com.example.uberj.test1.storage.SocraticTrainingEngineSettings;
-import com.example.uberj.test1.storage.SocraticSessionType;
+import com.example.uberj.test1.socratic.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.test1.socratic.storage.SocraticSessionType;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;

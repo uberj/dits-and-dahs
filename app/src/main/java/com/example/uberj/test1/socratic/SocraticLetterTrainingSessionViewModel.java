@@ -6,10 +6,10 @@ import com.example.uberj.test1.CWToneManager;
 import com.example.uberj.test1.CountDownTimer;
 import com.example.uberj.test1.KochLetterSequence;
 import com.example.uberj.test1.keyboards.Keys;
-import com.example.uberj.test1.storage.SocraticTrainingEngineSettings;
-import com.example.uberj.test1.storage.SocraticTrainingSession;
+import com.example.uberj.test1.socratic.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.test1.socratic.storage.SocraticTrainingSession;
 import com.example.uberj.test1.storage.Repository;
-import com.example.uberj.test1.storage.SocraticSessionType;
+import com.example.uberj.test1.socratic.storage.SocraticSessionType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -84,7 +84,7 @@ class SocraticLetterTrainingSessionViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<SocraticTrainingEngineSettings>> getLatestEngineSetting() {
-        return repository.engineSettingsDAO.getLatestEngineSetting(sessionType.name());
+        return repository.socraticEngineSettingsDAO.getLatestEngineSetting(sessionType.name());
     }
 
     public long getDurationRequestedMillis() {
@@ -211,12 +211,12 @@ class SocraticLetterTrainingSessionViewModel extends AndroidViewModel {
             trainingSession.errorRate = -1;
         }
 
-        repository.insertLetterTrainingSession(trainingSession);
+        repository.insertSocraticTrainingSession(trainingSession);
 
         SocraticTrainingEngineSettings settings = engine.getSettings();
         settings.durationRequestedMillis = durationRequestedMillis;
         settings.sessionType = sessionType.name();
-        repository.insertMostRecentCompetencyWeights(settings);
+        repository.insertSocraticEngineSettings(settings);
     }
 
     public void updateCompetencyWeights(String letter, boolean wasCorrectGuess) {

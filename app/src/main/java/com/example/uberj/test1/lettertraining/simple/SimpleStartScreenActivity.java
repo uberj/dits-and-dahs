@@ -2,7 +2,7 @@ package com.example.uberj.test1.lettertraining.simple;
 
 import com.example.uberj.test1.socratic.SocraticKeyboardSessionActivity;
 import com.example.uberj.test1.lettertraining.BaseStartScreenActivity;
-import com.example.uberj.test1.storage.SocraticSessionType;
+import com.example.uberj.test1.socratic.storage.SocraticSessionType;
 
 import androidx.fragment.app.DialogFragment;
 
