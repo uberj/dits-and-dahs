@@ -4,9 +4,9 @@ import android.app.Application;
 
 import com.example.uberj.test1.CountDownTimer;
 import com.example.uberj.test1.keyboards.Keys;
-import com.example.uberj.test1.socratic.storage.SocraticTrainingEngineSettings;
 import com.example.uberj.test1.storage.Repository;
-import com.example.uberj.test1.socratic.storage.SocraticSessionType;
+import com.example.uberj.test1.transcribe.storage.TranscribeSessionType;
+import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettings;
 
 import java.util.List;
 
@@ -22,41 +22,55 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     private final Application application;
     private final int durationMinutesRequested;
     private final int wpmRequested;
-    private final SocraticSessionType sessionType;
+    private final TranscribeSessionType sessionType;
     private final Keys keys;
     private final Repository repository;
+    private final int farnsworthSpaces;
     public final MutableLiveData<Long> durationRemainingMillis = new MutableLiveData<>(-1L);
     private CountDownTimer countDownTimer;
     private TranscribeTrainingEngine engine;
-    private boolean sessiontHasBeenStarted;
+    private boolean sessionHasBeenStarted = false;
     private static final String sessionStartLock = "lock";
 
-    public TranscribeTrainingSessionViewModel(@NonNull Application application, int durationMinutesRequested, int wpmRequested, SocraticSessionType sessionType, Keys keys) {
+    public TranscribeTrainingSessionViewModel(@NonNull Application application, int durationMinutesRequested, int wpmRequested, int farnsworthSpaces, TranscribeSessionType sessionType, Keys keys) {
         super(application);
         this.repository = new Repository(application);
         this.application = application;
         this.durationMinutesRequested = durationMinutesRequested;
         this.wpmRequested = wpmRequested;
+        this.farnsworthSpaces = farnsworthSpaces;
         this.sessionType = sessionType;
         this.keys = keys;
     }
 
     public long getDurationRequestedMillis() {
-        return durationMinutesRequested * 60 * 100;
+        return durationMinutesRequested * 60 * 1000;
+    }
+
+    public boolean isPaused() {
+        return false;
+    }
+
+    public void pause() {
+    }
+
+    public void resume() {
     }
 
     public static class Factory implements ViewModelProvider.Factory {
         private final Application application;
         private final int durationMinutesRequested;
         private final int wpmRequested;
-        private final SocraticSessionType sessionType;
+        private final int fransworthSpaces;
+        private final TranscribeSessionType sessionType;
         private final Keys keys;
 
 
-        public Factory(Application application, int durationMinutesRequested, int wpmRequested, SocraticSessionType sessionType, Keys keys) {
+        public Factory(Application application, int durationMinutesRequested, int wpmRequested, int fransworthSpaces, TranscribeSessionType sessionType, Keys keys) {
             this.application = application;
             this.durationMinutesRequested = durationMinutesRequested;
             this.wpmRequested = wpmRequested;
+            this.fransworthSpaces = fransworthSpaces;
             this.sessionType = sessionType;
             this.keys = keys;
         }
@@ -64,18 +78,18 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
-            return (T) new TranscribeTrainingSessionViewModel(application, durationMinutesRequested, wpmRequested, sessionType, keys);
+            return (T) new TranscribeTrainingSessionViewModel(application, durationMinutesRequested, wpmRequested, fransworthSpaces, sessionType, keys);
         }
     }
 
-    public LiveData<List<SocraticTrainingEngineSettings>> getLatestEngineSetting() {
-        return repository.socraticEngineSettingsDAO.getLatestEngineSetting(sessionType.name());
+    public LiveData<List<TranscribeTrainingEngineSettings>> getLatestEngineSetting() {
+        return repository.transcribeEngineSettingsDAO.getLatestEngineSetting(sessionType.name());
     }
 
-    public void primeTheEngine(SocraticTrainingEngineSettings previousSettings) {
+    public void primeTheEngine(TranscribeTrainingEngineSettings previousSettings) {
         List<String> inPlayKeyNames = null;
         countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
-        engine = new TranscribeTrainingEngine(wpmRequested, inPlayKeyNames);
+        engine = new TranscribeTrainingEngine(wpmRequested, farnsworthSpaces, inPlayKeyNames);
         engine.prime();
     }
 
@@ -93,13 +107,13 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
 
     public void startTheEngine() {
         synchronized (sessionStartLock) {
-            if (sessiontHasBeenStarted) {
+            if (sessionHasBeenStarted) {
                 Timber.d("Duped request to start the session");
                 return;
             }
             engine.start();
             countDownTimer.start();
-            sessiontHasBeenStarted = true;
+            sessionHasBeenStarted = true;
         }
     }
 }

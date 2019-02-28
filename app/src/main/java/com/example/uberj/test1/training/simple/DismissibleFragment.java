@@ -1,4 +1,4 @@
-package com.example.uberj.test1.lettertraining.simple;
+package com.example.uberj.test1.training.simple;
 
 interface DismissibleFragment {
     void requestDismiss();

@@ -285,18 +285,6 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
         return super.onCreateOptionsMenu(menu);
     }
 
-    public void onClickPlayPauseHandler(MenuItem m) {
-        if (!viewModel.isPaused()) {
-            // User wants pause
-            m.setIcon(R.mipmap.ic_play);
-            viewModel.pause();
-        } else {
-            // User wants play
-            m.setIcon(R.mipmap.ic_pause);
-            viewModel.resume();
-        }
-    }
-
     private Intent buildResultIntent() {
         // TODO, clean this up
         Intent intent = new Intent();
@@ -319,6 +307,19 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
         FragmentManager supportFragmentManager = getSupportFragmentManager();
         dialog.show(supportFragmentManager, dialog.getTag());
     }
+
+    public void onClickPlayPauseHandler(MenuItem m) {
+        if (!viewModel.isPaused()) {
+            // User wants pause
+            m.setIcon(R.mipmap.ic_play);
+            viewModel.pause();
+        } else {
+            // User wants play
+            m.setIcon(R.mipmap.ic_pause);
+            viewModel.resume();
+        }
+    }
+
 
     protected abstract DialogFragment getHelpDialog();
 }

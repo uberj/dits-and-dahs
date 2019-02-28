@@ -1,7 +1,11 @@
 package com.example.uberj.test1.transcribe;
 
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -9,20 +13,22 @@ import android.widget.ProgressBar;
 import com.example.uberj.test1.DynamicKeyboard;
 import com.example.uberj.test1.R;
 import com.example.uberj.test1.keyboards.Keys;
-import com.example.uberj.test1.socratic.storage.SocraticTrainingEngineSettings;
-import com.example.uberj.test1.socratic.storage.SocraticSessionType;
+import com.example.uberj.test1.transcribe.storage.TranscribeSessionType;
+import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettings;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
 
-import static com.example.uberj.test1.socratic.SocraticKeyboardSessionActivity.DURATION_REQUESTED_MINUTES;
-import static com.example.uberj.test1.socratic.SocraticKeyboardSessionActivity.WPM_REQUESTED;
-
 public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivity implements Keys, DialogInterface.OnDismissListener {
+    public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
+    public static final String WPM_REQUESTED = "wpm-requested";
+    public static final String FARNSWORTH_SPACES = "farnsworth-spaces";
 
     private TranscribeTrainingSessionViewModel viewModel;
     private DynamicKeyboard keyboard;
+    private Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,17 +42,19 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
 
         int durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
         int wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
+        int fransworthSpaces = receiveBundle.getInt(FARNSWORTH_SPACES);
         viewModel = ViewModelProviders.of(this,
                 new TranscribeTrainingSessionViewModel.Factory(
                         this.getApplication(),
                         durationMinutesRequested,
                         wpmRequested,
+                        fransworthSpaces,
                         getSessionType(),
                         this)
         ).get(TranscribeTrainingSessionViewModel.class);
 
         viewModel.getLatestEngineSetting().observe(this, (prevSettings) -> {
-            SocraticTrainingEngineSettings settings;
+            TranscribeTrainingEngineSettings settings;
             if (prevSettings == null || prevSettings.size() == 0) {
                 settings = null;
             } else {
@@ -62,8 +70,6 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
                     .setButtonOnClickListener(this::keyboardButtonClicked)
                     .setButtonLongClickListener(this::playableKeyLongClickHandler)
                     .setButtonCallback((button) -> {
-                    })
-                    .setProgressBarCallback((button, progressBar) -> {
                     })
                     .build();
             keyboard.buildAtRoot();
@@ -84,7 +90,65 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        this.menu = menu;
+        getMenuInflater().inflate(R.menu.keyboard, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (viewModel.durationRemainingMillis.getValue() != 0) {
+            viewModel.pause();
+
+            // Update UI to indicate paused session. Player will need to manually trigger play to resume
+            MenuItem playPauseIcon = menu.findItem(R.id.keyboard_pause_play);
+            playPauseIcon.setIcon(R.mipmap.ic_play);
+
+            // Build alert and show to user for exit confirmation
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setCancelable(false);
+            builder.setMessage("Do you want to end this session?");
+            builder.setPositiveButton("Yes", (dialog, which) -> {
+                // Duration always seems to be off by -1s when back is pressed
+                viewModel.durationRemainingMillis.setValue(viewModel.durationRemainingMillis.getValue() - 1000 );
+                Intent data = buildResultIntent();
+                setResult(Activity.RESULT_OK, data);
+                finish();
+            });
+            builder.setNegativeButton("No", (dialog, which) -> dialog.cancel());
+            AlertDialog alert = builder.create();
+            alert.show();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    private Intent buildResultIntent() {
+        return new Intent();
+    }
+
+    @Override
     public void onDismiss(DialogInterface dialog) {
+        MenuItem item = menu.findItem(R.id.keyboard_pause_play);
+        item.setIcon(R.mipmap.ic_pause);
+        viewModel.resume();
+    }
+
+    public void onClickHelpButton(MenuItem item) {
+
+    }
+
+    public void onClickPlayPauseHandler(MenuItem m) {
+        if (!viewModel.isPaused()) {
+            // User wants pause
+            m.setIcon(R.mipmap.ic_play);
+            viewModel.pause();
+        } else {
+            // User wants play
+            m.setIcon(R.mipmap.ic_pause);
+            viewModel.resume();
+        }
     }
 
     private boolean playableKeyLongClickHandler(View view) {
@@ -95,6 +159,6 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
     }
 
 
-    protected abstract SocraticSessionType getSessionType();
+    protected abstract TranscribeSessionType getSessionType();
 
 }

@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.Arrays;
 
+import kotlin.NotImplementedError;
 import timber.log.Timber;
 
 public class CWToneManager {
@@ -123,6 +124,10 @@ public class CWToneManager {
         }
 
         return pcmConvert(rawSnd);
+    }
+
+    public static long baudToMillis(int farnsworthSpaces) {
+        throw new NotImplementedError("derp");
     }
 
 

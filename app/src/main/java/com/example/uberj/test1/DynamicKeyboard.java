@@ -91,7 +91,9 @@ public class DynamicKeyboard {
             Preconditions.checkNotNull(context);
             Preconditions.checkNotNull(rootView);
             Preconditions.checkNotNull(keys);
-            Preconditions.checkNotNull(progressBarCallback);
+            if (drawProgressBar) {
+                Preconditions.checkNotNull(progressBarCallback);
+            }
             Preconditions.checkNotNull(buttonCallback);
             return new DynamicKeyboard(context, keys, buttonOnClickListener, buttonLongClickListener, buttonCallback, progressBarCallback, rootView, drawProgressBar);
         }
@@ -126,8 +128,8 @@ public class DynamicKeyboard {
                     if (drawProgressBar && keyConfig.isPlayable) {
                         View progressBar = makeProgressBar(button, keyName);
                         buttonProgressBarContainer.addView(progressBar);
-                        curRow.addView(buttonProgressBarContainer);
                     }
+                    curRow.addView(buttonProgressBarContainer);
                 }
             }
             rootView.addView(curRow);

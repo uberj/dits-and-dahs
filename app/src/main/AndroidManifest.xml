@@ -13,6 +13,23 @@
         <activity android:name=".TrainingActivityList"
             android:screenOrientation="portrait"
             >
+        </activity>
+        <activity
+            android:name=".training.simple.SimpleStartScreenActivity"
+            android:label="Simple Letter Training"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+            android:name=".training.simple.SimpleLetterTrainingActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
+
+        <activity
+            android:name=".training.randomletters.RandomLettersStartScreenActivity"
+            android:label="Simple Letter Training"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,24 +37,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".lettertraining.simple.SimpleStartScreenActivity"
-            android:label="Simple Letter Training"
-            android:screenOrientation="landscape"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
-        <activity
-            android:name=".lettertraining.simple.SimpleLetterTrainingActivity"
-            android:screenOrientation="landscape"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
-
-        <activity
-            android:name=".lettertraining.randomletters.RandomLettersStartScreenActivity"
-            android:label="Simple Letter Training"
-            android:screenOrientation="landscape"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
-        <activity
-            android:name=".lettertraining.randomletters.RandomLetterKeyboardSessionActivity"
+            android:name=".training.randomletters.RandomLetterKeyboardSessionActivity"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
     </application>

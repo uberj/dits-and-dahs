@@ -1,4 +1,4 @@
-package com.example.uberj.test1.lettertraining;
+package com.example.uberj.test1.training;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;

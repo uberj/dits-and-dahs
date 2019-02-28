@@ -5,8 +5,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.example.uberj.test1.lettertraining.randomletters.RandomLettersStartScreenActivity;
-import com.example.uberj.test1.lettertraining.simple.SimpleStartScreenActivity;
+import com.example.uberj.test1.training.randomletters.RandomLettersStartScreenActivity;
+import com.example.uberj.test1.training.simple.SimpleStartScreenActivity;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;

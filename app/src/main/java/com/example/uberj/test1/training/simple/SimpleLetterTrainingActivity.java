@@ -1,4 +1,4 @@
-package com.example.uberj.test1.lettertraining.abrvandprosign;
+package com.example.uberj.test1.training.simple;
 
 import com.example.uberj.test1.keyboards.Keys;
 import com.example.uberj.test1.socratic.SocraticKeyboardSessionActivity;
@@ -6,10 +6,10 @@ import com.example.uberj.test1.socratic.storage.SocraticSessionType;
 
 import androidx.fragment.app.DialogFragment;
 
-public class AbbreviationAndProsignSessionTrainingActivity extends SocraticKeyboardSessionActivity {
+public class SimpleLetterTrainingActivity extends SocraticKeyboardSessionActivity {
     @Override
     protected Keys getSessionKeys() {
-        return new AbbreviationAndProsignKeys();
+        return new SimpleLetterKeys();
     }
 
     @Override
@@ -19,7 +19,6 @@ public class AbbreviationAndProsignSessionTrainingActivity extends SocraticKeybo
 
     @Override
     protected DialogFragment getHelpDialog() {
-        // TODO
-        return null;
+        return new SimpleLetterTrainingHelpDialog();
     }
 }
