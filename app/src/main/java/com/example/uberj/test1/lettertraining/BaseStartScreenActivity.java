@@ -1,8 +1,9 @@
 package com.example.uberj.test1.lettertraining;
 
 import com.example.uberj.test1.R;
-import com.example.uberj.test1.storage.LetterTrainingEngineSettings;
-import com.example.uberj.test1.storage.SessionType;
+import com.example.uberj.test1.socratic.SocraticKeyboardSessionActivity;
+import com.example.uberj.test1.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.test1.storage.SocraticSessionType;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
@@ -44,7 +45,7 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
      * androidx.fragment.app.FragmentStatePagerAdapter.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
-    private SessionType sessionType = getSessionType();
+    private SocraticSessionType sessionType = getSessionType();
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -70,7 +71,7 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
     }
 
-    protected abstract SessionType getSessionType();
+    protected abstract SocraticSessionType getSessionType();
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
@@ -178,10 +179,10 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
         private CheckBox resetLetterWeights;
         private LetterTrainingMainScreenViewModel sessionViewModel;
         private Class<? extends FragmentActivity> sessionActivityClass;
-        private SessionType sessionType;
+        private SocraticSessionType sessionType;
 
 
-        public static StartScreenFragment newInstance(SessionType sessionType, Class<? extends FragmentActivity> sessionActivityClass) {
+        public static StartScreenFragment newInstance(SocraticSessionType sessionType, Class<? extends FragmentActivity> sessionActivityClass) {
             StartScreenFragment fragment = new StartScreenFragment();
             fragment.setSessionActivityClass(sessionActivityClass);
             fragment.setSessionType(sessionType);
@@ -194,7 +195,7 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
             this.sessionActivityClass = sessionActivityClass;
         }
 
-        public void setSessionType(SessionType sessionType) {
+        public void setSessionType(SocraticSessionType sessionType) {
             this.sessionType = sessionType;
         }
 
@@ -207,7 +208,7 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             if (savedInstanceState != null) {
-                sessionType = SessionType.valueOf(savedInstanceState.getString("sessionType"));
+                sessionType = SocraticSessionType.valueOf(savedInstanceState.getString("sessionType"));
             }
 
             View rootView = inflater.inflate(R.layout.letter_training_start_screen_fragment, container, false);
@@ -228,7 +229,7 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
                 int playLetterWPM = -1;
                 long prevDurationRequestedMillis = -1L;
                 if (!mostRecentSettings.isEmpty()) {
-                    LetterTrainingEngineSettings engineSettings = mostRecentSettings.get(0);
+                    SocraticTrainingEngineSettings engineSettings = mostRecentSettings.get(0);
                     playLetterWPM = engineSettings.playLetterWPM;
                     prevDurationRequestedMillis = engineSettings.durationRequestedMillis;
                 }
@@ -268,9 +269,9 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
 
     public static class NumbersScreenFragment extends Fragment  {
         private LetterTrainingMainScreenViewModel sessionViewModel;
-        private SessionType sessionType;
+        private SocraticSessionType sessionType;
 
-        public static NumbersScreenFragment newInstance(SessionType sessionType) {
+        public static NumbersScreenFragment newInstance(SocraticSessionType sessionType) {
             NumbersScreenFragment fragment = new NumbersScreenFragment();
             fragment.setSessionType(sessionType);
             Bundle args = new Bundle();
@@ -278,7 +279,7 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
             return fragment;
         }
 
-        public void setSessionType(SessionType sessionType) {
+        public void setSessionType(SocraticSessionType sessionType) {
             this.sessionType = sessionType;
         }
 
@@ -291,7 +292,7 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             if (savedInstanceState != null) {
-                sessionType = SessionType.valueOf(savedInstanceState.getString("sessionType"));
+                sessionType = SocraticSessionType.valueOf(savedInstanceState.getString("sessionType"));
             }
 
             View rootView = inflater.inflate(R.layout.letter_training_numbers_screen_fragment, container, false);

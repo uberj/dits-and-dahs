@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey;
 import androidx.annotation.NonNull;
 
 @Entity
-public class LetterTrainingSession {
+public class SocraticTrainingSession {
     @PrimaryKey(autoGenerate = true)
     public int uid;
 

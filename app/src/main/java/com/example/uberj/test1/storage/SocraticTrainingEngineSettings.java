@@ -1,6 +1,5 @@
 package com.example.uberj.test1.storage;
 
-import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.annotation.NonNull;
@@ -9,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @Entity
-public class LetterTrainingEngineSettings {
+public class SocraticTrainingEngineSettings {
 
     @PrimaryKey(autoGenerate = true)
     public int uid;

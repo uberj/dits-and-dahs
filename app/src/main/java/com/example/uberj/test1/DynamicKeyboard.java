@@ -24,8 +24,9 @@ public class DynamicKeyboard {
     private final Consumer<Button> buttonCallback;
     private final BiConsumer<Button, View> progressBarCallback;
     private final LinearLayout rootView;
+    private final boolean drawProgressBar;
 
-    public DynamicKeyboard(FragmentActivity context, ImmutableList<ImmutableList<KeyConfig>> keys, View.OnClickListener buttonOnClickListener, View.OnLongClickListener buttonLongClickListener, Consumer<Button> buttonCallback, BiConsumer<Button, View> progressBarCallback, LinearLayout rootView) {
+    public DynamicKeyboard(FragmentActivity context, ImmutableList<ImmutableList<KeyConfig>> keys, View.OnClickListener buttonOnClickListener, View.OnLongClickListener buttonLongClickListener, Consumer<Button> buttonCallback, BiConsumer<Button, View> progressBarCallback, LinearLayout rootView, boolean drawProgressBar) {
         this.context = context;
         this.keys = keys;
         this.buttonOnClickListener = buttonOnClickListener;
@@ -33,6 +34,7 @@ public class DynamicKeyboard {
         this.buttonCallback = buttonCallback;
         this.progressBarCallback = progressBarCallback;
         this.rootView = rootView;
+        this.drawProgressBar = drawProgressBar;
     }
 
     public static final class Builder {
@@ -43,6 +45,7 @@ public class DynamicKeyboard {
         private View.OnLongClickListener buttonLongClickListener;
         private Consumer<Button> buttonCallback;
         private BiConsumer<Button, View> progressBarCallback;
+        private boolean drawProgressBar = true;
 
         public Builder setContext(FragmentActivity context) {
             this.context = context;
@@ -79,13 +82,18 @@ public class DynamicKeyboard {
             return this;
         }
 
+        public Builder setDrawProgressBar(boolean drawProgressBar) {
+            this.drawProgressBar = drawProgressBar;
+            return this;
+        }
+
         public DynamicKeyboard build() {
             Preconditions.checkNotNull(context);
             Preconditions.checkNotNull(rootView);
             Preconditions.checkNotNull(keys);
             Preconditions.checkNotNull(progressBarCallback);
             Preconditions.checkNotNull(buttonCallback);
-            return new DynamicKeyboard(context, keys, buttonOnClickListener, buttonLongClickListener, buttonCallback, progressBarCallback, rootView);
+            return new DynamicKeyboard(context, keys, buttonOnClickListener, buttonLongClickListener, buttonCallback, progressBarCallback, rootView, drawProgressBar);
         }
     }
 
@@ -115,7 +123,7 @@ public class DynamicKeyboard {
                     Button button = makeButton(keyName, keyConfig);
                     buttonProgressBarContainer.addView(button);
 
-                    if (keyConfig.isPlayable) {
+                    if (drawProgressBar && keyConfig.isPlayable) {
                         View progressBar = makeProgressBar(button, keyName);
                         buttonProgressBarContainer.addView(progressBar);
                         curRow.addView(buttonProgressBarContainer);

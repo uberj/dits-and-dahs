@@ -1,4 +1,4 @@
-package com.example.uberj.test1.lettertraining;
+package com.example.uberj.test1.socratic;
 
 import android.app.Application;
 
@@ -6,10 +6,10 @@ import com.example.uberj.test1.CWToneManager;
 import com.example.uberj.test1.CountDownTimer;
 import com.example.uberj.test1.KochLetterSequence;
 import com.example.uberj.test1.keyboards.Keys;
-import com.example.uberj.test1.storage.LetterTrainingEngineSettings;
-import com.example.uberj.test1.storage.LetterTrainingSession;
+import com.example.uberj.test1.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.test1.storage.SocraticTrainingSession;
 import com.example.uberj.test1.storage.Repository;
-import com.example.uberj.test1.storage.SessionType;
+import com.example.uberj.test1.storage.SocraticSessionType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -24,7 +24,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import timber.log.Timber;
 
-class LetterTrainingSessionViewModel extends AndroidViewModel {
+class SocraticLetterTrainingSessionViewModel extends AndroidViewModel {
     private static final String sessionStartLock = "Lock";
     private final Repository repository;
 
@@ -33,7 +33,7 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
     private final int durationMinutesRequested;
     private final long durationRequestedMillis;
     private final int wpmRequested;
-    private final SessionType sessionType;
+    private final SocraticSessionType sessionType;
     private final Keys keys;
 
     private List<String> inPlayKeyNames;
@@ -45,9 +45,9 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
     private int totalAccurateSymbolsGuessed;
     private int totalIncorrectGuesses;
     private long endTimeEpocMillis = -1;
-    private LetterTrainingEngine engine;
+    private SocraticTrainingEngine engine;
 
-    public LetterTrainingSessionViewModel(@NonNull Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, SessionType sessionType, Keys keys) {
+    public SocraticLetterTrainingSessionViewModel(@NonNull Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, SocraticSessionType sessionType, Keys keys) {
         super(application);
         this.resetWeights = resetWeights;
         this.durationMinutesRequested = durationMinutesRequested;
@@ -63,11 +63,11 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
         private final Boolean resetWeights;
         private final int durationMinutesRequested;
         private final int wpmRequested;
-        private final SessionType sessionType;
+        private final SocraticSessionType sessionType;
         private final Keys keys;
 
 
-        public Factory(Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, SessionType sessionType, Keys keys) {
+        public Factory(Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, SocraticSessionType sessionType, Keys keys) {
             this.application = application;
             this.resetWeights = resetWeights;
             this.durationMinutesRequested = durationMinutesRequested;
@@ -79,11 +79,11 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
-            return (T) new LetterTrainingSessionViewModel(application, resetWeights, durationMinutesRequested, wpmRequested, sessionType, keys);
+            return (T) new SocraticLetterTrainingSessionViewModel(application, resetWeights, durationMinutesRequested, wpmRequested, sessionType, keys);
         }
     }
 
-    public LiveData<List<LetterTrainingEngineSettings>> getLatestEngineSetting() {
+    public LiveData<List<SocraticTrainingEngineSettings>> getLatestEngineSetting() {
         return repository.engineSettingsDAO.getLatestEngineSetting(sessionType.name());
     }
 
@@ -92,11 +92,11 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
     }
 
 
-    public void primeTheEngine(LetterTrainingEngineSettings previousSettings) {
+    public void primeTheEngine(SocraticTrainingEngineSettings previousSettings) {
         Map<String, Integer> competencyWeights = buildInitialCompetencyWeights(resetWeights ? null : previousSettings);
         inPlayKeyNames = getInitialInPlayKeyNames(previousSettings);
         countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
-        engine = new LetterTrainingEngine(KochLetterSequence.sequence, wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights);
+        engine = new SocraticTrainingEngine(KochLetterSequence.sequence, wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights);
         engine.prime();
     }
 
@@ -139,7 +139,7 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
         );
     }
 
-    private List<String> getInitialInPlayKeyNames(LetterTrainingEngineSettings engineSettings) {
+    private List<String> getInitialInPlayKeyNames(SocraticTrainingEngineSettings engineSettings) {
         if (engineSettings != null && engineSettings.activeLetters != null && engineSettings.activeLetters.size() != 0) {
             return engineSettings.activeLetters;
         }
@@ -154,7 +154,7 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
         return competencyWeights;
     }
 
-    private Map<String, Integer> buildInitialCompetencyWeights(LetterTrainingEngineSettings weights) {
+    private Map<String, Integer> buildInitialCompetencyWeights(SocraticTrainingEngineSettings weights) {
         if (weights == null) {
             return buildBlankWeights(keys.allPlayableKeysNames());
         }
@@ -191,7 +191,7 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
 
     public void recordSessionDetails() {
         Timber.d("Finishing Session");
-        LetterTrainingSession trainingSession = new LetterTrainingSession();
+        SocraticTrainingSession trainingSession = new SocraticTrainingSession();
 
         if (endTimeEpocMillis < 0) {
             trainingSession.endTimeEpocMillis = System.currentTimeMillis();
@@ -213,7 +213,7 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
 
         repository.insertLetterTrainingSession(trainingSession);
 
-        LetterTrainingEngineSettings settings = engine.getSettings();
+        SocraticTrainingEngineSettings settings = engine.getSettings();
         settings.durationRequestedMillis = durationRequestedMillis;
         settings.sessionType = sessionType.name();
         repository.insertMostRecentCompetencyWeights(settings);
@@ -228,7 +228,7 @@ class LetterTrainingSessionViewModel extends AndroidViewModel {
         }
     }
 
-    public LetterTrainingEngine getEngine() {
+    public SocraticTrainingEngine getEngine() {
         return engine;
     }
 

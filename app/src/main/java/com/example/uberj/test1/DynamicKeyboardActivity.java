@@ -33,10 +33,10 @@ public class DynamicKeyboardActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.keyboard_activity_v2);
-        CWToneManager cwToneManager = new CWToneManager(33);
-        cwToneManager.playSoundTest();
-        cwToneManager.destroy();
+//        setContentView(R.layout.keyboard_activity_v2);
+//        CWToneManager cwToneManager = new CWToneManager(33);
+//        cwToneManager.playSoundTest();
+//        cwToneManager.destroy();
 //
 //        LinearLayout rootView = findViewById(R.id.dynamic_keyboard);
 //        DynamicKeyboard dynamicKeyboardBuilder = new DynamicKeyboard.Builder()

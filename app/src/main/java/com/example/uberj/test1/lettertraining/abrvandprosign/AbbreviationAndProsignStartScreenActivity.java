@@ -1,15 +1,15 @@
 package com.example.uberj.test1.lettertraining.abrvandprosign;
 
-import com.example.uberj.test1.lettertraining.SocraticKeyboardSessionActivity;
+import com.example.uberj.test1.socratic.SocraticKeyboardSessionActivity;
 import com.example.uberj.test1.lettertraining.BaseStartScreenActivity;
-import com.example.uberj.test1.storage.SessionType;
+import com.example.uberj.test1.storage.SocraticSessionType;
 
 import androidx.fragment.app.DialogFragment;
 
 public class AbbreviationAndProsignStartScreenActivity extends BaseStartScreenActivity {
     @Override
-    protected SessionType getSessionType() {
-        return SessionType.ABBREVIATION_AND_PROSIGN;
+    protected SocraticSessionType getSessionType() {
+        return SocraticSessionType.ABBREVIATION_AND_PROSIGN;
     }
 
     @Override

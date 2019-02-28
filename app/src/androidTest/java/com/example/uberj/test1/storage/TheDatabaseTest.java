@@ -20,8 +20,8 @@ import java.util.Map;
 public class TheDatabaseTest {
 
     private static TheDatabase theDatabase;
-    private static LetterTrainingSessionDAO letterTrainingSessionDAO;
-    private static LetterTrainingEngineSettingsDAO competencyWeightsDAO;
+    private static SocraticTrainingSessionDAO letterTrainingSessionDAO;
+    private static SocraticTrainingEngineSettingsDAO competencyWeightsDAO;
 
     @BeforeClass
     public static void setUp() {
@@ -37,7 +37,7 @@ public class TheDatabaseTest {
         TestObserver.test(letterTrainingSessionDAO.getAllSessions())
                 .awaitValue()
                 .assertValue(List::isEmpty);
-        final LetterTrainingSession trainingSession = new LetterTrainingSession();
+        final SocraticTrainingSession trainingSession = new SocraticTrainingSession();
         trainingSession.endTimeEpocMillis = 444l;
         trainingSession.completed = true;
         trainingSession.durationWorkedMillis = 100l;
@@ -56,13 +56,13 @@ public class TheDatabaseTest {
     @Test
     public void testCRUDCompetencyWeights() throws InterruptedException {
         {
-            LiveData<List<LetterTrainingEngineSettings>> competencyWeights = competencyWeightsDAO.getAllEngineSettings();
+            LiveData<List<SocraticTrainingEngineSettings>> competencyWeights = competencyWeightsDAO.getAllEngineSettings();
             TestObserver.test(competencyWeights)
                     .awaitValue()
                     .assertValue(List::isEmpty);
         }
 
-        LetterTrainingEngineSettings engineSettings = new LetterTrainingEngineSettings();
+        SocraticTrainingEngineSettings engineSettings = new SocraticTrainingEngineSettings();
         Map<String, Integer> weights = Maps.newHashMap();
         weights.put("A", 1);
         weights.put("B", 2);
@@ -76,7 +76,7 @@ public class TheDatabaseTest {
         engineSettings.createdAtEpocMillis = System.currentTimeMillis();
         competencyWeightsDAO.insertEngineSettings(engineSettings);
 
-        LiveData<List<LetterTrainingEngineSettings>> allCompetencyWeights = competencyWeightsDAO.getAllEngineSettings();
+        LiveData<List<SocraticTrainingEngineSettings>> allCompetencyWeights = competencyWeightsDAO.getAllEngineSettings();
         TestObserver.test(allCompetencyWeights)
                 .awaitNextValue()
                 .assertValue((ss) -> ss.size() == 2)

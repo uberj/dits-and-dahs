@@ -1,8 +1,7 @@
-package com.example.uberj.test1.lettertraining;
+package com.example.uberj.test1.socratic;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.menu.ActionMenuItemView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
@@ -18,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ActionMenuView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -28,8 +26,8 @@ import com.example.uberj.test1.KochLetterSequence;
 import com.example.uberj.test1.ProgressGradient;
 import com.example.uberj.test1.R;
 import com.example.uberj.test1.keyboards.Keys;
-import com.example.uberj.test1.storage.LetterTrainingEngineSettings;
-import com.example.uberj.test1.storage.SessionType;
+import com.example.uberj.test1.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.test1.storage.SocraticSessionType;
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
@@ -52,7 +50,7 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
 
     private DynamicKeyboard keyboard;
 
-    private LetterTrainingSessionViewModel viewModel;
+    private SocraticLetterTrainingSessionViewModel viewModel;
 
     public static ArrayList<View> getViewsByTag(ViewGroup root, String tag) {
         ArrayList<View> views = new ArrayList<View>();
@@ -178,7 +176,7 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.keyboard_activity);
+        setContentView(R.layout.socratic_keyboard_activity);
         Bundle receiveBundle = getIntent().getExtras();
         assert receiveBundle != null;
         Toolbar keyboardToolbar = findViewById(R.id.keyboard_toolbar);
@@ -190,17 +188,17 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
         int wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
 
         viewModel = ViewModelProviders.of(this,
-                new LetterTrainingSessionViewModel.Factory(
+                new SocraticLetterTrainingSessionViewModel.Factory(
                         this.getApplication(),
                         resetWeights,
                         durationMinutesRequested,
                         wpmRequested,
                         getSessionType(),
                         getSessionKeys())
-        ).get(LetterTrainingSessionViewModel.class);
+        ).get(SocraticLetterTrainingSessionViewModel.class);
 
         viewModel.getLatestEngineSetting().observe(this, (prevSettings) -> {
-            LetterTrainingEngineSettings settings;
+            SocraticTrainingEngineSettings settings;
             if (prevSettings == null || prevSettings.size() == 0) {
                 settings = null;
             } else {
@@ -250,7 +248,7 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
 
     protected abstract Keys getSessionKeys();
 
-    public abstract SessionType getSessionType();
+    public abstract SocraticSessionType getSessionType();
 
     @Override
     public void onBackPressed() {

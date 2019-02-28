@@ -11,8 +11,8 @@ import com.example.uberj.test1.storage.converters.StringListConverter;
 import com.example.uberj.test1.storage.converters.StringToIntegerMapConverter;
 
 @Database(entities = {
-        LetterTrainingEngineSettings.class,
-        LetterTrainingSession.class
+        SocraticTrainingEngineSettings.class,
+        SocraticTrainingSession.class
 }, version = 1)
 @TypeConverters({
         StringToIntegerMapConverter.class,
@@ -21,8 +21,8 @@ import com.example.uberj.test1.storage.converters.StringToIntegerMapConverter;
 public abstract class TheDatabase extends RoomDatabase {
     public static final String THE_DATABASE_NAME = "the_database";
 
-    public abstract LetterTrainingSessionDAO trainingSessionDAO();
-    public abstract LetterTrainingEngineSettingsDAO engineSettingsDAO();
+    public abstract SocraticTrainingSessionDAO trainingSessionDAO();
+    public abstract SocraticTrainingEngineSettingsDAO engineSettingsDAO();
     private static TheDatabase INSTANCE;
 
     public static TheDatabase getDatabase(final Context context) {

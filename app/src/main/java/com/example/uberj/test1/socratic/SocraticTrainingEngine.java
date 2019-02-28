@@ -1,7 +1,7 @@
-package com.example.uberj.test1.lettertraining;
+package com.example.uberj.test1.socratic;
 
 import com.example.uberj.test1.CWToneManager;
-import com.example.uberj.test1.storage.LetterTrainingEngineSettings;
+import com.example.uberj.test1.storage.SocraticTrainingEngineSettings;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
 
 import timber.log.Timber;
 
-public class LetterTrainingEngine {
+public class SocraticTrainingEngine {
     private static final int MISSED_LETTER_POINTS_REMOVED = 10;
     private static final int CORRECT_LETTER_POINTS_ADDED = 2;
 
@@ -40,7 +40,7 @@ public class LetterTrainingEngine {
     private final Map<String, Integer> competencyWeights;
     private final List<String> letterOrder;
 
-    public LetterTrainingEngine(List<String> letterOrder, int wpm, Consumer<String> letterChosenCallback, List<String> playableKeys, @Nonnull Map<String, Integer> competencyWeights) {
+    public SocraticTrainingEngine(List<String> letterOrder, int wpm, Consumer<String> letterChosenCallback, List<String> playableKeys, @Nonnull Map<String, Integer> competencyWeights) {
         this.letterOrder = letterOrder;
         this.letterChosenCallback = letterChosenCallback;
         this.cwToneManager = new CWToneManager(wpm);
@@ -230,8 +230,8 @@ public class LetterTrainingEngine {
         return Optional.of(this.playableKeys);
     }
 
-    public LetterTrainingEngineSettings getSettings() {
-        LetterTrainingEngineSettings engineSettings = new LetterTrainingEngineSettings();
+    public SocraticTrainingEngineSettings getSettings() {
+        SocraticTrainingEngineSettings engineSettings = new SocraticTrainingEngineSettings();
         engineSettings.weights = competencyWeights;
         engineSettings.activeLetters = playableKeys;
         engineSettings.playLetterWPM = playLetterWPM;
