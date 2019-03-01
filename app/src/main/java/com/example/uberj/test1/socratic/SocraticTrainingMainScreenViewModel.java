@@ -1,4 +1,4 @@
-package com.example.uberj.test1.training;
+package com.example.uberj.test1.socratic;
 
 import android.app.Application;
 
@@ -13,10 +13,10 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
-public class LetterTrainingMainScreenViewModel extends AndroidViewModel {
+public class SocraticTrainingMainScreenViewModel extends AndroidViewModel {
     private final Repository repository;
 
-    public LetterTrainingMainScreenViewModel(@NonNull Application application) {
+    public SocraticTrainingMainScreenViewModel(@NonNull Application application) {
         super(application);
         repository = new Repository(application);
     }

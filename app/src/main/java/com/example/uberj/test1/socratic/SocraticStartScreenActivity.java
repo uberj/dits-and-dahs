@@ -1,9 +1,9 @@
-package com.example.uberj.test1.training;
+package com.example.uberj.test1.socratic;
 
 import com.example.uberj.test1.R;
-import com.example.uberj.test1.socratic.SocraticKeyboardSessionActivity;
 import com.example.uberj.test1.socratic.storage.SocraticTrainingEngineSettings;
 import com.example.uberj.test1.socratic.storage.SocraticSessionType;
+import com.example.uberj.test1.training.DialogFragmentProvider;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
@@ -33,7 +33,7 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
-public abstract class BaseStartScreenActivity extends AppCompatActivity implements DialogFragmentProvider {
+public abstract class SocraticStartScreenActivity extends AppCompatActivity implements DialogFragmentProvider {
     private static final int KEYBOARD_REQUEST_CODE = 0;
 
     /**
@@ -55,7 +55,7 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.letter_training_start_screen_container);
+        setContentView(R.layout.base_session_training_start_screen_container);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -135,7 +135,7 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main4, container, false);
+            View rootView = inflater.inflate(R.layout.base_start_screen_placeholder, container, false);
             TextView textView = rootView.findViewById(R.id.section_label);
             textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
             return rootView;
@@ -177,7 +177,7 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
         private NumberPicker minutesPicker;
         private NumberPicker wpmPicker;
         private CheckBox resetLetterWeights;
-        private LetterTrainingMainScreenViewModel sessionViewModel;
+        private SocraticTrainingMainScreenViewModel sessionViewModel;
         private Class<? extends FragmentActivity> sessionActivityClass;
         private SocraticSessionType sessionType;
 
@@ -211,7 +211,7 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
                 sessionType = SocraticSessionType.valueOf(savedInstanceState.getString("sessionType"));
             }
 
-            View rootView = inflater.inflate(R.layout.letter_training_start_screen_fragment, container, false);
+            View rootView = inflater.inflate(R.layout.socratic_training_start_screen_fragment, container, false);
             ImageView helpWPM = rootView.findViewById(R.id.wpmhelp);
             helpWPM.setOnClickListener((l) -> {
                 DialogFragmentProvider provider = (DialogFragmentProvider) getActivity();
@@ -224,7 +224,7 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
             minutesPicker = rootView.findViewById(R.id.number_picker_minutes);
             wpmPicker = rootView.findViewById(R.id.wpm_number_picker);
             resetLetterWeights = rootView.findViewById(R.id.reset_weights);
-            sessionViewModel = ViewModelProviders.of(this).get(LetterTrainingMainScreenViewModel.class);
+            sessionViewModel = ViewModelProviders.of(this).get(SocraticTrainingMainScreenViewModel.class);
             sessionViewModel.getLatestEngineSettings(sessionType).observe(this, (mostRecentSettings) -> {
                 int playLetterWPM = -1;
                 long prevDurationRequestedMillis = -1L;
@@ -268,7 +268,7 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
     public abstract Class<? extends FragmentActivity> getSessionActivityClass();
 
     public static class NumbersScreenFragment extends Fragment  {
-        private LetterTrainingMainScreenViewModel sessionViewModel;
+        private SocraticTrainingMainScreenViewModel sessionViewModel;
         private SocraticSessionType sessionType;
 
         public static NumbersScreenFragment newInstance(SocraticSessionType sessionType) {
@@ -295,8 +295,8 @@ public abstract class BaseStartScreenActivity extends AppCompatActivity implemen
                 sessionType = SocraticSessionType.valueOf(savedInstanceState.getString("sessionType"));
             }
 
-            View rootView = inflater.inflate(R.layout.letter_training_numbers_screen_fragment, container, false);
-            sessionViewModel = ViewModelProviders.of(this).get(LetterTrainingMainScreenViewModel.class);
+            View rootView = inflater.inflate(R.layout.socratic_training_numbers_screen_fragment, container, false);
+            sessionViewModel = ViewModelProviders.of(this).get(SocraticTrainingMainScreenViewModel.class);
             sessionViewModel.getLatestSession(sessionType).observe(this, (mostRecentSession) -> {
                 float wpmAverage = -1;
                 float errorRate = -1;
