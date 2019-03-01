@@ -25,4 +25,7 @@ public class TranscribeTrainingEngineSettings {
 
     @NonNull
     public String sessionType;
+
+    @NonNull
+    public List<String> selectedStrings;
 }

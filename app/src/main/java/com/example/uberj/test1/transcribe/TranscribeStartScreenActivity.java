@@ -8,7 +8,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,10 +16,17 @@ import com.example.uberj.test1.training.DialogFragmentProvider;
 import com.example.uberj.test1.transcribe.storage.TranscribeSessionType;
 import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettings;
 import com.google.android.material.tabs.TabLayout;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -174,10 +180,10 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
     public static class StartScreenFragment extends Fragment  {
         private NumberPicker minutesPicker;
         private NumberPicker wpmPicker;
-        private CheckBox resetLetterWeights;
         private TranscribeTrainingMainScreenViewModel sessionViewModel;
         private Class<? extends FragmentActivity> sessionActivityClass;
         private TranscribeSessionType sessionType;
+        private TextView selectedStringsContainer;
 
 
         public static StartScreenFragment newInstance(TranscribeSessionType sessionType, Class<? extends FragmentActivity> sessionActivityClass) {
@@ -203,13 +209,39 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             super.onSaveInstanceState(outState);
         }
 
+        public void showIncludedLetterPicker(View v) {
+            // setup the alert builder
+            AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());
+            builder.setTitle("Choose some animals");
+
+            List<String> possibleStrings = getTranscribeActivity().getPossibleStrings();
+            boolean[] selectedStringsBooleanMap = sessionViewModel.selectedStringsBooleanMap.getValue();
+            builder.setMultiChoiceItems(possibleStrings.toArray(new String[]{}), selectedStringsBooleanMap, (dialog, which, isChecked) -> {
+                // user checked or unchecked a box
+                selectedStringsBooleanMap[which] = isChecked;
+            });
+
+            builder.setPositiveButton("OK", (dialog, which) -> {
+                // user clicked OK
+                sessionViewModel.selectedStrings.setValue(booleanMapToSelectedStrings(getTranscribeActivity().getPossibleStrings(), selectedStringsBooleanMap));
+                sessionViewModel.selectedStringsBooleanMap.setValue(selectedStringsBooleanMap);
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+
+        private TranscribeStartScreenActivity getTranscribeActivity() {
+            return ((TranscribeStartScreenActivity)getActivity());
+        }
+
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             if (savedInstanceState != null) {
                 sessionType = TranscribeSessionType.valueOf(savedInstanceState.getString("sessionType"));
             }
 
-            View rootView = inflater.inflate(R.layout.socratic_training_start_screen_fragment, container, false);
+            View rootView = inflater.inflate(R.layout.transcribe_training_start_screen_fragment, container, false);
             ImageView helpWPM = rootView.findViewById(R.id.wpmhelp);
             helpWPM.setOnClickListener((l) -> {
                 DialogFragmentProvider provider = (DialogFragmentProvider) getActivity();
@@ -218,18 +250,32 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                 dialog.show(supportFragmentManager, dialog.getTag());
             });
 
+            TextView changeLetters = rootView.findViewById(R.id.change_included_letters);
+            changeLetters.setOnClickListener(this::showIncludedLetterPicker);
+
 
             minutesPicker = rootView.findViewById(R.id.number_picker_minutes);
             wpmPicker = rootView.findViewById(R.id.wpm_number_picker);
-            resetLetterWeights = rootView.findViewById(R.id.reset_weights);
+            selectedStringsContainer = rootView.findViewById(R.id.selected_strings);
             sessionViewModel = ViewModelProviders.of(this).get(TranscribeTrainingMainScreenViewModel.class);
+
+            sessionViewModel.selectedStrings.observe(this, (updatedSelectedStrings) -> {
+                if (updatedSelectedStrings == null) {
+                    return;
+                }
+                sessionViewModel.selectedStringsBooleanMap.setValue(selectedStringsToBooleanMap(updatedSelectedStrings));
+                selectedStringsContainer.setText(Joiner.on(", ").join(updatedSelectedStrings));
+            });
+
             sessionViewModel.getLatestEngineSettings(sessionType).observe(this, (mostRecentSettings) -> {
                 int playLetterWPM = -1;
                 long prevDurationRequestedMillis = -1L;
+                List<String> prevSelectedLetters = null;
                 if (!mostRecentSettings.isEmpty()) {
                     TranscribeTrainingEngineSettings engineSettings = mostRecentSettings.get(0);
                     playLetterWPM = engineSettings.playLetterWPM;
                     prevDurationRequestedMillis = engineSettings.durationRequestedMillis;
+                    prevSelectedLetters = engineSettings.selectedStrings;
                 }
 
                 if (playLetterWPM > 0) {
@@ -244,6 +290,15 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                 } else {
                     minutesPicker.setProgress(1);
                 }
+
+                List<String> selectedStrings;
+                if (prevSelectedLetters == null) {
+                    selectedStrings = getTranscribeActivity().initialSelectedStrings();
+                } else {
+                    selectedStrings = prevSelectedLetters;
+                }
+
+                sessionViewModel.selectedStrings.setValue(selectedStrings);
             });
 
             Button startButton = rootView.findViewById(R.id.start_button);
@@ -254,13 +309,41 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                 bundle.putInt(TranscribeKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
                 sendIntent.putExtras(bundle);
                 startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);
-                resetLetterWeights.setChecked(false);
             });
 
             return rootView;
         }
 
+        private boolean[] selectedStringsToBooleanMap(List<String> selectedLetters) {
+            List<String> possibleStrings = getTranscribeActivity().getPossibleStrings();
+            boolean[] lettersMap = new boolean[possibleStrings.size()];
+            String possible;
+            for (int i = 0; i < possibleStrings.size(); i++) {
+                 possible = possibleStrings.get(i);
+                 lettersMap[i] = selectedLetters.contains(possible);
+            }
+
+            return lettersMap;
+        }
+
+        private List<String> booleanMapToSelectedStrings(List<String> possibleStrings, boolean[] selectedStringsBooleanMap) {
+            ArrayList<String> selectedStrings = Lists.newArrayList();
+            for (int i = 0; i < selectedStringsBooleanMap.length; i++) {
+                boolean selected = selectedStringsBooleanMap[i];
+                if (selected) {
+                    selectedStrings.add(possibleStrings.get(i));
+                }
+            }
+
+            return selectedStrings;
+        }
+
+
     }
+
+    protected abstract List<String> initialSelectedStrings();
+
+    protected abstract List<String> getPossibleStrings();
 
     public abstract Class<? extends FragmentActivity> getSessionActivityClass();
 

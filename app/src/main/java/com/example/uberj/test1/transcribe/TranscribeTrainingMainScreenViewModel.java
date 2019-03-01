@@ -7,14 +7,18 @@ import com.example.uberj.test1.transcribe.storage.TranscribeSessionType;
 import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettings;
 import com.example.uberj.test1.transcribe.storage.TranscribeTrainingSession;
 
+import java.net.HttpCookie;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 class TranscribeTrainingMainScreenViewModel extends AndroidViewModel {
     private final Repository repository;
+    public final MutableLiveData<List<String>> selectedStrings = new MutableLiveData<>(null);
+    public final MutableLiveData<boolean[]> selectedStringsBooleanMap = new MutableLiveData<>(null);
 
     public TranscribeTrainingMainScreenViewModel(@NonNull Application application) {
         super(application);
