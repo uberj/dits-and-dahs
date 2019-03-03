@@ -24,10 +24,10 @@ public class TranscribeTrainingSession {
     public Boolean completed;
 
     @NonNull
-    public float wpmAverage;
+    public float errorRate;
 
     @NonNull
-    public float errorRate;
+    public Long playbackWpm;
 
     @NonNull
     public String sessionType;

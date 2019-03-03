@@ -50,7 +50,7 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
 
     private DynamicKeyboard keyboard;
 
-    private SocraticLetterTrainingSessionViewModel viewModel;
+    private SocraticTrainingSessionViewModel viewModel;
 
     public static ArrayList<View> getViewsByTag(ViewGroup root, String tag) {
         ArrayList<View> views = new ArrayList<View>();
@@ -188,14 +188,14 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
         int wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
 
         viewModel = ViewModelProviders.of(this,
-                new SocraticLetterTrainingSessionViewModel.Factory(
+                new SocraticTrainingSessionViewModel.Factory(
                         this.getApplication(),
                         resetWeights,
                         durationMinutesRequested,
                         wpmRequested,
                         getSessionType(),
                         getSessionKeys())
-        ).get(SocraticLetterTrainingSessionViewModel.class);
+        ).get(SocraticTrainingSessionViewModel.class);
 
         viewModel.getLatestEngineSetting().observe(this, (prevSettings) -> {
             SocraticTrainingEngineSettings settings;

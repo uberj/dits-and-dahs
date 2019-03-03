@@ -3,6 +3,7 @@ package com.example.uberj.test1.transcribe;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.inputmethodservice.Keyboard;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,15 +17,20 @@ import com.example.uberj.test1.keyboards.Keys;
 import com.example.uberj.test1.transcribe.storage.TranscribeSessionType;
 import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettings;
 
+import java.util.ArrayList;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
 
+import static com.example.uberj.test1.socratic.SocraticKeyboardSessionActivity.DISABLED_BUTTON_ALPHA;
+
 public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivity implements Keys, DialogInterface.OnDismissListener {
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
     public static final String WPM_REQUESTED = "wpm-requested";
     public static final String FARNSWORTH_SPACES = "farnsworth-spaces";
+    public static final String STRINGS_REQUESTED = "strings-requested";
 
     private TranscribeTrainingSessionViewModel viewModel;
     private DynamicKeyboard keyboard;
@@ -42,13 +48,15 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
 
         int durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
         int wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
-        int fransworthSpaces = receiveBundle.getInt(FARNSWORTH_SPACES);
+        int fransworth = receiveBundle.getInt(FARNSWORTH_SPACES);
+        ArrayList<String> stringsRequested = receiveBundle.getStringArrayList(STRINGS_REQUESTED);
         viewModel = ViewModelProviders.of(this,
                 new TranscribeTrainingSessionViewModel.Factory(
                         this.getApplication(),
                         durationMinutesRequested,
                         wpmRequested,
-                        fransworthSpaces,
+                        stringsRequested,
+                        fransworth,
                         getSessionType(),
                         this)
         ).get(TranscribeTrainingSessionViewModel.class);
@@ -70,6 +78,10 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
                     .setButtonOnClickListener(this::keyboardButtonClicked)
                     .setButtonLongClickListener(this::playableKeyLongClickHandler)
                     .setButtonCallback((button) -> {
+                        assert stringsRequested != null;
+                        if (!stringsRequested.contains(button.getText().toString())) {
+                            button.setAlpha(DISABLED_BUTTON_ALPHA);
+                        }
                     })
                     .build();
             keyboard.buildAtRoot();

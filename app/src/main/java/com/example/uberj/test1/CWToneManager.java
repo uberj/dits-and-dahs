@@ -2,20 +2,16 @@ package com.example.uberj.test1;
 
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
-import android.media.AudioManager;
 import android.media.AudioTrack;
-import android.util.Log;
 
 import com.google.common.collect.ImmutableMap;
 
-import java.util.Arrays;
-
-import kotlin.NotImplementedError;
 import timber.log.Timber;
 
 public class CWToneManager {
-    private final int wpm;
     private static final int sampleRateHz = 44100;
+    private static int freqOfToneHz = 440;
+    private static int silenceSymbolsAfterDitDah = 1;
 
     private static final ImmutableMap<String, String> LETTER_DEFINITIONS = ImmutableMap.<String, String>builder()
             .put("A", ".-")
@@ -63,11 +59,10 @@ public class CWToneManager {
             .build();
 
 
-    private static int freqOfToneHz = 440;
-    private static int silenceSymbolsAfterDitDah = 1;
-    private static int farnsworthWordConstant = 1;
     private final AudioTrack player;
     private final int minBufferSize;
+    private final int wpm;
+    private final int farnsworth;
 
     /*
         16 = 1 + 7 + 7 + 1 = .--.
@@ -82,7 +77,7 @@ public class CWToneManager {
     -------------------
        50 (symbols in "paris"
      */
-    public static byte[] buildSnd(int wpm, String s) {
+    public byte[] buildSnd(int wpm, String s) {
         PCMDetails pcmDetails = calcPCMDetails(wpm, s);
         double rawSnd[] = new double[pcmDetails.totalNumberSamples];
 
@@ -126,8 +121,12 @@ public class CWToneManager {
         return pcmConvert(rawSnd);
     }
 
-    public static long baudToMillis(int farnsworthSpaces) {
-        throw new NotImplementedError("derp");
+    private long symbolCountToMillis(int numSymbols) {
+        return (long) (getSymbolsPerSecond(wpm) * numSymbols * 1000);
+    }
+
+    public long spaceToMillisWithFarnsworthScale() {
+        return symbolCountToMillis(farnsworth);
     }
 
 
@@ -146,7 +145,7 @@ public class CWToneManager {
         return calcPCMDetails(wpm, ditDah);
     }
 
-    private static PCMDetails calcPCMDetails(int wpm, String s) {
+    private PCMDetails calcPCMDetails(int wpm, String s) {
         // calculate number of symbols
         int totalNumSymbols = 0;
         for (int i = 0; i < s.length(); i++) {
@@ -157,7 +156,7 @@ public class CWToneManager {
             }
         }
 
-        float symbolsPerSecond = (wpm * 50f) / 60f;
+        float symbolsPerSecond = getSymbolsPerSecond(wpm);
         float symbolDuration = 1 / symbolsPerSecond;
         int numSamplesPerSymbol = (int) (symbolDuration * sampleRateHz);
 
@@ -168,6 +167,10 @@ public class CWToneManager {
         pcmDetails.totalNumberSymbols = totalNumSymbols;
         pcmDetails.totalNumberSamples = totalNumSamples;
         return pcmDetails;
+    }
+
+    private static float getSymbolsPerSecond(int wpm) {
+        return (wpm * 50f) / 60f;
     }
 
     private static byte[] pcmConvert(double[] rawSnd) {
@@ -233,15 +236,16 @@ public class CWToneManager {
             case '/':
                 return 3;
             case ' ':
-                return farnsworthWordConstant * 7;
+                return 7;
             default:
                 throw new RuntimeException("Unhandled char case " + c);
 
         }
     }
 
-    public CWToneManager(int wpm) {
+    public CWToneManager(int wpm, int farnsworth) {
         this.wpm = wpm;
+        this.farnsworth = farnsworth;
 
         int channelOutStereo = AudioFormat.CHANNEL_OUT_MONO;
         int encoding = AudioFormat.ENCODING_PCM_16BIT;
@@ -260,6 +264,10 @@ public class CWToneManager {
                 .build();
         player.play();
 
+    }
+
+    public CWToneManager(int wpm) {
+        this(wpm, 1);
     }
 
     public void destroy() {

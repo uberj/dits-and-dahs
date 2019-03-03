@@ -24,7 +24,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import timber.log.Timber;
 
-class SocraticLetterTrainingSessionViewModel extends AndroidViewModel {
+class SocraticTrainingSessionViewModel extends AndroidViewModel {
     private static final String sessionStartLock = "Lock";
     private final Repository repository;
 
@@ -47,7 +47,7 @@ class SocraticLetterTrainingSessionViewModel extends AndroidViewModel {
     private long endTimeEpocMillis = -1;
     private SocraticTrainingEngine engine;
 
-    public SocraticLetterTrainingSessionViewModel(@NonNull Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, SocraticSessionType sessionType, Keys keys) {
+    public SocraticTrainingSessionViewModel(@NonNull Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, SocraticSessionType sessionType, Keys keys) {
         super(application);
         this.resetWeights = resetWeights;
         this.durationMinutesRequested = durationMinutesRequested;
@@ -79,7 +79,7 @@ class SocraticLetterTrainingSessionViewModel extends AndroidViewModel {
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
-            return (T) new SocraticLetterTrainingSessionViewModel(application, resetWeights, durationMinutesRequested, wpmRequested, sessionType, keys);
+            return (T) new SocraticTrainingSessionViewModel(application, resetWeights, durationMinutesRequested, wpmRequested, sessionType, keys);
         }
     }
 

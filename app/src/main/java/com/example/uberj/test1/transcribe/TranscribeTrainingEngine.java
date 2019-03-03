@@ -1,6 +1,7 @@
 package com.example.uberj.test1.transcribe;
 
 import com.example.uberj.test1.CWToneManager;
+import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettings;
 
 import java.util.List;
 
@@ -19,9 +20,9 @@ class TranscribeTrainingEngine {
     private Thread audioThread;
     private boolean engineIsStarted = false;
 
-    public TranscribeTrainingEngine(int wpmRequested, int farnsworthSpaces, List<String> inPlayLetters) {
+    public TranscribeTrainingEngine(int wpmRequested, int farnsworth, List<String> inPlayLetters) {
         this.inPlayLetters = inPlayLetters;
-        this.cwToneManager = new CWToneManager(wpmRequested);
+        this.cwToneManager = new CWToneManager(wpmRequested, farnsworth);
         this.audioLoop = () -> {
             try {
                 while (Thread.currentThread() == audioThread) {
@@ -41,7 +42,9 @@ class TranscribeTrainingEngine {
                     // start the callback timer to play again
 
                     synchronized (farnsworthPause) {
-                        farnsworthPause.wait(CWToneManager.baudToMillis(farnsworthSpaces));
+                        long millis = cwToneManager.spaceToMillisWithFarnsworthScale();
+                        Timber.d("Waiting: " + millis);
+                        farnsworthPause.wait();
                     }
                 }
             } catch (InterruptedException e) {
@@ -54,7 +57,7 @@ class TranscribeTrainingEngine {
 
     private String nextLetter() {
         // TODO, put in spaces
-        return inPlayLetters.get(Random.Default.nextInt() % inPlayLetters.size());
+        return inPlayLetters.get(Math.abs(Random.Default.nextInt()) % inPlayLetters.size());
     }
 
     public void prime() {
@@ -93,5 +96,9 @@ class TranscribeTrainingEngine {
         audioThread.interrupt();
         audioThread = null;
         cwToneManager.destroy();
+    }
+
+    public TranscribeTrainingEngineSettings getSettings() {
+        return null;
     }
 }

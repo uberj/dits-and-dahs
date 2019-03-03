@@ -19,8 +19,6 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -298,15 +296,20 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                     selectedStrings = prevSelectedLetters;
                 }
 
-                sessionViewModel.selectedStrings.setValue(selectedStrings);
+                sessionViewModel.selectedStrings.setValue(Lists.newArrayList(selectedStrings));
             });
 
             Button startButton = rootView.findViewById(R.id.start_button);
             startButton.setOnClickListener(v -> {
                 Intent sendIntent = new Intent(rootView.getContext(), sessionActivityClass);
                 Bundle bundle = new Bundle();
+                bundle.putInt(TranscribeKeyboardSessionActivity.FARNSWORTH_SPACES, 3);
                 bundle.putInt(TranscribeKeyboardSessionActivity.WPM_REQUESTED, wpmPicker.getProgress());
                 bundle.putInt(TranscribeKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
+                bundle.putStringArrayList(
+                        TranscribeKeyboardSessionActivity.STRINGS_REQUESTED,
+                        sessionViewModel.selectedStrings.getValue()
+                );
                 sendIntent.putExtras(bundle);
                 startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);
             });
@@ -326,7 +329,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             return lettersMap;
         }
 
-        private List<String> booleanMapToSelectedStrings(List<String> possibleStrings, boolean[] selectedStringsBooleanMap) {
+        private ArrayList<String> booleanMapToSelectedStrings(List<String> possibleStrings, boolean[] selectedStringsBooleanMap) {
             ArrayList<String> selectedStrings = Lists.newArrayList();
             for (int i = 0; i < selectedStringsBooleanMap.length; i++) {
                 boolean selected = selectedStringsBooleanMap[i];
@@ -378,14 +381,13 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             View rootView = inflater.inflate(R.layout.socratic_training_numbers_screen_fragment, container, false);
             sessionViewModel = ViewModelProviders.of(this).get(TranscribeTrainingMainScreenViewModel.class);
             sessionViewModel.getLatestSession(sessionType).observe(this, (mostRecentSession) -> {
-                float wpmAverage = -1;
+                float playbackWpm = -1;
                 float errorRate = -1;
                 long prevDurationMillis = -1;
                 if (!mostRecentSession.isEmpty()) {
-                    wpmAverage = mostRecentSession.get(0).wpmAverage;
+                    playbackWpm = mostRecentSession.get(0).playbackWpm;
                     errorRate = mostRecentSession.get(0).errorRate;
                     prevDurationMillis = mostRecentSession.get(0).durationWorkedMillis;
-
                 }
 
                 long prevDurationMinutes = (prevDurationMillis / 1000) / 60;
@@ -397,7 +399,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                                 "N/A"
                 );
                 ((TextView) rootView.findViewById(R.id.prev_session_wpm_average)).setText(
-                        wpmAverage >= 0 ? String.format(Locale.ENGLISH, "%.2f", wpmAverage) : "N/A"
+                        playbackWpm >= 0 ? String.format(Locale.ENGLISH, "%.2f", playbackWpm) : "N/A"
                 );
                 ((TextView) rootView.findViewById(R.id.prev_session_error_rate)).setText(
                         errorRate >= 0 ? (int) (100 * errorRate) + "%" : "N/A"
