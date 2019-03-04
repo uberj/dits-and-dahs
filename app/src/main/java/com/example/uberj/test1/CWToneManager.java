@@ -61,8 +61,8 @@ public class CWToneManager {
 
     private final AudioTrack player;
     private final int minBufferSize;
-    private final int wpm;
-    private final int farnsworth;
+    private final int letterWpm;
+    private final double farnsworth;
 
     /*
         16 = 1 + 7 + 7 + 1 = .--.
@@ -84,7 +84,7 @@ public class CWToneManager {
         int sndIdx = 0;
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            int curNumberSymbols = numSymbols(c);
+            int curNumberSymbols = numSymbols(c, farnsworth);
             int numSamplesForCurSymbol = curNumberSymbols * pcmDetails.numSamplesPerSymbol;
 
             // fill out the array with symbol
@@ -96,7 +96,7 @@ public class CWToneManager {
                 int rampSamples = (int) (pcmDetails.numSamplesPerSymbol * 0.10); // 5% ramp up
 
                 for (int j = 0; j < rampSamples; j++) {
-                    rawSnd[sndIdx++] = ((float) j/(float) rampSamples) * Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
+                    rawSnd[sndIdx++] = ((double) j/(double) rampSamples) * Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
                 }
                 for (int j = rampSamples; j < numSamplesForCurSymbol - rampSamples; j++) {
                     rawSnd[sndIdx++] = Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
@@ -104,7 +104,7 @@ public class CWToneManager {
 
                 int x = rampSamples;
                 for (int j = numSamplesForCurSymbol - rampSamples; j < numSamplesForCurSymbol; j++) {
-                    rawSnd[sndIdx++] = ((float) x/(float) rampSamples) * Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
+                    rawSnd[sndIdx++] = ((double) x/(double) rampSamples) * Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
                     x--;
                 }
             }
@@ -122,11 +122,13 @@ public class CWToneManager {
     }
 
     private long symbolCountToMillis(int numSymbols) {
-        return (long) (getSymbolsPerSecond(wpm) * numSymbols * 1000);
+        double symbolsPerSecond = getSymbolsPerSecond(letterWpm);
+        return (long) ((1f / symbolsPerSecond) * numSymbols * 1000);
     }
 
-    public long spaceToMillisWithFarnsworthScale() {
-        return symbolCountToMillis(farnsworth);
+    public long wordSpaceToMillis() {
+        int numSymbols = numSymbols(' ', farnsworth);
+        return symbolCountToMillis(numSymbols);
     }
 
 
@@ -134,7 +136,7 @@ public class CWToneManager {
         public int totalNumberSymbols;
         public int totalNumberSamples;
         public int numSamplesPerSymbol;
-        public float symbolsPerSecond;
+        public double symbolsPerSecond;
     }
 
     public PCMDetails calcPCMDetails(String s) {
@@ -142,7 +144,7 @@ public class CWToneManager {
         if (ditDah == null) {
             throw new RuntimeException("Unknown letter " + s);
         }
-        return calcPCMDetails(wpm, ditDah);
+        return calcPCMDetails(letterWpm, ditDah);
     }
 
     private PCMDetails calcPCMDetails(int wpm, String s) {
@@ -150,14 +152,14 @@ public class CWToneManager {
         int totalNumSymbols = 0;
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            totalNumSymbols += numSymbols(c);
+            totalNumSymbols += numSymbols(c, farnsworth);
             if (!symbolIsSilent(c)) {
                 totalNumSymbols += silenceSymbolsAfterDitDah;
             }
         }
 
-        float symbolsPerSecond = getSymbolsPerSecond(wpm);
-        float symbolDuration = 1 / symbolsPerSecond;
+        double symbolsPerSecond = getSymbolsPerSecond(wpm);
+        double symbolDuration = 1 / symbolsPerSecond;
         int numSamplesPerSymbol = (int) (symbolDuration * sampleRateHz);
 
         int totalNumSamples = totalNumSymbols * numSamplesPerSymbol;
@@ -169,7 +171,7 @@ public class CWToneManager {
         return pcmDetails;
     }
 
-    private static float getSymbolsPerSecond(int wpm) {
+    private static double getSymbolsPerSecond(int wpm) {
         return (wpm * 50f) / 60f;
     }
 
@@ -203,7 +205,7 @@ public class CWToneManager {
         }
     }
 
-    public static float baud(int wpm) {
+    public static double baud(int wpm) {
         return (wpm * 50f) / 60f;
     }
 
@@ -214,7 +216,7 @@ public class CWToneManager {
     //  * 3 dits per dash
     //  * 7 dits per space
 
-    public static int numSymbols(String s) {
+    public static int numSymbolsForStringNoFarnsworth(String s) {
         int total = 0;
         String ditDahs = LETTER_DEFINITIONS.get(s);
         if (ditDahs == null) {
@@ -222,30 +224,29 @@ public class CWToneManager {
         }
 
         for (char c : ditDahs.toCharArray()) {
-            total+= numSymbols(c);
+            total+= numSymbols(c, 1);
         }
         return total;
     }
 
-    public static int numSymbols(char c) {
+    private static int numSymbols(char c, double farnsworth) {
         switch (c) {
             case '-':
                 return 3;
             case '.':
                 return 1;
             case '/':
-                return 3;
+                return (int) (3 * farnsworth);
             case ' ':
-                return 7;
+                return (int) (7 * farnsworth);
             default:
                 throw new RuntimeException("Unhandled char case " + c);
-
         }
     }
 
-    public CWToneManager(int wpm, int farnsworth) {
-        this.wpm = wpm;
-        this.farnsworth = farnsworth;
+    public CWToneManager(int letterWpm, int transmitWpm) {
+        this.letterWpm = letterWpm;
+        this.farnsworth = calcFarnsworth(letterWpm, transmitWpm);
 
         int channelOutStereo = AudioFormat.CHANNEL_OUT_MONO;
         int encoding = AudioFormat.ENCODING_PCM_16BIT;
@@ -263,11 +264,22 @@ public class CWToneManager {
                 .setBufferSizeInBytes(minBufferSize)
                 .build();
         player.play();
-
     }
 
-    public CWToneManager(int wpm) {
-        this(wpm, 1);
+    private double calcFarnsworth(int letterWpm, int transmitWpm) {
+        // letterwpm = 20
+        // transmitwpm = 20
+        // -> farnsworth = 1
+
+        // letterwpm = 20
+        // transmitwpm = 10
+        // -> farnsworth = 2
+
+        return (double) letterWpm / (double) transmitWpm;
+    }
+
+    public CWToneManager(int letterWpm) {
+        this(letterWpm, 1);
     }
 
     public void destroy() {
@@ -289,7 +301,7 @@ public class CWToneManager {
             throw new RuntimeException("No pattern found for letter: " + requestedMessage);
         }
 
-        byte[] generatedSnd = buildSnd(wpm, pattern);
+        byte[] generatedSnd = buildSnd(letterWpm, pattern);
         for (int i = 0; i < generatedSnd.length; i += minBufferSize) {
             int size;
             if (i + minBufferSize > generatedSnd.length) {

@@ -3,7 +3,6 @@ package com.example.uberj.test1.transcribe;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.inputmethodservice.Keyboard;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,9 +27,10 @@ import static com.example.uberj.test1.socratic.SocraticKeyboardSessionActivity.D
 
 public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivity implements Keys, DialogInterface.OnDismissListener {
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
-    public static final String WPM_REQUESTED = "wpm-requested";
+    public static final String LETTER_WPM_REQUESTED = "letter-wpm-requested";
     public static final String FARNSWORTH_SPACES = "farnsworth-spaces";
     public static final String STRINGS_REQUESTED = "strings-requested";
+    public static final String TRANSMIT_WPM_REQUESTED = "transmit-wpm-requested";
 
     private TranscribeTrainingSessionViewModel viewModel;
     private DynamicKeyboard keyboard;
@@ -47,14 +47,16 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
         setSupportActionBar(keyboardToolbar);
 
         int durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
-        int wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
+        int letterWpmRequested = receiveBundle.getInt(LETTER_WPM_REQUESTED);
+        int transmitWpmRequested = receiveBundle.getInt(TRANSMIT_WPM_REQUESTED);
         int fransworth = receiveBundle.getInt(FARNSWORTH_SPACES);
         ArrayList<String> stringsRequested = receiveBundle.getStringArrayList(STRINGS_REQUESTED);
         viewModel = ViewModelProviders.of(this,
                 new TranscribeTrainingSessionViewModel.Factory(
                         this.getApplication(),
                         durationMinutesRequested,
-                        wpmRequested,
+                        letterWpmRequested,
+                        transmitWpmRequested,
                         stringsRequested,
                         fransworth,
                         getSessionType(),

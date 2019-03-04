@@ -222,7 +222,7 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
     public void updateCompetencyWeights(String letter, boolean wasCorrectGuess) {
         if (wasCorrectGuess) {
             totalCorrectGuesses++;
-            totalAccurateSymbolsGuessed += CWToneManager.numSymbols(letter);
+            totalAccurateSymbolsGuessed += CWToneManager.numSymbolsForStringNoFarnsworth(letter);
         } else {
             totalIncorrectGuesses++;
         }

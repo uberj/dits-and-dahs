@@ -5,18 +5,45 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <it.sephiroth.android.library.numberpicker.NumberPicker
+        android:id="@+id/transmit-wpm-number-picker"
+        style="@style/NumberPicker.Outlined"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:progress="6"
+        app:layout_constraintBottom_toBottomOf="@+id/session-transmit-wpm"
+        app:layout_constraintEnd_toEndOf="@+id/number_picker_minutes"
+        app:layout_constraintStart_toStartOf="@+id/number_picker_minutes"
+        app:layout_constraintTop_toTopOf="@+id/session-transmit-wpm"
+        app:picker_max="100"
+        app:picker_min="5"
+        app:picker_orientation="vertical"
+        app:picker_stepSize="1"
+        app:picker_tracker="exponential" />
+
+    <TextView
+        android:id="@+id/session-transmit-wpm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:text="Transmitt WPM"
+        app:layout_constraintStart_toStartOf="@+id/stats-stopper"
+        app:layout_constraintTop_toTopOf="@+id/guideline18" />
+
     <TextView
         android:id="@+id/session-letter-wpm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="32dp"
         android:text="Letter WPM:"
         app:layout_constraintStart_toStartOf="@+id/stats-stopper"
-        app:layout_constraintTop_toTopOf="@+id/guideline18" />
+        app:layout_constraintTop_toBottomOf="@+id/session-transmit-wpm" />
 
     <it.sephiroth.android.library.numberpicker.NumberPicker
-        android:id="@+id/wpm-number-picker"
+        android:id="@+id/letter-wpm-number-picker"
         style="@style/NumberPicker.Outlined"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -87,7 +114,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.13" />
+        app:layout_constraintGuide_percent="0.17" />
 
     <ImageView
         android:id="@+id/wpmhelp"
@@ -116,7 +143,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="32dp"
         android:text="M, K, N, T"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline17"

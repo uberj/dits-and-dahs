@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools">
+
+
+    <TextView
+    android:id="@+id/prev-session-duration-title"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="8dp"
+    android:text="Duration:"
+    android:visibility="visible"
+    app:layout_constraintEnd_toStartOf="@+id/guideline17"
+    app:layout_constraintTop_toBottomOf="@+id/stats-title" />
+
+<TextView
+    android:id="@+id/prev-session-duration-time"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="8dp"
+    android:text="N/A"
+    android:visibility="visible"
+    app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-duration-title"
+    app:layout_constraintStart_toStartOf="@+id/guideline17" />
+
+<TextView
+    android:id="@+id/prev-session-wpm-title"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="8dp"
+    android:text="Playback WPM: "
+    android:visibility="visible"
+    app:layout_constraintEnd_toStartOf="@+id/guideline17"
+    app:layout_constraintTop_toBottomOf="@+id/prev-session-duration-title" />
+
+<TextView
+    android:id="@+id/prev-session-wpm-average"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="8dp"
+    android:text="N/A"
+    android:visibility="visible"
+    app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-wpm-title"
+    app:layout_constraintStart_toStartOf="@+id/guideline17" />
+
+<TextView
+    android:id="@+id/prev-session-error-rate-title"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="8dp"
+    android:text="Error Rate:"
+    android:visibility="visible"
+    app:layout_constraintEnd_toStartOf="@+id/guideline17"
+    app:layout_constraintTop_toBottomOf="@+id/prev-session-wpm-title" />
+
+<TextView
+    android:id="@+id/prev-session-error-rate"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="8dp"
+    android:text="N/A"
+    android:visibility="visible"
+    app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-error-rate-title"
+    app:layout_constraintStart_toStartOf="@+id/guideline17" />
+
+    <androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline17"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    app:layout_constraintGuide_percent="0.5" />
+
+<androidx.constraintlayout.widget.Guideline
+    android:id="@+id/guideline18"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    app:layout_constraintGuide_percent="0.2" />
+
+<TextView
+    android:id="@+id/stats-title"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="8dp"
+    android:text="Previous Session Numbers"
+    app:layout_constraintEnd_toStartOf="@+id/guideline17"
+    app:layout_constraintTop_toTopOf="@+id/guideline18" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

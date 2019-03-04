@@ -8,6 +8,7 @@ import com.example.uberj.test1.storage.Repository;
 import com.example.uberj.test1.transcribe.storage.TranscribeSessionType;
 import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettings;
 import com.example.uberj.test1.transcribe.storage.TranscribeTrainingSession;
+import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,8 @@ import timber.log.Timber;
 public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     private final Application application;
     private final int durationMinutesRequested;
-    private final int wpmRequested;
+    private final int letterWpmRequested;
+    private final int transmitWpmRequested;
     private final TranscribeSessionType sessionType;
     private final Keys keys;
     private final Repository repository;
@@ -36,12 +38,13 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     private static final String sessionStartLock = "lock";
     private long endTimeEpocMillis = -1;
 
-    public TranscribeTrainingSessionViewModel(@NonNull Application application, int durationMinutesRequested, ArrayList<String> stringsRequested, int wpmRequested, int farnsworth, TranscribeSessionType sessionType, Keys keys) {
+    public TranscribeTrainingSessionViewModel(@NonNull Application application, int durationMinutesRequested, ArrayList<String> stringsRequested, int letterWpmRequested, int transmitWpmRequested, int farnsworth, TranscribeSessionType sessionType, Keys keys) {
         super(application);
         this.repository = new Repository(application);
         this.application = application;
         this.durationMinutesRequested = durationMinutesRequested;
-        this.wpmRequested = wpmRequested;
+        this.letterWpmRequested = letterWpmRequested;
+        this.transmitWpmRequested = transmitWpmRequested;
         this.stringsReqested = stringsRequested;
         this.farnsworth = farnsworth;
         this.sessionType = sessionType;
@@ -53,29 +56,35 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     }
 
     public boolean isPaused() {
-        return false;
+        return engine.isPaused();
     }
 
     public void pause() {
+        countDownTimer.pause();
+        engine.pause();
     }
 
     public void resume() {
+        countDownTimer.resume();
+        engine.resume();
     }
 
     public static class Factory implements ViewModelProvider.Factory {
         private final Application application;
         private final int durationMinutesRequested;
-        private final int wpmRequested;
+        private final int letterWpmRequested;
+        private final int transmitWpmRequested;
         private final int fransworth;
         private final ArrayList<String> stringsRequested;
         private final TranscribeSessionType sessionType;
         private final Keys keys;
 
 
-        public Factory(Application application, int durationMinutesRequested, int wpmRequested, ArrayList<String> stringsRequested, int fransworth, TranscribeSessionType sessionType, Keys keys) {
+        public Factory(Application application, int durationMinutesRequested, int letterWpmRequested, int transmitWpmRequested, ArrayList<String> stringsRequested, int fransworth, TranscribeSessionType sessionType, Keys keys) {
             this.application = application;
             this.durationMinutesRequested = durationMinutesRequested;
-            this.wpmRequested = wpmRequested;
+            this.letterWpmRequested = letterWpmRequested;
+            this.transmitWpmRequested = transmitWpmRequested;
             this.fransworth = fransworth;
             this.stringsRequested = stringsRequested;
             this.sessionType = sessionType;
@@ -85,7 +94,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
-            return (T) new TranscribeTrainingSessionViewModel(application, durationMinutesRequested, stringsRequested, wpmRequested, fransworth, sessionType, keys);
+            return (T) new TranscribeTrainingSessionViewModel(application, durationMinutesRequested, stringsRequested, letterWpmRequested, transmitWpmRequested, fransworth, sessionType, keys);
         }
     }
 
@@ -95,7 +104,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
 
     public void primeTheEngine(TranscribeTrainingEngineSettings previousSettings) {
         countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
-        engine = new TranscribeTrainingEngine(wpmRequested, farnsworth, stringsReqested);
+        engine = new TranscribeTrainingEngine(letterWpmRequested, transmitWpmRequested, stringsReqested);
         engine.prime();
     }
 
@@ -139,12 +148,18 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         trainingSession.durationRequestedMillis = durationRequestedMillis;
         trainingSession.durationWorkedMillis = durationWorkedMillis;
         trainingSession.completed = durationWorkedMillis == 0;
+        trainingSession.transmitWpm = (long) transmitWpmRequested;
+        trainingSession.letterWpm = (long) letterWpmRequested;
         // TODO
         // trainingSession.errorRate = need to do transcribe analysis to do this one
+
         trainingSession.sessionType = sessionType.name();
         if (Float.isNaN(trainingSession.errorRate)) {
             trainingSession.errorRate = -1;
         }
+
+        trainingSession.playedKeys = Lists.newArrayList(); // TODO
+        trainingSession.enteredKeys = Lists.newArrayList(); // TODO
 
         repository.insertTranscribeTrainingSession(trainingSession);
 

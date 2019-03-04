@@ -27,7 +27,10 @@ public class TranscribeTrainingSession {
     public float errorRate;
 
     @NonNull
-    public Long playbackWpm;
+    public Long transmitWpm;
+
+    @NonNull
+    public Long letterWpm;
 
     @NonNull
     public String sessionType;

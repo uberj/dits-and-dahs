@@ -2,6 +2,8 @@ package com.example.uberj.test1;
 
 import android.content.Intent;
 import androidx.appcompat.app.AppCompatActivity;
+import timber.log.Timber;
+
 import android.os.Bundle;
 import android.widget.Button;
 
@@ -15,5 +17,11 @@ public class MainActivity extends AppCompatActivity {
         buttonTraining.setOnClickListener((view) -> {
             this.startActivity(new Intent(this, TrainingActivityList.class));
         });
+
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
+        } else {
+            Timber.plant(new ReleaseTree());
+        }
     }
 }

@@ -16,9 +16,14 @@ public class TranscribeTrainingEngineSettings {
     @NonNull
     public long createdAtEpocMillis;
 
+    @NonNull
     public List<String> activeLetters;
 
-    public int playLetterWPM;
+    @NonNull
+    public int letterWpmRequested;
+
+    @NonNull
+    public int transmitWpmRequested;
 
     @NonNull
     public Long durationRequestedMillis;

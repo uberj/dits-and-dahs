@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.uberj.test1.BuildConfig;
 import com.example.uberj.test1.R;
 import com.example.uberj.test1.training.DialogFragmentProvider;
 import com.example.uberj.test1.transcribe.storage.TranscribeSessionType;
@@ -34,6 +35,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 import it.sephiroth.android.library.numberpicker.NumberPicker;
+import timber.log.Timber;
 
 public abstract class TranscribeStartScreenActivity extends AppCompatActivity implements DialogFragmentProvider {
     private static final int KEYBOARD_REQUEST_CODE = 0;
@@ -71,6 +73,9 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+
+        // Remove this after debug
+        Timber.plant(new Timber.DebugTree());
     }
 
     protected abstract TranscribeSessionType getSessionType();
@@ -177,7 +182,8 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
 
     public static class StartScreenFragment extends Fragment  {
         private NumberPicker minutesPicker;
-        private NumberPicker wpmPicker;
+        private NumberPicker letterWpmNumberPicker;
+        private NumberPicker transmitWpmNumberPicker;
         private TranscribeTrainingMainScreenViewModel sessionViewModel;
         private Class<? extends FragmentActivity> sessionActivityClass;
         private TranscribeSessionType sessionType;
@@ -253,7 +259,8 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
 
 
             minutesPicker = rootView.findViewById(R.id.number_picker_minutes);
-            wpmPicker = rootView.findViewById(R.id.wpm_number_picker);
+            letterWpmNumberPicker = rootView.findViewById(R.id.letter_wpm_number_picker);
+            transmitWpmNumberPicker = rootView.findViewById(R.id.transmit_wpm_number_picker);
             selectedStringsContainer = rootView.findViewById(R.id.selected_strings);
             sessionViewModel = ViewModelProviders.of(this).get(TranscribeTrainingMainScreenViewModel.class);
 
@@ -266,20 +273,28 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             });
 
             sessionViewModel.getLatestEngineSettings(sessionType).observe(this, (mostRecentSettings) -> {
-                int playLetterWPM = -1;
+                int letterWpm = -1;
+                int transmitWpm = -1;
                 long prevDurationRequestedMillis = -1L;
                 List<String> prevSelectedLetters = null;
                 if (!mostRecentSettings.isEmpty()) {
                     TranscribeTrainingEngineSettings engineSettings = mostRecentSettings.get(0);
-                    playLetterWPM = engineSettings.playLetterWPM;
+                    letterWpm = engineSettings.letterWpmRequested;
+                    transmitWpm = engineSettings.transmitWpmRequested;
                     prevDurationRequestedMillis = engineSettings.durationRequestedMillis;
                     prevSelectedLetters = engineSettings.selectedStrings;
                 }
 
-                if (playLetterWPM > 0) {
-                    wpmPicker.setProgress(playLetterWPM);
+                if (letterWpm > 0) {
+                    letterWpmNumberPicker.setProgress(letterWpm);
                 } else {
-                    wpmPicker.setProgress(20);
+                    letterWpmNumberPicker.setProgress(20);
+                }
+
+                if (transmitWpm > 0) {
+                    transmitWpmNumberPicker.setProgress(letterWpm);
+                } else {
+                    transmitWpmNumberPicker.setProgress(6);
                 }
 
                 if (prevDurationRequestedMillis > 0) {
@@ -304,7 +319,8 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                 Intent sendIntent = new Intent(rootView.getContext(), sessionActivityClass);
                 Bundle bundle = new Bundle();
                 bundle.putInt(TranscribeKeyboardSessionActivity.FARNSWORTH_SPACES, 3);
-                bundle.putInt(TranscribeKeyboardSessionActivity.WPM_REQUESTED, wpmPicker.getProgress());
+                bundle.putInt(TranscribeKeyboardSessionActivity.LETTER_WPM_REQUESTED, letterWpmNumberPicker.getProgress());
+                bundle.putInt(TranscribeKeyboardSessionActivity.TRANSMIT_WPM_REQUESTED, transmitWpmNumberPicker.getProgress());
                 bundle.putInt(TranscribeKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
                 bundle.putStringArrayList(
                         TranscribeKeyboardSessionActivity.STRINGS_REQUESTED,
@@ -378,14 +394,12 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                 sessionType = TranscribeSessionType.valueOf(savedInstanceState.getString("sessionType"));
             }
 
-            View rootView = inflater.inflate(R.layout.socratic_training_numbers_screen_fragment, container, false);
+            View rootView = inflater.inflate(R.layout.transcribe_training_numbers_screen_fragment, container, false);
             sessionViewModel = ViewModelProviders.of(this).get(TranscribeTrainingMainScreenViewModel.class);
             sessionViewModel.getLatestSession(sessionType).observe(this, (mostRecentSession) -> {
-                float playbackWpm = -1;
                 float errorRate = -1;
                 long prevDurationMillis = -1;
                 if (!mostRecentSession.isEmpty()) {
-                    playbackWpm = mostRecentSession.get(0).playbackWpm;
                     errorRate = mostRecentSession.get(0).errorRate;
                     prevDurationMillis = mostRecentSession.get(0).durationWorkedMillis;
                 }
@@ -397,9 +411,6 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                         prevDurationMinutes >= 0 && prevDurationSeconds >= 0 ?
                                 String.format(Locale.ENGLISH, "%02d:%02d", prevDurationMinutes, prevDurationSeconds) :
                                 "N/A"
-                );
-                ((TextView) rootView.findViewById(R.id.prev_session_wpm_average)).setText(
-                        playbackWpm >= 0 ? String.format(Locale.ENGLISH, "%.2f", playbackWpm) : "N/A"
                 );
                 ((TextView) rootView.findViewById(R.id.prev_session_error_rate)).setText(
                         errorRate >= 0 ? (int) (100 * errorRate) + "%" : "N/A"
