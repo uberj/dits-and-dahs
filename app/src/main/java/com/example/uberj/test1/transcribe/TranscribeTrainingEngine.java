@@ -39,7 +39,8 @@ class TranscribeTrainingEngine {
     private boolean isPaused;
     private Thread audioThread;
     private boolean engineIsStarted = false;
-    private int lettersLeftInGroup = -1;
+    private int lettersLeftInGroup = LENGTH_DISTRIBUTION.sample();
+    private boolean awaitingShutdown = false;
 
     public TranscribeTrainingEngine(int letterWpmRequested, int transmitWpmRequested, List<String> inPlayLetters) {
         this.inPlayLetters = inPlayLetters;
@@ -56,14 +57,18 @@ class TranscribeTrainingEngine {
                     }
 
                     // play next letter
-                    if (audioThreadKeepAlive) {
+                    if (!awaitingShutdown && audioThreadKeepAlive) {
                         String currentLetter = nextLetter();
                         Timber.d("Playing letter: '%s'", currentLetter);
                         cwToneManager.playLetter(currentLetter);
                     }
 
-                    // start the callback timer to play again
+                    // The session is ending soon
+                    if (awaitingShutdown) {
+                        return;
+                    }
 
+                    // start the callback timer to play again
                     synchronized (farnsworthPause) {
                         long millis = cwToneManager.wordSpaceToMillis();
                         System.out.println("Waiting: " + millis);
@@ -126,9 +131,12 @@ class TranscribeTrainingEngine {
     }
 
     public void destroy() {
+        if (!audioThreadKeepAlive) throw new AssertionError("Trying to destroy an already destroyed engine");
         audioThreadKeepAlive = false;
-        audioThread.interrupt();
-        audioThread = null;
+        if (audioThread != null && audioThread.isAlive() && !audioThread.isInterrupted()) {
+            audioThread.interrupt();
+            audioThread = null;
+        }
         cwToneManager.destroy();
     }
 
@@ -139,5 +147,9 @@ class TranscribeTrainingEngine {
         settings.activeLetters = inPlayLetters;
         settings.selectedStrings = inPlayLetters;
         return settings;
+    }
+
+    public void prepareForShutdown() {
+        awaitingShutdown = true;
     }
 }
