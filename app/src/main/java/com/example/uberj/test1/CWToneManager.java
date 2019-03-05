@@ -229,6 +229,15 @@ public class CWToneManager {
         return total;
     }
 
+    /*
+        baud(w) = symbols per second at $w words per minute
+        baud(w) = number of times paris is played in a minute
+        baud(w) = (w * 50 + (w - 1) * 7) / 60 seconds
+        baud(w) = (w * 50 + w * 7 - 7) / 60
+        baud(w) = (w * 57 - 7) / 60
+        baud = lambda(w): w * (57.0/60) - (7.0/60)
+     */
+
     private static int numSymbols(char c, double farnsworth) {
         switch (c) {
             case '-':
@@ -236,7 +245,7 @@ public class CWToneManager {
             case '.':
                 return 1;
             case '/':
-                return (int) (3 * farnsworth);
+                return (int) (3 * farnsworth * 0.7f);
             case ' ':
                 return (int) (7 * farnsworth);
             default:
@@ -275,7 +284,9 @@ public class CWToneManager {
         // transmitwpm = 10
         // -> farnsworth = 2
 
-        return (double) letterWpm / (double) transmitWpm;
+        double f = (double) letterWpm / (double) transmitWpm;
+        if (f < 1) throw new AssertionError("Farnsworth must be equal or above 1");
+        return f;
     }
 
     public CWToneManager(int letterWpm) {

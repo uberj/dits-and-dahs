@@ -14,17 +14,17 @@ import timber.log.Timber;
 
 class TranscribeTrainingEngine {
     private static final EnumeratedDistribution<Integer> LENGTH_DISTRIBUTION = new EnumeratedDistribution<>(ImmutableList.of(
-            Pair.create(2, 2D),
-            Pair.create(3, 5D),
-            Pair.create(4, 10D),
-            Pair.create(5, 20D),
-            Pair.create(6, 20D),
-            Pair.create(7, 20D),
-            Pair.create(8, 15D),
-            Pair.create(9, 15D),
-            Pair.create(10, 10D),
-            Pair.create(11, 5D),
-            Pair.create(12, 5D)
+            Pair.create(2, 3D),
+            Pair.create(3, 4D),
+            Pair.create(4, 5D),
+            Pair.create(5, 5D),
+            Pair.create(6, 5D),
+            Pair.create(7, 5D),
+            Pair.create(8, 3D),
+            Pair.create(9, 3D),
+            Pair.create(10, 1D),
+            Pair.create(11, 1D),
+            Pair.create(12, 1D)
     ));
 
     private final Runnable audioLoop;
@@ -79,8 +79,9 @@ class TranscribeTrainingEngine {
     }
 
     private String nextLetter() {
-        if (lettersLeftInGroup < 0) {
+        if (lettersLeftInGroup <= 0) {
             lettersLeftInGroup = LENGTH_DISTRIBUTION.sample();
+            Timber.d("Planning on playing %s letters", lettersLeftInGroup);
             return " ";
         }
 
