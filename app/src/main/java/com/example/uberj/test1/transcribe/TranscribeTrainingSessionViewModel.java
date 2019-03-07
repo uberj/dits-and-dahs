@@ -31,7 +31,8 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     private final Repository repository;
     private final int farnsworth;
     public final MutableLiveData<Long> durationRemainingMillis = new MutableLiveData<>(-1L);
-    private final ArrayList<String> stringsReqested;
+    public final MutableLiveData<List<String>> transcribedStrings = new MutableLiveData<>(Lists.newArrayList());
+    private final ArrayList<String> stringsRequested;
     private CountDownTimer countDownTimer;
     private TranscribeTrainingEngine engine;
     private boolean sessionHasBeenStarted = false;
@@ -46,7 +47,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         this.durationMinutesRequested = durationMinutesRequested;
         this.letterWpmRequested = letterWpmRequested;
         this.transmitWpmRequested = transmitWpmRequested;
-        this.stringsReqested = stringsRequested;
+        this.stringsRequested = stringsRequested;
         this.farnsworth = farnsworth;
         this.sessionType = sessionType;
         this.keys = keys;
@@ -68,6 +69,10 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     public void resume() {
         countDownTimer.resume();
         engine.resume();
+    }
+
+    public boolean isARequstedString(String buttonLetter) {
+        return stringsRequested.contains(buttonLetter);
     }
 
     public static class Factory implements ViewModelProvider.Factory {
@@ -105,7 +110,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
 
     public void primeTheEngine(TranscribeTrainingEngineSettings previousSettings) {
         countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
-        engine = new TranscribeTrainingEngine(letterWpmRequested, transmitWpmRequested, stringsReqested);
+        engine = new TranscribeTrainingEngine(letterWpmRequested, transmitWpmRequested, stringsRequested);
         engine.prime();
     }
 

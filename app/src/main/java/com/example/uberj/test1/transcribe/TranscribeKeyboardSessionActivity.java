@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.example.uberj.test1.DynamicKeyboard;
 import com.example.uberj.test1.R;
@@ -17,8 +19,12 @@ import com.example.uberj.test1.keyboards.KeyConfig;
 import com.example.uberj.test1.keyboards.Keys;
 import com.example.uberj.test1.transcribe.storage.TranscribeSessionType;
 import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettings;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,6 +43,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
     private TranscribeTrainingSessionViewModel viewModel;
     private DynamicKeyboard keyboard;
     private Menu menu;
+    private TextView transcribeTextArea;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +120,31 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
             timerProgressBar.setProgress(progress, true);
         });
 
+        ScrollView scrollView = findViewById(R.id.transcribe_text_scrolling_area);
+        scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_DOWN));
+
+        transcribeTextArea = findViewById(R.id.transcribe_text_area);
+
+        viewModel.transcribedStrings.observe(this, (enteredStrings) -> {
+            List<String> stringsToDisplay = Lists.newArrayList();
+            for (String transcribedString : enteredStrings) {
+                Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(transcribedString);
+                if (controlType.isPresent()) {
+                    if (controlType.get().equals(KeyConfig.ControlType.DELETE)) {
+                        stringsToDisplay.remove(stringsToDisplay.size() - 1);
+                    } else if (controlType.get().equals(KeyConfig.ControlType.SPACE)) {
+                        stringsToDisplay.add(" ");
+                    } else {
+                        throw new RuntimeException("unhandled control type " + transcribedString);
+                    }
+                } else {
+                    stringsToDisplay.add(transcribedString);
+                }
+            }
+
+            transcribeTextArea.setText(Joiner.on("").join(stringsToDisplay));
+        });
+
     }
 
     @Override
@@ -182,6 +214,17 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
     }
 
     private void keyboardButtonClicked(View view) {
+        if (viewModel.isPaused()) {
+            return;
+        }
+        String buttonLetter = keyboard.getButtonLetter(view);
+        Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(buttonLetter);
+        if (!viewModel.isARequstedString(buttonLetter) && !controlType.isPresent()) {
+            return;
+        }
+        List<String> transcribedStrings = viewModel.transcribedStrings.getValue();
+        transcribedStrings.add(buttonLetter);
+        viewModel.transcribedStrings.setValue(transcribedStrings);
     }
 
 

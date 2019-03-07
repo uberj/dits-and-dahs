@@ -1,5 +1,7 @@
 package com.example.uberj.test1.keyboards;
 
+import java.util.Optional;
+
 import static com.example.uberj.test1.keyboards.KeyConfig.KeyType.DELETE_KEY;
 import static com.example.uberj.test1.keyboards.KeyConfig.KeyType.SPACE_KEY;
 
@@ -57,6 +59,15 @@ public class KeyConfig {
             this.keyName = keyName;
             this.weight = weight;
             this.keyType = keyType;
+        }
+
+        public static Optional<ControlType> fromKeyName(String keyName) {
+            for (ControlType controlType : values()) {
+                if (controlType.keyName.endsWith(keyName)) {
+                    return Optional.of(controlType);
+                }
+            }
+            return Optional.empty();
         }
     }
 }

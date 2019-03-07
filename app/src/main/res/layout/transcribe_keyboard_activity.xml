@@ -29,4 +29,31 @@
             />
     </FrameLayout>
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:id="@+id/transcribe_text_scrolling_area"
+        android:layout_height="40dp"
+        android:clipToPadding="false"
+        android:scrollbarStyle="insideOverlay">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/disabledTextViewGrey">
+
+            <TextView
+                android:id="@+id/transcribe_text_area"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:text=" kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj ffffffffffffffff kjasfk kaj fkaj f"
+                android:textColor="@color/disabledText"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
 </LinearLayout>
