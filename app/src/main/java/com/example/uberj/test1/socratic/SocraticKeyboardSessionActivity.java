@@ -213,12 +213,14 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
                     .setKeys(sessionKeys.getKeys())
                     .setButtonOnClickListener(this::keyboardButtonClicked)
                     .setButtonLongClickListener(this::playableKeyLongClickHandler)
-                    .setButtonCallback((button) -> {
-                        String letter = button.getText().toString();
-                        if (viewModel.getInPlayKeyNames().contains(letter)) {
-                            button.setAlpha(ENABLED_BUTTON_ALPHA);
-                        } else {
-                            button.setAlpha(DISABLED_BUTTON_ALPHA);
+                    .setButtonCallback((button, keyConfig) -> {
+                        if (button instanceof Button) {
+                            String letter = ((Button) button).getText().toString();
+                            if (viewModel.getInPlayKeyNames().contains(letter)) {
+                                button.setAlpha(ENABLED_BUTTON_ALPHA);
+                            } else {
+                                button.setAlpha(DISABLED_BUTTON_ALPHA);
+                            }
                         }
                     })
                     .setProgressBarCallback((button, progressBar) -> {

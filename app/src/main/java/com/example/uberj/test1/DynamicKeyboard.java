@@ -2,9 +2,11 @@ package com.example.uberj.test1;
 
 import androidx.fragment.app.FragmentActivity;
 
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Space;
 
@@ -13,7 +15,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class DynamicKeyboard {
 
@@ -21,12 +22,12 @@ public class DynamicKeyboard {
     private final ImmutableList<ImmutableList<KeyConfig>> keys;
     private final Button.OnClickListener buttonOnClickListener;
     private final Button.OnLongClickListener buttonLongClickListener;
-    private final Consumer<Button> buttonCallback;
-    private final BiConsumer<Button, View> progressBarCallback;
+    private final BiConsumer<View, KeyConfig> buttonCallback;
+    private final BiConsumer<View, View> progressBarCallback;
     private final LinearLayout rootView;
     private final boolean drawProgressBar;
 
-    public DynamicKeyboard(FragmentActivity context, ImmutableList<ImmutableList<KeyConfig>> keys, View.OnClickListener buttonOnClickListener, View.OnLongClickListener buttonLongClickListener, Consumer<Button> buttonCallback, BiConsumer<Button, View> progressBarCallback, LinearLayout rootView, boolean drawProgressBar) {
+    public DynamicKeyboard(FragmentActivity context, ImmutableList<ImmutableList<KeyConfig>> keys, View.OnClickListener buttonOnClickListener, View.OnLongClickListener buttonLongClickListener, BiConsumer<View, KeyConfig> buttonCallback, BiConsumer<View, View> progressBarCallback, LinearLayout rootView, boolean drawProgressBar) {
         this.context = context;
         this.keys = keys;
         this.buttonOnClickListener = buttonOnClickListener;
@@ -43,8 +44,8 @@ public class DynamicKeyboard {
         private ImmutableList<ImmutableList<KeyConfig>> keys;
         private View.OnClickListener buttonOnClickListener;
         private View.OnLongClickListener buttonLongClickListener;
-        private Consumer<Button> buttonCallback;
-        private BiConsumer<Button, View> progressBarCallback;
+        private BiConsumer<View, KeyConfig> buttonCallback;
+        private BiConsumer<View, View> progressBarCallback;
         private boolean drawProgressBar = true;
 
         public Builder setContext(FragmentActivity context) {
@@ -67,12 +68,12 @@ public class DynamicKeyboard {
             return this;
         }
 
-        public Builder setButtonCallback(Consumer<Button> buttonCallback) {
+        public Builder setButtonCallback(BiConsumer<View, KeyConfig> buttonCallback) {
             this.buttonCallback = buttonCallback;
             return this;
         }
 
-        public Builder setProgressBarCallback(BiConsumer<Button, View> progressBarCallback) {
+        public Builder setProgressBarCallback(BiConsumer<View, View> progressBarCallback) {
             this.progressBarCallback = progressBarCallback;
             return this;
         }
@@ -122,7 +123,7 @@ public class DynamicKeyboard {
                     buttonProgressBarContainer.setLayoutParams(buttonProgressBarContainerParams);
                     buttonProgressBarContainer.setOrientation(LinearLayout.VERTICAL);
 
-                    Button button = makeButton(keyName, keyConfig);
+                    View button = makeButton(keyName, keyConfig);
                     buttonProgressBarContainer.addView(button);
 
                     if (drawProgressBar && keyConfig.isPlayable) {
@@ -144,7 +145,7 @@ public class DynamicKeyboard {
         return "progressBarForKey" + buttonLetterToIdName(letter);
     }
 
-    public Button getButton(String letter) {
+    public View getViewFromKeyText(String letter) {
         String buttonName = getButtonIdName(letter);
         int buttonId = context.getResources().getIdentifier(buttonName, "id", context.getApplicationContext().getPackageName());
         return rootView.findViewById(buttonId);
@@ -206,12 +207,26 @@ public class DynamicKeyboard {
         return total;
     }
 
-    private Button makeButton(String keyName, KeyConfig keyConfig) {
-        Button button = new Button(context);
+    private View makeButton(String keyName, KeyConfig keyConfig) {
+        View button;
+        if (keyConfig.type == KeyConfig.KeyType.DELETE_KEY) {
+            ImageButton deleteKey = new ImageButton(context);
+            Drawable drawable = context.getDrawable(R.drawable.ic_backspace);
+            deleteKey.setImageDrawable(drawable);
+            button = deleteKey;
+        } else if (keyConfig.type == KeyConfig.KeyType.SPACE_KEY) {
+            ImageButton spaceKey = new ImageButton(context);
+            Drawable drawable = context.getDrawable(R.drawable.ic_space_bar);
+            spaceKey.setImageDrawable(drawable);
+            button = spaceKey;
+        } else {
+            button = new Button(context);
+            ((Button)button).setText(keyName);
+        }
+
         int buttonId = context.getResources().getIdentifier(getButtonIdName(keyName), "id", context.getPackageName());
         button.setId(buttonId);
 
-        button.setText(keyName);
         if (keyConfig.isPlayable) {
             button.setTag("inplay");
         }
@@ -224,12 +239,12 @@ public class DynamicKeyboard {
         button.setOnClickListener(this.buttonOnClickListener);
         button.setOnLongClickListener(this.buttonLongClickListener);
 
-        this.buttonCallback.accept(button);
+        this.buttonCallback.accept(button, keyConfig);
 
         return button;
     }
 
-    private View makeProgressBar(Button button, String keyName) {
+    private View makeProgressBar(View button, String keyName) {
         View progressBar = new View(context);
         progressBar.setTag("progressBar");
 

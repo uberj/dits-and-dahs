@@ -142,7 +142,7 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
                     .setRootView(exampleLetterKeyContainer)
                     .setContext(getActivity())
                     .setKeys(ImmutableList.of(ImmutableList.of(KeyConfig.l("M"))))
-                    .setButtonCallback((b) -> {})
+                    .setButtonCallback((b, kc) -> {})
                     .setProgressBarCallback((p, v) -> {})
                     .build();
 
@@ -165,7 +165,7 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
                     .setRootView(exampleLetterKeyContainer)
                     .setContext(getActivity())
                     .setKeys(ImmutableList.of(ImmutableList.of(KeyConfig.l("M"))))
-                    .setButtonCallback((b) -> {})
+                    .setButtonCallback((b, kc) -> {})
                     .setProgressBarCallback((p, v) -> {})
                     .build();
 
@@ -237,7 +237,7 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
                     .setRootView(exampleLetterKeyContainer)
                     .setContext(getActivity())
                     .setKeys(SimpleLetterTrainingHelpDialogViewModel.EXAMPLE_BOARD_KEYS)
-                    .setButtonCallback((b) -> {})
+                    .setButtonCallback((b, kc) -> {})
                     .setProgressBarCallback((p, v) -> {})
                     .build();
             keyboard.buildAtRoot();
@@ -254,11 +254,11 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
 
             viewModel.inPlayLetterKeys.observe(this, (inPlayKeys) -> {
                 for (String key : SimpleLetterTrainingHelpDialogViewModel.EXAMPLE_LETTERS) {
-                    Button button = keyboard.getButton(key);
-                    if (button == null) {
-                        continue;
+                    View view = keyboard.getViewFromKeyText(key);
+                    if (!(view instanceof Button)) {
+                        return;
                     }
-
+                    Button button = (Button) view;
                     View progressBar = keyboard.getLetterProgressBar(key);
 
                     if (inPlayKeys.contains(key)) {

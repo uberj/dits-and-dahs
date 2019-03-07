@@ -7,11 +7,13 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.example.uberj.test1.DynamicKeyboard;
 import com.example.uberj.test1.R;
+import com.example.uberj.test1.keyboards.KeyConfig;
 import com.example.uberj.test1.keyboards.Keys;
 import com.example.uberj.test1.transcribe.storage.TranscribeSessionType;
 import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettings;
@@ -79,11 +81,21 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
                     .setKeys(getKeys())
                     .setButtonOnClickListener(this::keyboardButtonClicked)
                     .setButtonLongClickListener(this::playableKeyLongClickHandler)
-                    .setButtonCallback((button) -> {
+                    .setButtonCallback((view, keyConfig) -> {
                         assert stringsRequested != null;
+                        if (keyConfig.type == KeyConfig.KeyType.DELETE_KEY || keyConfig.type == KeyConfig.KeyType.SPACE_KEY) {
+                            return;
+                        }
+
+                        if (!(view instanceof Button)) {
+                            return;
+                        }
+
+                        Button button = (Button) view;
                         if (!stringsRequested.contains(button.getText().toString())) {
                             button.setAlpha(DISABLED_BUTTON_ALPHA);
                         }
+
                     })
                     .build();
             keyboard.buildAtRoot();

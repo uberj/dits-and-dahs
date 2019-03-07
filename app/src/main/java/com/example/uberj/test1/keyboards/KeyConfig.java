@@ -1,5 +1,8 @@
 package com.example.uberj.test1.keyboards;
 
+import static com.example.uberj.test1.keyboards.KeyConfig.KeyType.DELETE_KEY;
+import static com.example.uberj.test1.keyboards.KeyConfig.KeyType.SPACE_KEY;
+
 public class KeyConfig {
     public final String textName;
     public final float weight;
@@ -9,7 +12,9 @@ public class KeyConfig {
     public enum KeyType {
         LETTER,
         PROSIGN,
-        HALF_SPACE
+        HALF_SPACE,
+        SPACE_KEY,
+        DELETE_KEY
     }
 
     public KeyConfig(String textName, float weight, boolean isPlayable, KeyType type) {
@@ -34,5 +39,24 @@ public class KeyConfig {
     }
     public static KeyConfig s(float weight) {
         return new KeyConfig(null, weight, false, KeyType.HALF_SPACE);
+    }
+
+    public static KeyConfig ctrl(ControlType ctrlType) {
+        return new KeyConfig(ctrlType.keyName, ctrlType.weight, false, ctrlType.keyType);
+    }
+
+    public enum ControlType {
+        SPACE("SPC", 4, SPACE_KEY),
+        DELETE("DEL", 2, DELETE_KEY);
+
+        public final int weight;
+        public final String keyName;
+        private final KeyType keyType;
+
+        ControlType(String keyName, int weight, KeyType keyType) {
+            this.keyName = keyName;
+            this.weight = weight;
+            this.keyType = keyType;
+        }
     }
 }
