@@ -39,6 +39,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     private static final String sessionStartLock = "lock";
     private long endTimeEpocMillis = -1;
     private long sessionEndingTimeBufferCuttOffMillis = 5 * 1000;
+    private List<String> playedMessage = Lists.newArrayList();
 
     public TranscribeTrainingSessionViewModel(@NonNull Application application, int durationMinutesRequested, ArrayList<String> stringsRequested, int letterWpmRequested, int transmitWpmRequested, int farnsworth, TranscribeSessionType sessionType, Keys keys) {
         super(application);
@@ -108,9 +109,13 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         return repository.transcribeEngineSettingsDAO.getLatestEngineSetting(sessionType.name());
     }
 
+    private void letterPlayedCallback(String letter) {
+        playedMessage.add(letter);
+    }
+
     public void primeTheEngine(TranscribeTrainingEngineSettings previousSettings) {
         countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
-        engine = new TranscribeTrainingEngine(letterWpmRequested, transmitWpmRequested, stringsRequested);
+        engine = new TranscribeTrainingEngine(letterWpmRequested, transmitWpmRequested, stringsRequested, this::letterPlayedCallback);
         engine.prime();
     }
 
@@ -159,16 +164,14 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         trainingSession.completed = durationWorkedMillis == 0;
         trainingSession.transmitWpm = (long) transmitWpmRequested;
         trainingSession.letterWpm = (long) letterWpmRequested;
-        // TODO
-        // trainingSession.errorRate = need to do transcribe analysis to do this one
 
         trainingSession.sessionType = sessionType.name();
         if (Float.isNaN(trainingSession.errorRate)) {
             trainingSession.errorRate = -1;
         }
 
-        trainingSession.playedKeys = Lists.newArrayList(); // TODO
-        trainingSession.enteredKeys = Lists.newArrayList(); // TODO
+        trainingSession.playedKeys = playedMessage;
+        trainingSession.enteredKeys = transcribedMessage.getValue();
 
         repository.insertTranscribeTrainingSession(trainingSession);
 

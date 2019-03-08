@@ -133,23 +133,8 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         viewModel.transcribedMessage.observe(this, (enteredStrings) -> {
-            List<String> stringsToDisplay = Lists.newArrayList();
-            for (String transcribedString : enteredStrings) {
-                Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(transcribedString);
-                if (controlType.isPresent()) {
-                    if (controlType.get().equals(KeyConfig.ControlType.DELETE)) {
-                        stringsToDisplay.remove(stringsToDisplay.size() - 1);
-                    } else if (controlType.get().equals(KeyConfig.ControlType.SPACE)) {
-                        stringsToDisplay.add(" ");
-                    } else {
-                        throw new RuntimeException("unhandled control type " + transcribedString);
-                    }
-                } else {
-                    stringsToDisplay.add(transcribedString);
-                }
-            }
-
-            transcribeTextArea.setText(Joiner.on("").join(stringsToDisplay));
+            String message = TranscribeUtil.convertKeyPressesToString(enteredStrings);
+            transcribeTextArea.setText(message);
             transcribeTextArea.setSelection(transcribeTextArea.getText().length());
         });
 

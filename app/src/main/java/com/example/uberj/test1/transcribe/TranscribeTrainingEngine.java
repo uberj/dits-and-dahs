@@ -8,6 +8,7 @@ import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.util.Pair;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import kotlin.random.Random;
 import timber.log.Timber;
@@ -34,6 +35,7 @@ class TranscribeTrainingEngine {
     private final List<String> inPlayLetters;
     private final int letterWpmRequested;
     private final int transmitWpmRequested;
+    private final Consumer<String> letterPlayedCallback;
 
     private boolean audioThreadKeepAlive;
     private boolean isPaused;
@@ -42,10 +44,11 @@ class TranscribeTrainingEngine {
     private int lettersLeftInGroup = LENGTH_DISTRIBUTION.sample();
     private boolean awaitingShutdown = false;
 
-    public TranscribeTrainingEngine(int letterWpmRequested, int transmitWpmRequested, List<String> inPlayLetters) {
+    public TranscribeTrainingEngine(int letterWpmRequested, int transmitWpmRequested, List<String> inPlayLetters, Consumer<String> letterPlayedCallback) {
         this.inPlayLetters = inPlayLetters;
         this.letterWpmRequested = letterWpmRequested;
         this.transmitWpmRequested = transmitWpmRequested;
+        this.letterPlayedCallback = letterPlayedCallback;
         this.cwToneManager = new CWToneManager(letterWpmRequested, transmitWpmRequested);
         this.audioLoop = () -> {
             try {
@@ -60,6 +63,7 @@ class TranscribeTrainingEngine {
                     if (!awaitingShutdown && audioThreadKeepAlive) {
                         String currentLetter = nextLetter();
                         Timber.d("Playing letter: '%s'", currentLetter);
+                        this.letterPlayedCallback.accept(currentLetter);
                         cwToneManager.playLetter(currentLetter);
                     }
 
