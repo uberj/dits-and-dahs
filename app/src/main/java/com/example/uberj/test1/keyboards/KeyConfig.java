@@ -63,7 +63,7 @@ public class KeyConfig {
 
         public static Optional<ControlType> fromKeyName(String keyName) {
             for (ControlType controlType : values()) {
-                if (controlType.keyName.endsWith(keyName)) {
+                if (controlType.keyName.equals(keyName)) {
                     return Optional.of(controlType);
                 }
             }

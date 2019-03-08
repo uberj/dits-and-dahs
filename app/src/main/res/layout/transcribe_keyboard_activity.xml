@@ -29,31 +29,29 @@
             />
     </FrameLayout>
 
-    <ScrollView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:id="@+id/transcribe_text_scrolling_area"
-        android:layout_height="40dp"
-        android:clipToPadding="false"
-        android:scrollbarStyle="insideOverlay">
+        android:layout_height="50dp"
+        android:background="@color/disabledTextViewGrey">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <EditText
+            android:id="@+id/transcribe_text_area"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/disabledTextViewGrey">
-
-            <TextView
-                android:id="@+id/transcribe_text_area"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:text=" kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj  kjasfk kaj fkaj ffffffffffffffff kjasfk kaj fkaj f"
-                android:textColor="@color/disabledText"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:focusable="true"
+            android:cursorVisible="true"
+            android:textCursorDrawable="@null"
+            android:focusedByDefault="false"
+            android:gravity="bottom|start"
+            android:inputType="textNoSuggestions"
+            android:text="top top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top top            top top top bottom"
+            android:textColor="@color/disabledText"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

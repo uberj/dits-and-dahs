@@ -31,7 +31,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     private final Repository repository;
     private final int farnsworth;
     public final MutableLiveData<Long> durationRemainingMillis = new MutableLiveData<>(-1L);
-    public final MutableLiveData<List<String>> transcribedStrings = new MutableLiveData<>(Lists.newArrayList());
+    public final MutableLiveData<List<String>> transcribedMessage = new MutableLiveData<>(Lists.newArrayList());
     private final ArrayList<String> stringsRequested;
     private CountDownTimer countDownTimer;
     private TranscribeTrainingEngine engine;

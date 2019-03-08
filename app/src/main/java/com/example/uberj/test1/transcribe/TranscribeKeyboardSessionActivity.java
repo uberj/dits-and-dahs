@@ -1,13 +1,19 @@
 package com.example.uberj.test1.transcribe;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
@@ -43,7 +49,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
     private TranscribeTrainingSessionViewModel viewModel;
     private DynamicKeyboard keyboard;
     private Menu menu;
-    private TextView transcribeTextArea;
+    private EditText transcribeTextArea;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,12 +126,13 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
             timerProgressBar.setProgress(progress, true);
         });
 
-        ScrollView scrollView = findViewById(R.id.transcribe_text_scrolling_area);
-        scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_DOWN));
-
         transcribeTextArea = findViewById(R.id.transcribe_text_area);
+        transcribeTextArea.requestFocus();
+        transcribeTextArea.setShowSoftInputOnFocus(false);
+        getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        viewModel.transcribedStrings.observe(this, (enteredStrings) -> {
+        viewModel.transcribedMessage.observe(this, (enteredStrings) -> {
             List<String> stringsToDisplay = Lists.newArrayList();
             for (String transcribedString : enteredStrings) {
                 Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(transcribedString);
@@ -143,6 +150,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
             }
 
             transcribeTextArea.setText(Joiner.on("").join(stringsToDisplay));
+            transcribeTextArea.setSelection(transcribeTextArea.getText().length());
         });
 
     }
@@ -214,17 +222,14 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
     }
 
     private void keyboardButtonClicked(View view) {
-        if (viewModel.isPaused()) {
-            return;
-        }
         String buttonLetter = keyboard.getButtonLetter(view);
         Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(buttonLetter);
         if (!viewModel.isARequstedString(buttonLetter) && !controlType.isPresent()) {
             return;
         }
-        List<String> transcribedStrings = viewModel.transcribedStrings.getValue();
+        List<String> transcribedStrings = viewModel.transcribedMessage.getValue();
         transcribedStrings.add(buttonLetter);
-        viewModel.transcribedStrings.setValue(transcribedStrings);
+        viewModel.transcribedMessage.setValue(transcribedStrings);
     }
 
 
