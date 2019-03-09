@@ -285,8 +285,7 @@ public class CWToneManager {
         // -> farnsworth = 2
 
         double f = (double) letterWpm / (double) transmitWpm;
-        if (f < 1) throw new AssertionError("Farnsworth must be equal or above 1");
-        return f;
+        return Math.max(1, f);
     }
 
     public CWToneManager(int letterWpm) {

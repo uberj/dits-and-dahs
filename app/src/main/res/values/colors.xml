@@ -5,4 +5,7 @@
     <color name="colorAccent">#381d09</color>
     <color name="disabledTextViewGrey">#DFDFDF</color>
     <color name="disabledText">#2C2C2C</color>
+    <color name="incorrectMissedCharacterColor">#F44336</color>
+    <color name="incorrectAddedCharacterColor">#4CAF50</color>
+    <color name="correctCharacterColor">#FFF</color>
 </resources>

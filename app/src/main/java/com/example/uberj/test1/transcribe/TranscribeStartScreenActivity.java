@@ -16,6 +16,7 @@ import com.example.uberj.test1.R;
 import com.example.uberj.test1.training.DialogFragmentProvider;
 import com.example.uberj.test1.transcribe.storage.TranscribeSessionType;
 import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettings;
+import com.example.uberj.test1.transcribe.storage.TranscribeTrainingSession;
 import com.google.android.material.tabs.TabLayout;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -396,12 +397,16 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
 
             View rootView = inflater.inflate(R.layout.transcribe_training_numbers_screen_fragment, container, false);
             sessionViewModel = ViewModelProviders.of(this).get(TranscribeTrainingMainScreenViewModel.class);
-            sessionViewModel.getLatestSession(sessionType).observe(this, (mostRecentSession) -> {
+            sessionViewModel.getLatestSession(sessionType).observe(this, (possibleSession) -> {
                 float errorRate = -1;
                 long prevDurationMillis = -1;
-                if (!mostRecentSession.isEmpty()) {
-                    errorRate = mostRecentSession.get(0).errorRate;
-                    prevDurationMillis = mostRecentSession.get(0).durationWorkedMillis;
+                if (!possibleSession.isEmpty()) {
+                    TranscribeTrainingSession session = possibleSession.get(0);
+                    errorRate = session.errorRate;
+                    prevDurationMillis = session.durationWorkedMillis;
+                    TranscribeUtil.TranscribeSessionAnalysis analysis = TranscribeUtil.analyzeSession(getContext(), session);
+                    TextView transcribeDiff = rootView.findViewById(R.id.transcribe_diff);
+                    transcribeDiff.setText(analysis.messageSpan, TextView.BufferType.EDITABLE);
                 }
 
                 long prevDurationMinutes = (prevDurationMillis / 1000) / 60;
