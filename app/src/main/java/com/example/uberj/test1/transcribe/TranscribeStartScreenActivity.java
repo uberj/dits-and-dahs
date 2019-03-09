@@ -293,7 +293,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                 }
 
                 if (transmitWpm > 0) {
-                    transmitWpmNumberPicker.setProgress(letterWpm);
+                    transmitWpmNumberPicker.setProgress(transmitWpm);
                 } else {
                     transmitWpmNumberPicker.setProgress(6);
                 }
