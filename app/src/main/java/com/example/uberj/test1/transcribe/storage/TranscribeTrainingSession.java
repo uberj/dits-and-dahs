@@ -1,5 +1,6 @@
 package com.example.uberj.test1.transcribe.storage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -36,8 +37,11 @@ public class TranscribeTrainingSession {
     public String sessionType;
 
     @NonNull
-    public List<String> playedKeys;
+    public List<String> playedMessage;
 
     @NonNull
     public List<String> enteredKeys;
+
+    @NonNull
+    public List<String> stringsRequested;
 }

@@ -31,6 +31,7 @@ public class ProgressGradient {
             .put(5 , "#e0816d")
             .put(0 , "#dd776e")
             .build();
+
     public static int forWeight(Integer competencyWeight) {
         if (competencyWeight > 100 || competencyWeight < 0) {
             throw new RuntimeException("CompetencyWeight is invalid: " + competencyWeight);

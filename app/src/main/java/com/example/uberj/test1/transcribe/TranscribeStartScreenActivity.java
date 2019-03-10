@@ -2,6 +2,9 @@ package com.example.uberj.test1.transcribe;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -9,8 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.example.uberj.test1.ProgressGradient;
 import com.example.uberj.test1.R;
 import com.example.uberj.test1.training.DialogFragmentProvider;
 import com.example.uberj.test1.transcribe.storage.TranscribeSessionType;
@@ -20,9 +26,12 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -416,13 +425,19 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             sessionViewModel.getLatestSession(sessionType).observe(this, (possibleSession) -> {
                 float errorRate = -1;
                 long prevDurationMillis = -1;
+                TableLayout errorListContainer = rootView.findViewById(R.id.error_breakdown_list_container);
                 if (!possibleSession.isEmpty()) {
                     TranscribeTrainingSession session = possibleSession.get(0);
-                    errorRate = session.errorRate;
                     prevDurationMillis = session.durationWorkedMillis;
                     TranscribeUtil.TranscribeSessionAnalysis analysis = TranscribeUtil.analyzeSession(getContext(), session);
                     TextView transcribeDiff = rootView.findViewById(R.id.transcribe_diff);
                     transcribeDiff.setText(analysis.messageSpan, TextView.BufferType.EDITABLE);
+                    errorRate = analysis.overallErrorRate;
+                    buildErrorTable(errorListContainer, analysis);
+                } else {
+                    TextView naTextView = new TextView(getContext());
+                    naTextView.setText("N/A");
+                    errorListContainer.addView(naTextView);
                 }
 
                 long prevDurationMinutes = (prevDurationMillis / 1000) / 60;
@@ -439,6 +454,59 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             });
 
             return rootView;
+        }
+
+        private void buildErrorTable(TableLayout errorListContainer, TranscribeUtil.TranscribeSessionAnalysis analysis) {
+            TableRow headerRow = new TableRow(getContext());
+            TextView stringNameTitle = new TextView(getContext());
+            stringNameTitle.setText("Symbol");
+            stringNameTitle.setPadding(0, 8, 24, 8);
+            headerRow.addView(stringNameTitle);
+
+            TextView errorTextTitle = new TextView(getContext());
+            errorTextTitle.setText("Error Rate");
+            errorTextTitle.setPadding(0, 8, 24, 8);
+            headerRow.addView(errorTextTitle);
+
+            TextView countDetails = new TextView(getContext());
+            countDetails.setText("Miss/Plays");
+            headerRow.addView(countDetails);
+
+            errorListContainer.addView(headerRow);
+
+            for (Map.Entry<String, Pair<Integer, Integer>> stringError : analysis.errorMap.entrySet()) {
+                TableRow tableRow = new TableRow(getContext());
+                TextView stringName = new TextView(getContext());
+                String string = stringError.getKey();
+                if (string.equals(" ")) {
+                    stringName.setText("' '");
+                } else {
+                    stringName.setText(string);
+                }
+                tableRow.addView(stringName);
+
+                Pair<Integer, Integer> counts = stringError.getValue();
+                Integer errorCount = counts.getRight();
+                Integer playCount = counts.getLeft();
+                int errorValue = (int) ((errorCount.doubleValue()/ playCount.doubleValue()) * 100);
+
+                TextView errorText = new TextView(getContext());
+                SpannableStringBuilder ssb = new SpannableStringBuilder();
+                ssb.append(String.valueOf(errorValue))
+                   .append("%");
+                ForegroundColorSpan errorSpanColor = new ForegroundColorSpan(ProgressGradient.forWeight(Math.min(100, errorValue)));
+                ssb.setSpan(errorSpanColor, 0, ssb.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                errorText.setText(ssb);
+                tableRow.addView(errorText);
+
+                TextView missPlays = new TextView(getContext());
+                missPlays.setText(String.format(Locale.ENGLISH, "(%d/%d)", errorCount, playCount));
+                tableRow.addView(missPlays);
+
+
+
+                errorListContainer.addView(tableRow);
+            }
         }
     }
 }

@@ -170,7 +170,10 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
             trainingSession.errorRate = -1;
         }
 
-        trainingSession.playedKeys = playedMessage;
+        trainingSession.stringsRequested = stringsRequested;
+        trainingSession.stringsRequested.add(" ");
+
+        trainingSession.playedMessage = playedMessage;
         trainingSession.enteredKeys = transcribedMessage.getValue();
 
         repository.insertTranscribeTrainingSession(trainingSession);

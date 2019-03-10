@@ -17,7 +17,7 @@ public class TranscribeUtilTest {
     @Test
     public void testMissedLetterPercentages() {
         TranscribeTrainingSession session = new TranscribeTrainingSession();
-        session.playedKeys = Lists.newArrayList("M", " ", "K", "K");
+        session.playedMessage = Lists.newArrayList("M", " ", "K", "K");
         session.enteredKeys = Lists.newArrayList("M", " ", "K", "M");
         Map<String, Double> errorMap = TranscribeUtil.calculateErrorMap(session);
         Assert.assertEquals(3, errorMap.size());
