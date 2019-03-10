@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.uberj.test1.BuildConfig;
 import com.example.uberj.test1.R;
 import com.example.uberj.test1.training.DialogFragmentProvider;
 import com.example.uberj.test1.transcribe.storage.TranscribeSessionType;
@@ -28,6 +27,7 @@ import java.util.Locale;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -189,6 +189,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
         private Class<? extends FragmentActivity> sessionActivityClass;
         private TranscribeSessionType sessionType;
         private TextView selectedStringsContainer;
+        private SwitchCompat autoSuggestSwitch;
 
 
         public static StartScreenFragment newInstance(TranscribeSessionType sessionType, Class<? extends FragmentActivity> sessionActivityClass) {
@@ -217,7 +218,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
         public void showIncludedLetterPicker(View v) {
             // setup the alert builder
             AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());
-            builder.setTitle("Choose some animals");
+            builder.setTitle("Choose which letters to play");
 
             List<String> possibleStrings = getTranscribeActivity().getPossibleStrings();
             boolean[] selectedStringsBooleanMap = sessionViewModel.selectedStringsBooleanMap.getValue();
@@ -263,6 +264,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             letterWpmNumberPicker = rootView.findViewById(R.id.letter_wpm_number_picker);
             transmitWpmNumberPicker = rootView.findViewById(R.id.transmit_wpm_number_picker);
             selectedStringsContainer = rootView.findViewById(R.id.selected_strings);
+            autoSuggestSwitch = rootView.findViewById(R.id.auto_suggest_switch);
             sessionViewModel = ViewModelProviders.of(this).get(TranscribeTrainingMainScreenViewModel.class);
 
             sessionViewModel.selectedStrings.observe(this, (updatedSelectedStrings) -> {
@@ -271,6 +273,20 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                 }
                 sessionViewModel.selectedStringsBooleanMap.setValue(selectedStringsToBooleanMap(updatedSelectedStrings));
                 selectedStringsContainer.setText(Joiner.on(", ").join(updatedSelectedStrings));
+            });
+
+            autoSuggestSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    sessionViewModel.selectedStrings.setValue(sessionViewModel.suggestedStrings.getValue());
+                }
+            });
+
+            sessionViewModel.getLatestSession(sessionType).observe(this, (possibleSession) -> {
+                if (possibleSession.size() > 0) {
+                    sessionViewModel.suggestedStrings.setValue(TranscribeUtil.calculateSuggestedStrings(possibleSession.get(0)));
+                } else {
+                    sessionViewModel.suggestedStrings.setValue(Lists.newArrayList(getTranscribeActivity().initialSelectedStrings()));
+                }
             });
 
             sessionViewModel.getLatestEngineSettings(sessionType).observe(this, (mostRecentSettings) -> {

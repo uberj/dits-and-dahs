@@ -154,13 +154,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:onClick="changeIncludedLetters"
-        android:text="Change Letters"
+        android:text="Choose Letters"
         android:textColor="@color/design_default_color_primary_dark"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/guideline17"
         app:layout_constraintTop_toBottomOf="@+id/selected_strings" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/auto-suggest-switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Auto-suggest"
+        app:layout_constraintStart_toStartOf="@+id/guideline17"
+        app:layout_constraintTop_toBottomOf="@+id/change_included_letters" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
