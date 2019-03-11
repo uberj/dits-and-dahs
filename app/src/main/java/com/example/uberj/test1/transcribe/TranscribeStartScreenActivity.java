@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -423,7 +424,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             View rootView = inflater.inflate(R.layout.transcribe_training_numbers_screen_fragment, container, false);
             sessionViewModel = ViewModelProviders.of(this).get(TranscribeTrainingMainScreenViewModel.class);
             sessionViewModel.getLatestSession(sessionType).observe(this, (possibleSession) -> {
-                float overalAccuracyRate = -1;
+                double overallAccuracyRate = -1;
                 long prevDurationMillis = -1;
                 TableLayout errorListContainer = rootView.findViewById(R.id.error_breakdown_list_container);
                 if (!possibleSession.isEmpty()) {
@@ -432,7 +433,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                     TranscribeUtil.TranscribeSessionAnalysis analysis = TranscribeUtil.analyzeSession(getContext(), session);
                     TextView transcribeDiff = rootView.findViewById(R.id.transcribe_diff);
                     transcribeDiff.setText(analysis.messageSpan, TextView.BufferType.EDITABLE);
-                    overalAccuracyRate = analysis.overallAccuracyRate;
+                    overallAccuracyRate = analysis.overallAccuracyRate;
                     errorListContainer.removeAllViews();
                     buildErrorTable(errorListContainer, analysis);
                 } else {
@@ -449,9 +450,20 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                                 String.format(Locale.ENGLISH, "%02d:%02d", prevDurationMinutes, prevDurationSeconds) :
                                 "N/A"
                 );
-                ((TextView) rootView.findViewById(R.id.prev_session_accuracy)).setText(
-                        overalAccuracyRate >= 0 ? (int) (100 * overalAccuracyRate) + "%" : "N/A"
-                );
+
+
+                if (overallAccuracyRate >= 0) {
+                    SpannableStringBuilder accuracySsb = new SpannableStringBuilder();
+                    int roundedAccuracy = (int) (100 * overallAccuracyRate);
+                    accuracySsb.append(String.valueOf(roundedAccuracy))
+                            .append("%");
+                    ForegroundColorSpan errorSpanColor = new ForegroundColorSpan(ProgressGradient.forWeight(Math.min(100, roundedAccuracy)));
+                    accuracySsb.setSpan(errorSpanColor, 0, accuracySsb.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    ((TextView) rootView.findViewById(R.id.prev_session_accuracy)).setText(accuracySsb);
+                } else {
+                    ((TextView) rootView.findViewById(R.id.prev_session_accuracy)).setText("N/A");
+                }
+
             });
 
             return rootView;
@@ -474,11 +486,28 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             headerRow.addView(countDetails);
 
             errorListContainer.addView(headerRow);
+            List<Map.Entry<String, Pair<Integer, Integer>>> worstFirstHitCases = analysis.hitMap.entrySet().stream().sorted((h1, h2) -> {
+                Pair<Integer, Integer> h1Counts = h1.getValue();
+                Integer h1HitCount = h1Counts.getLeft();
+                Integer h1PlayCount = h1Counts.getRight();
+                double h1Accuracy = (h1HitCount.doubleValue() / h1PlayCount.doubleValue()) * 100;
 
-            for (Map.Entry<String, Pair<Integer, Integer>> stringError : analysis.hitMap.entrySet()) {
+                Pair<Integer, Integer> h2Counts = h2.getValue();
+                Integer h2HitCount = h2Counts.getLeft();
+                Integer h2PlayCount = h2Counts.getRight();
+                double h2Accuracy = (h2HitCount.doubleValue() / h2PlayCount.doubleValue()) * 100;
+
+                if (h1Accuracy == h2Accuracy) {
+                    return 0;
+                } else {
+                    return h1Accuracy < h2Accuracy ? -1 : 1;
+                }
+            }).collect(Collectors.toList());
+
+            for (Map.Entry<String, Pair<Integer, Integer>> hitCase : worstFirstHitCases) {
                 TableRow tableRow = new TableRow(getContext());
                 TextView stringName = new TextView(getContext());
-                String string = stringError.getKey();
+                String string = hitCase.getKey();
                 if (string.equals(" ")) {
                     stringName.setText("' '");
                 } else {
@@ -486,16 +515,17 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                 }
                 tableRow.addView(stringName);
 
-                Pair<Integer, Integer> counts = stringError.getValue();
+                Pair<Integer, Integer> counts = hitCase.getValue();
                 Integer hitCount = counts.getLeft();
                 Integer playCount = counts.getRight();
-                int errorValue = (int) ((hitCount.doubleValue()/ playCount.doubleValue()) * 100);
+                double accuracy = (hitCount.doubleValue() / playCount.doubleValue()) * 100;
+                int roundedAccuracy = (int) accuracy;
 
                 TextView errorText = new TextView(getContext());
                 SpannableStringBuilder ssb = new SpannableStringBuilder();
-                ssb.append(String.valueOf(errorValue))
+                ssb.append(String.valueOf(roundedAccuracy))
                    .append("%");
-                ForegroundColorSpan errorSpanColor = new ForegroundColorSpan(ProgressGradient.forWeight(Math.min(100, errorValue)));
+                ForegroundColorSpan errorSpanColor = new ForegroundColorSpan(ProgressGradient.forWeight(Math.min(100, roundedAccuracy)));
                 ssb.setSpan(errorSpanColor, 0, ssb.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 errorText.setText(ssb);
                 tableRow.addView(errorText);

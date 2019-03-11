@@ -152,10 +152,10 @@ class TranscribeUtil {
 
     public static class TranscribeSessionAnalysis {
         public final SpannableStringBuilder messageSpan;
-        public final float overallAccuracyRate;
+        public final double overallAccuracyRate;
         public final Map<String, Pair<Integer, Integer>> hitMap;
 
-        public TranscribeSessionAnalysis(SpannableStringBuilder messageSpan, float overallAccuracyRate, Map<String, Pair<Integer, Integer>> hitMap) {
+        public TranscribeSessionAnalysis(SpannableStringBuilder messageSpan, double overallAccuracyRate, Map<String, Pair<Integer, Integer>> hitMap) {
             this.messageSpan = messageSpan;
             this.overallAccuracyRate = overallAccuracyRate;
             this.hitMap = hitMap;
