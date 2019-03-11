@@ -40,7 +40,7 @@ public class RandomLettersStartScreenActivity extends TranscribeStartScreenActiv
 
     @Override
     public DialogFragment getHelpDialog() {
-        return null;
+        return new RandomLetterStartScreenHelpDialog();
     }
 
 }
