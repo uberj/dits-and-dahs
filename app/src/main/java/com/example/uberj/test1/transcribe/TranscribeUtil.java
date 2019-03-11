@@ -63,9 +63,9 @@ class TranscribeUtil {
             cursor = cursor + diff.text.length();
         }
 
-        Map<String, Pair<Integer, Integer>> errorMap = calculateErrorMap(session);
-        float overallErrorRate = TranscribeUtil.calculateOverallErrorForSession(errorMap);
-        return new TranscribeSessionAnalysis(messageSpan, overallErrorRate, errorMap);
+        Map<String, Pair<Integer, Integer>> errorMap = calculateHitMap(session);
+        float overallAccuracyRate = TranscribeUtil.calculateOverallAccuracyForSession(errorMap);
+        return new TranscribeSessionAnalysis(messageSpan, overallAccuracyRate, errorMap);
     }
 
     private static LinkedList<DiffPatchMatch.Diff> calcMessageDiff(TranscribeTrainingSession session) {
@@ -100,35 +100,38 @@ class TranscribeUtil {
         return null;
     }
 
-    public static Map<String, Pair<Integer, Integer>> calculateErrorMap(TranscribeTrainingSession session) {
+    public static Map<String, Pair<Integer, Integer>> calculateHitMap(TranscribeTrainingSession session) {
         LinkedList<DiffPatchMatch.Diff> messageDiff = calcMessageDiff(session);
-        HashMap<String, Integer> countMap = Maps.newHashMap();
-        HashMap<String, Integer> errorCountMap = Maps.newHashMap();
+        HashMap<String, Integer> opportunityCountMap = Maps.newHashMap();
+        HashMap<String, Integer> hitCountMap = Maps.newHashMap();
+        for (String s : session.playedMessage) {
+            opportunityCountMap.putIfAbsent(s, 0);
+            opportunityCountMap.computeIfPresent(s, (k, v) -> v + 1);
+        }
+
         for (DiffPatchMatch.Diff diff : messageDiff) {
             for (char c : diff.text.toCharArray()) {
                 String s = String.valueOf(c);
-                countMap.putIfAbsent(s, 0);
-                countMap.computeIfPresent(s, (k, v) -> v + 1);
-                if (diff.operation == DiffPatchMatch.Operation.EQUAL) {
+                if (diff.operation != DiffPatchMatch.Operation.EQUAL) {
                     continue;
                 }
 
-                if (!session.stringsRequested.contains(s)) {
+                if (!session.stringsRequested.contains(s) && !s.equals(" ")) {
                     throw new RuntimeException("Issue finding diff char in played keys");
                 }
-                errorCountMap.putIfAbsent(s, 0);
-                errorCountMap.computeIfPresent(s, (k, v) -> v + 1);
+                hitCountMap.putIfAbsent(s, 0);
+                hitCountMap.computeIfPresent(s, (k, v) -> v + 1);
             }
         }
 
         HashMap<String, Pair<Integer, Integer>> percentMap = Maps.newHashMap();
-        for (Map.Entry<String, Integer> countEntry : countMap.entrySet()) {
+        for (Map.Entry<String, Integer> countEntry : opportunityCountMap.entrySet()) {
             String key = countEntry.getKey();
             Integer playCount = countEntry.getValue();
             int errorCount;
-            if (errorCountMap.containsKey(key)) {
+            if (hitCountMap.containsKey(key)) {
                 //noinspection ConstantConditions
-                errorCount = errorCountMap.get(key);
+                errorCount = hitCountMap.get(key);
             } else {
                 errorCount = 0;
             }
@@ -139,7 +142,7 @@ class TranscribeUtil {
         return percentMap;
     }
 
-    public static float calculateOverallErrorForSession(Map<String, Pair<Integer, Integer>> errorMap) {
+    public static float calculateOverallAccuracyForSession(Map<String, Pair<Integer, Integer>> errorMap) {
         double totalError = 0;
         for (Pair<Integer, Integer> error : errorMap.values()) {
             totalError += error.getLeft().doubleValue() / error.getRight().doubleValue();
@@ -149,13 +152,13 @@ class TranscribeUtil {
 
     public static class TranscribeSessionAnalysis {
         public final SpannableStringBuilder messageSpan;
-        public final float overallErrorRate;
-        public final Map<String, Pair<Integer, Integer>> errorMap;
+        public final float overallAccuracyRate;
+        public final Map<String, Pair<Integer, Integer>> hitMap;
 
-        public TranscribeSessionAnalysis(SpannableStringBuilder messageSpan, float overallErrorRate, Map<String, Pair<Integer, Integer>> errorMap) {
+        public TranscribeSessionAnalysis(SpannableStringBuilder messageSpan, float overallAccuracyRate, Map<String, Pair<Integer, Integer>> hitMap) {
             this.messageSpan = messageSpan;
-            this.overallErrorRate = overallErrorRate;
-            this.errorMap = errorMap;
+            this.overallAccuracyRate = overallAccuracyRate;
+            this.hitMap = hitMap;
         }
     }
 }

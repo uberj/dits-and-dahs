@@ -299,11 +299,11 @@ public abstract class SocraticStartScreenActivity extends AppCompatActivity impl
             sessionViewModel = ViewModelProviders.of(this).get(SocraticTrainingMainScreenViewModel.class);
             sessionViewModel.getLatestSession(sessionType).observe(this, (mostRecentSession) -> {
                 float wpmAverage = -1;
-                float errorRate = -1;
+                double accuracy = -1;
                 long prevDurationMillis = -1;
                 if (!mostRecentSession.isEmpty()) {
                     wpmAverage = mostRecentSession.get(0).wpmAverage;
-                    errorRate = mostRecentSession.get(0).errorRate;
+                    accuracy = mostRecentSession.get(0).accuracy;
                     prevDurationMillis = mostRecentSession.get(0).durationWorkedMillis;
 
                 }
@@ -319,8 +319,8 @@ public abstract class SocraticStartScreenActivity extends AppCompatActivity impl
                 ((TextView) rootView.findViewById(R.id.prev_session_wpm_average)).setText(
                         wpmAverage >= 0 ? String.format(Locale.ENGLISH, "%.2f", wpmAverage) : "N/A"
                 );
-                ((TextView) rootView.findViewById(R.id.prev_session_error_rate)).setText(
-                        errorRate >= 0 ? (int) (100 * errorRate) + "%" : "N/A"
+                ((TextView) rootView.findViewById(R.id.prev_session_accuracy)).setText(
+                        accuracy >= 0 ? (int) (100 * accuracy) + "%" : "N/A"
                 );
             });
 

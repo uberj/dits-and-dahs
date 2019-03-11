@@ -6,6 +6,6 @@
     <color name="disabledTextViewGrey">#DFDFDF</color>
     <color name="disabledText">#2C2C2C</color>
     <color name="incorrectMissedCharacterColor">#dd776e</color>
-    <color name="incorrectAddedCharacterColor">#57bb8a</color>
+    <color name="incorrectAddedCharacterColor">#FFEB3B</color>
     <color name="correctCharacterColor">#FFF</color>
 </resources>

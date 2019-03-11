@@ -26,7 +26,7 @@ public class SocraticTrainingSession {
     public float wpmAverage;
 
     @NonNull
-    public float errorRate;
+    public double accuracy;
 
     @NonNull
     public String sessionType;

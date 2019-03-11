@@ -166,12 +166,11 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         trainingSession.letterWpm = (long) letterWpmRequested;
 
         trainingSession.sessionType = sessionType.name();
-        if (Float.isNaN(trainingSession.errorRate)) {
-            trainingSession.errorRate = -1;
+        if (Double.isNaN(trainingSession.overallAccuracyRate)) {
+            trainingSession.overallAccuracyRate = -1;
         }
 
         trainingSession.stringsRequested = stringsRequested;
-        trainingSession.stringsRequested.add(" ");
 
         trainingSession.playedMessage = playedMessage;
         trainingSession.enteredKeys = transcribedMessage.getValue();

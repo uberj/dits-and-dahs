@@ -3,10 +3,10 @@
     <string name="action_settings">Settings</string>
 
     <string name="random_letters_description_what">Learn to copy groups of random characters</string>
-    <string name="random_letters_description_why">Learning how to recognize a stream of letters is harder than recognizing a single letter in isolation.</string>
+    <string name="random_letters_description_why">During this exercise, you recognize a stream of letters without pausing to check if your guess was correct. This exercise focuses on setting aside inhibition and the anxiety of making mistakes.</string>
 
     <string name="letter_training_description_what">Listen to a morse code pattern and guess which letter is being played.</string>
-    <string name="letter_training_description_why">Learning the alphabet is the first step toward understanding conversations on the air.</string>
+    <string name="letter_training_description_why">This exercise introduces the alphabet in Morse Code. After ever session you are measured on how accurate you were at recognizing the tones being played.</string>
     <string name="title_activity_main4">Main4Activity</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>

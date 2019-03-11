@@ -423,7 +423,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             View rootView = inflater.inflate(R.layout.transcribe_training_numbers_screen_fragment, container, false);
             sessionViewModel = ViewModelProviders.of(this).get(TranscribeTrainingMainScreenViewModel.class);
             sessionViewModel.getLatestSession(sessionType).observe(this, (possibleSession) -> {
-                float errorRate = -1;
+                float overalAccuracyRate = -1;
                 long prevDurationMillis = -1;
                 TableLayout errorListContainer = rootView.findViewById(R.id.error_breakdown_list_container);
                 if (!possibleSession.isEmpty()) {
@@ -432,7 +432,8 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                     TranscribeUtil.TranscribeSessionAnalysis analysis = TranscribeUtil.analyzeSession(getContext(), session);
                     TextView transcribeDiff = rootView.findViewById(R.id.transcribe_diff);
                     transcribeDiff.setText(analysis.messageSpan, TextView.BufferType.EDITABLE);
-                    errorRate = analysis.overallErrorRate;
+                    overalAccuracyRate = analysis.overallAccuracyRate;
+                    errorListContainer.removeAllViews();
                     buildErrorTable(errorListContainer, analysis);
                 } else {
                     TextView naTextView = new TextView(getContext());
@@ -448,8 +449,8 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                                 String.format(Locale.ENGLISH, "%02d:%02d", prevDurationMinutes, prevDurationSeconds) :
                                 "N/A"
                 );
-                ((TextView) rootView.findViewById(R.id.prev_session_error_rate)).setText(
-                        errorRate >= 0 ? (int) (100 * errorRate) + "%" : "N/A"
+                ((TextView) rootView.findViewById(R.id.prev_session_accuracy)).setText(
+                        overalAccuracyRate >= 0 ? (int) (100 * overalAccuracyRate) + "%" : "N/A"
                 );
             });
 
@@ -464,17 +465,17 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             headerRow.addView(stringNameTitle);
 
             TextView errorTextTitle = new TextView(getContext());
-            errorTextTitle.setText("Error Rate");
+            errorTextTitle.setText("Accuracy");
             errorTextTitle.setPadding(0, 8, 24, 8);
             headerRow.addView(errorTextTitle);
 
             TextView countDetails = new TextView(getContext());
-            countDetails.setText("Miss/Plays");
+            countDetails.setText("Hits/Plays");
             headerRow.addView(countDetails);
 
             errorListContainer.addView(headerRow);
 
-            for (Map.Entry<String, Pair<Integer, Integer>> stringError : analysis.errorMap.entrySet()) {
+            for (Map.Entry<String, Pair<Integer, Integer>> stringError : analysis.hitMap.entrySet()) {
                 TableRow tableRow = new TableRow(getContext());
                 TextView stringName = new TextView(getContext());
                 String string = stringError.getKey();
@@ -486,9 +487,9 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                 tableRow.addView(stringName);
 
                 Pair<Integer, Integer> counts = stringError.getValue();
-                Integer errorCount = counts.getRight();
-                Integer playCount = counts.getLeft();
-                int errorValue = (int) ((errorCount.doubleValue()/ playCount.doubleValue()) * 100);
+                Integer hitCount = counts.getLeft();
+                Integer playCount = counts.getRight();
+                int errorValue = (int) ((hitCount.doubleValue()/ playCount.doubleValue()) * 100);
 
                 TextView errorText = new TextView(getContext());
                 SpannableStringBuilder ssb = new SpannableStringBuilder();
@@ -500,7 +501,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                 tableRow.addView(errorText);
 
                 TextView missPlays = new TextView(getContext());
-                missPlays.setText(String.format(Locale.ENGLISH, "(%d/%d)", errorCount, playCount));
+                missPlays.setText(String.format(Locale.ENGLISH, "(%d/%d)", hitCount, playCount));
                 tableRow.addView(missPlays);
 
 

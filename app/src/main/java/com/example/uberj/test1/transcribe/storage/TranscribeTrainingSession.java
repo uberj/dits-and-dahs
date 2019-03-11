@@ -25,7 +25,7 @@ public class TranscribeTrainingSession {
     public Boolean completed;
 
     @NonNull
-    public float errorRate;
+    public double overallAccuracyRate;
 
     @NonNull
     public Long transmitWpm;

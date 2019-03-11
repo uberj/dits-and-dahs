@@ -4,6 +4,7 @@ package com.example.uberj.test1.transcribe;
 import com.example.uberj.test1.transcribe.storage.TranscribeTrainingSession;
 import com.google.common.collect.Lists;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,16 +20,32 @@ public class TranscribeUtilTest {
         TranscribeTrainingSession session = new TranscribeTrainingSession();
         session.playedMessage = Lists.newArrayList("M", " ", "K", "K");
         session.enteredKeys = Lists.newArrayList("M", " ", "K", "M");
-        Map<String, Double> errorMap = TranscribeUtil.calculateErrorMap(session);
+        session.stringsRequested = session.playedMessage;
+        Map<String, Pair<Integer, Integer>> errorMap = TranscribeUtil.calculateHitMap(session);
         Assert.assertEquals(3, errorMap.size());
 
-        Assert.assertNotNull(errorMap.get("M"));
-        Assert.assertEquals(0.50D, errorMap.get("M"),  0);
+        {
+            Assert.assertNotNull(errorMap.get("M"));
+            int hits = errorMap.get("M").getLeft();
+            int opportunities = errorMap.get("M").getRight();
+            Assert.assertEquals(1, hits);
+            Assert.assertEquals(1, opportunities);
+        }
 
-        Assert.assertNotNull(errorMap.get("K"));
-        Assert.assertEquals(0.50D, errorMap.get("K"),  0);
+        {
+            Assert.assertNotNull(errorMap.get("K"));
+            int hits = errorMap.get("K").getLeft();
+            int opportunities = errorMap.get("K").getRight();
+            Assert.assertEquals(1, hits);
+            Assert.assertEquals(2, opportunities);
+        }
 
-        Assert.assertNotNull(errorMap.get(" "));
-        Assert.assertEquals(0D, errorMap.get(" "), 0);
+        {
+            Assert.assertNotNull(errorMap.get(" "));
+            int hits = errorMap.get(" ").getLeft();
+            int opportunities = errorMap.get(" ").getRight();
+            Assert.assertEquals(1, hits);
+            Assert.assertEquals(1, opportunities);
+        }
     }
 }

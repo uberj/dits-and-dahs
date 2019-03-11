@@ -49,24 +49,24 @@
         app:layout_constraintStart_toStartOf="@+id/guideline17" />
 
     <TextView
-        android:id="@+id/prev-session-error-rate-title"
+        android:id="@+id/prev-session-accuracy-rate-title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Error Rate:"
+        android:text="Overal Accuracy:"
         android:visibility="visible"
         app:layout_constraintStart_toStartOf="@+id/guideline10"
         app:layout_constraintTop_toBottomOf="@+id/prev-session-wpm-title" />
 
     <TextView
-        android:id="@+id/prev-session-error-rate"
+        android:id="@+id/prev-session-accuracy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="N/A"
         android:visibility="visible"
-        app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-error-rate-title"
+        app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-accuracy-rate-title"
         app:layout_constraintStart_toStartOf="@+id/guideline17" />
 
     <androidx.constraintlayout.widget.Guideline
@@ -101,11 +101,11 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
-        android:text="Error Breakdown"
+        android:text="Accuracy Breakdown"
         android:textAllCaps="true"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/guideline10"
-        app:layout_constraintTop_toBottomOf="@+id/prev-session-error-rate" />
+        app:layout_constraintTop_toBottomOf="@+id/prev-session-accuracy" />
 
     <ScrollView
         android:layout_width="0dp"
@@ -126,7 +126,6 @@
             android:id="@+id/transcribe_diff"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TextView"
             android:textSize="14sp" />
     </ScrollView>
 

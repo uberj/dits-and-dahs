@@ -205,10 +205,10 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
         trainingSession.durationWorkedMillis = durationWorkedMillis;
         trainingSession.completed = durationWorkedMillis == 0;
         trainingSession.wpmAverage = calcWpmAverage(durationWorkedMillis);
-        trainingSession.errorRate = (float) totalIncorrectGuesses / (float) (totalCorrectGuesses + totalIncorrectGuesses);
+        trainingSession.accuracy = (double) totalCorrectGuesses / (double) (totalCorrectGuesses + totalIncorrectGuesses);
         trainingSession.sessionType = sessionType.name();
-        if (Float.isNaN(trainingSession.errorRate)) {
-            trainingSession.errorRate = -1;
+        if (Double.isNaN(trainingSession.accuracy)) {
+            trainingSession.accuracy = -1;
         }
 
         repository.insertSocraticTrainingSession(trainingSession);
