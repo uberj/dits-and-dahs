@@ -6,7 +6,6 @@ import com.example.uberj.test1.storage.Repository;
 import com.example.uberj.test1.transcribe.storage.TranscribeSessionType;
 import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettings;
 import com.example.uberj.test1.transcribe.storage.TranscribeTrainingSession;
-import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +19,6 @@ class TranscribeTrainingMainScreenViewModel extends AndroidViewModel {
     private final Repository repository;
     public final MutableLiveData<ArrayList<String>> selectedStrings = new MutableLiveData<>(null);
     public final MutableLiveData<boolean[]> selectedStringsBooleanMap = new MutableLiveData<>(null);
-    public final MutableLiveData<ArrayList<String>> suggestedStrings = new MutableLiveData<>(Lists.newArrayList());
 
     public TranscribeTrainingMainScreenViewModel(@NonNull Application application) {
         super(application);

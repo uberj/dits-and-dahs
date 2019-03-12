@@ -192,6 +192,8 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
     }
 
     public static class StartScreenFragment extends Fragment  {
+        private static final double SUGGEST_ADDING_MORE_LETTERS_ACCURACY_CUTOFF = 89;
+        private static final double SUGGEST_REMOVING_LETTERS_ACCURACY_CUTOFF = 45;
         private NumberPicker minutesPicker;
         private NumberPicker letterWpmNumberPicker;
         private NumberPicker transmitWpmNumberPicker;
@@ -199,7 +201,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
         private Class<? extends FragmentActivity> sessionActivityClass;
         private TranscribeSessionType sessionType;
         private TextView selectedStringsContainer;
-        private SwitchCompat autoSuggestSwitch;
+        private TextView suggestAddLettersHelpText;
 
 
         public static StartScreenFragment newInstance(TranscribeSessionType sessionType, Class<? extends FragmentActivity> sessionActivityClass) {
@@ -274,7 +276,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             letterWpmNumberPicker = rootView.findViewById(R.id.letter_wpm_number_picker);
             transmitWpmNumberPicker = rootView.findViewById(R.id.transmit_wpm_number_picker);
             selectedStringsContainer = rootView.findViewById(R.id.selected_strings);
-            autoSuggestSwitch = rootView.findViewById(R.id.auto_suggest_switch);
+            suggestAddLettersHelpText = rootView.findViewById(R.id.suggest_add_letters_help_text);
             sessionViewModel = ViewModelProviders.of(this).get(TranscribeTrainingMainScreenViewModel.class);
 
             sessionViewModel.selectedStrings.observe(this, (updatedSelectedStrings) -> {
@@ -285,17 +287,34 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                 selectedStringsContainer.setText(Joiner.on(", ").join(updatedSelectedStrings));
             });
 
-            autoSuggestSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (isChecked) {
-                    sessionViewModel.selectedStrings.setValue(sessionViewModel.suggestedStrings.getValue());
-                }
-            });
-
             sessionViewModel.getLatestSession(sessionType).observe(this, (possibleSession) -> {
-                if (possibleSession.size() > 0) {
-                    sessionViewModel.suggestedStrings.setValue(TranscribeUtil.calculateSuggestedStrings(possibleSession.get(0)));
+                if (possibleSession.isEmpty()) {
+                    suggestAddLettersHelpText.setVisibility(View.GONE);
+                }
+
+                TranscribeTrainingSession session = possibleSession.get(0);
+                TranscribeUtil.TranscribeSessionAnalysis analysis = TranscribeUtil.analyzeSession(getContext(), session);
+                int roundedAccuracy = (int) (100 * analysis.overallAccuracyRate);
+                boolean suggestAdd = roundedAccuracy > SUGGEST_ADDING_MORE_LETTERS_ACCURACY_CUTOFF;
+                boolean suggestRemove = roundedAccuracy < SUGGEST_REMOVING_LETTERS_ACCURACY_CUTOFF;
+
+                SpannableStringBuilder ssb = null;
+                boolean showSuggestion = false;
+                if (suggestRemove && session.stringsRequested.size() != getTranscribeActivity().initialSelectedStrings().size()) {
+                    ssb = buildBaseSuggestion(roundedAccuracy);
+                    ssb.append("Learning this language is very hard. Consider mastering a smaller subset of letters first, before introducing more characters.");
+                    showSuggestion = true;
+                } else if (suggestAdd && session.stringsRequested.size() != getTranscribeActivity().getPossibleStrings().size()) {
+                    ssb = buildBaseSuggestion(roundedAccuracy);
+                    ssb.append("Very good! Consider adding some new letters.");
+                    showSuggestion = true;
+                }
+
+                if (showSuggestion) {
+                    suggestAddLettersHelpText.setText(ssb);
+                    suggestAddLettersHelpText.setVisibility(View.VISIBLE);
                 } else {
-                    sessionViewModel.suggestedStrings.setValue(Lists.newArrayList(getTranscribeActivity().initialSelectedStrings()));
+                    suggestAddLettersHelpText.setVisibility(View.GONE);
                 }
             });
 
@@ -358,6 +377,18 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             });
 
             return rootView;
+        }
+
+        private SpannableStringBuilder buildBaseSuggestion(int roundedAccuracy) {
+            SpannableStringBuilder ssb = new SpannableStringBuilder();
+            ssb.append("You copied with ");
+            int startOffset = ssb.length();
+            ssb.append(String.valueOf(roundedAccuracy))
+                    .append("%");
+            ForegroundColorSpan errorSpanColor = new ForegroundColorSpan(ProgressGradient.forWeight(Math.min(100, roundedAccuracy)));
+            ssb.setSpan(errorSpanColor, startOffset, ssb.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ssb.append(" accuracy last round. ");
+            return ssb;
         }
 
         private boolean[] selectedStringsToBooleanMap(List<String> selectedLetters) {

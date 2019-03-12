@@ -88,11 +88,12 @@
         android:id="@+id/start-button"
         android:layout_width="204dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
         android:text="Start"
         android:textAlignment="center"
         app:layout_constraintStart_toStartOf="@+id/stats-stopper"
-        app:layout_constraintTop_toBottomOf="@+id/session-length" />
+        app:layout_constraintTop_toBottomOf="@+id/target-issue-letters" />
 
 
     <androidx.constraintlayout.widget.Guideline
@@ -100,21 +101,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.17" />
+        app:layout_constraintGuide_percent="0.15" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline17"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.65" />
+        app:layout_constraintGuide_percent="0.63" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline18"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.17" />
+        app:layout_constraintGuide_percent="0.1" />
 
     <ImageView
         android:id="@+id/wpmhelp"
@@ -163,12 +164,24 @@
         app:layout_constraintTop_toBottomOf="@+id/selected_strings" />
 
     <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/auto-suggest-switch"
+        android:id="@+id/target-issue-letters"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:text="Target letters I have trouble with "
+        app:layout_constraintStart_toStartOf="@+id/stats-stopper"
+        app:layout_constraintTop_toBottomOf="@+id/session-length" />
+
+    <TextView
+        android:id="@+id/suggest-add-letters-help-text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Auto-suggest"
+        android:layout_marginEnd="32dp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline17"
         app:layout_constraintTop_toBottomOf="@+id/change_included_letters" />
 
