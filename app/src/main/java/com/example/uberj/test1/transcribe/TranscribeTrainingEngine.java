@@ -9,8 +9,8 @@ import org.apache.commons.math3.util.Pair;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-import kotlin.random.Random;
 import timber.log.Timber;
 
 class TranscribeTrainingEngine {
@@ -36,6 +36,7 @@ class TranscribeTrainingEngine {
     private final int letterWpmRequested;
     private final int transmitWpmRequested;
     private final Consumer<String> letterPlayedCallback;
+    private final EnumeratedDistribution<String> nextLetterDistribution;
 
     private boolean audioThreadKeepAlive;
     private boolean isPaused;
@@ -44,8 +45,9 @@ class TranscribeTrainingEngine {
     private int lettersLeftInGroup = LENGTH_DISTRIBUTION.sample();
     private boolean awaitingShutdown = false;
 
-    public TranscribeTrainingEngine(int letterWpmRequested, int transmitWpmRequested, List<String> inPlayLetters, Consumer<String> letterPlayedCallback) {
-        this.inPlayLetters = inPlayLetters;
+    public TranscribeTrainingEngine(int letterWpmRequested, int transmitWpmRequested, List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters, Consumer<String> letterPlayedCallback) {
+        this.nextLetterDistribution = new EnumeratedDistribution<>(letterWeights(inPlayLetters));
+        this.inPlayLetters = justStrings(inPlayLetters);
         this.letterWpmRequested = letterWpmRequested;
         this.transmitWpmRequested = transmitWpmRequested;
         this.letterPlayedCallback = letterPlayedCallback;
@@ -87,6 +89,14 @@ class TranscribeTrainingEngine {
         };
     }
 
+    private List<String> justStrings(List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters) {
+        return inPlayLetters.stream().map(org.apache.commons.lang3.tuple.Pair::getKey).collect(Collectors.toList());
+    }
+
+    private List<Pair<String, Double>> letterWeights(List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters) {
+        return inPlayLetters.stream().map(pair -> Pair.create(pair.getKey(), pair.getValue())).collect(Collectors.toList());
+    }
+
     private String nextLetter() {
         if (lettersLeftInGroup <= 0) {
             lettersLeftInGroup = LENGTH_DISTRIBUTION.sample();
@@ -96,7 +106,7 @@ class TranscribeTrainingEngine {
 
         lettersLeftInGroup -= 1;
 
-        return inPlayLetters.get(Math.abs(Random.Default.nextInt()) % inPlayLetters.size());
+        return nextLetterDistribution.sample();
     }
 
     public void prime() {
@@ -148,7 +158,6 @@ class TranscribeTrainingEngine {
         TranscribeTrainingEngineSettings settings = new TranscribeTrainingEngineSettings();
         settings.letterWpmRequested = letterWpmRequested;
         settings.transmitWpmRequested = transmitWpmRequested;
-        settings.activeLetters = inPlayLetters;
         settings.selectedStrings = inPlayLetters;
         return settings;
     }

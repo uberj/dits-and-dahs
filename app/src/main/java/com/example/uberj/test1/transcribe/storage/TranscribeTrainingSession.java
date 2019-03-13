@@ -44,4 +44,7 @@ public class TranscribeTrainingSession {
 
     @NonNull
     public List<String> stringsRequested;
+
+    @NonNull
+    public Boolean targetIssueLetters;
 }

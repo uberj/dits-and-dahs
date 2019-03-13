@@ -1,32 +1,24 @@
 package com.example.uberj.test1.transcribe;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
 import com.example.uberj.test1.DynamicKeyboard;
 import com.example.uberj.test1.R;
 import com.example.uberj.test1.keyboards.KeyConfig;
 import com.example.uberj.test1.keyboards.Keys;
 import com.example.uberj.test1.transcribe.storage.TranscribeSessionType;
-import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettings;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
+import com.example.uberj.test1.transcribe.storage.TranscribeTrainingSession;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +27,7 @@ import java.util.Optional;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModelProviders;
 
 import static com.example.uberj.test1.socratic.SocraticKeyboardSessionActivity.DISABLED_BUTTON_ALPHA;
@@ -45,6 +38,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
     public static final String FARNSWORTH_SPACES = "farnsworth-spaces";
     public static final String STRINGS_REQUESTED = "strings-requested";
     public static final String TRANSMIT_WPM_REQUESTED = "transmit-wpm-requested";
+    public static final String TARGET_ISSUE_STRINGS = "target-issue-strings";
 
     private TranscribeTrainingSessionViewModel viewModel;
     private DynamicKeyboard keyboard;
@@ -65,6 +59,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
         int letterWpmRequested = receiveBundle.getInt(LETTER_WPM_REQUESTED);
         int transmitWpmRequested = receiveBundle.getInt(TRANSMIT_WPM_REQUESTED);
         int fransworth = receiveBundle.getInt(FARNSWORTH_SPACES);
+        boolean targetIssueLetters = receiveBundle.getBoolean(TARGET_ISSUE_STRINGS);
         ArrayList<String> stringsRequested = receiveBundle.getStringArrayList(STRINGS_REQUESTED);
         viewModel = ViewModelProviders.of(this,
                 new TranscribeTrainingSessionViewModel.Factory(
@@ -74,46 +69,45 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
                         transmitWpmRequested,
                         stringsRequested,
                         fransworth,
+                        targetIssueLetters,
                         getSessionType(),
                         this)
         ).get(TranscribeTrainingSessionViewModel.class);
 
-        viewModel.getLatestEngineSetting().observe(this, (prevSettings) -> {
-            TranscribeTrainingEngineSettings settings;
-            if (prevSettings == null || prevSettings.size() == 0) {
-                settings = null;
-            } else {
-                settings = prevSettings.get(0);
-            }
-            viewModel.primeTheEngine(settings);
-            LinearLayout keyboardContainer = findViewById(R.id.keyboard_base);
-            keyboard = new DynamicKeyboard.Builder()
-                    .setContext(this)
-                    .setRootView(keyboardContainer)
-                    .setDrawProgressBar(false)
-                    .setKeys(getKeys())
-                    .setButtonOnClickListener(this::keyboardButtonClicked)
-                    .setButtonLongClickListener(this::playableKeyLongClickHandler)
-                    .setButtonCallback((view, keyConfig) -> {
-                        assert stringsRequested != null;
-                        if (keyConfig.type == KeyConfig.KeyType.DELETE_KEY || keyConfig.type == KeyConfig.KeyType.SPACE_KEY) {
-                            return;
-                        }
+        LinearLayout keyboardContainer = findViewById(R.id.keyboard_base);
+        keyboard = new DynamicKeyboard.Builder()
+                .setContext(this)
+                .setRootView(keyboardContainer)
+                .setDrawProgressBar(false)
+                .setKeys(getKeys())
+                .setButtonOnClickListener(this::keyboardButtonClicked)
+                .setButtonLongClickListener(this::playableKeyLongClickHandler)
+                .setButtonCallback((view, keyConfig) -> {
+                    assert stringsRequested != null;
+                    if (keyConfig.type == KeyConfig.KeyType.DELETE_KEY || keyConfig.type == KeyConfig.KeyType.SPACE_KEY) {
+                        return;
+                    }
 
-                        if (!(view instanceof Button)) {
-                            return;
-                        }
+                    if (!(view instanceof Button)) {
+                        return;
+                    }
 
-                        Button button = (Button) view;
-                        if (!stringsRequested.contains(button.getText().toString())) {
-                            button.setAlpha(DISABLED_BUTTON_ALPHA);
-                        }
+                    Button button = (Button) view;
+                    if (!stringsRequested.contains(button.getText().toString())) {
+                        button.setAlpha(DISABLED_BUTTON_ALPHA);
+                    }
 
-                    })
-                    .build();
-            keyboard.buildAtRoot();
-            viewModel.startTheEngine();
-        });
+                })
+                .build();
+
+        SessionEngineWrapper
+                .bind(viewModel)
+                .observe(this, (sessionAndSettings) -> {
+                    TranscribeTrainingSession session = sessionAndSettings.getSessionOrNull();
+                    viewModel.primeTheEngine(session);
+                    keyboard.buildAtRoot();
+                    viewModel.startTheEngine();
+                });
 
         ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
         viewModel.durationRemainingMillis.observe(this, (remainingMillis) -> {
@@ -219,5 +213,4 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
 
 
     protected abstract TranscribeSessionType getSessionType();
-
 }

@@ -100,6 +100,17 @@ class TranscribeUtil {
         return null;
     }
 
+    public static Map<String, Double> calculateErrorMap(TranscribeTrainingSession session) {
+        Map<String, Pair<Integer, Integer>> hitMap = TranscribeUtil.calculateHitMap(session);
+        Map<String, Double> errorMap = Maps.newHashMap();
+        hitMap.forEach((s, hitMisses) -> {
+            double error = 1 - (hitMisses.getLeft().doubleValue() / hitMisses.getRight().doubleValue());
+            errorMap.put(s, error);
+        });
+
+        return errorMap;
+    }
+
     public static Map<String, Pair<Integer, Integer>> calculateHitMap(TranscribeTrainingSession session) {
         LinkedList<DiffPatchMatch.Diff> messageDiff = calcMessageDiff(session);
         HashMap<String, Integer> opportunityCountMap = Maps.newHashMap();

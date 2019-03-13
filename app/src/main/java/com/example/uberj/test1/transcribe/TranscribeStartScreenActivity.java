@@ -202,6 +202,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
         private TranscribeSessionType sessionType;
         private TextView selectedStringsContainer;
         private TextView suggestAddLettersHelpText;
+        private SwitchCompat targetIssueLettersSwitch;
 
 
         public static StartScreenFragment newInstance(TranscribeSessionType sessionType, Class<? extends FragmentActivity> sessionActivityClass) {
@@ -277,6 +278,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             transmitWpmNumberPicker = rootView.findViewById(R.id.transmit_wpm_number_picker);
             selectedStringsContainer = rootView.findViewById(R.id.selected_strings);
             suggestAddLettersHelpText = rootView.findViewById(R.id.suggest_add_letters_help_text);
+            targetIssueLettersSwitch = rootView.findViewById(R.id.target_issue_letters);
             sessionViewModel = ViewModelProviders.of(this).get(TranscribeTrainingMainScreenViewModel.class);
 
             sessionViewModel.selectedStrings.observe(this, (updatedSelectedStrings) -> {
@@ -287,96 +289,106 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                 selectedStringsContainer.setText(Joiner.on(", ").join(updatedSelectedStrings));
             });
 
-            sessionViewModel.getLatestSession(sessionType).observe(this, (possibleSession) -> {
-                if (possibleSession.isEmpty()) {
-                    suggestAddLettersHelpText.setVisibility(View.GONE);
-                }
-
-                TranscribeTrainingSession session = possibleSession.get(0);
-                TranscribeUtil.TranscribeSessionAnalysis analysis = TranscribeUtil.analyzeSession(getContext(), session);
-                int roundedAccuracy = (int) (100 * analysis.overallAccuracyRate);
-                boolean suggestAdd = roundedAccuracy > SUGGEST_ADDING_MORE_LETTERS_ACCURACY_CUTOFF;
-                boolean suggestRemove = roundedAccuracy < SUGGEST_REMOVING_LETTERS_ACCURACY_CUTOFF;
-
-                SpannableStringBuilder ssb = null;
-                boolean showSuggestion = false;
-                if (suggestRemove && session.stringsRequested.size() != getTranscribeActivity().initialSelectedStrings().size()) {
-                    ssb = buildBaseSuggestion(roundedAccuracy);
-                    ssb.append("Learning this language is very hard. Consider mastering a smaller subset of letters first, before introducing more characters.");
-                    showSuggestion = true;
-                } else if (suggestAdd && session.stringsRequested.size() != getTranscribeActivity().getPossibleStrings().size()) {
-                    ssb = buildBaseSuggestion(roundedAccuracy);
-                    ssb.append("Very good! Consider adding some new letters.");
-                    showSuggestion = true;
-                }
-
-                if (showSuggestion) {
-                    suggestAddLettersHelpText.setText(ssb);
-                    suggestAddLettersHelpText.setVisibility(View.VISIBLE);
-                } else {
-                    suggestAddLettersHelpText.setVisibility(View.GONE);
-                }
-            });
-
-            sessionViewModel.getLatestEngineSettings(sessionType).observe(this, (mostRecentSettings) -> {
-                int letterWpm = -1;
-                int transmitWpm = -1;
-                long prevDurationRequestedMillis = -1L;
-                List<String> prevSelectedLetters = null;
-                if (!mostRecentSettings.isEmpty()) {
-                    TranscribeTrainingEngineSettings engineSettings = mostRecentSettings.get(0);
-                    letterWpm = engineSettings.letterWpmRequested;
-                    transmitWpm = engineSettings.transmitWpmRequested;
-                    prevDurationRequestedMillis = engineSettings.durationRequestedMillis;
-                    prevSelectedLetters = engineSettings.selectedStrings;
-                }
-
-                if (letterWpm > 0) {
-                    letterWpmNumberPicker.setProgress(letterWpm);
-                } else {
-                    letterWpmNumberPicker.setProgress(20);
-                }
-
-                if (transmitWpm > 0) {
-                    transmitWpmNumberPicker.setProgress(transmitWpm);
-                } else {
-                    transmitWpmNumberPicker.setProgress(6);
-                }
-
-                if (prevDurationRequestedMillis > 0) {
-                    long prevDurationRequestedMinutes = (prevDurationRequestedMillis / 1000) / 60;
-                    minutesPicker.setProgress((int) prevDurationRequestedMinutes);
-                } else {
-                    minutesPicker.setProgress(1);
-                }
-
-                List<String> selectedStrings;
-                if (prevSelectedLetters == null) {
-                    selectedStrings = getTranscribeActivity().initialSelectedStrings();
-                } else {
-                    selectedStrings = prevSelectedLetters;
-                }
-
-                sessionViewModel.selectedStrings.setValue(Lists.newArrayList(selectedStrings));
-            });
+            sessionViewModel.getLatestSession(sessionType).observe(this, this::setupNumbersBasedOnPreviousSession);
+            sessionViewModel.getLatestEngineSettings(sessionType).observe(this, this::setupPreviousSettings);
 
             Button startButton = rootView.findViewById(R.id.start_button);
-            startButton.setOnClickListener(v -> {
-                Intent sendIntent = new Intent(rootView.getContext(), sessionActivityClass);
-                Bundle bundle = new Bundle();
-                bundle.putInt(TranscribeKeyboardSessionActivity.FARNSWORTH_SPACES, 3);
-                bundle.putInt(TranscribeKeyboardSessionActivity.LETTER_WPM_REQUESTED, letterWpmNumberPicker.getProgress());
-                bundle.putInt(TranscribeKeyboardSessionActivity.TRANSMIT_WPM_REQUESTED, transmitWpmNumberPicker.getProgress());
-                bundle.putInt(TranscribeKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
-                bundle.putStringArrayList(
-                        TranscribeKeyboardSessionActivity.STRINGS_REQUESTED,
-                        sessionViewModel.selectedStrings.getValue()
-                );
-                sendIntent.putExtras(bundle);
-                startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);
-            });
+            startButton.setOnClickListener(this::handleStartButtonClick);
 
             return rootView;
+        }
+
+        private void handleStartButtonClick(View view) {
+            Intent sendIntent = new Intent(view.getContext(), sessionActivityClass);
+            Bundle bundle = new Bundle();
+            bundle.putInt(TranscribeKeyboardSessionActivity.FARNSWORTH_SPACES, 3);
+            bundle.putInt(TranscribeKeyboardSessionActivity.LETTER_WPM_REQUESTED, letterWpmNumberPicker.getProgress());
+            bundle.putInt(TranscribeKeyboardSessionActivity.TRANSMIT_WPM_REQUESTED, transmitWpmNumberPicker.getProgress());
+            bundle.putInt(TranscribeKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
+            bundle.putBoolean(TranscribeKeyboardSessionActivity.TARGET_ISSUE_STRINGS, targetIssueLettersSwitch.isChecked());
+            bundle.putStringArrayList(
+                    TranscribeKeyboardSessionActivity.STRINGS_REQUESTED,
+                    sessionViewModel.selectedStrings.getValue()
+            );
+            sendIntent.putExtras(bundle);
+            startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);
+        }
+
+        private void setupNumbersBasedOnPreviousSession(List<TranscribeTrainingSession> possibleSession) {
+            if (possibleSession == null || possibleSession.isEmpty()) {
+                suggestAddLettersHelpText.setVisibility(View.GONE);
+                return;
+            }
+
+            TranscribeTrainingSession session = possibleSession.get(0);
+            TranscribeUtil.TranscribeSessionAnalysis analysis = TranscribeUtil.analyzeSession(getContext(), session);
+            int roundedAccuracy = (int) (100 * analysis.overallAccuracyRate);
+            boolean suggestAdd = roundedAccuracy > SUGGEST_ADDING_MORE_LETTERS_ACCURACY_CUTOFF;
+            boolean suggestRemove = roundedAccuracy < SUGGEST_REMOVING_LETTERS_ACCURACY_CUTOFF;
+
+            SpannableStringBuilder ssb = null;
+            boolean showSuggestion = false;
+            if (suggestRemove && session.stringsRequested.size() != getTranscribeActivity().initialSelectedStrings().size()) {
+                ssb = buildBaseSuggestion(roundedAccuracy);
+                ssb.append("Learning this language is very hard. Consider mastering a smaller subset of letters first, before introducing more characters.");
+                showSuggestion = true;
+            } else if (suggestAdd && session.stringsRequested.size() != getTranscribeActivity().getPossibleStrings().size()) {
+                ssb = buildBaseSuggestion(roundedAccuracy);
+                ssb.append("Very good! Consider adding some new letters.");
+                showSuggestion = true;
+            }
+
+            if (showSuggestion) {
+                suggestAddLettersHelpText.setText(ssb);
+                suggestAddLettersHelpText.setVisibility(View.VISIBLE);
+            } else {
+                suggestAddLettersHelpText.setVisibility(View.GONE);
+            }
+        }
+
+        private void setupPreviousSettings(List<TranscribeTrainingEngineSettings> mostRecentSettings) {
+            int letterWpm = -1;
+            int transmitWpm = -1;
+            long prevDurationRequestedMillis = -1L;
+            List<String> prevSelectedLetters = null;
+            boolean targetIssueLetters = true;
+            if (!mostRecentSettings.isEmpty()) {
+                TranscribeTrainingEngineSettings engineSettings = mostRecentSettings.get(0);
+                letterWpm = engineSettings.letterWpmRequested;
+                transmitWpm = engineSettings.transmitWpmRequested;
+                prevDurationRequestedMillis = engineSettings.durationRequestedMillis;
+                prevSelectedLetters = engineSettings.selectedStrings;
+                targetIssueLetters = engineSettings.targetIssueLetters;
+            }
+
+            if (letterWpm > 0) {
+                letterWpmNumberPicker.setProgress(letterWpm);
+            } else {
+                letterWpmNumberPicker.setProgress(20);
+            }
+
+            if (transmitWpm > 0) {
+                transmitWpmNumberPicker.setProgress(transmitWpm);
+            } else {
+                transmitWpmNumberPicker.setProgress(6);
+            }
+
+            if (prevDurationRequestedMillis > 0) {
+                long prevDurationRequestedMinutes = (prevDurationRequestedMillis / 1000) / 60;
+                minutesPicker.setProgress((int) prevDurationRequestedMinutes);
+            } else {
+                minutesPicker.setProgress(1);
+            }
+
+            List<String> selectedStrings;
+            if (prevSelectedLetters == null) {
+                selectedStrings = getTranscribeActivity().initialSelectedStrings();
+            } else {
+                selectedStrings = prevSelectedLetters;
+            }
+
+            targetIssueLettersSwitch.setChecked(targetIssueLetters);
+            sessionViewModel.selectedStrings.setValue(Lists.newArrayList(selectedStrings));
         }
 
         private SpannableStringBuilder buildBaseSuggestion(int roundedAccuracy) {

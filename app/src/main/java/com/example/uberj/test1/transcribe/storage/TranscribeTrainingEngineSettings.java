@@ -17,9 +17,6 @@ public class TranscribeTrainingEngineSettings {
     public long createdAtEpocMillis;
 
     @NonNull
-    public List<String> activeLetters;
-
-    @NonNull
     public int letterWpmRequested;
 
     @NonNull
@@ -33,4 +30,7 @@ public class TranscribeTrainingEngineSettings {
 
     @NonNull
     public List<String> selectedStrings;
+
+    @NonNull
+    public boolean targetIssueLetters;
 }
