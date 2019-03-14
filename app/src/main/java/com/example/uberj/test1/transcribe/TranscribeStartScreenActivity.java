@@ -358,6 +358,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                     sessionViewModel.selectedStrings.getValue()
             );
             sendIntent.putExtras(bundle);
+            sendIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);
         }
 

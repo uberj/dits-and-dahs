@@ -168,7 +168,6 @@ public abstract class SocraticStartScreenActivity extends AppCompatActivity impl
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
             return 2;
         }
     }
@@ -256,6 +255,7 @@ public abstract class SocraticStartScreenActivity extends AppCompatActivity impl
                 bundle.putInt(SocraticKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
                 bundle.putBoolean(SocraticKeyboardSessionActivity.REQUEST_WEIGHTS_RESET, resetLetterWeights.isChecked());
                 sendIntent.putExtras(bundle);
+                sendIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);
                 resetLetterWeights.setChecked(false);
             });
