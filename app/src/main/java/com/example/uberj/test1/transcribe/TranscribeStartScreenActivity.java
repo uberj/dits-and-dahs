@@ -27,6 +27,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -282,6 +283,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             suggestAddLettersHelpText = rootView.findViewById(R.id.suggest_add_letters_help_text);
             targetIssueLettersSwitch = rootView.findViewById(R.id.target_issue_letters);
             sessionViewModel = ViewModelProviders.of(this).get(TranscribeTrainingMainScreenViewModel.class);
+            enforceWpmInequalities();
 
             sessionViewModel.selectedStrings.observe(this, (updatedSelectedStrings) -> {
                 if (updatedSelectedStrings == null) {
@@ -298,6 +300,49 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             startButton.setOnClickListener(this::handleStartButtonClick);
 
             return rootView;
+        }
+
+        private void enforceWpmInequalities() {
+            // Letter WPM is the upper bound of the effective WPM
+            letterWpmNumberPicker.setNumberPickerChangeListener(new NumberPicker.OnNumberPickerChangeListener() {
+                @Override
+                public void onProgressChanged(@NotNull NumberPicker numberPicker, int letterWpm, boolean b) {
+                    int effectiveWpm = effectiveWpmNumberPicker.getProgress();
+                    if (effectiveWpm > letterWpm) {
+                        effectiveWpmNumberPicker.setProgress(letterWpm);
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(@NotNull NumberPicker numberPicker) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(@NotNull NumberPicker numberPicker) {
+
+                }
+            });
+
+            effectiveWpmNumberPicker.setNumberPickerChangeListener(new NumberPicker.OnNumberPickerChangeListener() {
+                @Override
+                public void onProgressChanged(@NotNull NumberPicker numberPicker, int effectiveWpm, boolean b) {
+                    int letterWpm = letterWpmNumberPicker.getProgress();
+                    if (effectiveWpm > letterWpm) {
+                        letterWpmNumberPicker.setProgress(effectiveWpm);
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(@NotNull NumberPicker numberPicker) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(@NotNull NumberPicker numberPicker) {
+
+                }
+            });
         }
 
         private void handleStartButtonClick(View view) {
