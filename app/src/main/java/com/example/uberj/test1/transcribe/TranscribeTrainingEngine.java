@@ -34,7 +34,7 @@ class TranscribeTrainingEngine {
     private final String farnsworthPause = "farnsworthPause";
     private final List<String> inPlayLetters;
     private final int letterWpmRequested;
-    private final int transmitWpmRequested;
+    private final int effectiveWpmRequested;
     private final Consumer<String> letterPlayedCallback;
     private final EnumeratedDistribution<String> nextLetterDistribution;
 
@@ -45,13 +45,13 @@ class TranscribeTrainingEngine {
     private int lettersLeftInGroup = LENGTH_DISTRIBUTION.sample();
     private boolean awaitingShutdown = false;
 
-    public TranscribeTrainingEngine(int letterWpmRequested, int transmitWpmRequested, List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters, Consumer<String> letterPlayedCallback) {
+    public TranscribeTrainingEngine(int letterWpmRequested, int effectiveWpmRequested, List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters, Consumer<String> letterPlayedCallback) {
         this.nextLetterDistribution = new EnumeratedDistribution<>(letterWeights(inPlayLetters));
         this.inPlayLetters = justStrings(inPlayLetters);
         this.letterWpmRequested = letterWpmRequested;
-        this.transmitWpmRequested = transmitWpmRequested;
+        this.effectiveWpmRequested = effectiveWpmRequested;
         this.letterPlayedCallback = letterPlayedCallback;
-        this.cwToneManager = new CWToneManager(letterWpmRequested, transmitWpmRequested);
+        this.cwToneManager = new CWToneManager(letterWpmRequested, effectiveWpmRequested);
         this.audioLoop = () -> {
             try {
                 while (Thread.currentThread() == audioThread) {
@@ -157,7 +157,7 @@ class TranscribeTrainingEngine {
     public TranscribeTrainingEngineSettings getSettings() {
         TranscribeTrainingEngineSettings settings = new TranscribeTrainingEngineSettings();
         settings.letterWpmRequested = letterWpmRequested;
-        settings.transmitWpmRequested = transmitWpmRequested;
+        settings.effectiveWpmRequested = effectiveWpmRequested;
         settings.selectedStrings = inPlayLetters;
         return settings;
     }

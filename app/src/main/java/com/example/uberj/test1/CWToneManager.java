@@ -253,9 +253,9 @@ public class CWToneManager {
         }
     }
 
-    public CWToneManager(int letterWpm, int transmitWpm) {
+    public CWToneManager(int letterWpm, int effective) {
         this.letterWpm = letterWpm;
-        this.farnsworth = calcFarnsworth(letterWpm, transmitWpm);
+        this.farnsworth = calcFarnsworth(letterWpm, effective);
 
         int channelOutStereo = AudioFormat.CHANNEL_OUT_MONO;
         int encoding = AudioFormat.ENCODING_PCM_16BIT;
@@ -275,16 +275,16 @@ public class CWToneManager {
         player.play();
     }
 
-    private double calcFarnsworth(int letterWpm, int transmitWpm) {
+    private double calcFarnsworth(int letterWpm, int effectiveWpm) {
         // letterwpm = 20
-        // transmitwpm = 20
+        // effectivewpm = 20
         // -> farnsworth = 1
 
         // letterwpm = 20
-        // transmitwpm = 10
+        // effectivewpm = 10
         // -> farnsworth = 2
 
-        double f = (double) letterWpm / (double) transmitWpm;
+        double f = (double) letterWpm / (double) effectiveWpm;
         return Math.max(1, f);
     }
 

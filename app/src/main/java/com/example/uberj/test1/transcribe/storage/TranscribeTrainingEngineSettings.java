@@ -20,7 +20,7 @@ public class TranscribeTrainingEngineSettings {
     public int letterWpmRequested;
 
     @NonNull
-    public int transmitWpmRequested;
+    public int effectiveWpmRequested;
 
     @NonNull
     public Long durationRequestedMillis;

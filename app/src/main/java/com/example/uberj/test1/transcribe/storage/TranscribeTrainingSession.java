@@ -28,7 +28,7 @@ public class TranscribeTrainingSession {
     public double overallAccuracyRate;
 
     @NonNull
-    public Long transmitWpm;
+    public Long effectiveWpm;
 
     @NonNull
     public Long letterWpm;

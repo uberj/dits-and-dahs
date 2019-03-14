@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import androidx.annotation.NonNull;
@@ -192,11 +193,12 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
     }
 
     public static class StartScreenFragment extends Fragment  {
+        private static final Random r = new Random();
         private static final double SUGGEST_ADDING_MORE_LETTERS_ACCURACY_CUTOFF = 89;
         private static final double SUGGEST_REMOVING_LETTERS_ACCURACY_CUTOFF = 45;
         private NumberPicker minutesPicker;
         private NumberPicker letterWpmNumberPicker;
-        private NumberPicker transmitWpmNumberPicker;
+        private NumberPicker effectiveWpmNumberPicker;
         private TranscribeTrainingMainScreenViewModel sessionViewModel;
         private Class<? extends FragmentActivity> sessionActivityClass;
         private TranscribeSessionType sessionType;
@@ -275,7 +277,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
 
             minutesPicker = rootView.findViewById(R.id.number_picker_minutes);
             letterWpmNumberPicker = rootView.findViewById(R.id.letter_wpm_number_picker);
-            transmitWpmNumberPicker = rootView.findViewById(R.id.transmit_wpm_number_picker);
+            effectiveWpmNumberPicker = rootView.findViewById(R.id.effective_wpm_number_picker);
             selectedStringsContainer = rootView.findViewById(R.id.selected_strings);
             suggestAddLettersHelpText = rootView.findViewById(R.id.suggest_add_letters_help_text);
             targetIssueLettersSwitch = rootView.findViewById(R.id.target_issue_letters);
@@ -303,7 +305,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             Bundle bundle = new Bundle();
             bundle.putInt(TranscribeKeyboardSessionActivity.FARNSWORTH_SPACES, 3);
             bundle.putInt(TranscribeKeyboardSessionActivity.LETTER_WPM_REQUESTED, letterWpmNumberPicker.getProgress());
-            bundle.putInt(TranscribeKeyboardSessionActivity.TRANSMIT_WPM_REQUESTED, transmitWpmNumberPicker.getProgress());
+            bundle.putInt(TranscribeKeyboardSessionActivity.EFFECTIVE_WPM_REQUESTED, effectiveWpmNumberPicker.getProgress());
             bundle.putInt(TranscribeKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
             bundle.putBoolean(TranscribeKeyboardSessionActivity.TARGET_ISSUE_STRINGS, targetIssueLettersSwitch.isChecked());
             bundle.putStringArrayList(
@@ -330,7 +332,11 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             boolean showSuggestion = false;
             if (suggestRemove && session.stringsRequested.size() != getTranscribeActivity().initialSelectedStrings().size()) {
                 ssb = buildBaseSuggestion(roundedAccuracy);
-                ssb.append("Learning this language is very hard. Consider mastering a smaller subset of letters first, before introducing more characters.");
+                if (r.nextBoolean()) {
+                    ssb.append("Learning this language is very hard. Consider mastering a smaller subset of letters first, before introducing more characters.");
+                } else {
+                    ssb.append("Learning this language is very hard. Consider lowering the effective speed to give yourself more time between words and letters.");
+                }
                 showSuggestion = true;
             } else if (suggestAdd && session.stringsRequested.size() != getTranscribeActivity().getPossibleStrings().size()) {
                 ssb = buildBaseSuggestion(roundedAccuracy);
@@ -348,14 +354,14 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
 
         private void setupPreviousSettings(List<TranscribeTrainingEngineSettings> mostRecentSettings) {
             int letterWpm = -1;
-            int transmitWpm = -1;
+            int effective = -1;
             long prevDurationRequestedMillis = -1L;
             List<String> prevSelectedLetters = null;
             boolean targetIssueLetters = true;
             if (!mostRecentSettings.isEmpty()) {
                 TranscribeTrainingEngineSettings engineSettings = mostRecentSettings.get(0);
                 letterWpm = engineSettings.letterWpmRequested;
-                transmitWpm = engineSettings.transmitWpmRequested;
+                effective = engineSettings.effectiveWpmRequested;
                 prevDurationRequestedMillis = engineSettings.durationRequestedMillis;
                 prevSelectedLetters = engineSettings.selectedStrings;
                 targetIssueLetters = engineSettings.targetIssueLetters;
@@ -367,10 +373,10 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                 letterWpmNumberPicker.setProgress(20);
             }
 
-            if (transmitWpm > 0) {
-                transmitWpmNumberPicker.setProgress(transmitWpm);
+            if (effective > 0) {
+                effectiveWpmNumberPicker.setProgress(effective);
             } else {
-                transmitWpmNumberPicker.setProgress(6);
+                effectiveWpmNumberPicker.setProgress(6);
             }
 
             if (prevDurationRequestedMillis > 0) {

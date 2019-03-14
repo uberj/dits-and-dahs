@@ -27,7 +27,6 @@ import java.util.Optional;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModelProviders;
 
 import static com.example.uberj.test1.socratic.SocraticKeyboardSessionActivity.DISABLED_BUTTON_ALPHA;
@@ -37,7 +36,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
     public static final String LETTER_WPM_REQUESTED = "letter-wpm-requested";
     public static final String FARNSWORTH_SPACES = "farnsworth-spaces";
     public static final String STRINGS_REQUESTED = "strings-requested";
-    public static final String TRANSMIT_WPM_REQUESTED = "transmit-wpm-requested";
+    public static final String EFFECTIVE_WPM_REQUESTED = "effective-wpm-requested";
     public static final String TARGET_ISSUE_STRINGS = "target-issue-strings";
 
     private TranscribeTrainingSessionViewModel viewModel;
@@ -57,7 +56,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
 
         int durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
         int letterWpmRequested = receiveBundle.getInt(LETTER_WPM_REQUESTED);
-        int transmitWpmRequested = receiveBundle.getInt(TRANSMIT_WPM_REQUESTED);
+        int effectiveWpmRequested = receiveBundle.getInt(EFFECTIVE_WPM_REQUESTED);
         int fransworth = receiveBundle.getInt(FARNSWORTH_SPACES);
         boolean targetIssueLetters = receiveBundle.getBoolean(TARGET_ISSUE_STRINGS);
         ArrayList<String> stringsRequested = receiveBundle.getStringArrayList(STRINGS_REQUESTED);
@@ -66,7 +65,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
                         this.getApplication(),
                         durationMinutesRequested,
                         letterWpmRequested,
-                        transmitWpmRequested,
+                        effectiveWpmRequested,
                         stringsRequested,
                         fransworth,
                         targetIssueLetters,

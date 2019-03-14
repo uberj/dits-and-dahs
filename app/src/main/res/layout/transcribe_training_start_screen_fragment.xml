@@ -6,16 +6,16 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <it.sephiroth.android.library.numberpicker.NumberPicker
-        android:id="@+id/transmit-wpm-number-picker"
+        android:id="@+id/effective-wpm-number-picker"
         style="@style/NumberPicker.Outlined"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:progress="6"
-        app:layout_constraintBottom_toBottomOf="@+id/session-transmit-wpm"
+        app:layout_constraintBottom_toBottomOf="@+id/session-effective-wpm"
         app:layout_constraintEnd_toEndOf="@+id/number_picker_minutes"
         app:layout_constraintStart_toStartOf="@+id/number_picker_minutes"
-        app:layout_constraintTop_toTopOf="@+id/session-transmit-wpm"
+        app:layout_constraintTop_toTopOf="@+id/session-effective-wpm"
         app:picker_max="100"
         app:picker_min="5"
         app:picker_orientation="vertical"
@@ -23,12 +23,12 @@
         app:picker_tracker="exponential" />
 
     <TextView
-        android:id="@+id/session-transmit-wpm"
+        android:id="@+id/session-effective-wpm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
-        android:text="Transmitt WPM"
+        android:text="Effective WPM"
         app:layout_constraintStart_toStartOf="@+id/stats-stopper"
         app:layout_constraintTop_toTopOf="@+id/guideline18" />
 
@@ -40,7 +40,7 @@
         android:layout_marginTop="32dp"
         android:text="Letter WPM:"
         app:layout_constraintStart_toStartOf="@+id/stats-stopper"
-        app:layout_constraintTop_toBottomOf="@+id/session-transmit-wpm" />
+        app:layout_constraintTop_toBottomOf="@+id/session-effective-wpm" />
 
     <it.sephiroth.android.library.numberpicker.NumberPicker
         android:id="@+id/letter-wpm-number-picker"
