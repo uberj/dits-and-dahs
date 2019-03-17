@@ -1,12 +1,14 @@
 package com.example.uberj.test1.transcribe;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -101,13 +103,6 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main4, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -193,6 +188,8 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
         }
     }
 
+    public abstract Class<? extends Activity> getSettingsActivity();
+
     public static class StartScreenFragment extends Fragment  {
         private static final Random r = new Random();
         private static final double SUGGEST_ADDING_MORE_LETTERS_ACCURACY_CUTOFF = 89;
@@ -205,7 +202,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
         private TranscribeSessionType sessionType;
         private TextView selectedStringsContainer;
         private TextView suggestAddLettersHelpText;
-        private SwitchCompat targetIssueLettersSwitch;
+        private TextView additionalSettingsLink;
 
 
         public static StartScreenFragment newInstance(TranscribeSessionType sessionType, Class<? extends FragmentActivity> sessionActivityClass) {
@@ -262,7 +259,8 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             if (savedInstanceState != null) {
                 sessionType = TranscribeSessionType.valueOf(savedInstanceState.getString("sessionType"));
             }
-
+            PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext())
+                    .registerOnSharedPreferenceChangeListener(this::preferenceChangeListener);
             View rootView = inflater.inflate(R.layout.transcribe_training_start_screen_fragment, container, false);
             ImageView helpWPM = rootView.findViewById(R.id.wpmhelp);
             helpWPM.setOnClickListener((l) -> {
@@ -281,7 +279,8 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             effectiveWpmNumberPicker = rootView.findViewById(R.id.effective_wpm_number_picker);
             selectedStringsContainer = rootView.findViewById(R.id.selected_strings);
             suggestAddLettersHelpText = rootView.findViewById(R.id.suggest_add_letters_help_text);
-            targetIssueLettersSwitch = rootView.findViewById(R.id.target_issue_letters);
+//            targetIssueLettersSwitch = rootView.findViewById(R.id.target_issue_letters);
+            additionalSettingsLink = rootView.findViewById(R.id.additional_settings);
             sessionViewModel = ViewModelProviders.of(this).get(TranscribeTrainingMainScreenViewModel.class);
             enforceWpmInequalities();
 
@@ -293,6 +292,9 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                 selectedStringsContainer.setText(Joiner.on(", ").join(updatedSelectedStrings));
             });
 
+
+            additionalSettingsLink.setOnClickListener(this::launchSettings);
+
             sessionViewModel.getLatestSession(sessionType).observe(this, this::setupNumbersBasedOnPreviousSession);
             sessionViewModel.getLatestEngineSettings(sessionType).observe(this, this::setupPreviousSettings);
 
@@ -300,6 +302,24 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             startButton.setOnClickListener(this::handleStartButtonClick);
 
             return rootView;
+        }
+
+        private void launchSettings(View view) {
+            Intent intent = new Intent(view.getContext(), getTranscribeActivity().getSettingsActivity());
+            startActivity(intent);
+        }
+
+        private void preferenceChangeListener(SharedPreferences sharedPreferences, String key) {
+            switch (key) {
+                case TranscribePreferences.REQUESTED_DURATION:
+                    int requestedDuration = sharedPreferences.getInt(key, 2);
+                    minutesPicker.setProgress(requestedDuration);
+                case TranscribePreferences.REQUESTED_LETTER_WPM:
+                    letterWpmNumberPicker.setProgress(sharedPreferences.getInt(key, 20));
+                case TranscribePreferences.REQUESTED_EFFECTIVE_WPM:
+                    effectiveWpmNumberPicker.setProgress(sharedPreferences.getInt(key, 20));
+                default:
+            }
         }
 
         private void enforceWpmInequalities() {
@@ -352,7 +372,6 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             bundle.putInt(TranscribeKeyboardSessionActivity.LETTER_WPM_REQUESTED, letterWpmNumberPicker.getProgress());
             bundle.putInt(TranscribeKeyboardSessionActivity.EFFECTIVE_WPM_REQUESTED, effectiveWpmNumberPicker.getProgress());
             bundle.putInt(TranscribeKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
-            bundle.putBoolean(TranscribeKeyboardSessionActivity.TARGET_ISSUE_STRINGS, targetIssueLettersSwitch.isChecked());
             bundle.putStringArrayList(
                     TranscribeKeyboardSessionActivity.STRINGS_REQUESTED,
                     sessionViewModel.selectedStrings.getValue()
@@ -439,7 +458,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
                 selectedStrings = prevSelectedLetters;
             }
 
-            targetIssueLettersSwitch.setChecked(targetIssueLetters);
+//            targetIssueLettersSwitch.setChecked(targetIssueLetters);
             sessionViewModel.selectedStrings.setValue(Lists.newArrayList(selectedStrings));
         }
 

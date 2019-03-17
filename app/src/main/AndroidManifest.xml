@@ -40,6 +40,9 @@
             android:name=".training.randomletters.RandomLetterKeyboardSessionActivity"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
+        <activity android:name=".training.randomletters.RandomLetterSettingsActivity"
+            android:screenOrientation="landscape"
+            />
     </application>
 
 </manifest>

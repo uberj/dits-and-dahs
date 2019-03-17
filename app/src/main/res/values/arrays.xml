@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="tone_frequencies">
+        <item>400 Hz</item>
+        <item>500 Hz</item>
+        <item>600 Hz</item>
+        <item>700 Hz</item>
+        <item>800 Hz</item>
+        <item>900 Hz</item>
+    </string-array>
+</resources>
