@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
     <com.example.uberj.test1.views.FormattingSeekBarPreference
-        app:key="start-delay-seconds"
+        app:key="transcribe-start-delay-seconds"
         app:title="Start Delay (Seconds)"
         app:summary="Give yourself a countdown before your session starts"
         app:showSeekBarValue="true"
@@ -34,7 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
     <com.example.uberj.test1.views.FormattingSeekBarPreference
-        app:key="end-delay-seconds"
+        app:key="transcribe-end-delay-seconds"
         app:title="End Delay (Seconds)"
         app:summary="Give yourself time at the end of the session to make last second changes"
         app:showSeekBarValue="true"

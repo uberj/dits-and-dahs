@@ -38,6 +38,9 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
     public static final String STRINGS_REQUESTED = "strings-requested";
     public static final String EFFECTIVE_WPM_REQUESTED = "effective-wpm-requested";
     public static final String TARGET_ISSUE_STRINGS = "target-issue-strings";
+    public static final String AUDIO_TONE_FREQUENCY = "audio-tone-frequency";
+    public static final String SESSION_START_DELAY_SECONDS = "session-start-delay-seconds";
+    public static final String SESSION_END_DELAY_SECONDS = "session-end-delay-seconds";
 
     private TranscribeTrainingSessionViewModel viewModel;
     private DynamicKeyboard keyboard;

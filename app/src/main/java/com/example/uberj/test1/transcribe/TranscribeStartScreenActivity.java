@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
@@ -41,13 +40,13 @@ import java.util.stream.Collectors;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.preference.PreferenceManager;
 import androidx.viewpager.widget.ViewPager;
 import it.sephiroth.android.library.numberpicker.NumberPicker;
 import timber.log.Timber;
@@ -203,6 +202,10 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
         private TextView selectedStringsContainer;
         private TextView suggestAddLettersHelpText;
         private TextView additionalSettingsLink;
+        private boolean targetIssueStrings;
+        private int audioToneFrequency;
+        private int startDelaySeconds;
+        private int endDelaySeconds;
 
 
         public static StartScreenFragment newInstance(TranscribeSessionType sessionType, Class<? extends FragmentActivity> sessionActivityClass) {
@@ -259,8 +262,8 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             if (savedInstanceState != null) {
                 sessionType = TranscribeSessionType.valueOf(savedInstanceState.getString("sessionType"));
             }
-            PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext())
-                    .registerOnSharedPreferenceChangeListener(this::preferenceChangeListener);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+            preferences.registerOnSharedPreferenceChangeListener(this::preferenceChangeListener);
             View rootView = inflater.inflate(R.layout.transcribe_training_start_screen_fragment, container, false);
             ImageView helpWPM = rootView.findViewById(R.id.wpmhelp);
             helpWPM.setOnClickListener((l) -> {
@@ -279,7 +282,6 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             effectiveWpmNumberPicker = rootView.findViewById(R.id.effective_wpm_number_picker);
             selectedStringsContainer = rootView.findViewById(R.id.selected_strings);
             suggestAddLettersHelpText = rootView.findViewById(R.id.suggest_add_letters_help_text);
-//            targetIssueLettersSwitch = rootView.findViewById(R.id.target_issue_letters);
             additionalSettingsLink = rootView.findViewById(R.id.additional_settings);
             sessionViewModel = ViewModelProviders.of(this).get(TranscribeTrainingMainScreenViewModel.class);
             enforceWpmInequalities();
@@ -372,6 +374,10 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             bundle.putInt(TranscribeKeyboardSessionActivity.LETTER_WPM_REQUESTED, letterWpmNumberPicker.getProgress());
             bundle.putInt(TranscribeKeyboardSessionActivity.EFFECTIVE_WPM_REQUESTED, effectiveWpmNumberPicker.getProgress());
             bundle.putInt(TranscribeKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
+            bundle.putBoolean(TranscribeKeyboardSessionActivity.TARGET_ISSUE_STRINGS, targetIssueStrings);
+            bundle.putInt(TranscribeKeyboardSessionActivity.AUDIO_TONE_FREQUENCY, audioToneFrequency);
+            bundle.putInt(TranscribeKeyboardSessionActivity.SESSION_START_DELAY_SECONDS, startDelaySeconds);
+            bundle.putInt(TranscribeKeyboardSessionActivity.SESSION_END_DELAY_SECONDS, endDelaySeconds);
             bundle.putStringArrayList(
                     TranscribeKeyboardSessionActivity.STRINGS_REQUESTED,
                     sessionViewModel.selectedStrings.getValue()
