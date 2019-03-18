@@ -4,7 +4,6 @@ import android.app.Application;
 
 import com.example.uberj.test1.storage.Repository;
 import com.example.uberj.test1.transcribe.storage.TranscribeSessionType;
-import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettings;
 import com.example.uberj.test1.transcribe.storage.TranscribeTrainingSession;
 
 import java.util.ArrayList;
@@ -23,10 +22,6 @@ class TranscribeTrainingMainScreenViewModel extends AndroidViewModel {
     public TranscribeTrainingMainScreenViewModel(@NonNull Application application) {
         super(application);
         repository = new Repository(application);
-    }
-
-    public LiveData<List<TranscribeTrainingEngineSettings>> getLatestEngineSettings(TranscribeSessionType sessionType) {
-        return repository.transcribeEngineSettingsDAO.getLatestEngineSetting(sessionType.name());
     }
 
     public LiveData<List<TranscribeTrainingSession>> getLatestSession(TranscribeSessionType sessionType) {

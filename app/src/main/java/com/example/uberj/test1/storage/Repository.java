@@ -8,21 +8,17 @@ import com.example.uberj.test1.socratic.storage.SocraticTrainingEngineSettingsDA
 import com.example.uberj.test1.socratic.storage.SocraticTrainingSession;
 import com.example.uberj.test1.socratic.storage.SocraticTrainingSessionDAO;
 import com.example.uberj.test1.transcribe.storage.TranscribeSessionDAO;
-import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettings;
-import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettingsDAO;
 import com.example.uberj.test1.transcribe.storage.TranscribeTrainingSession;
 
 public class Repository {
     public final SocraticTrainingSessionDAO socraticTrainingSessionDAO;
     public final SocraticTrainingEngineSettingsDAO socraticEngineSettingsDAO;
     public final TranscribeSessionDAO transcribeTrainingSessionDAO;
-    public final TranscribeTrainingEngineSettingsDAO transcribeEngineSettingsDAO;
 
     public Repository(Context context) {
         TheDatabase database = TheDatabase.getDatabase(context);
         socraticTrainingSessionDAO = database.socraticTrainingSessionDAO();
         socraticEngineSettingsDAO = database.socraticEngineSettingsDAO();
-        transcribeEngineSettingsDAO = database.transcribeEngineSettingsDAO();
         transcribeTrainingSessionDAO = database.transcribeTrainingSessionDAO();
 
     }
@@ -43,17 +39,6 @@ public class Repository {
             @Override
             protected Void doInBackground(Void... voids) {
                 socraticTrainingSessionDAO.insertSession(session);
-                return null;
-            }
-        }.execute();
-    }
-
-    public void insertTranscribeEngineSettings(final TranscribeTrainingEngineSettings engineSettings) {
-        engineSettings.createdAtEpocMillis = System.currentTimeMillis();
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                transcribeEngineSettingsDAO.insertEngineSettings(engineSettings);
                 return null;
             }
         }.execute();

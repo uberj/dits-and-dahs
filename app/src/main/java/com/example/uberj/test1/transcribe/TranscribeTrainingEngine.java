@@ -1,7 +1,6 @@
 package com.example.uberj.test1.transcribe;
 
 import com.example.uberj.test1.CWToneManager;
-import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettings;
 import com.google.common.collect.ImmutableList;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
@@ -37,6 +36,8 @@ class TranscribeTrainingEngine {
     private final int effectiveWpmRequested;
     private final Consumer<String> letterPlayedCallback;
     private final EnumeratedDistribution<String> nextLetterDistribution;
+    private final int startDelaySeconds;
+    private final int endDelaySeconds;
 
     private boolean audioThreadKeepAlive;
     private boolean isPaused;
@@ -45,13 +46,15 @@ class TranscribeTrainingEngine {
     private int lettersLeftInGroup = LENGTH_DISTRIBUTION.sample();
     private boolean awaitingShutdown = false;
 
-    public TranscribeTrainingEngine(int letterWpmRequested, int effectiveWpmRequested, List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters, Consumer<String> letterPlayedCallback) {
+    public TranscribeTrainingEngine(int audioToneFrequency, int startDelaySeconds, int endDelaySeconds, int letterWpmRequested, int effectiveWpmRequested, List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters, Consumer<String> letterPlayedCallback) {
+        this.startDelaySeconds = startDelaySeconds;
+        this.endDelaySeconds = endDelaySeconds;
         this.nextLetterDistribution = new EnumeratedDistribution<>(letterWeights(inPlayLetters));
         this.inPlayLetters = justStrings(inPlayLetters);
         this.letterWpmRequested = letterWpmRequested;
         this.effectiveWpmRequested = effectiveWpmRequested;
         this.letterPlayedCallback = letterPlayedCallback;
-        this.cwToneManager = new CWToneManager(letterWpmRequested, effectiveWpmRequested);
+        this.cwToneManager = new CWToneManager(letterWpmRequested, effectiveWpmRequested, audioToneFrequency);
         this.audioLoop = () -> {
             try {
                 while (Thread.currentThread() == audioThread) {
@@ -152,14 +155,6 @@ class TranscribeTrainingEngine {
             audioThread = null;
         }
         cwToneManager.destroy();
-    }
-
-    public TranscribeTrainingEngineSettings getSettings() {
-        TranscribeTrainingEngineSettings settings = new TranscribeTrainingEngineSettings();
-        settings.letterWpmRequested = letterWpmRequested;
-        settings.effectiveWpmRequested = effectiveWpmRequested;
-        settings.selectedStrings = inPlayLetters;
-        return settings;
     }
 
     public void prepareForShutdown() {

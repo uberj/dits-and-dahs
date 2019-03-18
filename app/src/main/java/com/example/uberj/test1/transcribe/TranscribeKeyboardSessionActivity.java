@@ -62,6 +62,9 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
         int effectiveWpmRequested = receiveBundle.getInt(EFFECTIVE_WPM_REQUESTED);
         int fransworth = receiveBundle.getInt(FARNSWORTH_SPACES);
         boolean targetIssueLetters = receiveBundle.getBoolean(TARGET_ISSUE_STRINGS);
+        int audioToneFrequency = receiveBundle.getInt(AUDIO_TONE_FREQUENCY);
+        int startDelaySeconds = receiveBundle.getInt(SESSION_START_DELAY_SECONDS);
+        int endDelaySeconds = receiveBundle.getInt(SESSION_END_DELAY_SECONDS);
         ArrayList<String> stringsRequested = receiveBundle.getStringArrayList(STRINGS_REQUESTED);
         viewModel = ViewModelProviders.of(this,
                 new TranscribeTrainingSessionViewModel.Factory(
@@ -72,6 +75,9 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
                         stringsRequested,
                         fransworth,
                         targetIssueLetters,
+                        audioToneFrequency,
+                        startDelaySeconds,
+                        endDelaySeconds,
                         getSessionType(),
                         this)
         ).get(TranscribeTrainingSessionViewModel.class);
@@ -102,14 +108,17 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
                 })
                 .build();
 
-        SessionEngineWrapper
-                .bind(viewModel)
-                .observe(this, (sessionAndSettings) -> {
-                    TranscribeTrainingSession session = sessionAndSettings.getSessionOrNull();
-                    viewModel.primeTheEngine(session);
-                    keyboard.buildAtRoot();
-                    viewModel.startTheEngine();
-                });
+        viewModel.getLatestTrainingSession().observe(this, (possibleSession) -> {
+            TranscribeTrainingSession session;
+            if (possibleSession == null || possibleSession.isEmpty()) {
+                session = null;
+            } else {
+                session = possibleSession.get(0);
+            }
+            viewModel.primeTheEngine(session);
+            keyboard.buildAtRoot();
+            viewModel.startTheEngine();
+        });
 
         ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
         viewModel.durationRemainingMillis.observe(this, (remainingMillis) -> {

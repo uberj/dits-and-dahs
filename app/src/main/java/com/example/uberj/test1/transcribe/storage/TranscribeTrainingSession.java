@@ -25,9 +25,6 @@ public class TranscribeTrainingSession {
     public Boolean completed;
 
     @NonNull
-    public double overallAccuracyRate;
-
-    @NonNull
     public Long effectiveWpm;
 
     @NonNull
@@ -47,4 +44,13 @@ public class TranscribeTrainingSession {
 
     @NonNull
     public Boolean targetIssueLetters;
+
+    @NonNull
+    public Integer audioToneFrequency;
+
+    @NonNull
+    public Integer startDelaySeconds;
+
+    @NonNull
+    public Integer endDelaySeconds;
 }

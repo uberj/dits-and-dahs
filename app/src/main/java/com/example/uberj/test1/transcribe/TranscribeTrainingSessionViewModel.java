@@ -6,7 +6,6 @@ import com.example.uberj.test1.CountDownTimer;
 import com.example.uberj.test1.keyboards.Keys;
 import com.example.uberj.test1.storage.Repository;
 import com.example.uberj.test1.transcribe.storage.TranscribeSessionType;
-import com.example.uberj.test1.transcribe.storage.TranscribeTrainingEngineSettings;
 import com.example.uberj.test1.transcribe.storage.TranscribeTrainingSession;
 import com.google.common.collect.Lists;
 
@@ -36,6 +35,9 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     public final MutableLiveData<List<String>> transcribedMessage = new MutableLiveData<>(Lists.newArrayList());
     private final ArrayList<String> stringsRequested;
     private final boolean targetIssueLetters;
+    private final int audioToneFrequency;
+    private final int startDelaySeconds;
+    private final int endDelaySeconds;
     private CountDownTimer countDownTimer;
     private TranscribeTrainingEngine engine;
     private boolean sessionHasBeenStarted = false;
@@ -44,7 +46,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     private long sessionEndingTimeBufferCuttOffMillis = 5 * 1000;
     private List<String> playedMessage = Lists.newArrayList();
 
-    public TranscribeTrainingSessionViewModel(@NonNull Application application, int durationMinutesRequested, ArrayList<String> stringsRequested, int letterWpmRequested, int effectiveWpmRequested, int farnsworth, boolean targetIssueLetters, TranscribeSessionType sessionType, Keys keys) {
+    public TranscribeTrainingSessionViewModel(@NonNull Application application, int durationMinutesRequested, ArrayList<String> stringsRequested, int letterWpmRequested, int effectiveWpmRequested, int farnsworth, boolean targetIssueLetters, TranscribeSessionType sessionType, Keys keys, int audioToneFrequency, int startDelaySeconds, int endDelaySeconds) {
         super(application);
         this.repository = new Repository(application);
         this.durationMinutesRequested = durationMinutesRequested;
@@ -55,6 +57,9 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         this.targetIssueLetters = targetIssueLetters;
         this.sessionType = sessionType;
         this.keys = keys;
+        this.audioToneFrequency = audioToneFrequency;
+        this.startDelaySeconds = startDelaySeconds;
+        this.endDelaySeconds = endDelaySeconds;
     }
 
     public long getDurationRequestedMillis() {
@@ -89,9 +94,12 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         private final TranscribeSessionType sessionType;
         private final Keys keys;
         private final boolean targetIssueLetters;
+        private final int audioToneFrequency;
+        private final int startDelaySeconds;
+        private final int endDelaySeconds;
 
 
-        public Factory(Application application, int durationMinutesRequested, int letterWpmRequested, int effectivetWpmRequested, ArrayList<String> stringsRequested, int fransworth, boolean targetIssueLetters, TranscribeSessionType sessionType, Keys keys) {
+        public Factory(Application application, int durationMinutesRequested, int letterWpmRequested, int effectivetWpmRequested, ArrayList<String> stringsRequested, int fransworth, boolean targetIssueLetters, int audioToneFrequency, int startDelaySeconds, int endDelaySeconds, TranscribeSessionType sessionType, Keys keys) {
             this.application = application;
             this.durationMinutesRequested = durationMinutesRequested;
             this.letterWpmRequested = letterWpmRequested;
@@ -101,17 +109,16 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
             this.stringsRequested = stringsRequested;
             this.sessionType = sessionType;
             this.keys = keys;
+            this.audioToneFrequency = audioToneFrequency;
+            this.startDelaySeconds = startDelaySeconds;
+            this.endDelaySeconds = endDelaySeconds;
         }
 
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
-            return (T) new TranscribeTrainingSessionViewModel(application, durationMinutesRequested, stringsRequested, letterWpmRequested, effectivetWpmRequested, fransworth, targetIssueLetters, sessionType, keys);
+            return (T) new TranscribeTrainingSessionViewModel(application, durationMinutesRequested, stringsRequested, letterWpmRequested, effectivetWpmRequested, fransworth, targetIssueLetters, sessionType, keys, audioToneFrequency, startDelaySeconds, endDelaySeconds);
         }
-    }
-
-    public LiveData<List<TranscribeTrainingEngineSettings>> getLatestEngineSetting() {
-        return repository.transcribeEngineSettingsDAO.getLatestEngineSetting(sessionType.name());
     }
 
     public LiveData<List<TranscribeTrainingSession>> getLatestTrainingSession() {
@@ -138,7 +145,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
             }
             weightedRequestedStrings.add(Pair.of(s, 1D + error));
         }
-        engine = new TranscribeTrainingEngine(letterWpmRequested, effectiveWpmRequested, weightedRequestedStrings, this::letterPlayedCallback);
+        engine = new TranscribeTrainingEngine(audioToneFrequency, startDelaySeconds, endDelaySeconds, letterWpmRequested, effectiveWpmRequested, weightedRequestedStrings, this::letterPlayedCallback);
         engine.prime();
     }
 
@@ -188,24 +195,17 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         trainingSession.targetIssueLetters = targetIssueLetters;
         trainingSession.effectiveWpm = (long) effectiveWpmRequested;
         trainingSession.letterWpm = (long) letterWpmRequested;
+        trainingSession.audioToneFrequency = audioToneFrequency;
+        trainingSession.startDelaySeconds = startDelaySeconds;
+        trainingSession.endDelaySeconds = endDelaySeconds;
 
         trainingSession.sessionType = sessionType.name();
-        if (Double.isNaN(trainingSession.overallAccuracyRate)) {
-            trainingSession.overallAccuracyRate = -1;
-        }
-
         trainingSession.stringsRequested = stringsRequested;
 
         trainingSession.playedMessage = playedMessage;
         trainingSession.enteredKeys = transcribedMessage.getValue();
 
         repository.insertTranscribeTrainingSession(trainingSession);
-
-        TranscribeTrainingEngineSettings settings = engine.getSettings();
-        settings.durationRequestedMillis = durationRequestedMillis;
-        settings.sessionType = sessionType.name();
-        settings.targetIssueLetters = targetIssueLetters;
-        repository.insertTranscribeEngineSettings(settings);
     }
 
     @Override

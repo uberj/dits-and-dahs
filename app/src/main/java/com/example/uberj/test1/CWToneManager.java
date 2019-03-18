@@ -10,7 +10,6 @@ import timber.log.Timber;
 
 public class CWToneManager {
     private static final int sampleRateHz = 44100;
-    private static int freqOfToneHz = 440;
     private static int silenceSymbolsAfterDitDah = 1;
 
     private static final ImmutableMap<String, String> LETTER_DEFINITIONS = ImmutableMap.<String, String>builder()
@@ -63,6 +62,7 @@ public class CWToneManager {
     private final int minBufferSize;
     private final int letterWpm;
     private final double farnsworth;
+    private final int freqOfToneHz;
 
     /*
         16 = 1 + 7 + 7 + 1 = .--.
@@ -253,7 +253,8 @@ public class CWToneManager {
         }
     }
 
-    public CWToneManager(int letterWpm, int effective) {
+    public CWToneManager(int letterWpm, int effective, int audioToneFrequency) {
+        this.freqOfToneHz = audioToneFrequency;
         this.letterWpm = letterWpm;
         this.farnsworth = calcFarnsworth(letterWpm, effective);
 
@@ -289,7 +290,7 @@ public class CWToneManager {
     }
 
     public CWToneManager(int letterWpm) {
-        this(letterWpm, 1);
+        this(letterWpm, 1, 440);
     }
 
     public void destroy() {

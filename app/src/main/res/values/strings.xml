@@ -12,4 +12,11 @@
     <string name="tab_text_2">Tab 2</string>
     <string name="tab_text_3">Tab 3</string>
     <string name="section_format">Hello World from section: %1$d</string>
+    <string name="setting_transcribe_audio_tone">setting_transcribe_audio_tone</string>
+    <string name="setting_transcribe_letter_wpm">setting_transcribe_letter_wpm</string>
+    <string name="setting_transcribe_effective_wpm">setting_transcribe_effective_wpm</string>
+    <string name="setting_transcribe_duration_minutes">setting_transcribe_duration_minutes</string>
+    <string name="setting_transcribe_target_issue_letters">setting_transcribe_target_issue_letters</string>
+    <string name="setting_transcribe_start_delay_seconds">setting_transcribe_start_delay_seconds</string>
+    <string name="setting_transcribe_end_delay_seconds">setting_transcribe_end_delay_seconds</string>
 </resources>
