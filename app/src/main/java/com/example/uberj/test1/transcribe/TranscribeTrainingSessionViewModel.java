@@ -43,7 +43,6 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     private boolean sessionHasBeenStarted = false;
     private static final String sessionStartLock = "lock";
     private long endTimeEpocMillis = -1;
-    private long sessionEndingTimeBufferCuttOffMillis = 5 * 1000;
     private List<String> playedMessage = Lists.newArrayList();
 
     public TranscribeTrainingSessionViewModel(@NonNull Application application, int durationMinutesRequested, ArrayList<String> stringsRequested, int letterWpmRequested, int effectiveWpmRequested, int farnsworth, boolean targetIssueLetters, TranscribeSessionType sessionType, Keys keys, int audioToneFrequency, int startDelaySeconds, int endDelaySeconds) {
@@ -153,7 +152,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         return new CountDownTimer(durationsMillis, 50) {
             public void onTick(long millisUntilFinished) {
                 durationRemainingMillis.setValue(millisUntilFinished);
-                if (millisUntilFinished <= sessionEndingTimeBufferCuttOffMillis) {
+                if (millisUntilFinished <= endDelaySeconds * 1000) {
                     engine.prepareForShutdown();
                 }
             }
@@ -190,7 +189,6 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
 
         trainingSession.endTimeEpocMillis = System.currentTimeMillis();
         trainingSession.durationRequestedMillis = durationRequestedMillis;
-        trainingSession.durationWorkedMillis = durationWorkedMillis;
         trainingSession.completed = durationWorkedMillis == 0;
         trainingSession.targetIssueLetters = targetIssueLetters;
         trainingSession.effectiveWpm = (long) effectiveWpmRequested;

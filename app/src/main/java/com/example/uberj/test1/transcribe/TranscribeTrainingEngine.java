@@ -57,6 +57,9 @@ class TranscribeTrainingEngine {
         this.cwToneManager = new CWToneManager(letterWpmRequested, effectiveWpmRequested, audioToneFrequency);
         this.audioLoop = () -> {
             try {
+                synchronized (pauseGate) {
+                    pauseGate.wait(startDelaySeconds * 1000);
+                }
                 while (Thread.currentThread() == audioThread) {
                     while (isPaused)  {
                         synchronized (pauseGate) {
@@ -80,7 +83,6 @@ class TranscribeTrainingEngine {
                     // start the callback timer to play again
                     synchronized (farnsworthPause) {
                         long millis = cwToneManager.wordSpaceToMillis();
-                        System.out.println("Waiting: " + millis);
                         farnsworthPause.wait(millis);
                     }
                 }

@@ -16,9 +16,6 @@ public class TranscribeTrainingSession {
     public Long endTimeEpocMillis;
 
     @NonNull
-    public Long durationWorkedMillis;
-
-    @NonNull
     public Long durationRequestedMillis;
 
     @NonNull
