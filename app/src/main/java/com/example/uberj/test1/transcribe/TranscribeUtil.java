@@ -23,8 +23,6 @@ import java.util.Map;
 import java.util.Optional;
 
 class TranscribeUtil {
-    private final double SUGGESTION_CUTOFF = 0.90;
-
     public static String convertKeyPressesToString(List<String> enteredStrings) {
         List<String> stringsToDisplay = Lists.newArrayList();
         for (String transcribedString : enteredStrings) {
@@ -73,7 +71,6 @@ class TranscribeUtil {
         String message = Joiner.on("").join(session.playedMessage);
         DiffPatchMatch dmp = new DiffPatchMatch();
         LinkedList<DiffPatchMatch.Diff> messageDiff = dmp.diff_main(message, transcription);
-        dmp.diff_cleanupSemantic(messageDiff);
         return messageDiff;
     }
 
