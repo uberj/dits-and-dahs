@@ -144,7 +144,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
             }
             weightedRequestedStrings.add(Pair.of(s, 1D + error));
         }
-        engine = new TranscribeTrainingEngine(audioToneFrequency, startDelaySeconds, endDelaySeconds, letterWpmRequested, effectiveWpmRequested, weightedRequestedStrings, this::letterPlayedCallback);
+        engine = new TranscribeTrainingEngine(audioToneFrequency, startDelaySeconds, letterWpmRequested, effectiveWpmRequested, weightedRequestedStrings, this::letterPlayedCallback);
         engine.prime();
     }
 

@@ -31,13 +31,8 @@ class TranscribeTrainingEngine {
     private final CWToneManager cwToneManager;
     private final String pauseGate = "pauseGate";
     private final String farnsworthPause = "farnsworthPause";
-    private final List<String> inPlayLetters;
-    private final int letterWpmRequested;
-    private final int effectiveWpmRequested;
     private final Consumer<String> letterPlayedCallback;
     private final EnumeratedDistribution<String> nextLetterDistribution;
-    private final int startDelaySeconds;
-    private final int endDelaySeconds;
 
     private boolean audioThreadKeepAlive;
     private boolean isPaused;
@@ -46,13 +41,8 @@ class TranscribeTrainingEngine {
     private int lettersLeftInGroup = LENGTH_DISTRIBUTION.sample();
     private boolean awaitingShutdown = false;
 
-    public TranscribeTrainingEngine(int audioToneFrequency, int startDelaySeconds, int endDelaySeconds, int letterWpmRequested, int effectiveWpmRequested, List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters, Consumer<String> letterPlayedCallback) {
-        this.startDelaySeconds = startDelaySeconds;
-        this.endDelaySeconds = endDelaySeconds;
+    public TranscribeTrainingEngine(int audioToneFrequency, int startDelaySeconds, int letterWpmRequested, int effectiveWpmRequested, List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters, Consumer<String> letterPlayedCallback) {
         this.nextLetterDistribution = new EnumeratedDistribution<>(letterWeights(inPlayLetters));
-        this.inPlayLetters = justStrings(inPlayLetters);
-        this.letterWpmRequested = letterWpmRequested;
-        this.effectiveWpmRequested = effectiveWpmRequested;
         this.letterPlayedCallback = letterPlayedCallback;
         this.cwToneManager = new CWToneManager(letterWpmRequested, effectiveWpmRequested, audioToneFrequency);
         this.audioLoop = () -> {
@@ -92,10 +82,6 @@ class TranscribeTrainingEngine {
             }
             Timber.d("Audio loop exiting outside of loop");
         };
-    }
-
-    private List<String> justStrings(List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters) {
-        return inPlayLetters.stream().map(org.apache.commons.lang3.tuple.Pair::getKey).collect(Collectors.toList());
     }
 
     private List<Pair<String, Double>> letterWeights(List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters) {

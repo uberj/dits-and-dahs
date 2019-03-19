@@ -48,36 +48,15 @@
 
 
             <TextView
-                android:id="@+id/textView14"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text=" Proin enim ante, vulputate non lorem at, dapibus luctus lectus. Praesent porttitor ullamcorper nisi, at efficitur lectus vestibulum quis. Nullam sit amet dignissim massa, ac euismod massa. Aenean est nibh, facilisis vel ligula et, imperdiet tempus sem. Suspendisse mattis enim eget ornare varius. Integer faucibus lorem a pulvinar porta. Nullam lacus justo, tincidunt in rhoncus sed, tincidunt sit amet metus. Nullam non auctor magna. Nulla non sapien tristique, commodo arcu ut, convallis leo. Nam id egestas ante. Donec odio sem, ornare porta consectetur sed, commodo vitae dolor. Maecenas porttitor lacinia auctor. Proin tincidunt id elit at volutpat. Etiam maximus vitae nunc ut lobortis. Proin viverra nibh vel mauris pellentesque tempus. Sed facilisis imperdiet mi, sed fringilla urna dapibus a. "
-                android:textSize="18sp"
-                app:layout_constraintEnd_toEndOf="@+id/textConstraints"
-                app:layout_constraintHorizontal_bias="0.666"
-                app:layout_constraintStart_toStartOf="@+id/textConstraints"
-                app:layout_constraintTop_toBottomOf="@+id/textView13" />
-
-            <TextView
-                android:id="@+id/textView13"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Pellentesque tincidunt eget lorem vel scelerisque. Pellentesque sed mollis ligula, et ornare risus. Ut tincidunt urna eget neque tincidunt, sit amet molestie magna luctus. Mauris eu ultrices urna, a porttitor nunc. Donec viverra nulla ex, sit amet consequat metus auctor a. Proin consequat, velit non posuere elementum, purus arcu aliquet lectus, in pretium tortor turpis ac eros. Nam justo nulla, ultricies eget efficitur at, commodo sed lacus. Proin ut erat quis sem gravida pretium. Donec ut lorem venenatis, mollis felis et, tincidunt nisl. Aenean faucibus tincidunt maximus. Vivamus vehicula urna augue, et tempus orci euismod quis. Fusce dolor mi, congue imperdiet est non, malesuada tincidunt lorem. "
-                android:textSize="18sp"
-                app:layout_constraintEnd_toEndOf="@+id/textConstraints"
-                app:layout_constraintStart_toStartOf="@+id/textConstraints" />
-
-            <TextView
                 android:id="@+id/textView10"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text=" Sed tincidunt lectus id lacus consequat pretium. Sed ac sem egestas, convallis ipsum vitae, convallis erat. Sed at faucibus enim, vel ultrices urna. Nullam dolor risus, dictum in nibh in, congue finibus justo. Sed sit amet nulla vehicula, sagittis mi id, commodo leo. Pellentesque eget cursus nulla. Nam varius nunc est, a lacinia neque faucibus quis. "
+                android:text="Choose how fast you want the letters to play and press 'Start'. Set the WPM (Words per minute) to something like 20 or 25. When you learn to recognize the characters at realistic speeds you'll have an easier time later in your training."
                 android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="@+id/textConstraints"
                 app:layout_constraintStart_toStartOf="@+id/textConstraints"
-                app:layout_constraintTop_toBottomOf="@+id/textView14" />
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
