@@ -77,3 +77,4 @@ gradlew
 upload-key
 
 app/release/
+*.swp
