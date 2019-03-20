@@ -10,6 +10,7 @@ import com.example.uberj.test1.training.simple.SimpleStartScreenActivity;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import timber.log.Timber;
 
 import java.util.ArrayList;
 
@@ -22,6 +23,11 @@ public class TrainingActivityList extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
+        } else {
+            Timber.plant(new ReleaseTree());
+        }
         setContentView(R.layout.activity_training_list);
         mRecyclerView = findViewById(R.id.my_recycler_view);
 
