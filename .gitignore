@@ -73,3 +73,7 @@ gradle/
 gradlew
 
 .DS_Store
+
+upload-key
+
+app/release/
