@@ -1,9 +1,9 @@
-package com.example.uberj.morsepocketpro.socratic;
+package com.example.uberj.pocketmorsepro.socratic;
 
-import com.example.uberj.morsepocketpro.R;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingEngineSettings;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticSessionType;
-import com.example.uberj.morsepocketpro.training.DialogFragmentProvider;
+import com.example.uberj.pocketmorsepro.R;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
+import com.example.uberj.pocketmorsepro.training.DialogFragmentProvider;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;

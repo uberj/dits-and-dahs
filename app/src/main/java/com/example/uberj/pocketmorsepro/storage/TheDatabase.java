@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro.storage;
+package com.example.uberj.pocketmorsepro.storage;
 
 
 import androidx.room.Database;
@@ -7,14 +7,14 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import android.content.Context;
 
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingEngineSettings;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingEngineSettingsDAO;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingSession;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingSessionDAO;
-import com.example.uberj.morsepocketpro.storage.converters.StringListConverter;
-import com.example.uberj.morsepocketpro.storage.converters.StringToIntegerMapConverter;
-import com.example.uberj.morsepocketpro.transcribe.storage.TranscribeSessionDAO;
-import com.example.uberj.morsepocketpro.transcribe.storage.TranscribeTrainingSession;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettingsDAO;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSession;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSessionDAO;
+import com.example.uberj.pocketmorsepro.storage.converters.StringListConverter;
+import com.example.uberj.pocketmorsepro.storage.converters.StringToIntegerMapConverter;
+import com.example.uberj.pocketmorsepro.transcribe.storage.TranscribeSessionDAO;
+import com.example.uberj.pocketmorsepro.transcribe.storage.TranscribeTrainingSession;
 
 @Database(entities = {
         SocraticTrainingEngineSettings.class,

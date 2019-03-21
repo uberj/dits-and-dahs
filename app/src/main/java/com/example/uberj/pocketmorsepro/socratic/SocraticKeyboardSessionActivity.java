@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro.socratic;
+package com.example.uberj.pocketmorsepro.socratic;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,13 +21,13 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
-import com.example.uberj.morsepocketpro.DynamicKeyboard;
-import com.example.uberj.morsepocketpro.KochLetterSequence;
-import com.example.uberj.morsepocketpro.ProgressGradient;
-import com.example.uberj.morsepocketpro.R;
-import com.example.uberj.morsepocketpro.keyboards.Keys;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingEngineSettings;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticSessionType;
+import com.example.uberj.pocketmorsepro.DynamicKeyboard;
+import com.example.uberj.pocketmorsepro.KochLetterSequence;
+import com.example.uberj.pocketmorsepro.ProgressGradient;
+import com.example.uberj.pocketmorsepro.R;
+import com.example.uberj.pocketmorsepro.keyboards.Keys;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;

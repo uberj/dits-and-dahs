@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro.training;
+package com.example.uberj.pocketmorsepro.training;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;

@@ -1,12 +1,12 @@
-package com.example.uberj.morsepocketpro.training.simple;
+package com.example.uberj.pocketmorsepro.training.simple;
 
-import com.example.uberj.morsepocketpro.keyboards.KeyConfig;
-import com.example.uberj.morsepocketpro.keyboards.Keys;
+import com.example.uberj.pocketmorsepro.keyboards.KeyConfig;
+import com.example.uberj.pocketmorsepro.keyboards.Keys;
 import com.google.common.collect.ImmutableList;
 
-import static com.example.uberj.morsepocketpro.keyboards.KeyConfig.l;
-import static com.example.uberj.morsepocketpro.keyboards.KeyConfig.p;
-import static com.example.uberj.morsepocketpro.keyboards.KeyConfig.s;
+import static com.example.uberj.pocketmorsepro.keyboards.KeyConfig.l;
+import static com.example.uberj.pocketmorsepro.keyboards.KeyConfig.p;
+import static com.example.uberj.pocketmorsepro.keyboards.KeyConfig.s;
 
 public class SimpleLetterKeys implements Keys {
     @Override

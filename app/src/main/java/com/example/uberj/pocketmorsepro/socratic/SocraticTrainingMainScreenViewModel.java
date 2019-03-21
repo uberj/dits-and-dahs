@@ -1,11 +1,11 @@
-package com.example.uberj.morsepocketpro.socratic;
+package com.example.uberj.pocketmorsepro.socratic;
 
 import android.app.Application;
 
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingEngineSettings;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingSession;
-import com.example.uberj.morsepocketpro.storage.Repository;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticSessionType;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSession;
+import com.example.uberj.pocketmorsepro.storage.Repository;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
 
 import java.util.List;
 

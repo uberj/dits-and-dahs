@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro.keyboards;
+package com.example.uberj.pocketmorsepro.keyboards;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;

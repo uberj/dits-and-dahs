@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro;
+package com.example.uberj.pocketmorsepro;
 
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;

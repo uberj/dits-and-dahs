@@ -1,9 +1,9 @@
-package com.example.uberj.morsepocketpro.transcribe;
+package com.example.uberj.pocketmorsepro.transcribe;
 
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import com.example.uberj.morsepocketpro.R;
+import com.example.uberj.pocketmorsepro.R;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;

@@ -1,8 +1,8 @@
-package com.example.uberj.morsepocketpro.transcribe;
+package com.example.uberj.pocketmorsepro.transcribe;
 
 import android.os.Bundle;
 
-import com.example.uberj.morsepocketpro.R;
+import com.example.uberj.pocketmorsepro.R;
 
 import androidx.preference.PreferenceFragmentCompat;
 

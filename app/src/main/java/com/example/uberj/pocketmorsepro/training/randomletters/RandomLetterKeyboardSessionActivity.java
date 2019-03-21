@@ -1,9 +1,9 @@
-package com.example.uberj.morsepocketpro.training.randomletters;
+package com.example.uberj.pocketmorsepro.training.randomletters;
 
-import com.example.uberj.morsepocketpro.KochLetterSequence;
-import com.example.uberj.morsepocketpro.keyboards.KeyConfig;
-import com.example.uberj.morsepocketpro.transcribe.TranscribeKeyboardSessionActivity;
-import com.example.uberj.morsepocketpro.transcribe.storage.TranscribeSessionType;
+import com.example.uberj.pocketmorsepro.KochLetterSequence;
+import com.example.uberj.pocketmorsepro.keyboards.KeyConfig;
+import com.example.uberj.pocketmorsepro.transcribe.TranscribeKeyboardSessionActivity;
+import com.example.uberj.pocketmorsepro.transcribe.storage.TranscribeSessionType;
 import com.google.common.collect.ImmutableList;
 
 import java.util.Objects;

@@ -1,15 +1,15 @@
-package com.example.uberj.morsepocketpro.socratic;
+package com.example.uberj.pocketmorsepro.socratic;
 
 import android.app.Application;
 
-import com.example.uberj.morsepocketpro.CWToneManager;
-import com.example.uberj.morsepocketpro.CountDownTimer;
-import com.example.uberj.morsepocketpro.KochLetterSequence;
-import com.example.uberj.morsepocketpro.keyboards.Keys;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingEngineSettings;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingSession;
-import com.example.uberj.morsepocketpro.storage.Repository;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticSessionType;
+import com.example.uberj.pocketmorsepro.CWToneManager;
+import com.example.uberj.pocketmorsepro.CountDownTimer;
+import com.example.uberj.pocketmorsepro.KochLetterSequence;
+import com.example.uberj.pocketmorsepro.keyboards.Keys;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSession;
+import com.example.uberj.pocketmorsepro.storage.Repository;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 

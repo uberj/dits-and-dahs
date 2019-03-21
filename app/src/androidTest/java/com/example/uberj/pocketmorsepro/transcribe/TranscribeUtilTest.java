@@ -1,7 +1,7 @@
-package com.example.uberj.morsepocketpro.transcribe;
+package com.example.uberj.pocketmorsepro.transcribe;
 
 
-import com.example.uberj.morsepocketpro.transcribe.storage.TranscribeTrainingSession;
+import com.example.uberj.pocketmorsepro.transcribe.storage.TranscribeTrainingSession;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.lang3.tuple.Pair;

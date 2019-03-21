@@ -1,12 +1,12 @@
-package com.example.uberj.morsepocketpro.transcribe;
+package com.example.uberj.pocketmorsepro.transcribe;
 
 import android.app.Application;
 
-import com.example.uberj.morsepocketpro.CountDownTimer;
-import com.example.uberj.morsepocketpro.keyboards.Keys;
-import com.example.uberj.morsepocketpro.storage.Repository;
-import com.example.uberj.morsepocketpro.transcribe.storage.TranscribeSessionType;
-import com.example.uberj.morsepocketpro.transcribe.storage.TranscribeTrainingSession;
+import com.example.uberj.pocketmorsepro.CountDownTimer;
+import com.example.uberj.pocketmorsepro.keyboards.Keys;
+import com.example.uberj.pocketmorsepro.storage.Repository;
+import com.example.uberj.pocketmorsepro.transcribe.storage.TranscribeSessionType;
+import com.example.uberj.pocketmorsepro.transcribe.storage.TranscribeTrainingSession;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.lang3.tuple.Pair;

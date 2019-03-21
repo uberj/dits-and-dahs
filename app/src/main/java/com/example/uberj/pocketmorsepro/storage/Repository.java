@@ -1,14 +1,14 @@
-package com.example.uberj.morsepocketpro.storage;
+package com.example.uberj.pocketmorsepro.storage;
 
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingEngineSettings;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingEngineSettingsDAO;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingSession;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingSessionDAO;
-import com.example.uberj.morsepocketpro.transcribe.storage.TranscribeSessionDAO;
-import com.example.uberj.morsepocketpro.transcribe.storage.TranscribeTrainingSession;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettingsDAO;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSession;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSessionDAO;
+import com.example.uberj.pocketmorsepro.transcribe.storage.TranscribeSessionDAO;
+import com.example.uberj.pocketmorsepro.transcribe.storage.TranscribeTrainingSession;
 
 public class Repository {
     public final SocraticTrainingSessionDAO socraticTrainingSessionDAO;

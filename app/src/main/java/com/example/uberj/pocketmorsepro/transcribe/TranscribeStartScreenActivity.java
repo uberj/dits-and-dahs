@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro.transcribe;
+package com.example.uberj.pocketmorsepro.transcribe;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -17,11 +17,11 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.example.uberj.morsepocketpro.ProgressGradient;
-import com.example.uberj.morsepocketpro.R;
-import com.example.uberj.morsepocketpro.training.DialogFragmentProvider;
-import com.example.uberj.morsepocketpro.transcribe.storage.TranscribeSessionType;
-import com.example.uberj.morsepocketpro.transcribe.storage.TranscribeTrainingSession;
+import com.example.uberj.pocketmorsepro.ProgressGradient;
+import com.example.uberj.pocketmorsepro.R;
+import com.example.uberj.pocketmorsepro.training.DialogFragmentProvider;
+import com.example.uberj.pocketmorsepro.transcribe.storage.TranscribeSessionType;
+import com.example.uberj.pocketmorsepro.transcribe.storage.TranscribeTrainingSession;
 import com.google.android.material.tabs.TabLayout;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;

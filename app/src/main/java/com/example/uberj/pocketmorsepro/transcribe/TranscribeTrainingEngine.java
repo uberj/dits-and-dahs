@@ -1,6 +1,6 @@
-package com.example.uberj.morsepocketpro.transcribe;
+package com.example.uberj.pocketmorsepro.transcribe;
 
-import com.example.uberj.morsepocketpro.CWToneManager;
+import com.example.uberj.pocketmorsepro.CWToneManager;
 import com.google.common.collect.ImmutableList;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;

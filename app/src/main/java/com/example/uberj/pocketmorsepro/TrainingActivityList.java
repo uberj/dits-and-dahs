@@ -1,12 +1,12 @@
-package com.example.uberj.morsepocketpro;
+package com.example.uberj.pocketmorsepro;
 
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.example.uberj.morsepocketpro.training.randomletters.RandomLettersStartScreenActivity;
-import com.example.uberj.morsepocketpro.training.simple.SimpleStartScreenActivity;
+import com.example.uberj.pocketmorsepro.training.randomletters.RandomLettersStartScreenActivity;
+import com.example.uberj.pocketmorsepro.training.simple.SimpleStartScreenActivity;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;

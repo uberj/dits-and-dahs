@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro.transcribe;
+package com.example.uberj.pocketmorsepro.transcribe;
 /*
  * Diff Match and Patch
  * Copyright 2018 The diff-match-patch Authors.

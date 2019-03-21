@@ -1,16 +1,16 @@
-package com.example.uberj.morsepocketpro.storage;
+package com.example.uberj.pocketmorsepro.storage;
 
 import androidx.lifecycle.LiveData;
 import android.content.Context;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
 
-import com.example.uberj.morsepocketpro.TestObserver;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticSessionType;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingEngineSettings;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingEngineSettingsDAO;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingSession;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingSessionDAO;
+import com.example.uberj.pocketmorsepro.TestObserver;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettingsDAO;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSession;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSessionDAO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 

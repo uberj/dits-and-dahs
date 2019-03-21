@@ -1,8 +1,8 @@
-package com.example.uberj.morsepocketpro.training.simple;
+package com.example.uberj.pocketmorsepro.training.simple;
 
 import android.app.Application;
 
-import com.example.uberj.morsepocketpro.keyboards.KeyConfig;
+import com.example.uberj.pocketmorsepro.keyboards.KeyConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

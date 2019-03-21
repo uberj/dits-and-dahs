@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro;
+package com.example.uberj.pocketmorsepro;
 
 import androidx.fragment.app.FragmentActivity;
 
@@ -10,7 +10,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Space;
 
-import com.example.uberj.morsepocketpro.keyboards.KeyConfig;
+import com.example.uberj.pocketmorsepro.keyboards.KeyConfig;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 

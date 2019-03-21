@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro.storage.converters;
+package com.example.uberj.pocketmorsepro.storage.converters;
 
 import androidx.room.TypeConverter;
 

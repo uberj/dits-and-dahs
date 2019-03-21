@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro;
+package com.example.uberj.pocketmorsepro;
 
 import android.media.AudioAttributes;
 import android.media.AudioFormat;

@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro.socratic.storage;
+package com.example.uberj.pocketmorsepro.socratic.storage;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;

@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro.views;
+package com.example.uberj.pocketmorsepro.views;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -11,7 +11,7 @@ import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.example.uberj.morsepocketpro.R;
+import com.example.uberj.pocketmorsepro.R;
 import com.google.common.base.Strings;
 
 import androidx.preference.Preference;

@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro.training.simple;
+package com.example.uberj.pocketmorsepro.training.simple;
 
 import android.app.Dialog;
 import android.os.Bundle;
@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.uberj.morsepocketpro.R;
+import com.example.uberj.pocketmorsepro.R;
 
 import java.util.Objects;
 

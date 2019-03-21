@@ -1,10 +1,10 @@
-package com.example.uberj.morsepocketpro.transcribe;
+package com.example.uberj.pocketmorsepro.transcribe;
 
 import android.app.Application;
 
-import com.example.uberj.morsepocketpro.storage.Repository;
-import com.example.uberj.morsepocketpro.transcribe.storage.TranscribeSessionType;
-import com.example.uberj.morsepocketpro.transcribe.storage.TranscribeTrainingSession;
+import com.example.uberj.pocketmorsepro.storage.Repository;
+import com.example.uberj.pocketmorsepro.transcribe.storage.TranscribeSessionType;
+import com.example.uberj.pocketmorsepro.transcribe.storage.TranscribeTrainingSession;
 
 import java.util.ArrayList;
 import java.util.List;

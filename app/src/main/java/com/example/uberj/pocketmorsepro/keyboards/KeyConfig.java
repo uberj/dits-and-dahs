@@ -1,9 +1,9 @@
-package com.example.uberj.morsepocketpro.keyboards;
+package com.example.uberj.pocketmorsepro.keyboards;
 
 import java.util.Optional;
 
-import static com.example.uberj.morsepocketpro.keyboards.KeyConfig.KeyType.DELETE_KEY;
-import static com.example.uberj.morsepocketpro.keyboards.KeyConfig.KeyType.SPACE_KEY;
+import static com.example.uberj.pocketmorsepro.keyboards.KeyConfig.KeyType.DELETE_KEY;
+import static com.example.uberj.pocketmorsepro.keyboards.KeyConfig.KeyType.SPACE_KEY;
 
 public class KeyConfig {
     public final String textName;

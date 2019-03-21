@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro.training.simple;
+package com.example.uberj.pocketmorsepro.training.simple;
 
 interface DismissibleFragment {
     void requestDismiss();

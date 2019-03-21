@@ -1,7 +1,7 @@
-package com.example.uberj.morsepocketpro.training.randomletters;
+package com.example.uberj.pocketmorsepro.training.randomletters;
 
-import com.example.uberj.morsepocketpro.transcribe.TranscribePreferenceFragment;
-import com.example.uberj.morsepocketpro.transcribe.TranscribeSettingsActivity;
+import com.example.uberj.pocketmorsepro.transcribe.TranscribePreferenceFragment;
+import com.example.uberj.pocketmorsepro.transcribe.TranscribeSettingsActivity;
 
 public class RandomLetterSettingsActivity extends TranscribeSettingsActivity {
     public static class RandomLetterPreferenceFragment extends TranscribePreferenceFragment {

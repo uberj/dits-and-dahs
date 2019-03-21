@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro.transcribe;
+package com.example.uberj.pocketmorsepro.transcribe;
 
 import android.content.Context;
 import android.text.Spannable;
@@ -6,9 +6,9 @@ import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.CharacterStyle;
 
-import com.example.uberj.morsepocketpro.R;
-import com.example.uberj.morsepocketpro.keyboards.KeyConfig;
-import com.example.uberj.morsepocketpro.transcribe.storage.TranscribeTrainingSession;
+import com.example.uberj.pocketmorsepro.R;
+import com.example.uberj.pocketmorsepro.keyboards.KeyConfig;
+import com.example.uberj.pocketmorsepro.transcribe.storage.TranscribeTrainingSession;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

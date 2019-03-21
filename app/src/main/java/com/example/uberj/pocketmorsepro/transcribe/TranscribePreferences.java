@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro.transcribe;
+package com.example.uberj.pocketmorsepro.transcribe;
 
 class TranscribePreferences {
     private static final String PREFERENCE_PREFIX = "TranscribePreference-";

@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro.transcribe;
+package com.example.uberj.pocketmorsepro.transcribe;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -13,12 +13,12 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
-import com.example.uberj.morsepocketpro.DynamicKeyboard;
-import com.example.uberj.morsepocketpro.R;
-import com.example.uberj.morsepocketpro.keyboards.KeyConfig;
-import com.example.uberj.morsepocketpro.keyboards.Keys;
-import com.example.uberj.morsepocketpro.transcribe.storage.TranscribeSessionType;
-import com.example.uberj.morsepocketpro.transcribe.storage.TranscribeTrainingSession;
+import com.example.uberj.pocketmorsepro.DynamicKeyboard;
+import com.example.uberj.pocketmorsepro.R;
+import com.example.uberj.pocketmorsepro.keyboards.KeyConfig;
+import com.example.uberj.pocketmorsepro.keyboards.Keys;
+import com.example.uberj.pocketmorsepro.transcribe.storage.TranscribeSessionType;
+import com.example.uberj.pocketmorsepro.transcribe.storage.TranscribeTrainingSession;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
 
-import static com.example.uberj.morsepocketpro.socratic.SocraticKeyboardSessionActivity.DISABLED_BUTTON_ALPHA;
+import static com.example.uberj.pocketmorsepro.socratic.SocraticKeyboardSessionActivity.DISABLED_BUTTON_ALPHA;
 
 public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivity implements Keys, DialogInterface.OnDismissListener {
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";

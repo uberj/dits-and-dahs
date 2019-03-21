@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro.training.simple;
+package com.example.uberj.pocketmorsepro.training.simple;
 
 
 import android.app.Activity;
@@ -14,10 +14,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
-import com.example.uberj.morsepocketpro.DynamicKeyboard;
-import com.example.uberj.morsepocketpro.ProgressGradient;
-import com.example.uberj.morsepocketpro.R;
-import com.example.uberj.morsepocketpro.keyboards.KeyConfig;
+import com.example.uberj.pocketmorsepro.DynamicKeyboard;
+import com.example.uberj.pocketmorsepro.ProgressGradient;
+import com.example.uberj.pocketmorsepro.R;
+import com.example.uberj.pocketmorsepro.keyboards.KeyConfig;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
@@ -35,10 +35,10 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 
-import static com.example.uberj.morsepocketpro.socratic.SocraticKeyboardSessionActivity.DISABLED_BUTTON_ALPHA;
-import static com.example.uberj.morsepocketpro.socratic.SocraticKeyboardSessionActivity.DISABLED_PROGRESS_BAR_ALPHA;
-import static com.example.uberj.morsepocketpro.socratic.SocraticKeyboardSessionActivity.ENABLED_BUTTON_ALPHA;
-import static com.example.uberj.morsepocketpro.socratic.SocraticKeyboardSessionActivity.ENABLED_PROGRESS_BAR_ALPHA;
+import static com.example.uberj.pocketmorsepro.socratic.SocraticKeyboardSessionActivity.DISABLED_BUTTON_ALPHA;
+import static com.example.uberj.pocketmorsepro.socratic.SocraticKeyboardSessionActivity.DISABLED_PROGRESS_BAR_ALPHA;
+import static com.example.uberj.pocketmorsepro.socratic.SocraticKeyboardSessionActivity.ENABLED_BUTTON_ALPHA;
+import static com.example.uberj.pocketmorsepro.socratic.SocraticKeyboardSessionActivity.ENABLED_PROGRESS_BAR_ALPHA;
 
 public class SimpleLetterTrainingHelpDialog extends DialogFragment implements NextPrevTabHandler, DismissibleFragment {
     private ViewPager viewPager;

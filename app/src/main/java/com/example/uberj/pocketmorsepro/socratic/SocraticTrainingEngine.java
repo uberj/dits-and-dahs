@@ -1,7 +1,7 @@
-package com.example.uberj.morsepocketpro.socratic;
+package com.example.uberj.pocketmorsepro.socratic;
 
-import com.example.uberj.morsepocketpro.CWToneManager;
-import com.example.uberj.morsepocketpro.socratic.storage.SocraticTrainingEngineSettings;
+import com.example.uberj.pocketmorsepro.CWToneManager;
+import com.example.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;

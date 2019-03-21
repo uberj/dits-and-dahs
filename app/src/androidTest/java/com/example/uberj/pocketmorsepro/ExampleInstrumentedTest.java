@@ -1,4 +1,4 @@
-package com.example.uberj.morsepocketpro;
+package com.example.uberj.pocketmorsepro;
 
 import android.content.Context;
 import androidx.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.example.uberj.morsepocketpro", appContext.getPackageName());
+        assertEquals("com.example.uberj.pocketmorsepro", appContext.getPackageName());
     }
 }
