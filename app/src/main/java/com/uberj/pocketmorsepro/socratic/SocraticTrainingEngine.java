@@ -33,6 +33,7 @@ public class SocraticTrainingEngine {
     private static volatile boolean audioThreadKeepAlive = true;
     private volatile boolean isPaused = false;
     private volatile boolean engineIsStarted = false;
+    private volatile boolean shortCircuitGuessWait;
     private List<String> playableKeys;
     private String currentLetter;
     private Thread audioThread;
@@ -81,7 +82,13 @@ public class SocraticTrainingEngine {
                     // start the callback timer to play again
 
                     synchronized (guessGate) {
-                        guessGate.wait(getGuessWaitTimeMillis());
+                        if (shortCircuitGuessWait) {
+                            long millis = cwToneManager.letterSpaceToMillis();
+                            guessGate.wait(millis);
+                        } else {
+                            guessGate.wait(getGuessWaitTimeMillis());
+                        }
+                        shortCircuitGuessWait = false;
                     }
                 }
             } catch (InterruptedException e) {
@@ -108,6 +115,7 @@ public class SocraticTrainingEngine {
             // letterPlayedCallback able to calculate number of letters played a lot easier
             chooseDifferentLetter();
             isCorrectGuess = true;
+            shortCircuitGuessWait = true;
         }
 
         synchronized (guessGate) {

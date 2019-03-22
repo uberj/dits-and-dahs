@@ -131,6 +131,11 @@ public class CWToneManager {
         return symbolCountToMillis(numSymbols);
     }
 
+    public long letterSpaceToMillis() {
+        int numSymbols = numSymbols('/', farnsworth);
+        return symbolCountToMillis(numSymbols);
+    }
+
 
     public static class PCMDetails {
         public int totalNumberSymbols;
@@ -290,7 +295,7 @@ public class CWToneManager {
     }
 
     public CWToneManager(int letterWpm) {
-        this(letterWpm, 1, 440);
+        this(letterWpm, letterWpm, 440);
     }
 
     public void destroy() {
