@@ -15,7 +15,6 @@ import com.google.common.collect.Maps;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -67,11 +66,31 @@ class TranscribeUtil {
     }
 
     private static LinkedList<DiffPatchMatch.Diff> calcMessageDiff(TranscribeTrainingSession session) {
-        String transcription = convertKeyPressesToString(session.enteredKeys);
-        String message = Joiner.on("").join(session.playedMessage);
+        List<String> transcribedKeys = stripTrailingSpaces(session.enteredKeys);
+        List<String> playedKeys = stripTrailingSpaces(session.playedMessage);
+
+        String transcription = convertKeyPressesToString(transcribedKeys);
+        String message = Joiner.on("").join(playedKeys);
         DiffPatchMatch dmp = new DiffPatchMatch();
         LinkedList<DiffPatchMatch.Diff> messageDiff = dmp.diff_main(message, transcription);
         return messageDiff;
+    }
+
+    private static List<String> stripTrailingSpaces(List<String> inputStrings) {
+        List<String> outputStrings = Lists.newArrayList();
+        boolean skip = true;
+        for (String inputString : Lists.reverse(inputStrings)) {
+            if (skip && !inputString.equals("SPC")) {
+                skip = false;
+            }
+
+            if (skip) {
+                continue;
+            }
+            outputStrings.add(0, inputString);
+        }
+
+        return outputStrings;
     }
 
     private static Optional<CharacterStyle> getSpanColor(Context context, DiffPatchMatch.Operation operation) {
@@ -84,17 +103,6 @@ class TranscribeUtil {
         } else {
             throw new RuntimeException("Unknown diff operation " + operation);
         }
-    }
-
-    public static ArrayList<String> calculateSuggestedStrings(TranscribeTrainingSession session) {
-        LinkedList<DiffPatchMatch.Diff> messageDiff = calcMessageDiff(session);
-        for (DiffPatchMatch.Diff diff : messageDiff) {
-            if (diff.operation == DiffPatchMatch.Operation.EQUAL) {
-                continue;
-            }
-
-        }
-        return null;
     }
 
     public static Map<String, Double> calculateErrorMap(TranscribeTrainingSession session) {
