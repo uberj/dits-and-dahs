@@ -3,6 +3,7 @@ package com.uberj.pocketmorsepro.socratic;
 import com.uberj.pocketmorsepro.R;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
+import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSession;
 import com.uberj.pocketmorsepro.training.DialogFragmentProvider;
 import com.google.android.material.tabs.TabLayout;
 
@@ -97,41 +98,6 @@ public abstract class SocraticStartScreenActivity extends AppCompatActivity impl
     @Override
     public FragmentManager getHelpDialogFragmentManager() {
         return getSupportFragmentManager();
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public PlaceholderFragment() {
-        }
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.base_start_screen_placeholder, container, false);
-            TextView textView = rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-            return rootView;
-        }
     }
 
     /**
@@ -294,9 +260,10 @@ public abstract class SocraticStartScreenActivity extends AppCompatActivity impl
                 double accuracy = -1;
                 long prevDurationMillis = -1;
                 if (!mostRecentSession.isEmpty()) {
-                    wpmAverage = mostRecentSession.get(0).wpmAverage;
-                    accuracy = mostRecentSession.get(0).accuracy;
-                    prevDurationMillis = mostRecentSession.get(0).durationWorkedMillis;
+                    SocraticTrainingSession session = mostRecentSession.get(0);
+                    wpmAverage = session.wpmAverage;
+                    accuracy = session.accuracy;
+                    prevDurationMillis = session.durationWorkedMillis;
 
                 }
 
