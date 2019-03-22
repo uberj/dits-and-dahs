@@ -108,6 +108,7 @@ class TranscribeTrainingEngine {
         audioThreadKeepAlive = true;
         audioThread.start();
         engineIsStarted = true;
+        isPaused = false;
     }
 
     public void resume() {
