@@ -139,7 +139,6 @@ class TranscribeTrainingEngine {
         if (!audioThreadKeepAlive) throw new AssertionError("Trying to destroy an already destroyed engine");
         audioThreadKeepAlive = false;
         if (audioThread != null && audioThread.isAlive() && !audioThread.isInterrupted()) {
-            audioThread.interrupt();
             audioThread = null;
         }
         cwToneManager.destroy();

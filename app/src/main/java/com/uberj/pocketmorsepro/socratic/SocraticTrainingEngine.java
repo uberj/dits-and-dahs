@@ -166,7 +166,6 @@ public class SocraticTrainingEngine {
 
     public void destroy() {
         audioThreadKeepAlive = false;
-        audioThread.interrupt();
         audioThread = null;
         cwToneManager.destroy();
     }
