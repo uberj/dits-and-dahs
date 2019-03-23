@@ -61,5 +61,4 @@ public class TrainingActivityList extends Activity {
         mAdapter = new TrainingActivityAdapter(trainingActivities);
         mRecyclerView.setAdapter(mAdapter);
     }
-
 }
