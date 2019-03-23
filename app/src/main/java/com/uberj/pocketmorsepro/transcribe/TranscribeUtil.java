@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-class TranscribeUtil {
+public class TranscribeUtil {
     public static String convertKeyPressesToString(List<String> enteredStrings) {
         List<String> stringsToDisplay = Lists.newArrayList();
         for (String transcribedString : enteredStrings) {

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import timber.log.Timber;
 
-class TranscribeTrainingEngine {
+public class TranscribeTrainingEngine {
     private static final EnumeratedDistribution<Integer> LENGTH_DISTRIBUTION = new EnumeratedDistribution<>(ImmutableList.of(
             Pair.create(2, 3D),
             Pair.create(3, 4D),
