@@ -5,11 +5,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.crashlytics.android.Crashlytics;
 import com.uberj.pocketmorsepro.training.randomletters.RandomLettersStartScreenActivity;
 import com.uberj.pocketmorsepro.training.simple.SimpleStartScreenActivity;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ public class TrainingActivityList extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         } else {
