@@ -1,6 +1,7 @@
 package com.uberj.pocketmorsepro.socratic;
 
 import com.uberj.pocketmorsepro.CWToneManager;
+import com.uberj.pocketmorsepro.socratic.storage.SocraticEngineEvent;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
 import com.google.common.collect.Lists;
 
@@ -40,8 +41,9 @@ public class SocraticTrainingEngine {
     private Runnable audioLoop;
     private final Map<String, Integer> competencyWeights;
     private final List<String> letterOrder;
+    public final List<SocraticEngineEvent> events = Lists.newArrayList();
 
-    public SocraticTrainingEngine(List<String> letterOrder, int wpm, Consumer<String> letterChosenCallback, List<String> playableKeys, @Nonnull Map<String, Integer> competencyWeights) {
+    public SocraticTrainingEngine(List<String> letterOrder, int wpm, Consumer<String> letterChosenCallback, Consumer<String> letterDonePlayingCallback, List<String> playableKeys, @Nonnull Map<String, Integer> competencyWeights) {
         this.letterOrder = letterOrder;
         this.letterChosenCallback = letterChosenCallback;
         this.cwToneManager = new CWToneManager(wpm);
@@ -77,6 +79,7 @@ public class SocraticTrainingEngine {
                     if (audioThreadKeepAlive) {
                         Timber.d("Playing letter: %s", currentLetter);
                         cwToneManager.playLetter(currentLetter);
+                        events.add(SocraticEngineEvent.letterDonePlaying());
                     }
 
                     // start the callback timer to play again
@@ -113,9 +116,12 @@ public class SocraticTrainingEngine {
         if (guess.equals(currentLetter)) {
             // Make sure we always choose a different letter. this makes the handler of the
             // letterPlayedCallback able to calculate number of letters played a lot easier
+            events.add(SocraticEngineEvent.correctGuess(currentLetter));
             chooseDifferentLetter();
             isCorrectGuess = true;
             shortCircuitGuessWait = true;
+        } else {
+            events.add(SocraticEngineEvent.incorrectGuess(currentLetter));
         }
 
         synchronized (guessGate) {
@@ -137,6 +143,7 @@ public class SocraticTrainingEngine {
         List<Pair<String, Double>> pmfCompetencyWeights = buildPmfCompetencyWeights(playableKeys);
         currentLetter = new EnumeratedDistribution<>(pmfCompetencyWeights).sample();
         letterChosenCallback.accept(currentLetter);
+        events.add(SocraticEngineEvent.letterChosen(currentLetter));
     }
 
     private List<Pair<String,Double>> buildPmfCompetencyWeights(List<String> playableKeys) {
@@ -168,12 +175,14 @@ public class SocraticTrainingEngine {
         audioThreadKeepAlive = false;
         audioThread = null;
         cwToneManager.destroy();
+        events.add(SocraticEngineEvent.destroyed());
     }
 
     public void resume() {
         if (!isPaused || !engineIsStarted) {
             return;
         }
+        events.add(SocraticEngineEvent.resumed());
         isPaused = false;
         synchronized (pauseGate) {
             pauseGate.notify();
@@ -184,6 +193,7 @@ public class SocraticTrainingEngine {
         if (isPaused || !engineIsStarted) {
             return;
         }
+        events.add(SocraticEngineEvent.paused());
         isPaused = true;
 
         synchronized (guessGate) {

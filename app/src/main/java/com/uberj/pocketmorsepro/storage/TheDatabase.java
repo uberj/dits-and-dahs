@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import android.content.Context;
 
+import com.uberj.pocketmorsepro.socratic.storage.SocraticEngineEvent;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettingsDAO;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSession;
@@ -19,6 +20,7 @@ import com.uberj.pocketmorsepro.transcribe.storage.TranscribeTrainingSession;
 @Database(entities = {
         SocraticTrainingEngineSettings.class,
         SocraticTrainingSession.class,
+        SocraticEngineEvent.class,
         TranscribeTrainingSession.class
 }, version = 1)
 @TypeConverters({

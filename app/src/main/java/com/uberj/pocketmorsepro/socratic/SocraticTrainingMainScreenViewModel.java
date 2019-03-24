@@ -3,7 +3,7 @@ package com.uberj.pocketmorsepro.socratic;
 import android.app.Application;
 
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSession;
+import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSessionWithEvents;
 import com.uberj.pocketmorsepro.storage.Repository;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
 
@@ -25,7 +25,7 @@ public class SocraticTrainingMainScreenViewModel extends AndroidViewModel {
         return repository.socraticEngineSettingsDAO.getLatestEngineSetting(sessionType.name());
     }
 
-    public LiveData<List<SocraticTrainingSession>> getLatestSession(SocraticSessionType sessionType) {
-        return repository.socraticTrainingSessionDAO.getLatestSession(sessionType.name());
+    public LiveData<List<SocraticTrainingSessionWithEvents>> getLatestSession(SocraticSessionType sessionType) {
+        return repository.socraticTrainingSessionDAO.getLatestSessionAndEvents(sessionType.name());
     }
 }

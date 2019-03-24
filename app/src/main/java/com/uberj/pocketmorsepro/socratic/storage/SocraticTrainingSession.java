@@ -22,11 +22,6 @@ public class SocraticTrainingSession {
     public Boolean completed;
 
     @NonNull
-    public float wpmAverage;
-
-    @NonNull
-    public double accuracy;
-
-    @NonNull
     public String sessionType;
+
 }

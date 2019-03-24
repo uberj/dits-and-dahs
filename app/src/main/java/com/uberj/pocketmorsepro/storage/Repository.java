@@ -3,12 +3,15 @@ package com.uberj.pocketmorsepro.storage;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.uberj.pocketmorsepro.socratic.storage.SocraticEngineEvent;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettingsDAO;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSession;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSessionDAO;
 import com.uberj.pocketmorsepro.transcribe.storage.TranscribeSessionDAO;
 import com.uberj.pocketmorsepro.transcribe.storage.TranscribeTrainingSession;
+
+import java.util.List;
 
 public class Repository {
     public final SocraticTrainingSessionDAO socraticTrainingSessionDAO;
@@ -34,11 +37,11 @@ public class Repository {
         }.execute();
     }
 
-    public void insertSocraticTrainingSession(final SocraticTrainingSession session) {
+    public void insertSocraticTrainingSessionAndEvents(final SocraticTrainingSession session, final List<SocraticEngineEvent> events) {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
-                socraticTrainingSessionDAO.insertSession(session);
+                socraticTrainingSessionDAO.insertSessionAndEvents(session, events);
                 return null;
             }
         }.execute();

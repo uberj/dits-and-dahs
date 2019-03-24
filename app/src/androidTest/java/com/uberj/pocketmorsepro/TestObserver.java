@@ -155,7 +155,7 @@ public final class TestObserver<T> implements Observer<T> {
      * you want to assert only on one field.
      *
      * @param mapper Function to map originally observed value.
-     * @param <N>    Type of mapper.
+     * @param <N>    EventType of mapper.
      * @return TestObserver for mapped value
      */
     public <N> TestObserver<N> map(Function<T, N> mapper) {

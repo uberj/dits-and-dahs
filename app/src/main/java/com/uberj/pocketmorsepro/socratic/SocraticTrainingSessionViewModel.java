@@ -46,6 +46,8 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
     private int totalIncorrectGuesses;
     private long endTimeEpocMillis = -1;
     private SocraticTrainingEngine engine;
+    private long currentLetterFirstPlayedAt;
+    private String currentMessage;
 
     public SocraticTrainingSessionViewModel(@NonNull Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, SocraticSessionType sessionType, Keys keys) {
         super(application);
@@ -96,8 +98,14 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
         Map<String, Integer> competencyWeights = buildInitialCompetencyWeights(resetWeights ? null : previousSettings);
         inPlayKeyNames = getInitialInPlayKeyNames(previousSettings);
         countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
-        engine = new SocraticTrainingEngine(KochLetterSequence.sequence, wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights);
+        engine = new SocraticTrainingEngine(KochLetterSequence.sequence, wpmRequested, this::letterChosenCallback, this::letterDonePlayingCallback, inPlayKeyNames, competencyWeights);
         engine.prime();
+    }
+
+    private void letterDonePlayingCallback(String playedLetter) {
+        if (currentLetterFirstPlayedAt < 0) {
+            currentLetterFirstPlayedAt = System.currentTimeMillis();
+        }
     }
 
     public void startTheEngine() {
@@ -204,14 +212,9 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
         trainingSession.durationRequestedMillis = durationRequestedMillis;
         trainingSession.durationWorkedMillis = durationWorkedMillis;
         trainingSession.completed = durationWorkedMillis == 0;
-        trainingSession.wpmAverage = calcWpmAverage(durationWorkedMillis);
-        trainingSession.accuracy = (double) totalCorrectGuesses / (double) (totalCorrectGuesses + totalIncorrectGuesses);
         trainingSession.sessionType = sessionType.name();
-        if (Double.isNaN(trainingSession.accuracy)) {
-            trainingSession.accuracy = -1;
-        }
 
-        repository.insertSocraticTrainingSession(trainingSession);
+        repository.insertSocraticTrainingSessionAndEvents(trainingSession, engine.events);
 
         SocraticTrainingEngineSettings settings = engine.getSettings();
         settings.durationRequestedMillis = durationRequestedMillis;

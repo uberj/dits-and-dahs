@@ -32,7 +32,7 @@ public class TranscribeUtil {
                 } else if (controlType.get().equals(KeyConfig.ControlType.SPACE)) {
                     stringsToDisplay.add(" ");
                 } else {
-                    throw new RuntimeException("unhandled control type " + transcribedString);
+                    throw new RuntimeException("unhandled control eventType " + transcribedString);
                 }
             } else {
                 stringsToDisplay.add(transcribedString);

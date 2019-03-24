@@ -1,11 +1,13 @@
 package com.uberj.pocketmorsepro.storage;
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.LiveData;
 import android.content.Context;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
 
 import com.uberj.pocketmorsepro.TestObserver;
+import com.uberj.pocketmorsepro.socratic.storage.SocraticEngineEvent;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettingsDAO;
@@ -13,19 +15,26 @@ import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSession;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSessionDAO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSessionWithEvents;
 
+import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+
 
 import java.util.List;
 import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
 public class TheDatabaseTest {
+    @Rule
+    public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
     private static TheDatabase theDatabase;
-    private static SocraticTrainingSessionDAO letterTrainingSessionDAO;
+    private static SocraticTrainingSessionDAO socraticLetterTrainingSessionDAO;
     private static SocraticTrainingEngineSettingsDAO competencyWeightsDAO;
 
     @BeforeClass
@@ -33,29 +42,40 @@ public class TheDatabaseTest {
         final Context context = InstrumentationRegistry.getTargetContext();
         context.deleteDatabase(TheDatabase.THE_DATABASE_NAME);
         theDatabase = TheDatabase.getDatabase(context);
-        letterTrainingSessionDAO = theDatabase.socraticTrainingSessionDAO();
+        socraticLetterTrainingSessionDAO = theDatabase.socraticTrainingSessionDAO();
         competencyWeightsDAO = theDatabase.socraticEngineSettingsDAO();
     }
 
     @Test
-    public void testCreateReadLetterTrainingSession() throws InterruptedException {
-        TestObserver.test(letterTrainingSessionDAO.getAllSessions(SocraticSessionType.LETTER_ONLY.name()))
-                .awaitValue()
-                .assertValue(List::isEmpty);
+    public void testCreateReadLetterTrainingSession() throws Throwable {
+        {
+            List<SocraticTrainingSession> trainingSessions = LiveDataTestUtil.getValue(socraticLetterTrainingSessionDAO.getAllSessions(SocraticSessionType.LETTER_ONLY.name()));
+            Assert.assertTrue(trainingSessions.isEmpty());
+        }
+
         final SocraticTrainingSession trainingSession = new SocraticTrainingSession();
         trainingSession.endTimeEpocMillis = 444l;
         trainingSession.completed = true;
         trainingSession.durationWorkedMillis = 100l;
         trainingSession.durationRequestedMillis = 99l;
-        letterTrainingSessionDAO.insertSession(trainingSession);
+        trainingSession.sessionType = SocraticSessionType.LETTER_ONLY.name();
+        List<SocraticEngineEvent> events = Lists.newArrayList();
+        events.add(SocraticEngineEvent.correctGuess("L"));
+        events.add(SocraticEngineEvent.incorrectGuess("K"));
+        events.add(SocraticEngineEvent.destroyed());
+        socraticLetterTrainingSessionDAO.insertSessionAndEvents(trainingSession, events);
 
-        TestObserver.test(letterTrainingSessionDAO.getAllSessions(SocraticSessionType.LETTER_ONLY.name()))
-                .awaitValue()
-                .assertValue((ss) -> ss.size() == 1)
-                .assertValue((ss) -> ss.get(0).durationWorkedMillis.equals(trainingSession.durationWorkedMillis))
-                .assertValue((ss) -> ss.get(0).completed == trainingSession.completed)
-                .assertValue((ss) -> ss.get(0).endTimeEpocMillis.equals(trainingSession.endTimeEpocMillis))
-                .assertValue((ss) -> ss.get(0).durationRequestedMillis.equals(trainingSession.durationRequestedMillis));
+        List<SocraticTrainingSessionWithEvents> trainingSessions = LiveDataTestUtil.getValue(socraticLetterTrainingSessionDAO.getLatestSessionAndEvents(SocraticSessionType.LETTER_ONLY.name()));
+        Assert.assertEquals(1, trainingSessions.size());
+        SocraticTrainingSessionWithEvents ss = trainingSessions.get(0);
+        Assert.assertEquals(trainingSession.durationWorkedMillis, ss.session.durationWorkedMillis);
+        Assert.assertEquals(trainingSession.completed, ss.session.completed);
+        Assert.assertEquals(trainingSession.endTimeEpocMillis, ss.session.endTimeEpocMillis);
+        Assert.assertEquals(trainingSession.durationRequestedMillis, ss.session.durationRequestedMillis);
+        Assert.assertEquals(events.size(), ss.events.size());
+        Assert.assertEquals(SocraticEngineEvent.EventType.CORRECT_GUESS, ss.events.get(0).eventType);
+        Assert.assertEquals("L", ss.events.get(0).info);
+
     }
 
     @Test

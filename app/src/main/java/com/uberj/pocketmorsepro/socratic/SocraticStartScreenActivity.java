@@ -4,6 +4,7 @@ import com.uberj.pocketmorsepro.R;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSession;
+import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSessionWithEvents;
 import com.uberj.pocketmorsepro.training.DialogFragmentProvider;
 import com.google.android.material.tabs.TabLayout;
 
@@ -256,14 +257,15 @@ public abstract class SocraticStartScreenActivity extends AppCompatActivity impl
             View rootView = inflater.inflate(R.layout.socratic_training_numbers_screen_fragment, container, false);
             sessionViewModel = ViewModelProviders.of(this).get(SocraticTrainingMainScreenViewModel.class);
             sessionViewModel.getLatestSession(sessionType).observe(this, (mostRecentSession) -> {
-                float wpmAverage = -1;
+                double wpmAverage = -1;
                 double accuracy = -1;
                 long prevDurationMillis = -1;
                 if (!mostRecentSession.isEmpty()) {
-                    SocraticTrainingSession session = mostRecentSession.get(0);
-                    wpmAverage = session.wpmAverage;
-                    accuracy = session.accuracy;
-                    prevDurationMillis = session.durationWorkedMillis;
+                    SocraticTrainingSessionWithEvents s = mostRecentSession.get(0);
+                    SocraticUtil.Analysis analysis = SocraticUtil.analyseSession(s);
+                    wpmAverage = analysis.wpmAverage;
+                    accuracy = analysis.overAllAccuracy;
+                    prevDurationMillis = s.session.durationWorkedMillis;
 
                 }
 
