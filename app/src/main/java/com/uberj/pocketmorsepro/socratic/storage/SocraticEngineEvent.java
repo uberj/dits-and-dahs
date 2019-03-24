@@ -43,10 +43,11 @@ public class SocraticEngineEvent {
         }
     }
 
-    public static SocraticEngineEvent letterDonePlaying() {
+    public static SocraticEngineEvent letterDonePlaying(String currentLetter) {
         SocraticEngineEvent engineEvent = new SocraticEngineEvent();
         engineEvent.eventType = EventType.DONE_PLAYING;
         engineEvent.eventAtEpoc = System.currentTimeMillis();
+        engineEvent.info = currentLetter;
         return engineEvent;
     }
 

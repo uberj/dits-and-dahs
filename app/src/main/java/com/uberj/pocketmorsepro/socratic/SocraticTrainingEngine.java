@@ -79,7 +79,7 @@ public class SocraticTrainingEngine {
                     if (audioThreadKeepAlive) {
                         Timber.d("Playing letter: %s", currentLetter);
                         cwToneManager.playLetter(currentLetter);
-                        events.add(SocraticEngineEvent.letterDonePlaying());
+                        events.add(SocraticEngineEvent.letterDonePlaying(currentLetter));
                     }
 
                     // start the callback timer to play again
