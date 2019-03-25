@@ -15,7 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
-class SimpleLetterTrainingHelpDialogViewModel extends AndroidViewModel {
+public class SimpleLetterTrainingHelpDialogViewModel extends AndroidViewModel {
     public static final ImmutableList<String> EXAMPLE_LETTERS = ImmutableList.of("H", "J", "K", "N", "M");
     public static final ImmutableList<ImmutableList<KeyConfig>> EXAMPLE_BOARD_KEYS = ImmutableList.of(
             ImmutableList.of(KeyConfig.l("H"), KeyConfig.l("J"), KeyConfig.l("K")),
