@@ -75,7 +75,7 @@ public class CWToneManager {
         3  = /
     +   3  = 1 + 1 + 1 ...
     -------------------
-       50 (symbols in "paris"
+       50 (symbolAnalysis in "paris"
      */
     public byte[] buildSnd(int wpm, String s) {
         PCMDetails pcmDetails = calcPCMDetails(wpm, s);
@@ -153,7 +153,7 @@ public class CWToneManager {
     }
 
     private PCMDetails calcPCMDetails(int wpm, String s) {
-        // calculate number of symbols
+        // calculate number of symbolAnalysis
         int totalNumSymbols = 0;
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
@@ -235,7 +235,7 @@ public class CWToneManager {
     }
 
     /*
-        baud(w) = symbols per second at $w words per minute
+        baud(w) = symbolAnalysis per second at $w words per minute
         baud(w) = number of times paris is played in a minute
         baud(w) = (w * 50 + (w - 1) * 7) / 60 seconds
         baud(w) = (w * 50 + w * 7 - 7) / 60

@@ -74,6 +74,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
 
     implementation 'com.github.sephiroth74:NumberSlidingPicker:v1.0.1'
+    implementation 'com.tomergoldst.android:tooltips:1.0.10'
 
     implementation group: 'com.google.guava', name: 'guava', version: '27.0.1-jre'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
