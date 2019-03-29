@@ -53,11 +53,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:text="Overall Accuracy:"
+        android:translationZ="1dp"
         android:visibility="visible"
-        app:layout_constraintStart_toStartOf="@+id/guideline11"
-        app:layout_constraintTop_toBottomOf="@+id/prev-session-wpm-title" />
+        app:layout_constraintBottom_toBottomOf="@+id/overall-accuracy-background"
+        app:layout_constraintStart_toStartOf="@+id/overall-accuracy-background"
+        app:layout_constraintTop_toTopOf="@+id/overall-accuracy-background" />
 
     <TextView
         android:id="@+id/prev-session-accuracy"
@@ -65,8 +66,31 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="N/A"
+        android:translationZ="1dp"
         android:visibility="visible"
         app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-accuracy-rate-title"
+        app:layout_constraintStart_toStartOf="@+id/guideline14" />
+
+    <TextView
+        android:id="@+id/prev-session-accuracy3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="N/A"
+        android:translationZ="1dp"
+        android:visibility="visible"
+        app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-accuracy-rate-title2"
+        app:layout_constraintStart_toStartOf="@+id/guideline14" />
+
+    <TextView
+        android:id="@+id/prev-session-accuracy4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="N/A"
+        android:translationZ="1dp"
+        android:visibility="visible"
+        app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-accuracy-rate-title4"
         app:layout_constraintStart_toStartOf="@+id/guideline14" />
 
     <androidx.constraintlayout.widget.Guideline
@@ -74,14 +98,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.26" />
+        app:layout_constraintGuide_percent="0.33" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline12"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.34" />
+        app:layout_constraintGuide_percent="0.54" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline18"
@@ -103,13 +127,13 @@
         app:layout_constraintTop_toTopOf="@+id/guideline18" />
 
     <TextView
-        android:id="@+id/stats-title3"
+        android:id="@+id/details-title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:text="Session Details"
+        android:text="ATBCG Details"
         android:textAllCaps="true"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/guideline13"
@@ -122,30 +146,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.07" />
-
-    <TableLayout
-        android:id="@+id/acronym-container"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintEnd_toStartOf="@+id/guideline13"
-        app:layout_constraintStart_toStartOf="@+id/guideline12"
-        app:layout_constraintTop_toBottomOf="@+id/stats-title3">
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/textView21"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TextView" />
-        </TableRow>
-
-    </TableLayout>
+        app:layout_constraintGuide_percent="0.04" />
 
     <ScrollView
         android:id="@+id/details-container-scroll"
@@ -155,11 +156,13 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
+        android:background="@drawable/rounded_corners_for_numbers_detail_view"
+        android:translationZ="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline13"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/guideline12"
-        app:layout_constraintTop_toBottomOf="@+id/acronym-container">
+        app:layout_constraintTop_toBottomOf="@+id/details-explaination">
 
         <TableLayout
             android:id="@+id/details-container"
@@ -190,6 +193,115 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.98" />
+
+    <View
+        android:id="@+id/overall-atbcg-background"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/rounded_corners_for_numbers_detail_view"
+        app:layout_constraintEnd_toEndOf="@+id/details-container-scroll"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline11"
+        app:layout_constraintTop_toBottomOf="@+id/overall-accuracy-background" />
+
+    <View
+        android:id="@+id/overall-apbcg-background"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/rounded_corners_for_numbers_detail_view"
+        app:layout_constraintEnd_toEndOf="@+id/details-container-scroll"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline11"
+        app:layout_constraintTop_toBottomOf="@+id/overall-atbcg-background" />
+
+    <View
+        android:id="@+id/overall-accuracy-background"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/rounded_corners_for_numbers_detail_view"
+        app:layout_constraintEnd_toEndOf="@+id/details-container-scroll"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline11"
+        app:layout_constraintTop_toBottomOf="@+id/prev-session-wpm-title" />
+
+    <TextView
+        android:id="@+id/prev-session-accuracy-rate-title2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Overall ATBCG:"
+        android:translationZ="3dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/overall-atbcg-background"
+        app:layout_constraintStart_toStartOf="@+id/overall-atbcg-background"
+        app:layout_constraintTop_toTopOf="@+id/overall-atbcg-background" />
+
+    <TextView
+        android:id="@+id/prev-session-accuracy-rate-title4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Overall APBCG:"
+        android:translationZ="3dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/overall-apbcg-background"
+        app:layout_constraintStart_toStartOf="@+id/overall-apbcg-background"
+        app:layout_constraintTop_toTopOf="@+id/overall-apbcg-background" />
+
+    <TextView
+        android:id="@+id/show-apbcg-detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:text="(Details)"
+        android:textColor="@color/design_default_color_primary_variant"
+        android:textSize="12sp"
+        android:translationZ="1dp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-accuracy-rate-title4"
+        app:layout_constraintStart_toEndOf="@+id/prev-session-accuracy4" />
+
+    <TextView
+        android:id="@+id/show-accuracy-detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:text="(Details)"
+        android:textColor="@color/design_default_color_primary_variant"
+        android:textSize="12sp"
+        android:translationZ="1dp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-accuracy-rate-title"
+        app:layout_constraintStart_toEndOf="@+id/prev-session-accuracy" />
+
+    <TextView
+        android:id="@+id/show-atbcg-detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:text="(Details)"
+        android:textColor="@color/design_default_color_primary_variant"
+        android:textSize="12sp"
+        android:translationZ="1dp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-accuracy-rate-title2"
+        app:layout_constraintStart_toEndOf="@+id/prev-session-accuracy3" />
+
+    <TextView
+        android:id="@+id/details-explaination"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:textAlignment="textStart"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline13"
+        app:layout_constraintStart_toStartOf="@+id/guideline12"
+        app:layout_constraintTop_toBottomOf="@+id/details-title" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

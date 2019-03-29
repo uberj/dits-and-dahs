@@ -236,6 +236,7 @@ public class SocraticUtil {
         public int incorrectGuessesBeforeCorrectGuess;
         public double averageTimeBeforeCorrectGuessSeconds;
         public List<String> topFiveIncorrectGuesses;
+        public double accuracy;
     }
 
     public static class Analysis {

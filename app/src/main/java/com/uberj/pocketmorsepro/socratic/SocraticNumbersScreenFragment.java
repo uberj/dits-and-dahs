@@ -24,7 +24,9 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.util.Locale;
+import java.util.function.Function;
 
 public class SocraticNumbersScreenFragment extends Fragment implements View.OnTouchListener {
     private SocraticTrainingMainScreenViewModel sessionViewModel;
@@ -60,12 +62,8 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
         mToolTipsManager = new ToolTipsManager();
 
 
-        TableLayout acronymContainer = rootView.findViewById(R.id.acronym_container);
-        acronymContainer.setOnTouchListener(this);
-        ScrollView detailsScrollContainer = rootView.findViewById(R.id.details_container_scroll);
-        detailsScrollContainer.setOnTouchListener(this);
+        TextView detailsExplanation = rootView.findViewById(R.id.details_explaination);
         TableLayout detailsContainer = rootView.findViewById(R.id.details_container);
-        detailsContainer.setOnTouchListener(this);
         sessionViewModel = ViewModelProviders.of(this).get(SocraticTrainingMainScreenViewModel.class);
         sessionViewModel.getLatestSession(sessionType).observe(this, (mostRecentSession) -> {
             double wpmAverage = -1;
@@ -78,8 +76,7 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
                 accuracy = analysis.overAllAccuracy;
                 prevDurationMillis = s.session.durationWorkedMillis;
                 detailsContainer.removeAllViews();
-                acronymContainer.removeAllViews();
-                buildDetailsTable(rootView, detailsContainer, acronymContainer, analysis);
+                initDetailsTable(rootView, detailsContainer, detailsExplanation, analysis);
             }
 
             long prevDurationMinutes = (prevDurationMillis / 1000) / 60;
@@ -109,95 +106,122 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
     }
 
     private enum Infos {
-        NUM_PLAYS("# Plays", "Number of times this symbol was played"),
-        PBCG("APBCG", "AVERAGE times the letter was PLAYED BEFORE a CORRECT GUESS was made"),
-        IBCG("IBCG", "Number of INCORRECT guesses were made BEFORE a CORRECT GUESS was entered"),
-        ATCG("ATCG", "AVERAGE TIME it took before CORRECT guess was made"),
-        TOP5("TOP5", "TOP FIVE INCORRECT guesses when this letter was played");
+        NUM_PLAYS("# Plays", "Number of times this symbol was played", "# of plays"),
+        ACCURACY("ACCURACY", "How accurate you were at guessing each character", "Seconds"),
+        PBCG("APBCG", "AVERAGE number of times a letter was PLAYED BEFORE a CORRECT GUESS was made", "# of plays"),
+        IBCG("IBCG", "Number of INCORRECT guesses were made BEFORE a CORRECT GUESS was entered", "# of guesses"),
+        ATCG("ATCG", "AVERAGE TIME before CORRECT guess was entered", "Seconds"),
+        TOP5("TOP5", "TOP FIVE INCORRECT guesses when this letter was played", "Guesses");
 
         public final String info;
         public final String description;
+        public final String units;
 
-        Infos(String description, String info) {
+        Infos(String description, String info, String units) {
             this.description = description;
             this.info = info;
+            this.units = units;
         }
     }
 
-    private void buildDetailsTable(ViewGroup rootView, TableLayout dataContainer, TableLayout acronymContainer, SocraticUtil.Analysis analysis) {
-        addHeader(rootView, acronymContainer);
+    private void initDetailsTable(ViewGroup rootView, TableLayout dataContainer, TextView acronymContainer, SocraticUtil.Analysis analysis) {
+        DecimalFormat format = new DecimalFormat("#.##");
+        View overallAccuracyBackground = rootView.findViewById(R.id.overall_accuracy_background);
+        View overallAccuracyBackgroundShow = rootView.findViewById(R.id.show_accuracy_detail);
+        View overallAPBCGBackground = rootView.findViewById(R.id.overall_apbcg_background);
+        View overallAPBCGBackgroundShow = rootView.findViewById(R.id.show_apbcg_detail);
+        View overallATBCGBackground = rootView.findViewById(R.id.overall_atbcg_background);
+        View overallATBCGBackgroundShow = rootView.findViewById(R.id.show_atbcg_detail);
+        overallAccuracyBackground.setOnClickListener(v -> {
+            acronymContainer.setText(Infos.ACCURACY.info);
+
+            overallAccuracyBackground.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
+            overallAccuracyBackgroundShow.setVisibility(View.INVISIBLE);
+
+            overallAPBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallAPBCGBackgroundShow.setVisibility(View.VISIBLE);
+
+            overallATBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallATBCGBackgroundShow.setVisibility(View.VISIBLE);
+
+            setupDataView(
+                    Infos.ACCURACY,
+                    dataContainer,
+                    analysis,
+                    (SocraticUtil.SymbolAnalysis sa) -> format.format(sa.accuracy));
+        });
+        overallAPBCGBackground.setOnClickListener(v -> {
+            acronymContainer.setText(Infos.PBCG.info);
+            overallAccuracyBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallAccuracyBackgroundShow.setVisibility(View.VISIBLE);
+
+            overallAPBCGBackground.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
+            overallAPBCGBackgroundShow.setVisibility(View.INVISIBLE);
+
+            overallATBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallATBCGBackgroundShow.setVisibility(View.VISIBLE);
+
+            setupDataView(
+                    Infos.PBCG,
+                    dataContainer,
+                    analysis,
+                    (SocraticUtil.SymbolAnalysis sa) -> format.format(sa.averagePlaysBeforeCorrectGuess));
+        });
+        overallATBCGBackground.setOnClickListener(v -> {
+            acronymContainer.setText(Infos.ATCG.info);
+            overallAccuracyBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallAccuracyBackgroundShow.setVisibility(View.VISIBLE);
+
+            overallAPBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallAPBCGBackgroundShow.setVisibility(View.VISIBLE);
+
+            overallATBCGBackground.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
+            overallATBCGBackgroundShow.setVisibility(View.INVISIBLE);
+
+            setupDataView(
+                    Infos.ATCG,
+                    dataContainer,
+                    analysis,
+                    (SocraticUtil.SymbolAnalysis sa) -> format.format(sa.averageTimeBeforeCorrectGuessSeconds));
+        });
+
+
+        // Init
+        overallAccuracyBackground.callOnClick();
+    }
+
+    private void setupDataView(Infos info, TableLayout dataContainer, SocraticUtil.Analysis analysis, Function<SocraticUtil.SymbolAnalysis, String> dataf) {
+        dataContainer.removeAllViews();
+        TableRow headerRow = new TableRow(getContext());
+
+        TextView symbol = new TextView(getContext());
+        symbol.setText("Symbol");
+        headerRow.addView(symbol);
+
+        TextView units = new TextView(getContext());
+        symbol.setText(info.units);
+
+        headerRow.addView(units);
+
         for (SocraticUtil.SymbolAnalysis sa : analysis.symbolAnalysis) {
             TableRow dataRow = new TableRow(getContext());
             dataRow.setGravity(Gravity.CENTER);
 
-            TextView symbol = new TextView(getContext());
-            symbol.setText(sa.symbol);
-            setupData(symbol);
-            dataRow.addView(symbol);
+            TextView symbolName = new TextView(getContext());
+            symbolName.setText(sa.symbol);
+            setupData(symbolName);
+            dataRow.addView(symbolName);
 
-            TextView numPlays = new TextView(getContext());
-            numPlays.setText(sa.numberPlays);
-            setupData(numPlays);
-            dataRow.addView(numPlays);
-
-            TextView aPBCG = new TextView(getContext());
-            aPBCG.setText(String.format(Locale.ENGLISH, "%02f", sa.averagePlaysBeforeCorrectGuess));
-            setupData(aPBCG);
-            dataRow.addView(aPBCG);
-
-            TextView iBCG = new TextView(getContext());
-            aPBCG.setText(String.format(Locale.ENGLISH, "%s", sa.incorrectGuessesBeforeCorrectGuess));
-            setupData(iBCG);
-            dataRow.addView(iBCG);
-
-            TextView aTC = new TextView(getContext());
-            aPBCG.setText(String.format(Locale.ENGLISH, "%02f", sa.averageTimeBeforeCorrectGuessSeconds));
-            setupData(aTC);
-            dataRow.addView(aTC);
-
-            TextView top5 = new TextView(getContext());
-            // TOP5 -- Top five incorrect guesses when this letter was played
-            top5.setText(String.valueOf(sa.topFiveIncorrectGuesses));
-            setupData(top5);
-            dataRow.addView(top5);
+            TextView accuracy = new TextView(getContext());
+            accuracy.setText(dataf.apply(sa));
+            setupData(accuracy);
+            dataRow.addView(accuracy);
             dataContainer.addView(dataRow);
         }
     }
 
-    private void addHeader(ViewGroup rootView, TableLayout headerContainer) {
-        TableRow headerRow = new TableRow(getContext());
-        headerRow.setGravity(Gravity.CENTER);
-
-        TextView stringNameTitle = new TextView(getContext());
-        stringNameTitle.setText("Symbol");
-        headerRow.addView(stringNameTitle);
-
-        TextView numPlays = new TextView(getContext());
-        setupHeader(rootView, numPlays, Infos.NUM_PLAYS, ToolTip.POSITION_BELOW);
-        headerRow.addView(numPlays);
-
-        TextView pBCG = new TextView(getContext());
-        setupHeader(rootView, pBCG, Infos.PBCG, ToolTip.POSITION_BELOW);
-        headerRow.addView(pBCG);
-
-        TextView iBCG = new TextView(getContext());
-        setupHeader(rootView, iBCG, Infos.IBCG, ToolTip.POSITION_LEFT_TO);
-        headerRow.addView(iBCG);
-
-        TextView aTC = new TextView(getContext());
-        setupHeader(rootView, aTC, Infos.ATCG, ToolTip.POSITION_LEFT_TO);
-        headerRow.addView(aTC);
-
-        TextView top5 = new TextView(getContext());
-        // TOP5 -- Top five incorrect guesses when this letter was played
-        setupHeader(rootView, top5, Infos.TOP5, ToolTip.POSITION_LEFT_TO);
-        headerRow.addView(top5);
-
-        headerContainer.addView(headerRow);
-    }
-
     private void setupData(TextView tv) {
-        tv.setPadding(0, 8, 24, 8);
+        tv.setPadding(0, 8, 48, 8);
     }
 
     private void setupHeader(ViewGroup rootView, TextView tv, Infos header, int tooltipPosition) {
