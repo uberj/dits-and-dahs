@@ -41,10 +41,43 @@ public class SocraticUtil {
             sa.numberPlays = calcNumPlays(segments);
             sa.averagePlaysBeforeCorrectGuess = calcAPBCG(segments);
             sa.topFiveIncorrectGuesses = calcTopFive(segments);
+            sa.accuracy = calcAccuracy(segments, symbol);
             l.add(sa);
         }
 
         return l;
+    }
+
+    private static double calcAccuracy(List<List<SocraticEngineEvent>> segments, String symbol) {
+        double missCounter = 0;
+        double chanceCounter = 0;
+        for (List<SocraticEngineEvent> events : segments) {
+            SocraticEngineEvent firstDonePlaying = findFirst(SocraticEngineEvent.EventType.DONE_PLAYING, events);
+            if (firstDonePlaying == null) {
+                continue;
+            }
+            // We know it was played at least once
+            chanceCounter += 1;
+            List<SocraticEngineEvent> inScopeEvents = events.stream().filter(event -> event.eventAtEpoc >= firstDonePlaying.eventAtEpoc)
+                    .collect(Collectors.toList());
+            for (SocraticEngineEvent event : inScopeEvents) {
+                // If we see a miss before we see a correct, its a miss. else, its not a miss;
+                if (event.eventType == SocraticEngineEvent.EventType.INCORRECT_GUESS) {
+                    missCounter += 1;
+                    break;
+                }
+
+                if (event.eventType == SocraticEngineEvent.EventType.CORRECT_GUESS) {
+                    break;
+                }
+            }
+        }
+
+        if (chanceCounter == 0) {
+            return 1;
+        }
+
+        return 1 - (missCounter/chanceCounter);
     }
 
     private static List<String> calcTopFive(List<List<SocraticEngineEvent>> segments) {
@@ -77,7 +110,7 @@ public class SocraticUtil {
     }
 
     private static double calcAPBCG(List<List<SocraticEngineEvent>> segments) {
-        return segments.stream().map(events -> {
+        return toSeconds(segments.stream().map(events -> {
             if (events.isEmpty()) {
                 return 0L;
             }
@@ -96,7 +129,15 @@ public class SocraticUtil {
                 }
             }
             return count;
-        }).mapToDouble(Double::valueOf).average().orElse(-1D);
+        }).mapToDouble(Double::valueOf).average().orElse(-1D));
+    }
+
+    private static double toSeconds(double millis) {
+        if (millis > 0) {
+            return millis / 1000;
+        }
+
+        return millis;
     }
 
     private static int calcNumPlays(List<List<SocraticEngineEvent>> segments) {
@@ -118,7 +159,7 @@ public class SocraticUtil {
     }
 
     private static double calcATBCG(List<List<SocraticEngineEvent>> segments) {
-        return segments.stream().map(events -> {
+        return toSeconds(segments.stream().map(events -> {
             if (events.isEmpty()) {
                 return 0L;
             }
@@ -129,7 +170,7 @@ public class SocraticUtil {
             }
             long l1 = firstCorrectGuess.eventAtEpoc - firstDonePlaying.eventAtEpoc;
             return l1;
-        }).mapToDouble(Double::valueOf).average().orElse(-1D);
+        }).mapToDouble(Double::valueOf).average().orElse(-1D));
     }
 
     private static int calcICGBCG(List<List<SocraticEngineEvent>> segments) {

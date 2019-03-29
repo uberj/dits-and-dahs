@@ -155,14 +155,14 @@ public class TranscribeNumberScreenFragment extends Fragment {
             double accuracy = (hitCount.doubleValue() / playCount.doubleValue()) * 100;
             int roundedAccuracy = (int) accuracy;
 
-            TextView errorText = new TextView(getContext());
+            TextView accuracyText = new TextView(getContext());
             SpannableStringBuilder ssb = new SpannableStringBuilder();
             ssb.append(String.valueOf(roundedAccuracy))
                     .append("%");
             ForegroundColorSpan errorSpanColor = new ForegroundColorSpan(ProgressGradient.forWeight(Math.min(100, roundedAccuracy)));
             ssb.setSpan(errorSpanColor, 0, ssb.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            errorText.setText(ssb);
-            tableRow.addView(errorText);
+            accuracyText.setText(ssb);
+            tableRow.addView(accuracyText);
 
             TextView missPlays = new TextView(getContext());
             missPlays.setText(String.format(Locale.ENGLISH, "(%d/%d)", hitCount, playCount));

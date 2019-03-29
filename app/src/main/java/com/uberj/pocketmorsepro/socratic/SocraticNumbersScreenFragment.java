@@ -2,6 +2,7 @@ package com.uberj.pocketmorsepro.socratic;
 
 import com.tomergoldst.tooltips.ToolTip;
 import com.tomergoldst.tooltips.ToolTipsManager;
+import com.uberj.pocketmorsepro.ProgressGradient;
 import com.uberj.pocketmorsepro.R;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSessionWithEvents;
@@ -13,18 +14,21 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.function.Function;
 
@@ -107,7 +111,7 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
 
     private enum Infos {
         NUM_PLAYS("# Plays", "Number of times this symbol was played", "# of plays"),
-        ACCURACY("ACCURACY", "How accurate you were at guessing each character", "Seconds"),
+        ACCURACY("ACCURACY", "Percent of time the first guess was correct", "Accuracy Percentage"),
         PBCG("APBCG", "AVERAGE number of times a letter was PLAYED BEFORE a CORRECT GUESS was made", "# of plays"),
         IBCG("IBCG", "Number of INCORRECT guesses were made BEFORE a CORRECT GUESS was entered", "# of guesses"),
         ATCG("ATCG", "AVERAGE TIME before CORRECT guess was entered", "Seconds"),
@@ -148,7 +152,11 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
                     Infos.ACCURACY,
                     dataContainer,
                     analysis,
-                    (SocraticUtil.SymbolAnalysis sa) -> format.format(sa.accuracy));
+                    (SocraticUtil.SymbolAnalysis sa) -> {
+                        return colorized((int) sa.accuracy * 100);
+                    },
+                    (a1, a2) -> (int) (a2.accuracy * 1000 - a1.accuracy * 1000)
+            );
         });
         overallAPBCGBackground.setOnClickListener(v -> {
             acronymContainer.setText(Infos.PBCG.info);
@@ -165,7 +173,9 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
                     Infos.PBCG,
                     dataContainer,
                     analysis,
-                    (SocraticUtil.SymbolAnalysis sa) -> format.format(sa.averagePlaysBeforeCorrectGuess));
+                    (SocraticUtil.SymbolAnalysis sa) -> format.format(sa.averagePlaysBeforeCorrectGuess),
+                    (a1, a2) -> (int) (a2.averagePlaysBeforeCorrectGuess * 1000 - a1.averagePlaysBeforeCorrectGuess * 1000)
+            );
         });
         overallATBCGBackground.setOnClickListener(v -> {
             acronymContainer.setText(Infos.ATCG.info);
@@ -182,7 +192,9 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
                     Infos.ATCG,
                     dataContainer,
                     analysis,
-                    (SocraticUtil.SymbolAnalysis sa) -> format.format(sa.averageTimeBeforeCorrectGuessSeconds));
+                    (SocraticUtil.SymbolAnalysis sa) -> format.format(sa.averageTimeBeforeCorrectGuessSeconds),
+                    (a1, a2) -> (int) (a2.averageTimeBeforeCorrectGuessSeconds * 1000 - a1.averageTimeBeforeCorrectGuessSeconds * 1000)
+            );
         });
 
 
@@ -190,37 +202,52 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
         overallAccuracyBackground.callOnClick();
     }
 
-    private void setupDataView(Infos info, TableLayout dataContainer, SocraticUtil.Analysis analysis, Function<SocraticUtil.SymbolAnalysis, String> dataf) {
+    private CharSequence colorized(int displayValue) {
+        SpannableStringBuilder ssb = new SpannableStringBuilder();
+        ssb.append(String.valueOf(displayValue))
+                .append("%");
+        ForegroundColorSpan errorSpanColor = new ForegroundColorSpan(ProgressGradient.forWeight(Math.min(100, displayValue)));
+        ssb.setSpan(errorSpanColor, 0, ssb.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return ssb;
+    }
+
+    private synchronized void setupDataView(Infos info, TableLayout dataContainer, SocraticUtil.Analysis analysis, Function<SocraticUtil.SymbolAnalysis, CharSequence> dataFormatter, Comparator<? super SocraticUtil.SymbolAnalysis> comparitor) {
+        // Synchronized because this thing does some sorting with un-threadsafe list
         dataContainer.removeAllViews();
         TableRow headerRow = new TableRow(getContext());
+        headerRow.setGravity(Gravity.CENTER);
 
         TextView symbol = new TextView(getContext());
         symbol.setText("Symbol");
+        setPadding(symbol);
         headerRow.addView(symbol);
 
         TextView units = new TextView(getContext());
-        symbol.setText(info.units);
+        setPadding(units);
+        units.setText(info.units);
 
         headerRow.addView(units);
+        dataContainer.addView(headerRow);
 
+        analysis.symbolAnalysis.sort(comparitor);
         for (SocraticUtil.SymbolAnalysis sa : analysis.symbolAnalysis) {
             TableRow dataRow = new TableRow(getContext());
             dataRow.setGravity(Gravity.CENTER);
 
             TextView symbolName = new TextView(getContext());
             symbolName.setText(sa.symbol);
-            setupData(symbolName);
+            setPadding(symbolName);
             dataRow.addView(symbolName);
 
             TextView accuracy = new TextView(getContext());
-            accuracy.setText(dataf.apply(sa));
-            setupData(accuracy);
+            accuracy.setText(dataFormatter.apply(sa));
+            setPadding(accuracy);
             dataRow.addView(accuracy);
             dataContainer.addView(dataRow);
         }
     }
 
-    private void setupData(TextView tv) {
+    private void setPadding(TextView tv) {
         tv.setPadding(0, 8, 48, 8);
     }
 
