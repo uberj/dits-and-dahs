@@ -72,7 +72,7 @@
         app:layout_constraintStart_toStartOf="@+id/guideline14" />
 
     <TextView
-        android:id="@+id/prev-session-accuracy3"
+        android:id="@+id/prev-session-overall-atbcg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -83,7 +83,7 @@
         app:layout_constraintStart_toStartOf="@+id/guideline14" />
 
     <TextView
-        android:id="@+id/prev-session-accuracy4"
+        android:id="@+id/prev-session-overall-apbcg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -98,7 +98,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.33" />
+        app:layout_constraintGuide_percent="0.31" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline16"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.44" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline12"
@@ -152,7 +159,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="24dp"
         android:background="@drawable/rounded_corners_for_numbers_detail_view"
         android:translationZ="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -194,7 +201,7 @@
     <View
         android:id="@+id/overall-atbcg-background"
         android:layout_width="0dp"
-        android:layout_height="30dp"
+        android:layout_height="33dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/rounded_corners_for_numbers_detail_view"
@@ -255,37 +262,37 @@
         android:id="@+id/show-apbcg-detail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
+        android:layout_marginStart="8dp"
         android:text="(Details)"
         android:textColor="@color/design_default_color_primary_variant"
         android:textSize="12sp"
         android:translationZ="1dp"
         app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-accuracy-rate-title4"
-        app:layout_constraintStart_toEndOf="@+id/prev-session-accuracy4" />
+        app:layout_constraintStart_toStartOf="@+id/guideline16" />
 
     <TextView
         android:id="@+id/show-accuracy-detail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
+        android:layout_marginStart="8dp"
         android:text="(Details)"
         android:textColor="@color/design_default_color_primary_variant"
         android:textSize="12sp"
         android:translationZ="1dp"
         app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-accuracy-rate-title"
-        app:layout_constraintStart_toEndOf="@+id/prev-session-accuracy" />
+        app:layout_constraintStart_toStartOf="@+id/guideline16" />
 
     <TextView
         android:id="@+id/show-atbcg-detail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
+        android:layout_marginStart="8dp"
         android:text="(Details)"
         android:textColor="@color/design_default_color_primary_variant"
         android:textSize="12sp"
         android:translationZ="1dp"
         app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-accuracy-rate-title2"
-        app:layout_constraintStart_toEndOf="@+id/prev-session-accuracy3" />
+        app:layout_constraintStart_toStartOf="@+id/guideline16" />
 
     <TextView
         android:id="@+id/details-explaination"

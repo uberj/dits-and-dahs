@@ -9,5 +9,5 @@
     <color name="incorrectAddedCharacterColor">#FFEB3B</color>
     <color name="correctCharacterColor">#FFF</color>
     <color name="defaultBackground">#FAFAFA</color>
-    <color name="selectedStatsBackground">#DFDFDF</color>
+    <color name="selectedStatsBackground">#E9E9E9</color>
 </resources>

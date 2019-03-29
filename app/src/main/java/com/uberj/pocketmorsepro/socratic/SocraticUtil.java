@@ -1,7 +1,6 @@
 package com.uberj.pocketmorsepro.socratic;
 
 import com.crashlytics.android.Crashlytics;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.uberj.pocketmorsepro.CWToneManager;
@@ -12,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class SocraticUtil {
     public static Analysis analyseSession(SocraticTrainingSessionWithEvents session) {
@@ -21,11 +19,26 @@ public class SocraticUtil {
         int numCorrect = countNumberOfCorrectGuesses(events);
 
         Analysis analysis = new Analysis();
+        analysis.symbolAnalysis = buildIndividualSymbolAnalysis(session);
         analysis.overAllAccuracy = (double) numCorrect / (double) numLettersPlayed;
         analysis.wpmAverage = calcWpmAverage(session, numCorrect);
-        analysis.symbolAnalysis = buildIndividualSymbolAnalysis(session);
+        analysis.averageNumberOfIncorrectGuessesBeforeCorrectGuess = calcAverageNumberOfIncorrectGuessesBeforeCorrectGuess(analysis.symbolAnalysis);
+        analysis.overallAverageNumberPlaysBeforeCorrectGuess = calcAverageNumberPlaysBeforeCorrectGuess(analysis.symbolAnalysis);
+        analysis.overallAverageSecondsBeforeCorrectGuessSeconds = calcOverallAverageSecondsBeforeCorrectGuessSeconds(analysis.symbolAnalysis);
 
         return analysis;
+    }
+
+    private static double calcAverageNumberPlaysBeforeCorrectGuess(List<SymbolAnalysis> symbolAnalysis) {
+        return symbolAnalysis.stream().mapToDouble(sa -> sa.averagePlaysBeforeCorrectGuess).average().orElse(-1D);
+    }
+
+    private static double calcOverallAverageSecondsBeforeCorrectGuessSeconds(List<SymbolAnalysis> symbolAnalysis) {
+        return symbolAnalysis.stream().mapToDouble(sa -> sa.averageSecondsBeforeCorrectGuessSeconds).average().orElse(-1D);
+    }
+
+    private static double calcAverageNumberOfIncorrectGuessesBeforeCorrectGuess(List<SymbolAnalysis> symbolAnalysis) {
+        return symbolAnalysis.stream().mapToDouble(sa -> sa.incorrectGuessesBeforeCorrectGuess).average().orElse(-1D);
     }
 
     public static List<SymbolAnalysis> buildIndividualSymbolAnalysis(SocraticTrainingSessionWithEvents session) {
@@ -37,18 +50,18 @@ public class SocraticUtil {
             sa.symbol = symbol;
             List<List<SocraticEngineEvent>> segments = entry.getValue();
             sa.incorrectGuessesBeforeCorrectGuess = calcICGBCG(segments);
-            sa.averageTimeBeforeCorrectGuessSeconds = calcATBCG(segments);
+            sa.averageSecondsBeforeCorrectGuessSeconds = calcASBCG(segments);
             sa.numberPlays = calcNumPlays(segments);
             sa.averagePlaysBeforeCorrectGuess = calcAPBCG(segments);
             sa.topFiveIncorrectGuesses = calcTopFive(segments);
-            sa.accuracy = calcAccuracy(segments, symbol);
+            sa.accuracy = calcAccuracy(segments);
             l.add(sa);
         }
 
         return l;
     }
 
-    private static double calcAccuracy(List<List<SocraticEngineEvent>> segments, String symbol) {
+    private static double calcAccuracy(List<List<SocraticEngineEvent>> segments) {
         double missCounter = 0;
         double chanceCounter = 0;
         for (List<SocraticEngineEvent> events : segments) {
@@ -110,18 +123,18 @@ public class SocraticUtil {
     }
 
     private static double calcAPBCG(List<List<SocraticEngineEvent>> segments) {
-        return toSeconds(segments.stream().map(events -> {
+        return segments.stream().map(events -> {
+            long count = 1L;
             if (events.isEmpty()) {
-                return 0L;
+                return count;
             }
             SocraticEngineEvent firstDonePlaying = findFirst(SocraticEngineEvent.EventType.DONE_PLAYING, events);
             SocraticEngineEvent firstCorrectGuess = findFirst(SocraticEngineEvent.EventType.CORRECT_GUESS, events);
             if (firstCorrectGuess == null || firstDonePlaying == null) {
-                return 0L;
+                return count;
             }
             List<SocraticEngineEvent> inScopeEvents = events.stream().filter(event -> event.eventAtEpoc >= firstDonePlaying.eventAtEpoc && event.eventAtEpoc < firstCorrectGuess.eventAtEpoc)
                     .collect(Collectors.toList());
-            long count = 0L;
 
             for (SocraticEngineEvent event : inScopeEvents) {
                 if (event.eventType == SocraticEngineEvent.EventType.DONE_PLAYING) {
@@ -129,7 +142,7 @@ public class SocraticUtil {
                 }
             }
             return count;
-        }).mapToDouble(Double::valueOf).average().orElse(-1D));
+        }).mapToDouble(Double::valueOf).average().orElse(-1D);
     }
 
     private static double toSeconds(double millis) {
@@ -158,7 +171,7 @@ public class SocraticUtil {
         }).mapToInt(Number::intValue).sum();
     }
 
-    private static double calcATBCG(List<List<SocraticEngineEvent>> segments) {
+    private static double calcASBCG(List<List<SocraticEngineEvent>> segments) {
         return toSeconds(segments.stream().map(events -> {
             if (events.isEmpty()) {
                 return 0L;
@@ -275,7 +288,7 @@ public class SocraticUtil {
         public int numberPlays;
         public double averagePlaysBeforeCorrectGuess;
         public int incorrectGuessesBeforeCorrectGuess;
-        public double averageTimeBeforeCorrectGuessSeconds;
+        public double averageSecondsBeforeCorrectGuessSeconds;
         public List<String> topFiveIncorrectGuesses;
         public double accuracy;
     }
@@ -284,5 +297,8 @@ public class SocraticUtil {
         public double wpmAverage;
         public double overAllAccuracy;
         public List<SymbolAnalysis> symbolAnalysis;
+        public double averageNumberOfIncorrectGuessesBeforeCorrectGuess;
+        public double overallAverageSecondsBeforeCorrectGuessSeconds;
+        public double overallAverageNumberPlaysBeforeCorrectGuess;
     }
 }

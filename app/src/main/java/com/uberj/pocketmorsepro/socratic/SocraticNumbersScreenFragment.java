@@ -33,6 +33,7 @@ import java.util.Locale;
 import java.util.function.Function;
 
 public class SocraticNumbersScreenFragment extends Fragment implements View.OnTouchListener {
+    private static final DecimalFormat DECIMAL_STAT_FORMATTER = new DecimalFormat("#.##");
     private SocraticTrainingMainScreenViewModel sessionViewModel;
     private SocraticSessionType sessionType;
     private ToolTipsManager mToolTipsManager;
@@ -73,12 +74,16 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
             double wpmAverage = -1;
             double accuracy = -1;
             long prevDurationMillis = -1;
+            double overallAPBCG = -1;
+            double overallATBCG = -1;
             if (!mostRecentSession.isEmpty()) {
                 SocraticTrainingSessionWithEvents s = mostRecentSession.get(0);
                 SocraticUtil.Analysis analysis = SocraticUtil.analyseSession(s);
                 wpmAverage = analysis.wpmAverage;
                 accuracy = analysis.overAllAccuracy;
                 prevDurationMillis = s.session.durationWorkedMillis;
+                overallAPBCG = analysis.overallAverageNumberPlaysBeforeCorrectGuess;
+                overallATBCG = analysis.overallAverageSecondsBeforeCorrectGuessSeconds;
                 detailsContainer.removeAllViews();
                 initDetailsTable(rootView, detailsContainer, detailsExplanation, analysis);
             }
@@ -96,6 +101,12 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
             );
             ((TextView) rootView.findViewById(R.id.prev_session_accuracy)).setText(
                     accuracy >= 0 ? (int) (100 * accuracy) + "%" : "N/A"
+            );
+            ((TextView) rootView.findViewById(R.id.prev_session_overall_atbcg)).setText(
+                    overallATBCG >= 0 ? DECIMAL_STAT_FORMATTER.format(overallATBCG) + " (s)" : "N/A"
+            );
+            ((TextView) rootView.findViewById(R.id.prev_session_overall_apbcg)).setText(
+                    overallAPBCG >= 0 ? DECIMAL_STAT_FORMATTER.format(overallAPBCG) + " plays" : "N/A"
             );
         });
 
@@ -129,7 +140,6 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
     }
 
     private void initDetailsTable(ViewGroup rootView, TableLayout dataContainer, TextView acronymContainer, SocraticUtil.Analysis analysis) {
-        DecimalFormat format = new DecimalFormat("#.##");
         View overallAccuracyBackground = rootView.findViewById(R.id.overall_accuracy_background);
         View overallAccuracyBackgroundShow = rootView.findViewById(R.id.show_accuracy_detail);
         View overallAPBCGBackground = rootView.findViewById(R.id.overall_apbcg_background);
@@ -152,10 +162,8 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
                     Infos.ACCURACY,
                     dataContainer,
                     analysis,
-                    (SocraticUtil.SymbolAnalysis sa) -> {
-                        return colorized((int) sa.accuracy * 100);
-                    },
-                    (a1, a2) -> (int) (a2.accuracy * 1000 - a1.accuracy * 1000)
+                    (SocraticUtil.SymbolAnalysis sa) -> colorized((int) (sa.accuracy * 100)),
+                    (a1, a2) -> (int) (a1.accuracy * 100 - a2.accuracy * 100)
             );
         });
         overallAPBCGBackground.setOnClickListener(v -> {
@@ -173,7 +181,7 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
                     Infos.PBCG,
                     dataContainer,
                     analysis,
-                    (SocraticUtil.SymbolAnalysis sa) -> format.format(sa.averagePlaysBeforeCorrectGuess),
+                    (SocraticUtil.SymbolAnalysis sa) -> DECIMAL_STAT_FORMATTER.format(sa.averagePlaysBeforeCorrectGuess),
                     (a1, a2) -> (int) (a2.averagePlaysBeforeCorrectGuess * 1000 - a1.averagePlaysBeforeCorrectGuess * 1000)
             );
         });
@@ -192,8 +200,8 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
                     Infos.ATCG,
                     dataContainer,
                     analysis,
-                    (SocraticUtil.SymbolAnalysis sa) -> format.format(sa.averageTimeBeforeCorrectGuessSeconds),
-                    (a1, a2) -> (int) (a2.averageTimeBeforeCorrectGuessSeconds * 1000 - a1.averageTimeBeforeCorrectGuessSeconds * 1000)
+                    (SocraticUtil.SymbolAnalysis sa) -> DECIMAL_STAT_FORMATTER.format(sa.averageSecondsBeforeCorrectGuessSeconds),
+                    (a1, a2) -> (int) (a2.averageSecondsBeforeCorrectGuessSeconds * 1000 - a1.averageSecondsBeforeCorrectGuessSeconds * 1000)
             );
         });
 
