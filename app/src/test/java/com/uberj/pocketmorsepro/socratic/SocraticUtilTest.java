@@ -24,11 +24,12 @@ public class SocraticUtilTest {
         Assert.assertEquals(1, symbolAnalyses.size());
         SocraticUtil.SymbolAnalysis sa = symbolAnalyses.get(0);
         Assert.assertEquals("A", sa.symbol);
-        Assert.assertEquals(2, sa.averageSecondsBeforeCorrectGuessSeconds, 0);
+        Assert.assertEquals(0.002, sa.averageSecondsBeforeCorrectGuessSeconds, 0);
         Assert.assertEquals(1, sa.incorrectGuessesBeforeCorrectGuess, 0);
         Assert.assertEquals(1, sa.numberPlays);
         Assert.assertEquals(1, sa.averagePlaysBeforeCorrectGuess, 0);
-        Assert.assertEquals(0, sa.accuracy, 0);
+        Assert.assertTrue(sa.accuracy.isPresent());
+        Assert.assertEquals(0, sa.accuracy.get(), 0);
         Assert.assertEquals(Lists.newArrayList("B"), sa.topFiveIncorrectGuesses);
     }
 
@@ -59,11 +60,12 @@ public class SocraticUtilTest {
         Assert.assertEquals(2, symbolAnalyses.size());
         SocraticUtil.SymbolAnalysis sa = symbolAnalyses.get(0);
         Assert.assertEquals("A", sa.symbol);
-        Assert.assertEquals(2, sa.averageSecondsBeforeCorrectGuessSeconds, 0);
+        Assert.assertEquals(0.002, sa.averageSecondsBeforeCorrectGuessSeconds, 0);
         Assert.assertEquals(2, sa.incorrectGuessesBeforeCorrectGuess, 0);
         Assert.assertEquals(2, sa.numberPlays);
         Assert.assertEquals(1, sa.averagePlaysBeforeCorrectGuess, 0);
-        Assert.assertEquals(0, sa.accuracy, 0);
+        Assert.assertTrue(sa.accuracy.isPresent());
+        Assert.assertEquals(0, sa.accuracy.get(), 0);
         Assert.assertEquals(Lists.newArrayList("B", "C"), sa.topFiveIncorrectGuesses);
     }
 
@@ -97,16 +99,17 @@ public class SocraticUtilTest {
         SocraticUtil.SymbolAnalysis symbolA = getSymbol("A", symbolAnalyses);
         Assert.assertEquals("A", symbolA.symbol);
         Assert.assertEquals(4, symbolA.incorrectGuessesBeforeCorrectGuess);
-        Assert.assertEquals((2D + 8D)/2D, symbolA.averageSecondsBeforeCorrectGuessSeconds, 0);
+        Assert.assertEquals(((2D + 8D)/2D)/1000, symbolA.averageSecondsBeforeCorrectGuessSeconds, 0.00001);
         Assert.assertEquals(2, symbolA.numberPlays, 0);
         Assert.assertEquals(1, symbolA.averagePlaysBeforeCorrectGuess, 0);
-        Assert.assertEquals(0, symbolA.accuracy, 0);
+        Assert.assertTrue(symbolA.accuracy.isPresent());
+        Assert.assertEquals(0, symbolA.accuracy.get(), 0);
         Assert.assertEquals(Lists.newArrayList("B", "C", "D", "F"), symbolA.topFiveIncorrectGuesses);
 
         SocraticUtil.SymbolAnalysis symbolC = getSymbol("C", symbolAnalyses);
         Assert.assertEquals("C", symbolC.symbol);
         Assert.assertEquals(1, symbolC.incorrectGuessesBeforeCorrectGuess);
-        Assert.assertEquals(3F, symbolC.averageSecondsBeforeCorrectGuessSeconds, 0);
+        Assert.assertEquals(0.003F, symbolC.averageSecondsBeforeCorrectGuessSeconds, 0.00001);
         Assert.assertEquals(2, symbolC.numberPlays);
         Assert.assertEquals(2, symbolC.averagePlaysBeforeCorrectGuess, 0);
     }
@@ -225,14 +228,17 @@ public class SocraticUtilTest {
         events.add(eventAt(22, SocraticEngineEvent.letterDonePlaying("A")));
         events.add(eventAt(23, SocraticEngineEvent.letterDonePlaying("A")));
         events.add(eventAt(29, SocraticEngineEvent.incorrectGuess("A")));
+        events.add(eventAt(30, SocraticEngineEvent.destroyed()));
 
         session.events = events;
         List<SocraticUtil.SymbolAnalysis> symbolAnalyses = SocraticUtil.buildIndividualSymbolAnalysis(session);
         SocraticUtil.SymbolAnalysis symbolC = getSymbol("C", symbolAnalyses);
-        Assert.assertEquals(1, symbolC.accuracy, 0);
+        Assert.assertTrue(symbolC.accuracy.isPresent());
+        Assert.assertEquals(1, symbolC.accuracy.get(), 0);
 
         SocraticUtil.SymbolAnalysis symbolA = getSymbol("A", symbolAnalyses);
-        Assert.assertEquals(2D/3D, symbolA.accuracy, 0.001);
+        Assert.assertTrue(symbolA.accuracy.isPresent());
+        Assert.assertEquals(2D/3D, symbolA.accuracy.get(), 0.000000001);
     }
 
 

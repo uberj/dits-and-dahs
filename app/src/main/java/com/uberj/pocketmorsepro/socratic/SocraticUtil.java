@@ -7,21 +7,28 @@ import com.uberj.pocketmorsepro.CWToneManager;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticEngineEvent;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSessionWithEvents;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SocraticUtil {
     public static Analysis analyseSession(SocraticTrainingSessionWithEvents session) {
-        List<SocraticEngineEvent> events = session.events;
-        int numLettersPlayed = countNumberOfLettersChosenAndPlayed(events);
-        int numCorrect = countNumberOfCorrectGuesses(events);
-
         Analysis analysis = new Analysis();
         analysis.symbolAnalysis = buildIndividualSymbolAnalysis(session);
-        analysis.overAllAccuracy = (double) numCorrect / (double) numLettersPlayed;
-        analysis.wpmAverage = calcWpmAverage(session, numCorrect);
+        double overallAccuracy = 0;
+        int totalCorrectGuesses = 0;
+        for (SymbolAnalysis sa : analysis.symbolAnalysis) {
+            overallAccuracy += sa.accuracy.orElse(1D);
+            totalCorrectGuesses += sa.hits;
+        }
+
+        analysis.overAllAccuracy = overallAccuracy / (double) analysis.symbolAnalysis.size();
+        analysis.wpmAverage = calcWpmAverage(session, totalCorrectGuesses);
         analysis.averageNumberOfIncorrectGuessesBeforeCorrectGuess = calcAverageNumberOfIncorrectGuessesBeforeCorrectGuess(analysis.symbolAnalysis);
         analysis.overallAverageNumberPlaysBeforeCorrectGuess = calcAverageNumberPlaysBeforeCorrectGuess(analysis.symbolAnalysis);
         analysis.overallAverageSecondsBeforeCorrectGuessSeconds = calcOverallAverageSecondsBeforeCorrectGuessSeconds(analysis.symbolAnalysis);
@@ -54,16 +61,19 @@ public class SocraticUtil {
             sa.numberPlays = calcNumPlays(segments);
             sa.averagePlaysBeforeCorrectGuess = calcAPBCG(segments);
             sa.topFiveIncorrectGuesses = calcTopFive(segments);
-            sa.accuracy = calcAccuracy(segments);
+            Pair<Integer, Integer> hitsChances = calcHitsChances(segments);
+            sa.accuracy = Optional.ofNullable(calcAccuracy(hitsChances));
+            sa.hits = hitsChances.getLeft();
+            sa.chances = hitsChances.getRight();
             l.add(sa);
         }
 
         return l;
     }
 
-    private static double calcAccuracy(List<List<SocraticEngineEvent>> segments) {
-        double missCounter = 0;
-        double chanceCounter = 0;
+    private static Pair<Integer, Integer> calcHitsChances(List<List<SocraticEngineEvent>> segments) {
+        int hitCounter = 0;
+        int chanceCounter = 0;
         for (List<SocraticEngineEvent> events : segments) {
             SocraticEngineEvent firstDonePlaying = findFirst(SocraticEngineEvent.EventType.DONE_PLAYING, events);
             if (firstDonePlaying == null) {
@@ -76,36 +86,52 @@ public class SocraticUtil {
             for (SocraticEngineEvent event : inScopeEvents) {
                 // If we see a miss before we see a correct, its a miss. else, its not a miss;
                 if (event.eventType == SocraticEngineEvent.EventType.INCORRECT_GUESS) {
-                    missCounter += 1;
                     break;
                 }
 
                 if (event.eventType == SocraticEngineEvent.EventType.CORRECT_GUESS) {
+                    hitCounter += 1;
                     break;
+                }
+
+                // Don't count an error if the player didn't explicitly commit one
+                if (event.eventType == SocraticEngineEvent.EventType.DESTROYED) {
+                    chanceCounter -= 1;
+                    chanceCounter = Math.max(chanceCounter, 1);
                 }
             }
         }
+        return Pair.of(hitCounter, chanceCounter);
+    }
 
-        if (chanceCounter == 0) {
-            return 1;
+    private static Double calcAccuracy(Pair<Integer, Integer> hitsChances) {
+        Integer hits = hitsChances.getLeft();
+        Integer chances = hitsChances.getRight();
+        if (chances == 0) {
+            return null;
+        } else {
+            return hits.doubleValue() / chances.doubleValue();
         }
-
-        return 1 - (missCounter/chanceCounter);
     }
 
     private static List<String> calcTopFive(List<List<SocraticEngineEvent>> segments) {
         Map<String, Integer> misCounter = Maps.newHashMap();
         for (List<SocraticEngineEvent> events : segments) {
             SocraticEngineEvent firstDonePlaying = findFirst(SocraticEngineEvent.EventType.DONE_PLAYING, events);
-            SocraticEngineEvent firstCorrectGuess = findFirst(SocraticEngineEvent.EventType.CORRECT_GUESS, events);
-            if (firstCorrectGuess == null || firstDonePlaying == null) {
+            if (firstDonePlaying == null) {
                 continue;
             }
-            List<SocraticEngineEvent> inScopeEvents = events.stream().filter(event -> event.eventAtEpoc >= firstDonePlaying.eventAtEpoc && event.eventAtEpoc < firstCorrectGuess.eventAtEpoc)
+            List<SocraticEngineEvent> inScopeEvents = events.stream()
+                    .filter(event -> event.eventAtEpoc >= firstDonePlaying.eventAtEpoc)
                     .collect(Collectors.toList());
             for (SocraticEngineEvent event : inScopeEvents) {
                 if (event.eventType == SocraticEngineEvent.EventType.INCORRECT_GUESS) {
-                    misCounter.putIfAbsent(event.info, 0);
+                    String guess = event.info;
+                    if (guess == null) {
+                        // TODO, crashlytics
+                        continue;
+                    }
+                    misCounter.putIfAbsent(guess, 0);
                     misCounter.compute(event.info, (l, cur) -> cur + 1);
                 }
             }
@@ -123,26 +149,34 @@ public class SocraticUtil {
     }
 
     private static double calcAPBCG(List<List<SocraticEngineEvent>> segments) {
-        return segments.stream().map(events -> {
-            long count = 1L;
+        Stream<List<SocraticEngineEvent>> validEvents = segments.stream().map(events -> {
             if (events.isEmpty()) {
-                return count;
+                return Lists.newArrayList();
             }
             SocraticEngineEvent firstDonePlaying = findFirst(SocraticEngineEvent.EventType.DONE_PLAYING, events);
             SocraticEngineEvent firstCorrectGuess = findFirst(SocraticEngineEvent.EventType.CORRECT_GUESS, events);
             if (firstCorrectGuess == null || firstDonePlaying == null) {
-                return count;
+                return Lists.newArrayList();
             }
-            List<SocraticEngineEvent> inScopeEvents = events.stream().filter(event -> event.eventAtEpoc >= firstDonePlaying.eventAtEpoc && event.eventAtEpoc < firstCorrectGuess.eventAtEpoc)
+            return events.stream()
+                    .filter(event -> event.eventAtEpoc >= firstDonePlaying.eventAtEpoc && event.eventAtEpoc < firstCorrectGuess.eventAtEpoc)
                     .collect(Collectors.toList());
+        });
 
-            for (SocraticEngineEvent event : inScopeEvents) {
-                if (event.eventType == SocraticEngineEvent.EventType.DONE_PLAYING) {
-                    count += 1;
-                }
-            }
-            return count;
-        }).mapToDouble(Double::valueOf).average().orElse(-1D);
+        return validEvents
+                .filter(events -> !events.isEmpty())
+                .map((List<SocraticEngineEvent> inScopeEvents) -> {
+                    double count = 0D;
+                    for (SocraticEngineEvent event : inScopeEvents) {
+                        if (event.eventType == SocraticEngineEvent.EventType.DONE_PLAYING) {
+                            count += 1D;
+                        }
+                    }
+                    return count;
+                })
+                .mapToDouble(Double::valueOf)
+                .average()
+                .orElse(-1D);
     }
 
     private static double toSeconds(double millis) {
@@ -290,7 +324,9 @@ public class SocraticUtil {
         public int incorrectGuessesBeforeCorrectGuess;
         public double averageSecondsBeforeCorrectGuessSeconds;
         public List<String> topFiveIncorrectGuesses;
-        public double accuracy;
+        public Optional<Double> accuracy;
+        public int chances;
+        public int hits;
     }
 
     public static class Analysis {

@@ -1,5 +1,7 @@
 package com.uberj.pocketmorsepro.socratic;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.tomergoldst.tooltips.ToolTip;
 import com.tomergoldst.tooltips.ToolTipsManager;
 import com.uberj.pocketmorsepro.ProgressGradient;
@@ -29,11 +31,14 @@ import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
 
 public class SocraticNumbersScreenFragment extends Fragment implements View.OnTouchListener {
     private static final DecimalFormat DECIMAL_STAT_FORMATTER = new DecimalFormat("#.##");
+    private static final String SYMBOL_COLUMN_NAME = "Symbol";
+    private static final String BLANK_DETAIL = "-";
     private SocraticTrainingMainScreenViewModel sessionViewModel;
     private SocraticSessionType sessionType;
     private ToolTipsManager mToolTipsManager;
@@ -67,6 +72,7 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
         mToolTipsManager = new ToolTipsManager();
 
 
+        TextView detailsTitle = rootView.findViewById(R.id.details_title);
         TextView detailsExplanation = rootView.findViewById(R.id.details_explaination);
         TableLayout detailsContainer = rootView.findViewById(R.id.details_container);
         sessionViewModel = ViewModelProviders.of(this).get(SocraticTrainingMainScreenViewModel.class);
@@ -76,6 +82,7 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
             long prevDurationMillis = -1;
             double overallAPBCG = -1;
             double overallATBCG = -1;
+            double overallIGBCG = -1;
             if (!mostRecentSession.isEmpty()) {
                 SocraticTrainingSessionWithEvents s = mostRecentSession.get(0);
                 SocraticUtil.Analysis analysis = SocraticUtil.analyseSession(s);
@@ -84,8 +91,9 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
                 prevDurationMillis = s.session.durationWorkedMillis;
                 overallAPBCG = analysis.overallAverageNumberPlaysBeforeCorrectGuess;
                 overallATBCG = analysis.overallAverageSecondsBeforeCorrectGuessSeconds;
+                overallIGBCG = analysis.averageNumberOfIncorrectGuessesBeforeCorrectGuess;
                 detailsContainer.removeAllViews();
-                initDetailsTable(rootView, detailsContainer, detailsExplanation, analysis);
+                initDetailsTable(rootView, detailsContainer, detailsTitle, detailsExplanation, analysis);
             }
 
             long prevDurationMinutes = (prevDurationMillis / 1000) / 60;
@@ -108,6 +116,10 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
             ((TextView) rootView.findViewById(R.id.prev_session_overall_apbcg)).setText(
                     overallAPBCG >= 0 ? DECIMAL_STAT_FORMATTER.format(overallAPBCG) + " plays" : "N/A"
             );
+
+            ((TextView) rootView.findViewById(R.id.prev_session_overall_igbcg)).setText(
+                    overallAPBCG >= 0 ? DECIMAL_STAT_FORMATTER.format(overallIGBCG) + " guesses" : "N/A"
+            );
         });
 
 
@@ -120,34 +132,49 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
         return false;
     }
 
-    private enum Infos {
-        NUM_PLAYS("# Plays", "Number of times this symbol was played", "# of plays"),
-        ACCURACY("ACCURACY", "Percent of time the first guess was correct", "Accuracy Percentage"),
-        PBCG("APBCG", "AVERAGE number of times a letter was PLAYED BEFORE a CORRECT GUESS was made", "# of plays"),
-        IBCG("IBCG", "Number of INCORRECT guesses were made BEFORE a CORRECT GUESS was entered", "# of guesses"),
-        ATCG("ATCG", "AVERAGE TIME before CORRECT guess was entered", "Seconds"),
-        TOP5("TOP5", "TOP FIVE INCORRECT guesses when this letter was played", "Guesses");
+    private static class Column {
+        public final String columnName;
+        public final Function<SocraticUtil.SymbolAnalysis, CharSequence> dataExtractor;
 
-        public final String info;
-        public final String description;
-        public final String units;
-
-        Infos(String description, String info, String units) {
-            this.description = description;
-            this.info = info;
-            this.units = units;
+        public Column(String columnName, Function<SocraticUtil.SymbolAnalysis, CharSequence> dataExtractor) {
+            this.columnName = columnName;
+            this.dataExtractor = dataExtractor;
         }
     }
 
-    private void initDetailsTable(ViewGroup rootView, TableLayout dataContainer, TextView acronymContainer, SocraticUtil.Analysis analysis) {
+    private enum Infos {
+        ACCURACY("ACCURACY Details", "Percent of time the first guess was correct"),
+        APBCG("APBCG Details", "AVERAGE number of times a letter was PLAYED BEFORE a CORRECT GUESS was made"),
+        IGBCG("IGBCG Details", "Average Number of INCORRECT GUESSES were made BEFORE a CORRECT GUESS was entered"),
+        ATBCG("ATBCG Details", "AVERAGE TIME, in seconds, BEFORE CORRECT guess was entered"),
+        TOP5("TOP FIVE Details", "TOP FIVE INCORRECT guesses when this letter was played");
+
+        public final String info;
+        public final String title;
+
+        Infos(String title, String info) {
+            this.title = title;
+            this.info = info;
+        }
+    }
+
+    private void initDetailsTable(ViewGroup rootView, TableLayout dataContainer, TextView detailsTitle, TextView acronymContainer, SocraticUtil.Analysis analysis) {
         View overallAccuracyBackground = rootView.findViewById(R.id.overall_accuracy_background);
         View overallAccuracyBackgroundShow = rootView.findViewById(R.id.show_accuracy_detail);
         View overallAPBCGBackground = rootView.findViewById(R.id.overall_apbcg_background);
         View overallAPBCGBackgroundShow = rootView.findViewById(R.id.show_apbcg_detail);
         View overallATBCGBackground = rootView.findViewById(R.id.overall_atbcg_background);
         View overallATBCGBackgroundShow = rootView.findViewById(R.id.show_atbcg_detail);
+
+        View overallIGBCGBackground = rootView.findViewById(R.id.overall_igbcg_background);
+        View overallIGBCGBackgroundShow = rootView.findViewById(R.id.show_igbcg_detail);
+
+        View top5Background = rootView.findViewById(R.id.top_five_mistaken_background);
+        View overallTop5BackgroundShow = rootView.findViewById(R.id.show_top5_detail);
+
         overallAccuracyBackground.setOnClickListener(v -> {
             acronymContainer.setText(Infos.ACCURACY.info);
+            detailsTitle.setText(Infos.ACCURACY.title);
 
             overallAccuracyBackground.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
             overallAccuracyBackgroundShow.setVisibility(View.INVISIBLE);
@@ -158,16 +185,26 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
             overallATBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
             overallATBCGBackgroundShow.setVisibility(View.VISIBLE);
 
+            overallIGBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallIGBCGBackgroundShow.setVisibility(View.VISIBLE);
+
+            top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallTop5BackgroundShow.setVisibility(View.VISIBLE);
+
             setupDataView(
-                    Infos.ACCURACY,
+                    Lists.newArrayList(
+                            new Column(SYMBOL_COLUMN_NAME, (sa) -> sa.symbol),
+                            new Column("Accu. %", (sa) -> sa.accuracy.isPresent() ? colorized((int) (sa.accuracy.get() * 100)) : BLANK_DETAIL),
+                            new Column("Hits/Chances", (sa) -> sa.chances == 0 ? BLANK_DETAIL : String.format(Locale.ENGLISH, "%d/%d", sa.hits, sa.chances))
+                    ),
                     dataContainer,
                     analysis,
-                    (SocraticUtil.SymbolAnalysis sa) -> colorized((int) (sa.accuracy * 100)),
-                    (a1, a2) -> (int) (a1.accuracy * 100 - a2.accuracy * 100)
+                    (a1, a2) -> (int) (a1.accuracy.orElse(1D) * 100 - a2.accuracy.orElse(1D) * 100)
             );
         });
         overallAPBCGBackground.setOnClickListener(v -> {
-            acronymContainer.setText(Infos.PBCG.info);
+            acronymContainer.setText(Infos.APBCG.info);
+            detailsTitle.setText(Infos.APBCG.title);
             overallAccuracyBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
             overallAccuracyBackgroundShow.setVisibility(View.VISIBLE);
 
@@ -177,16 +214,25 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
             overallATBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
             overallATBCGBackgroundShow.setVisibility(View.VISIBLE);
 
+            overallIGBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallIGBCGBackgroundShow.setVisibility(View.VISIBLE);
+
+            top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallTop5BackgroundShow.setVisibility(View.VISIBLE);
+
             setupDataView(
-                    Infos.PBCG,
+                    Lists.newArrayList(
+                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.symbol),
+                            new Column("# of plays", sa -> DECIMAL_STAT_FORMATTER.format(sa.averagePlaysBeforeCorrectGuess))
+                    ),
                     dataContainer,
                     analysis,
-                    (SocraticUtil.SymbolAnalysis sa) -> DECIMAL_STAT_FORMATTER.format(sa.averagePlaysBeforeCorrectGuess),
                     (a1, a2) -> (int) (a2.averagePlaysBeforeCorrectGuess * 1000 - a1.averagePlaysBeforeCorrectGuess * 1000)
             );
         });
         overallATBCGBackground.setOnClickListener(v -> {
-            acronymContainer.setText(Infos.ATCG.info);
+            acronymContainer.setText(Infos.ATBCG.info);
+            detailsTitle.setText(Infos.ATBCG.title);
             overallAccuracyBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
             overallAccuracyBackgroundShow.setVisibility(View.VISIBLE);
 
@@ -196,18 +242,115 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
             overallATBCGBackground.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
             overallATBCGBackgroundShow.setVisibility(View.INVISIBLE);
 
+            overallIGBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallIGBCGBackgroundShow.setVisibility(View.VISIBLE);
+
+            top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallTop5BackgroundShow.setVisibility(View.VISIBLE);
+
             setupDataView(
-                    Infos.ATCG,
+                    Lists.newArrayList(
+                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.symbol),
+                            new Column("Seconds", sa -> DECIMAL_STAT_FORMATTER.format(sa.averageSecondsBeforeCorrectGuessSeconds))
+                    ),
                     dataContainer,
                     analysis,
-                    (SocraticUtil.SymbolAnalysis sa) -> DECIMAL_STAT_FORMATTER.format(sa.averageSecondsBeforeCorrectGuessSeconds),
                     (a1, a2) -> (int) (a2.averageSecondsBeforeCorrectGuessSeconds * 1000 - a1.averageSecondsBeforeCorrectGuessSeconds * 1000)
+            );
+        });
+
+        overallIGBCGBackground.setOnClickListener(v -> {
+            acronymContainer.setText(Infos.IGBCG.info);
+            detailsTitle.setText(Infos.IGBCG.title);
+            overallAccuracyBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallAccuracyBackgroundShow.setVisibility(View.VISIBLE);
+
+            overallAPBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallAPBCGBackgroundShow.setVisibility(View.VISIBLE);
+
+            overallATBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallATBCGBackgroundShow.setVisibility(View.VISIBLE);
+
+            overallIGBCGBackground.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
+            overallIGBCGBackgroundShow.setVisibility(View.INVISIBLE);
+
+            top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallTop5BackgroundShow.setVisibility(View.VISIBLE);
+
+            setupDataView(
+                    Lists.newArrayList(
+                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.symbol),
+                            new Column("average wrong guesses", sa -> DECIMAL_STAT_FORMATTER.format(sa.incorrectGuessesBeforeCorrectGuess))
+                    ),
+                    dataContainer,
+                    analysis,
+                    (a1, a2) -> a2.incorrectGuessesBeforeCorrectGuess * 1000 - a1.incorrectGuessesBeforeCorrectGuess * 1000
+            );
+        });
+
+        top5Background.setOnClickListener(v -> {
+            acronymContainer.setText(Infos.TOP5.info);
+            detailsTitle.setText(Infos.TOP5.title);
+            overallAccuracyBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallAccuracyBackgroundShow.setVisibility(View.VISIBLE);
+
+            overallAPBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallAPBCGBackgroundShow.setVisibility(View.VISIBLE);
+
+            overallATBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallATBCGBackgroundShow.setVisibility(View.VISIBLE);
+
+            overallIGBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallIGBCGBackgroundShow.setVisibility(View.VISIBLE);
+
+            top5Background.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
+            overallTop5BackgroundShow.setVisibility(View.INVISIBLE);
+            Joiner on = Joiner.on(", ");
+
+            setupDataView(
+                    Lists.newArrayList(
+                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.symbol),
+                            new Column("Top 5", sa -> sa.topFiveIncorrectGuesses.isEmpty() ? BLANK_DETAIL : on.join(sa.topFiveIncorrectGuesses))
+                    ),
+                    dataContainer,
+                    analysis,
+                    (a1, a2) -> a2.topFiveIncorrectGuesses.size() - a1.topFiveIncorrectGuesses.size()
             );
         });
 
 
         // Init
         overallAccuracyBackground.callOnClick();
+    }
+
+    private synchronized void setupDataView(List<Column> columns, TableLayout dataContainer, SocraticUtil.Analysis analysis, Comparator<? super SocraticUtil.SymbolAnalysis> comparitor) {
+        // Synchronized because this thing does some sorting with un-threadsafe list
+        dataContainer.removeAllViews();
+        TableRow headerRow = new TableRow(getContext());
+        headerRow.setGravity(Gravity.START);
+
+        for (Column column : columns) {
+            TextView symbol = new TextView(getContext());
+            symbol.setText(column.columnName);
+            setPadding(symbol);
+            headerRow.addView(symbol);
+        }
+
+        dataContainer.addView(headerRow);
+
+        analysis.symbolAnalysis.sort(comparitor);
+        for (SocraticUtil.SymbolAnalysis sa : analysis.symbolAnalysis) {
+            TableRow dataRow = new TableRow(getContext());
+            dataRow.setGravity(Gravity.START);
+            for (Column column : columns) {
+                TextView columnText = new TextView(getContext());
+                CharSequence columnData = column.dataExtractor.apply(sa);
+                columnText.setText(columnData);
+                setPadding(columnText);
+                dataRow.addView(columnText);
+            }
+            dataContainer.addView(dataRow);
+        }
     }
 
     private CharSequence colorized(int displayValue) {
@@ -219,48 +362,12 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
         return ssb;
     }
 
-    private synchronized void setupDataView(Infos info, TableLayout dataContainer, SocraticUtil.Analysis analysis, Function<SocraticUtil.SymbolAnalysis, CharSequence> dataFormatter, Comparator<? super SocraticUtil.SymbolAnalysis> comparitor) {
-        // Synchronized because this thing does some sorting with un-threadsafe list
-        dataContainer.removeAllViews();
-        TableRow headerRow = new TableRow(getContext());
-        headerRow.setGravity(Gravity.CENTER);
-
-        TextView symbol = new TextView(getContext());
-        symbol.setText("Symbol");
-        setPadding(symbol);
-        headerRow.addView(symbol);
-
-        TextView units = new TextView(getContext());
-        setPadding(units);
-        units.setText(info.units);
-
-        headerRow.addView(units);
-        dataContainer.addView(headerRow);
-
-        analysis.symbolAnalysis.sort(comparitor);
-        for (SocraticUtil.SymbolAnalysis sa : analysis.symbolAnalysis) {
-            TableRow dataRow = new TableRow(getContext());
-            dataRow.setGravity(Gravity.CENTER);
-
-            TextView symbolName = new TextView(getContext());
-            symbolName.setText(sa.symbol);
-            setPadding(symbolName);
-            dataRow.addView(symbolName);
-
-            TextView accuracy = new TextView(getContext());
-            accuracy.setText(dataFormatter.apply(sa));
-            setPadding(accuracy);
-            dataRow.addView(accuracy);
-            dataContainer.addView(dataRow);
-        }
-    }
-
     private void setPadding(TextView tv) {
         tv.setPadding(0, 8, 48, 8);
     }
 
     private void setupHeader(ViewGroup rootView, TextView tv, Infos header, int tooltipPosition) {
-        tv.setText(header.description);
+        tv.setText(header.title);
         tv.setTextColor(getResources().getColor(R.color.design_default_color_primary_variant, getContext().getTheme()));
         tv.setOnClickListener(v -> {
             mToolTipsManager.dismissAll();

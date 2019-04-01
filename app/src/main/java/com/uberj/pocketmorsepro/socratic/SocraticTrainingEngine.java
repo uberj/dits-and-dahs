@@ -121,7 +121,7 @@ public class SocraticTrainingEngine {
             isCorrectGuess = true;
             shortCircuitGuessWait = true;
         } else {
-            events.add(SocraticEngineEvent.incorrectGuess(currentLetter));
+            events.add(SocraticEngineEvent.incorrectGuess(guess));
         }
 
         synchronized (guessGate) {
