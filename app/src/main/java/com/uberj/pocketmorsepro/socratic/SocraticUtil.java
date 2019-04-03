@@ -12,9 +12,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
 
 public class SocraticUtil {
     public static Analysis analyseSession(SocraticTrainingSessionWithEvents session) {
@@ -22,12 +24,17 @@ public class SocraticUtil {
         analysis.symbolAnalysis = buildIndividualSymbolAnalysis(session);
         double overallAccuracy = 0;
         int totalCorrectGuesses = 0;
+        double totalInPlay = 0;
         for (SymbolAnalysis sa : analysis.symbolAnalysis) {
-            overallAccuracy += sa.accuracy.orElse(1D);
+            if (sa.accuracy == null) {
+                continue;
+            }
+            totalInPlay += 1;
+            overallAccuracy += sa.accuracy;
             totalCorrectGuesses += sa.hits;
         }
 
-        analysis.overAllAccuracy = overallAccuracy / (double) analysis.symbolAnalysis.size();
+        analysis.overAllAccuracy = overallAccuracy / totalInPlay;
         analysis.wpmAverage = calcWpmAverage(session, totalCorrectGuesses);
         analysis.averageNumberOfIncorrectGuessesBeforeCorrectGuess = calcAverageNumberOfIncorrectGuessesBeforeCorrectGuess(analysis.symbolAnalysis);
         analysis.overallAverageNumberPlaysBeforeCorrectGuess = calcAverageNumberPlaysBeforeCorrectGuess(analysis.symbolAnalysis);
@@ -37,15 +44,27 @@ public class SocraticUtil {
     }
 
     private static double calcAverageNumberPlaysBeforeCorrectGuess(List<SymbolAnalysis> symbolAnalysis) {
-        return symbolAnalysis.stream().mapToDouble(sa -> sa.averagePlaysBeforeCorrectGuess).average().orElse(-1D);
+        return symbolAnalysis.stream()
+                .filter(sa -> sa.averagePlaysBeforeCorrectGuess != null)
+                .mapToDouble(sa -> sa.averagePlaysBeforeCorrectGuess)
+                .average()
+                .orElse(-1D);
     }
 
     private static double calcOverallAverageSecondsBeforeCorrectGuessSeconds(List<SymbolAnalysis> symbolAnalysis) {
-        return symbolAnalysis.stream().mapToDouble(sa -> sa.averageSecondsBeforeCorrectGuessSeconds).average().orElse(-1D);
+        return symbolAnalysis.stream()
+                .filter(sa -> sa.averageSecondsBeforeCorrectGuessSeconds != null)
+                .mapToDouble(sa -> sa.averageSecondsBeforeCorrectGuessSeconds)
+                .average()
+                .orElse(-1D);
     }
 
     private static double calcAverageNumberOfIncorrectGuessesBeforeCorrectGuess(List<SymbolAnalysis> symbolAnalysis) {
-        return symbolAnalysis.stream().mapToDouble(sa -> sa.incorrectGuessesBeforeCorrectGuess).average().orElse(-1D);
+        return symbolAnalysis.stream()
+                .filter(sa -> sa.incorrectGuessesBeforeCorrectGuess != null)
+                .mapToDouble(sa -> sa.incorrectGuessesBeforeCorrectGuess)
+                .average()
+                .orElse(-1D);
     }
 
     public static List<SymbolAnalysis> buildIndividualSymbolAnalysis(SocraticTrainingSessionWithEvents session) {
@@ -62,7 +81,7 @@ public class SocraticUtil {
             sa.averagePlaysBeforeCorrectGuess = calcAPBCG(segments);
             sa.topFiveIncorrectGuesses = calcTopFive(segments);
             Pair<Integer, Integer> hitsChances = calcHitsChances(segments);
-            sa.accuracy = Optional.ofNullable(calcAccuracy(hitsChances));
+            sa.accuracy = calcAccuracy(hitsChances);
             sa.hits = hitsChances.getLeft();
             sa.chances = hitsChances.getRight();
             l.add(sa);
@@ -148,7 +167,7 @@ public class SocraticUtil {
         return topMisses.subList(0, 5);
     }
 
-    private static double calcAPBCG(List<List<SocraticEngineEvent>> segments) {
+    private static Double calcAPBCG(List<List<SocraticEngineEvent>> segments) {
         Stream<List<SocraticEngineEvent>> validEvents = segments.stream().map(events -> {
             if (events.isEmpty()) {
                 return Lists.newArrayList();
@@ -162,8 +181,7 @@ public class SocraticUtil {
                     .filter(event -> event.eventAtEpoc >= firstDonePlaying.eventAtEpoc && event.eventAtEpoc < firstCorrectGuess.eventAtEpoc)
                     .collect(Collectors.toList());
         });
-
-        return validEvents
+        OptionalDouble average = validEvents
                 .filter(events -> !events.isEmpty())
                 .map((List<SocraticEngineEvent> inScopeEvents) -> {
                     double count = 0D;
@@ -175,8 +193,13 @@ public class SocraticUtil {
                     return count;
                 })
                 .mapToDouble(Double::valueOf)
-                .average()
-                .orElse(-1D);
+                .average();
+
+        if (average.isPresent()) {
+            return average.getAsDouble();
+        } else {
+            return null;
+        }
     }
 
     private static double toSeconds(double millis) {
@@ -220,7 +243,11 @@ public class SocraticUtil {
         }).mapToDouble(Double::valueOf).average().orElse(-1D));
     }
 
-    private static int calcICGBCG(List<List<SocraticEngineEvent>> segments) {
+    private static Integer calcICGBCG(List<List<SocraticEngineEvent>> segments) {
+        if (segments.isEmpty()) {
+            return null;
+        }
+
         return segments.stream().map(
                     events -> events.stream()
                             .filter(e -> e.eventType == SocraticEngineEvent.EventType.INCORRECT_GUESS)
@@ -238,19 +265,23 @@ public class SocraticUtil {
         return null;
     }
 
-    private static Map<String, List<List<SocraticEngineEvent>>> parseSegments(List<SocraticEngineEvent> events) {
-        Map<String, List<List<SocraticEngineEvent>>> allSegments = Maps.newHashMap();
+    protected static Map<String, List<List<SocraticEngineEvent>>> parseSegments(List<SocraticEngineEvent> events) {
+        Map<String, List<List<SocraticEngineEvent>>> output = Maps.newHashMap();
         String currentLetter = null;
         List<SocraticEngineEvent> currentLetterEvents = Lists.newArrayList();
+        // This loop will segment the event stream by chopping where ever there is a LETTER_CHOSEN event
         for (SocraticEngineEvent event : events) {
             if (event.eventType == SocraticEngineEvent.EventType.LETTER_CHOSEN) {
                 if (currentLetter != null) {
-                    if (!allSegments.containsKey(currentLetter)) {
-                        allSegments.put(currentLetter, Lists.newArrayList());
+                    // Store the current letter's segment we have been tracking
+                    if (!output.containsKey(currentLetter)) {
+                        output.put(currentLetter, Lists.newArrayList());
                     }
 
-                    allSegments.get(currentLetter).add(currentLetterEvents);
+                    output.get(currentLetter).add(currentLetterEvents);
                 }
+
+                // Set the new current letter
                 currentLetter = event.info;
                 currentLetterEvents = Lists.newArrayList();
             } else if (event.eventType == SocraticEngineEvent.EventType.DONE_PLAYING) {
@@ -264,15 +295,40 @@ public class SocraticUtil {
             currentLetterEvents.add(event);
         }
 
+        // We got to the end of the loop. We have to store the current letter's latest segment
         if (currentLetter != null) {
-            if (!allSegments.containsKey(currentLetter)) {
-                allSegments.put(currentLetter, Lists.newArrayList());
+            if (!output.containsKey(currentLetter)) {
+                output.put(currentLetter, Lists.newArrayList());
             }
 
-            allSegments.get(currentLetter).add(currentLetterEvents);
+
+
+            // We don't want to make conclusions about a user's performance based on segments that were incomplete
+            // For example, if the engine was destroyed before the user had a chance to input a correct guess.
+            // This loop goes through each segment and ensures that it gave the user a chance to perform
+            List<SocraticEngineEvent> cleanedUpEvents = Lists.newArrayList();
+            boolean wasDestroyedInSegment = false;
+            boolean correctGuessMade = false;
+            for (SocraticEngineEvent event : currentLetterEvents) {
+                cleanedUpEvents.add(event);
+                if (event.eventType == SocraticEngineEvent.EventType.CORRECT_GUESS) {
+                    // Once the correct letter was chosen, everything after the event is noise
+                    correctGuessMade = true;
+                    break;
+                }
+
+                if (event.eventType == SocraticEngineEvent.EventType.DESTROYED) {
+                    wasDestroyedInSegment = true;
+                }
+            }
+
+            if (!wasDestroyedInSegment || correctGuessMade) {
+                output.get(currentLetter).add(cleanedUpEvents);
+            }
         }
 
-        return allSegments;
+
+        return output;
     }
 
     private static int countNumberOfCorrectGuesses(List<SocraticEngineEvent> events) {
@@ -320,11 +376,15 @@ public class SocraticUtil {
     public static class SymbolAnalysis {
         public String symbol;
         public int numberPlays;
-        public double averagePlaysBeforeCorrectGuess;
-        public int incorrectGuessesBeforeCorrectGuess;
-        public double averageSecondsBeforeCorrectGuessSeconds;
+        @Nullable
+        public Double averagePlaysBeforeCorrectGuess = null;
+        @Nullable
+        public Integer incorrectGuessesBeforeCorrectGuess;
+        @Nullable
+        public Double averageSecondsBeforeCorrectGuessSeconds = null;
         public List<String> topFiveIncorrectGuesses;
-        public Optional<Double> accuracy;
+        @Nullable
+        public Double accuracy = null;
         public int chances;
         public int hits;
     }

@@ -8,8 +8,25 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Map;
 
 public class SocraticUtilTest {
+    @Test
+    public void segregationTestRaw1() {
+        List<SocraticEngineEvent> events = Lists.newArrayList();
+        events.add(eventAt(0, SocraticEngineEvent.letterChosen("A")));
+        events.add(eventAt(1, SocraticEngineEvent.letterDonePlaying("A")));
+        events.add(eventAt(2, SocraticEngineEvent.incorrectGuess("B")));
+        events.add(eventAt(3, SocraticEngineEvent.correctGuess("A")));
+        events.add(eventAt(4, SocraticEngineEvent.letterDonePlaying("A")));
+        Map<String, List<List<SocraticEngineEvent>>> segmentMap = SocraticUtil.parseSegments(events);
+        Assert.assertTrue(segmentMap.containsKey("A"));
+        Assert.assertFalse(segmentMap.containsKey("B"));
+        List<List<SocraticEngineEvent>> symbolASegments = segmentMap.get("A");
+        Assert.assertEquals(1, symbolASegments.size());
+        Assert.assertEquals(4, symbolASegments.get(0));
+    }
+
     @Test
     public void segregationTest1() {
         SocraticTrainingSessionWithEvents session = new SocraticTrainingSessionWithEvents();
@@ -28,8 +45,8 @@ public class SocraticUtilTest {
         Assert.assertEquals(1, sa.incorrectGuessesBeforeCorrectGuess, 0);
         Assert.assertEquals(1, sa.numberPlays);
         Assert.assertEquals(1, sa.averagePlaysBeforeCorrectGuess, 0);
-        Assert.assertTrue(sa.accuracy.isPresent());
-        Assert.assertEquals(0, sa.accuracy.get(), 0);
+        Assert.assertNotNull(sa.accuracy);
+        Assert.assertEquals(0, sa.accuracy, 0);
         Assert.assertEquals(Lists.newArrayList("B"), sa.topFiveIncorrectGuesses);
     }
 
@@ -64,8 +81,8 @@ public class SocraticUtilTest {
         Assert.assertEquals(2, sa.incorrectGuessesBeforeCorrectGuess, 0);
         Assert.assertEquals(2, sa.numberPlays);
         Assert.assertEquals(1, sa.averagePlaysBeforeCorrectGuess, 0);
-        Assert.assertTrue(sa.accuracy.isPresent());
-        Assert.assertEquals(0, sa.accuracy.get(), 0);
+        Assert.assertNotNull(sa.accuracy);
+        Assert.assertEquals(0, sa.accuracy, 0);
         Assert.assertEquals(Lists.newArrayList("B", "C"), sa.topFiveIncorrectGuesses);
     }
 
@@ -98,17 +115,17 @@ public class SocraticUtilTest {
         Assert.assertEquals(2, symbolAnalyses.size());
         SocraticUtil.SymbolAnalysis symbolA = getSymbol("A", symbolAnalyses);
         Assert.assertEquals("A", symbolA.symbol);
-        Assert.assertEquals(4, symbolA.incorrectGuessesBeforeCorrectGuess);
+        Assert.assertEquals(4, symbolA.incorrectGuessesBeforeCorrectGuess.intValue());
         Assert.assertEquals(((2D + 8D)/2D)/1000, symbolA.averageSecondsBeforeCorrectGuessSeconds, 0.00001);
         Assert.assertEquals(2, symbolA.numberPlays, 0);
         Assert.assertEquals(1, symbolA.averagePlaysBeforeCorrectGuess, 0);
-        Assert.assertTrue(symbolA.accuracy.isPresent());
-        Assert.assertEquals(0, symbolA.accuracy.get(), 0);
+        Assert.assertNotNull(symbolA.accuracy);
+        Assert.assertEquals(0, symbolA.accuracy, 0);
         Assert.assertEquals(Lists.newArrayList("B", "C", "D", "F"), symbolA.topFiveIncorrectGuesses);
 
         SocraticUtil.SymbolAnalysis symbolC = getSymbol("C", symbolAnalyses);
         Assert.assertEquals("C", symbolC.symbol);
-        Assert.assertEquals(1, symbolC.incorrectGuessesBeforeCorrectGuess);
+        Assert.assertEquals(1, symbolC.incorrectGuessesBeforeCorrectGuess.intValue());
         Assert.assertEquals(0.003F, symbolC.averageSecondsBeforeCorrectGuessSeconds, 0.00001);
         Assert.assertEquals(2, symbolC.numberPlays);
         Assert.assertEquals(2, symbolC.averagePlaysBeforeCorrectGuess, 0);
@@ -233,12 +250,36 @@ public class SocraticUtilTest {
         session.events = events;
         List<SocraticUtil.SymbolAnalysis> symbolAnalyses = SocraticUtil.buildIndividualSymbolAnalysis(session);
         SocraticUtil.SymbolAnalysis symbolC = getSymbol("C", symbolAnalyses);
-        Assert.assertTrue(symbolC.accuracy.isPresent());
-        Assert.assertEquals(1, symbolC.accuracy.get(), 0);
+        Assert.assertNotNull(symbolC.accuracy);
+        Assert.assertEquals(1, symbolC.accuracy, 0);
 
         SocraticUtil.SymbolAnalysis symbolA = getSymbol("A", symbolAnalyses);
-        Assert.assertTrue(symbolA.accuracy.isPresent());
-        Assert.assertEquals(2D/3D, symbolA.accuracy.get(), 0.000000001);
+        Assert.assertNotNull(symbolA.accuracy);
+        Assert.assertEquals(2D/3D, symbolA.accuracy, 0.000000001);
+    }
+
+    @Test
+    public void segregationTest7() {
+        SocraticTrainingSessionWithEvents session = new SocraticTrainingSessionWithEvents();
+        List<SocraticEngineEvent> events = Lists.newArrayList();
+        events.add(eventAt(0, SocraticEngineEvent.letterChosen("A")));
+        events.add(eventAt(1, SocraticEngineEvent.letterDonePlaying("A")));
+        events.add(eventAt(2, SocraticEngineEvent.destroyed()));
+        session.events = events;
+        List<SocraticUtil.SymbolAnalysis> sas = SocraticUtil.buildIndividualSymbolAnalysis(session);
+        Assert.assertEquals(1, sas.size());
+        SocraticUtil.SymbolAnalysis sa = sas.get(0);
+        Assert.assertEquals(0, sa.chances);
+
+        Assert.assertEquals("", sa.symbol);
+        Assert.assertEquals(0, sa.numberPlays);
+        Assert.assertNull(sa.averagePlaysBeforeCorrectGuess);
+        Assert.assertEquals(0, sa.incorrectGuessesBeforeCorrectGuess.intValue());
+        Assert.assertNull(sa.averageSecondsBeforeCorrectGuessSeconds);
+        Assert.assertTrue(sa.topFiveIncorrectGuesses.isEmpty());
+        Assert.assertNull(sa.accuracy);
+        Assert.assertEquals(0, sa.chances);
+        Assert.assertEquals(0, sa.hits);
     }
 
 

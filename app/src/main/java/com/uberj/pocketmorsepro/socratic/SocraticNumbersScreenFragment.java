@@ -120,6 +120,10 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
             ((TextView) rootView.findViewById(R.id.prev_session_overall_igbcg)).setText(
                     overallAPBCG >= 0 ? DECIMAL_STAT_FORMATTER.format(overallIGBCG) + " guesses" : "N/A"
             );
+
+            // Init
+            View overallAccuracyBackground = rootView.findViewById(R.id.overall_accuracy_background);
+            overallAccuracyBackground.callOnClick();
         });
 
 
@@ -144,8 +148,14 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
 
     private enum Infos {
         ACCURACY("ACCURACY Details", "Percent of time the first guess was correct"),
+
+        // Replay Count
         APBCG("APBCG Details", "AVERAGE number of times a letter was PLAYED BEFORE a CORRECT GUESS was made"),
+
+        // Incorrect guesses
         IGBCG("IGBCG Details", "Average Number of INCORRECT GUESSES were made BEFORE a CORRECT GUESS was entered"),
+
+        // Guess time
         ATBCG("ATBCG Details", "AVERAGE TIME, in seconds, BEFORE CORRECT guess was entered"),
         TOP5("TOP FIVE Details", "TOP FIVE INCORRECT guesses when this letter was played");
 
@@ -158,7 +168,7 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
         }
     }
 
-    private void initDetailsTable(ViewGroup rootView, TableLayout dataContainer, TextView detailsTitle, TextView acronymContainer, SocraticUtil.Analysis analysis) {
+    private synchronized void initDetailsTable(ViewGroup rootView, TableLayout dataContainer, TextView detailsTitle, TextView acronymContainer, SocraticUtil.Analysis analysis) {
         View overallAccuracyBackground = rootView.findViewById(R.id.overall_accuracy_background);
         View overallAccuracyBackgroundShow = rootView.findViewById(R.id.show_accuracy_detail);
         View overallAPBCGBackground = rootView.findViewById(R.id.overall_apbcg_background);
@@ -194,12 +204,16 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
             setupDataView(
                     Lists.newArrayList(
                             new Column(SYMBOL_COLUMN_NAME, (sa) -> sa.symbol),
-                            new Column("Accu. %", (sa) -> sa.accuracy.isPresent() ? colorized((int) (sa.accuracy.get() * 100)) : BLANK_DETAIL),
+                            new Column("Accu. %", (sa) -> sa.accuracy == null ? BLANK_DETAIL : colorized((int) (sa.accuracy * 100))),
                             new Column("Hits/Chances", (sa) -> sa.chances == 0 ? BLANK_DETAIL : String.format(Locale.ENGLISH, "%d/%d", sa.hits, sa.chances))
                     ),
                     dataContainer,
                     analysis,
-                    (a1, a2) -> (int) (a1.accuracy.orElse(1D) * 100 - a2.accuracy.orElse(1D) * 100)
+                    (a1, a2) -> {
+                        double v1 = a1.accuracy == null || a1.chances == 0 ? Double.MAX_VALUE : a1.accuracy;
+                        double v2 = a2.accuracy == null || a2.chances == 0 ? Double.MAX_VALUE : a2.accuracy;
+                        return (int) (v1 - v2);
+                    }
             );
         });
         overallAPBCGBackground.setOnClickListener(v -> {
@@ -223,11 +237,11 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
             setupDataView(
                     Lists.newArrayList(
                             new Column(SYMBOL_COLUMN_NAME, sa -> sa.symbol),
-                            new Column("# of plays", sa -> DECIMAL_STAT_FORMATTER.format(sa.averagePlaysBeforeCorrectGuess))
+                            new Column("# of plays", sa -> sa.averagePlaysBeforeCorrectGuess == null ? BLANK_DETAIL : DECIMAL_STAT_FORMATTER.format(sa.averagePlaysBeforeCorrectGuess))
                     ),
                     dataContainer,
                     analysis,
-                    (a1, a2) -> (int) (a2.averagePlaysBeforeCorrectGuess * 1000 - a1.averagePlaysBeforeCorrectGuess * 1000)
+                    (a1, a2) -> (int) (orLow(a2.averagePlaysBeforeCorrectGuess) * 1000 - orLow(a1.averagePlaysBeforeCorrectGuess) * 1000)
             );
         });
         overallATBCGBackground.setOnClickListener(v -> {
@@ -251,11 +265,11 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
             setupDataView(
                     Lists.newArrayList(
                             new Column(SYMBOL_COLUMN_NAME, sa -> sa.symbol),
-                            new Column("Seconds", sa -> DECIMAL_STAT_FORMATTER.format(sa.averageSecondsBeforeCorrectGuessSeconds))
+                            new Column("Seconds", sa -> sa.averageSecondsBeforeCorrectGuessSeconds == null ? BLANK_DETAIL : DECIMAL_STAT_FORMATTER.format(sa.averageSecondsBeforeCorrectGuessSeconds))
                     ),
                     dataContainer,
                     analysis,
-                    (a1, a2) -> (int) (a2.averageSecondsBeforeCorrectGuessSeconds * 1000 - a1.averageSecondsBeforeCorrectGuessSeconds * 1000)
+                    (a1, a2) -> (int) (orLow(a2.averageSecondsBeforeCorrectGuessSeconds) * 1000 - orLow(a1.averageSecondsBeforeCorrectGuessSeconds) * 1000)
             );
         });
 
@@ -280,11 +294,11 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
             setupDataView(
                     Lists.newArrayList(
                             new Column(SYMBOL_COLUMN_NAME, sa -> sa.symbol),
-                            new Column("average wrong guesses", sa -> DECIMAL_STAT_FORMATTER.format(sa.incorrectGuessesBeforeCorrectGuess))
+                            new Column("average wrong guesses", sa -> sa.incorrectGuessesBeforeCorrectGuess == null ? BLANK_DETAIL : DECIMAL_STAT_FORMATTER.format(sa.incorrectGuessesBeforeCorrectGuess))
                     ),
                     dataContainer,
                     analysis,
-                    (a1, a2) -> a2.incorrectGuessesBeforeCorrectGuess * 1000 - a1.incorrectGuessesBeforeCorrectGuess * 1000
+                    (a1, a2) -> orLow(a2.incorrectGuessesBeforeCorrectGuess) - orLow(a1.incorrectGuessesBeforeCorrectGuess)
             );
         });
 
@@ -318,9 +332,22 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
             );
         });
 
+    }
 
-        // Init
-        overallAccuracyBackground.callOnClick();
+    private int orLow(Integer integer) {
+        if (integer == null) {
+            return Integer.MIN_VALUE;
+        }
+
+        return integer;
+    }
+
+    private double orLow(Double aDouble) {
+        if (aDouble == null) {
+            return Integer.MIN_VALUE;
+        }
+
+        return aDouble;
     }
 
     private synchronized void setupDataView(List<Column> columns, TableLayout dataContainer, SocraticUtil.Analysis analysis, Comparator<? super SocraticUtil.SymbolAnalysis> comparitor) {
