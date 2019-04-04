@@ -78,3 +78,5 @@ upload-key
 
 app/release/
 *.swp
+
+app/fabric.properties
