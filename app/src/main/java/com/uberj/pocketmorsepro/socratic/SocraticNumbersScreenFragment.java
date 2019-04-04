@@ -241,7 +241,7 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
                     ),
                     dataContainer,
                     analysis,
-                    (a1, a2) -> (int) (orLow(a2.averagePlaysBeforeCorrectGuess) * 1000 - orLow(a1.averagePlaysBeforeCorrectGuess) * 1000)
+                    (a1, a2) -> (int) (orZero(a2.averagePlaysBeforeCorrectGuess) * 1000 - orZero(a1.averagePlaysBeforeCorrectGuess) * 1000)
             );
         });
         overallATBCGBackground.setOnClickListener(v -> {
@@ -269,7 +269,7 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
                     ),
                     dataContainer,
                     analysis,
-                    (a1, a2) -> (int) (orLow(a2.averageSecondsBeforeCorrectGuessSeconds) * 1000 - orLow(a1.averageSecondsBeforeCorrectGuessSeconds) * 1000)
+                    (a1, a2) -> (int) (orZero(a2.averageSecondsBeforeCorrectGuessSeconds) * 1000 - orZero(a1.averageSecondsBeforeCorrectGuessSeconds) * 1000)
             );
         });
 
@@ -298,7 +298,7 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
                     ),
                     dataContainer,
                     analysis,
-                    (a1, a2) -> orLow(a2.incorrectGuessesBeforeCorrectGuess) - orLow(a1.incorrectGuessesBeforeCorrectGuess)
+                    (a1, a2) -> orZero(a2.incorrectGuessesBeforeCorrectGuess) - orZero(a1.incorrectGuessesBeforeCorrectGuess)
             );
         });
 
@@ -334,9 +334,17 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
 
     }
 
-    private int orLow(Integer integer) {
+    private int orZero(Double aDouble) {
+        if (aDouble == null) {
+            return 0;
+        }
+
+        return aDouble.intValue();
+    }
+
+    private int orZero(Integer integer) {
         if (integer == null) {
-            return Integer.MIN_VALUE;
+            return 0;
         }
 
         return integer;

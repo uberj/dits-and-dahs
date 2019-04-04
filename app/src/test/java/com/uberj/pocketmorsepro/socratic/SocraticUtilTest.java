@@ -24,7 +24,7 @@ public class SocraticUtilTest {
         Assert.assertFalse(segmentMap.containsKey("B"));
         List<List<SocraticEngineEvent>> symbolASegments = segmentMap.get("A");
         Assert.assertEquals(1, symbolASegments.size());
-        Assert.assertEquals(4, symbolASegments.get(0));
+        Assert.assertEquals(5, symbolASegments.get(0).size());
     }
 
     @Test
@@ -271,10 +271,10 @@ public class SocraticUtilTest {
         SocraticUtil.SymbolAnalysis sa = sas.get(0);
         Assert.assertEquals(0, sa.chances);
 
-        Assert.assertEquals("", sa.symbol);
+        Assert.assertEquals("A", sa.symbol);
         Assert.assertEquals(0, sa.numberPlays);
         Assert.assertNull(sa.averagePlaysBeforeCorrectGuess);
-        Assert.assertEquals(0, sa.incorrectGuessesBeforeCorrectGuess.intValue());
+        Assert.assertNull(sa.incorrectGuessesBeforeCorrectGuess);
         Assert.assertNull(sa.averageSecondsBeforeCorrectGuessSeconds);
         Assert.assertTrue(sa.topFiveIncorrectGuesses.isEmpty());
         Assert.assertNull(sa.accuracy);

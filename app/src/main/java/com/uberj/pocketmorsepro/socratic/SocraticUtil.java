@@ -75,12 +75,12 @@ public class SocraticUtil {
             SymbolAnalysis sa = new SymbolAnalysis();
             sa.symbol = symbol;
             List<List<SocraticEngineEvent>> segments = entry.getValue();
-            sa.incorrectGuessesBeforeCorrectGuess = calcICGBCG(segments);
-            sa.averageSecondsBeforeCorrectGuessSeconds = calcASBCG(segments);
-            sa.numberPlays = calcNumPlays(segments);
-            sa.averagePlaysBeforeCorrectGuess = calcAPBCG(segments);
+            sa.incorrectGuessesBeforeCorrectGuess = calcICGBCG(skipIncompleteIfNoUserInput(segments));
+            sa.averageSecondsBeforeCorrectGuessSeconds = calcASBCG(skipIncompleteSegments(segments));
+            sa.numberPlays = calcNumPlays(skipIncompleteIfNoUserInput(segments));
+            sa.averagePlaysBeforeCorrectGuess = calcAPBCG(skipIncompleteSegments(segments));
             sa.topFiveIncorrectGuesses = calcTopFive(segments);
-            Pair<Integer, Integer> hitsChances = calcHitsChances(segments);
+            Pair<Integer, Integer> hitsChances = calcHitsChances(skipIncompleteIfNoUserInput(segments));
             sa.accuracy = calcAccuracy(hitsChances);
             sa.hits = hitsChances.getLeft();
             sa.chances = hitsChances.getRight();
@@ -88,6 +88,107 @@ public class SocraticUtil {
         }
 
         return l;
+    }
+
+    private static List<List<SocraticEngineEvent>> skipIncompleteIfNoUserInput(List<List<SocraticEngineEvent>> segments) {
+        List<List<SocraticEngineEvent>> cleanedUpSegments = Lists.newArrayList();
+        for (List<SocraticEngineEvent> segment : segments) {
+            List<SocraticEngineEvent> cleanedUpEvents = Lists.newArrayList();
+            boolean wasDestroyedInSegment = false;
+            boolean userInputDetected = false;
+            for (SocraticEngineEvent event : segment) {
+                // We don't want to make conclusions about a user's performance based on segments that were incomplete
+                // For example, if the engine was destroyed before the user had a chance to input a correct guess.
+                // This loop goes through each segment and ensures that it gave the user a chance to perform
+                cleanedUpEvents.add(event);
+                if (event.eventType == SocraticEngineEvent.EventType.CORRECT_GUESS || event.eventType == SocraticEngineEvent.EventType.INCORRECT_GUESS) {
+                    // Once the correct letter was chosen, everything after the event is noise
+                    userInputDetected = true;
+                }
+
+                if (event.eventType == SocraticEngineEvent.EventType.DESTROYED) {
+                    wasDestroyedInSegment = true;
+                }
+            }
+
+            if (!wasDestroyedInSegment || userInputDetected) {
+                cleanedUpSegments.add(cleanedUpEvents);
+            }
+        }
+
+        return cleanedUpSegments;
+    }
+
+    private static List<List<SocraticEngineEvent>> skipIncompleteSegments(List<List<SocraticEngineEvent>> segments) {
+        List<List<SocraticEngineEvent>> cleanedUpSegments = Lists.newArrayList();
+        for (List<SocraticEngineEvent> segment : segments) {
+            List<SocraticEngineEvent> cleanedUpEvents = Lists.newArrayList();
+            boolean wasDestroyedInSegment = false;
+            boolean correctGuessMade = false;
+            for (SocraticEngineEvent event : segment) {
+                // We don't want to make conclusions about a user's performance based on segments that were incomplete
+                // For example, if the engine was destroyed before the user had a chance to input a correct guess.
+                // This loop goes through each segment and ensures that it gave the user a chance to perform
+                cleanedUpEvents.add(event);
+                if (event.eventType == SocraticEngineEvent.EventType.CORRECT_GUESS) {
+                    // Once the correct letter was chosen, everything after the event is noise
+                    correctGuessMade = true;
+                    break;
+                }
+
+                if (event.eventType == SocraticEngineEvent.EventType.DESTROYED) {
+                    wasDestroyedInSegment = true;
+                }
+            }
+
+            if (!wasDestroyedInSegment || correctGuessMade) {
+                cleanedUpSegments.add(cleanedUpEvents);
+            }
+        }
+
+        return cleanedUpSegments;
+    }
+
+    protected static Map<String, List<List<SocraticEngineEvent>>> parseSegments(List<SocraticEngineEvent> events) {
+        Map<String, List<List<SocraticEngineEvent>>> output = Maps.newHashMap();
+        String currentLetter = null;
+        List<SocraticEngineEvent> currentLetterEvents = Lists.newArrayList();
+        // This loop will segment the event stream by chopping where ever there is a LETTER_CHOSEN event
+        for (SocraticEngineEvent event : events) {
+            if (event.eventType == SocraticEngineEvent.EventType.LETTER_CHOSEN) {
+                if (currentLetter != null) {
+                    // Store the current letter's segment we have been tracking
+                    if (!output.containsKey(currentLetter)) {
+                        output.put(currentLetter, Lists.newArrayList());
+                    }
+
+                    output.get(currentLetter).add(currentLetterEvents);
+                }
+
+                // Set the new current letter
+                currentLetter = event.info;
+                currentLetterEvents = Lists.newArrayList();
+            } else if (event.eventType == SocraticEngineEvent.EventType.DONE_PLAYING) {
+                if (event.info == null || !event.info.equals(currentLetter)) {
+                    // TODO, dump json into this error message so we can debug it
+                    Crashlytics.log("DONE_PLAYING logged with a different currentLetter");
+                    continue;
+                }
+            }
+
+            currentLetterEvents.add(event);
+        }
+
+        // We got to the end of the loop. We have to store the current letter's latest segment
+        if (currentLetter != null) {
+            if (!output.containsKey(currentLetter)) {
+                output.put(currentLetter, Lists.newArrayList());
+            }
+            output.get(currentLetter).add(currentLetterEvents);
+        }
+
+
+        return output;
     }
 
     private static Pair<Integer, Integer> calcHitsChances(List<List<SocraticEngineEvent>> segments) {
@@ -228,7 +329,11 @@ public class SocraticUtil {
         }).mapToInt(Number::intValue).sum();
     }
 
-    private static double calcASBCG(List<List<SocraticEngineEvent>> segments) {
+    private static Double calcASBCG(List<List<SocraticEngineEvent>> segments) {
+        if (segments.isEmpty()) {
+            return null;
+        }
+
         return toSeconds(segments.stream().map(events -> {
             if (events.isEmpty()) {
                 return 0L;
@@ -263,93 +368,6 @@ public class SocraticUtil {
         }
 
         return null;
-    }
-
-    protected static Map<String, List<List<SocraticEngineEvent>>> parseSegments(List<SocraticEngineEvent> events) {
-        Map<String, List<List<SocraticEngineEvent>>> output = Maps.newHashMap();
-        String currentLetter = null;
-        List<SocraticEngineEvent> currentLetterEvents = Lists.newArrayList();
-        // This loop will segment the event stream by chopping where ever there is a LETTER_CHOSEN event
-        for (SocraticEngineEvent event : events) {
-            if (event.eventType == SocraticEngineEvent.EventType.LETTER_CHOSEN) {
-                if (currentLetter != null) {
-                    // Store the current letter's segment we have been tracking
-                    if (!output.containsKey(currentLetter)) {
-                        output.put(currentLetter, Lists.newArrayList());
-                    }
-
-                    output.get(currentLetter).add(currentLetterEvents);
-                }
-
-                // Set the new current letter
-                currentLetter = event.info;
-                currentLetterEvents = Lists.newArrayList();
-            } else if (event.eventType == SocraticEngineEvent.EventType.DONE_PLAYING) {
-                if (event.info == null || !event.info.equals(currentLetter)) {
-                    // TODO, dump json into this error message so we can debug it
-                    Crashlytics.log("DONE_PLAYING logged with a different currentLetter");
-                    continue;
-                }
-            }
-
-            currentLetterEvents.add(event);
-        }
-
-        // We got to the end of the loop. We have to store the current letter's latest segment
-        if (currentLetter != null) {
-            if (!output.containsKey(currentLetter)) {
-                output.put(currentLetter, Lists.newArrayList());
-            }
-
-
-
-            // We don't want to make conclusions about a user's performance based on segments that were incomplete
-            // For example, if the engine was destroyed before the user had a chance to input a correct guess.
-            // This loop goes through each segment and ensures that it gave the user a chance to perform
-            List<SocraticEngineEvent> cleanedUpEvents = Lists.newArrayList();
-            boolean wasDestroyedInSegment = false;
-            boolean correctGuessMade = false;
-            for (SocraticEngineEvent event : currentLetterEvents) {
-                cleanedUpEvents.add(event);
-                if (event.eventType == SocraticEngineEvent.EventType.CORRECT_GUESS) {
-                    // Once the correct letter was chosen, everything after the event is noise
-                    correctGuessMade = true;
-                    break;
-                }
-
-                if (event.eventType == SocraticEngineEvent.EventType.DESTROYED) {
-                    wasDestroyedInSegment = true;
-                }
-            }
-
-            if (!wasDestroyedInSegment || correctGuessMade) {
-                output.get(currentLetter).add(cleanedUpEvents);
-            }
-        }
-
-
-        return output;
-    }
-
-    private static int countNumberOfCorrectGuesses(List<SocraticEngineEvent> events) {
-        int count = 0;
-        for (SocraticEngineEvent event : events) {
-            if (event.eventType.equals(SocraticEngineEvent.EventType.CORRECT_GUESS)) {
-                count += 1;
-            }
-        }
-        return count;
-    }
-
-    private static int countNumberOfLettersChosenAndPlayed(List<SocraticEngineEvent> events) {
-        // Should make this smarter. but I'm feeling dumb
-        int count = 0;
-        for (SocraticEngineEvent event : events) {
-            if (event.eventType.equals(SocraticEngineEvent.EventType.LETTER_CHOSEN)) {
-                count += 1;
-            }
-        }
-        return count;
     }
 
     private static int calcTotalAccurateSymbolsGuessed(List<SocraticEngineEvent> events) {
