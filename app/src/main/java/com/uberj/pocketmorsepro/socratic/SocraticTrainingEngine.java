@@ -85,6 +85,9 @@ public class SocraticTrainingEngine {
                     // start the callback timer to play again
 
                     synchronized (guessGate) {
+                        // shortCircuitGuessWait will be true after a correct guess has been entered.
+                        // if a correct guess has been been entered while a letter is being played we don't
+                        // want to wait for the user to guess (because they already did)
                         if (shortCircuitGuessWait) {
                             long millis = cwToneManager.letterSpaceToMillis();
                             guessGate.wait(millis);
@@ -107,15 +110,13 @@ public class SocraticTrainingEngine {
     }
 
     public Optional<Boolean> guess(String guess) {
-        // If its right
+        // Don't allow guesses when we are paused
         if (isPaused) {
             return Optional.empty();
         }
 
         boolean isCorrectGuess = false;
         if (guess.equals(currentLetter)) {
-            // Make sure we always choose a different letter. this makes the handler of the
-            // letterPlayedCallback able to calculate number of letters played a lot easier
             events.add(SocraticEngineEvent.correctGuess(currentLetter));
             chooseDifferentLetter();
             isCorrectGuess = true;
