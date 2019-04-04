@@ -39,9 +39,8 @@ public abstract class TheDatabase extends RoomDatabase {
         if (INSTANCE == null) {
             synchronized (TheDatabase.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(
-                            context.getApplicationContext(), TheDatabase.class, THE_DATABASE_NAME
-                    ).build();
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(), TheDatabase.class, THE_DATABASE_NAME)
+                            .build();
                 }
             }
         }
