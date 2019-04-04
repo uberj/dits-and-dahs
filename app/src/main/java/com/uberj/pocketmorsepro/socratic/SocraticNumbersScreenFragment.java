@@ -147,17 +147,11 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
     }
 
     private enum Infos {
-        ACCURACY("ACCURACY Details", "Percent of time the first guess was correct"),
-
-        // Replay Count
-        APBCG("APBCG Details", "AVERAGE number of times a letter was PLAYED BEFORE a CORRECT GUESS was made"),
-
-        // Incorrect guesses
-        IGBCG("IGBCG Details", "Average Number of INCORRECT GUESSES were made BEFORE a CORRECT GUESS was entered"),
-
-        // Guess time
-        ATBCG("ATBCG Details", "AVERAGE TIME, in seconds, BEFORE CORRECT guess was entered"),
-        TOP5("TOP FIVE Details", "TOP FIVE INCORRECT guesses when this letter was played");
+        ACCURACY("Guess Accuracy Breakdown", "Percent of time the first guess was correct"),
+        APBCG("Replay Count Breakdown", "AVERAGE number of times a letter was PLAYED BEFORE a CORRECT GUESS was made"),
+        IGBCG("Incorrect Guessing Breakdown", "Average Number of INCORRECT GUESSES were made BEFORE a CORRECT GUESS was entered"),
+        ATBCG("Guess Time Breakdown", "AVERAGE TIME, in seconds, BEFORE CORRECT guess was entered"),
+        TOP5("Mistake Breakdown", "TOP FIVE INCORRECT guesses when this letter was played");
 
         public final String info;
         public final String title;
