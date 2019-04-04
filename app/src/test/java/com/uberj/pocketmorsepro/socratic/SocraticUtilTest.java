@@ -12,6 +12,24 @@ import java.util.Map;
 
 public class SocraticUtilTest {
     @Test
+    public void playpausetest() {
+        SocraticTrainingSessionWithEvents session = new SocraticTrainingSessionWithEvents();
+        List<SocraticEngineEvent> events = Lists.newArrayList();
+        events.add(eventAt(0, SocraticEngineEvent.letterChosen("A")));
+        events.add(eventAt(1, SocraticEngineEvent.letterDonePlaying("A")));
+        events.add(eventAt(2, SocraticEngineEvent.paused()));
+        events.add(eventAt(10, SocraticEngineEvent.resumed()));
+        events.add(eventAt(12, SocraticEngineEvent.paused()));
+        events.add(eventAt(20, SocraticEngineEvent.resumed()));
+        events.add(eventAt(21, SocraticEngineEvent.correctGuess("A")));
+        session.events = events;
+        List<SocraticUtil.SymbolAnalysis> symbolAnalyses = SocraticUtil.buildIndividualSymbolAnalysis(session);
+        SocraticUtil.SymbolAnalysis sa = symbolAnalyses.get(0);
+        Assert.assertNotNull(sa.averageSecondsBeforeCorrectGuessSeconds);
+        Assert.assertEquals(0.004, sa.averageSecondsBeforeCorrectGuessSeconds, 0);
+    }
+
+    @Test
     public void segregationTestRaw1() {
         List<SocraticEngineEvent> events = Lists.newArrayList();
         events.add(eventAt(0, SocraticEngineEvent.letterChosen("A")));

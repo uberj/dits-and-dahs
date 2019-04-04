@@ -334,7 +334,7 @@ public class SocraticUtil {
             return null;
         }
 
-        return toSeconds(segments.stream().map(events -> {
+        OptionalDouble average = segments.stream().map(events -> {
             if (events.isEmpty()) {
                 return 0L;
             }
@@ -343,9 +343,38 @@ public class SocraticUtil {
             if (firstCorrectGuess == null || firstDonePlaying == null) {
                 return 0L;
             }
-            long l1 = firstCorrectGuess.eventAtEpoc - firstDonePlaying.eventAtEpoc;
-            return l1;
-        }).mapToDouble(Double::valueOf).average().orElse(-1D));
+            long totalDuration = firstCorrectGuess.eventAtEpoc - firstDonePlaying.eventAtEpoc;
+            List<SocraticEngineEvent> inScopeEvents = events.stream()
+                    .filter(event -> event.eventAtEpoc >= firstDonePlaying.eventAtEpoc)
+                    .filter(event -> event.eventAtEpoc < firstCorrectGuess.eventAtEpoc)
+                    .collect(Collectors.toList());
+            long pausedTime = calcTotalTimePaused(inScopeEvents);
+            return totalDuration - pausedTime;
+        }).mapToDouble(Double::valueOf).average();
+
+        if (!average.isPresent()) {
+            return null;
+        } else {
+            return toSeconds(average.getAsDouble());
+        }
+    }
+
+    private static long calcTotalTimePaused(List<SocraticEngineEvent> events) {
+        long totalPausedTime = 0;
+        boolean isPaused = false;
+        SocraticEngineEvent mostRecentPauseEvent = null;
+        for (SocraticEngineEvent event : events) {
+            if (event.eventType == SocraticEngineEvent.EventType.PAUSE) {
+                isPaused = true;
+                mostRecentPauseEvent = event;
+            }
+
+            if (isPaused && event.eventType == SocraticEngineEvent.EventType.RESUME) {
+                isPaused = false;
+                totalPausedTime += event.eventAtEpoc - mostRecentPauseEvent.eventAtEpoc;
+            }
+        }
+        return totalPausedTime;
     }
 
     private static Integer calcICGBCG(List<List<SocraticEngineEvent>> segments) {
