@@ -24,4 +24,6 @@ public class SocraticTrainingSession {
     @NonNull
     public String sessionType;
 
+    @NonNull
+    public Boolean easyMode;
 }

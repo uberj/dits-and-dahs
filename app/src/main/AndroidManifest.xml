@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.uberj.pocketmorsepro">
 
@@ -29,6 +28,9 @@
             android:name="com.uberj.pocketmorsepro.training.simple.SimpleLetterTrainingActivity"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
+        <activity android:name="com.uberj.pocketmorsepro.training.simple.SimpleLetterSettingsActivity"
+            android:screenOrientation="landscape"
+            />
 
         <activity
             android:name="com.uberj.pocketmorsepro.training.randomletters.RandomLettersStartScreenActivity"

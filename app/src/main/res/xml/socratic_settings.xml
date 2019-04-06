@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:whatever="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+    <SwitchPreferenceCompat
+        app:key="@string/setting_socratic_easy_mode"
+        app:title="Easy Mode"
+        app:summary="Pause after a mistake is made and play an error tone"/>
+    <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
+        app:key="@string/setting_socratic_audio_tone"
+        app:title="Tone Frequency"
+        app:summary="The audio frequency that tones will be played at"
+        app:showSeekBarValue="true"
+        whatever:value_suffix=" Hz"
+        app:min="300"
+        android:max="1000"
+        android:defaultValue="440"
+        whatever:step_floor="10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+</PreferenceScreen>

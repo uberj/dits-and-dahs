@@ -146,7 +146,6 @@ public class TranscribeStartScreenFragment extends Fragment {
             selectedStringsContainer.setText(Joiner.on(", ").join(updatedSelectedStrings));
         });
 
-
         additionalSettingsLink.setOnClickListener(this::launchSettings);
 
         sessionViewModel.getLatestSession(sessionType).observe(this, (session) -> {

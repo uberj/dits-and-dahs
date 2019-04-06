@@ -12,9 +12,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.preference.PreferenceManager;
 import it.sephiroth.android.library.numberpicker.NumberPicker;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 
 import static com.uberj.pocketmorsepro.socratic.SocraticStartScreenActivity.KEYBOARD_REQUEST_CODE;
@@ -35,6 +38,7 @@ public class SocraticStartScreenFragment extends Fragment {
     private SocraticTrainingMainScreenViewModel sessionViewModel;
     private Class<? extends FragmentActivity> sessionActivityClass;
     private SocraticSessionType sessionType;
+    private SharedPreferences preferences;
 
 
     public static SocraticStartScreenFragment newInstance(SocraticSessionType sessionType, Class<? extends FragmentActivity> sessionActivityClass) {
@@ -76,6 +80,8 @@ public class SocraticStartScreenFragment extends Fragment {
         });
 
 
+        PreferenceManager.setDefaultValues(getActivity().getApplicationContext(), R.xml.socratic_settings, false);
+        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
         minutesPicker = rootView.findViewById(R.id.number_picker_minutes);
         wpmPicker = rootView.findViewById(R.id.wpm_number_picker);
         resetLetterWeights = rootView.findViewById(R.id.reset_weights);
@@ -103,19 +109,39 @@ public class SocraticStartScreenFragment extends Fragment {
             }
         });
 
+        TextView additionalSettingsLink = rootView.findViewById(R.id.additional_settings);
+        additionalSettingsLink.setOnClickListener(this::launchSettings);
+
         Button startButton = rootView.findViewById(R.id.start_button);
+        startButton.setOnClickListener(this::handleStartButtonClick);
         startButton.setOnClickListener(v -> {
-            Intent sendIntent = new Intent(rootView.getContext(), sessionActivityClass);
-            Bundle bundle = new Bundle();
-            bundle.putInt(SocraticKeyboardSessionActivity.WPM_REQUESTED, wpmPicker.getProgress());
-            bundle.putInt(SocraticKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
-            bundle.putBoolean(SocraticKeyboardSessionActivity.REQUEST_WEIGHTS_RESET, resetLetterWeights.isChecked());
-            sendIntent.putExtras(bundle);
-            sendIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);
-            resetLetterWeights.setChecked(false);
         });
 
         return rootView;
+    }
+
+    private void handleStartButtonClick(View view) {
+        int toneFrequency = preferences.getInt(getResources().getString(R.string.setting_socratic_audio_tone), 440);
+        boolean easyMode = preferences.getBoolean(getResources().getString(R.string.setting_socratic_easy_mode), true);
+        Intent sendIntent = new Intent(view.getContext(), sessionActivityClass);
+        Bundle bundle = new Bundle();
+        bundle.putInt(SocraticKeyboardSessionActivity.WPM_REQUESTED, wpmPicker.getProgress());
+        bundle.putInt(SocraticKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
+        bundle.putBoolean(SocraticKeyboardSessionActivity.REQUEST_WEIGHTS_RESET, resetLetterWeights.isChecked());
+        bundle.putBoolean(SocraticKeyboardSessionActivity.EASY_MODE, easyMode);
+        bundle.putInt(SocraticKeyboardSessionActivity.TONE_FREQUENCY_HZ, toneFrequency);
+        sendIntent.putExtras(bundle);
+        sendIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);
+        resetLetterWeights.setChecked(false);
+    }
+
+    private SocraticStartScreenActivity getSocraticActivity() {
+        return ((SocraticStartScreenActivity)getActivity());
+    }
+
+    private void launchSettings(View view) {
+        Intent intent = new Intent(view.getContext(), getSocraticActivity().getSettingsActivity());
+        startActivity(intent);
     }
 }

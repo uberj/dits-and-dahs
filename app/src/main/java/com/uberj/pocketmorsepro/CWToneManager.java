@@ -294,8 +294,8 @@ public class CWToneManager {
         return Math.max(1, f);
     }
 
-    public CWToneManager(int letterWpm) {
-        this(letterWpm, letterWpm, 440);
+    public CWToneManager(int letterWpm, int audioToneFrequency) {
+        this(letterWpm, letterWpm, audioToneFrequency);
     }
 
     public void destroy() {

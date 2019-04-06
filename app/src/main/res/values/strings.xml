@@ -19,4 +19,6 @@
     <string name="setting_transcribe_target_issue_letters">setting_transcribe_target_issue_letters</string>
     <string name="setting_transcribe_start_delay_seconds">setting_transcribe_start_delay_seconds</string>
     <string name="setting_transcribe_end_delay_seconds">setting_transcribe_end_delay_seconds</string>
+    <string name="setting_socratic_easy_mode">setting_socratic_easy_mode</string>
+    <string name="setting_socratic_audio_tone">setting_socratic_audio_tone</string>
 </resources>

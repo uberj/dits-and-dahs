@@ -1,5 +1,7 @@
 package com.uberj.pocketmorsepro.training.abrvandprosign;
 
+import android.app.Activity;
+
 import com.uberj.pocketmorsepro.socratic.SocraticKeyboardSessionActivity;
 import com.uberj.pocketmorsepro.socratic.SocraticStartScreenActivity;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
@@ -10,6 +12,11 @@ public class AbbreviationAndProsignStartScreenActivity extends SocraticStartScre
     @Override
     protected SocraticSessionType getSessionType() {
         return SocraticSessionType.ABBREVIATION_AND_PROSIGN;
+    }
+
+    @Override
+    public Class<? extends Activity> getSettingsActivity() {
+        return null;
     }
 
     @Override

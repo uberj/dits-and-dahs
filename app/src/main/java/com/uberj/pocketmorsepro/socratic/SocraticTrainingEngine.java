@@ -43,10 +43,10 @@ public class SocraticTrainingEngine {
     private final List<String> letterOrder;
     public final List<SocraticEngineEvent> events = Lists.newArrayList();
 
-    public SocraticTrainingEngine(List<String> letterOrder, int wpm, Consumer<String> letterChosenCallback, Consumer<String> letterDonePlayingCallback, List<String> playableKeys, @Nonnull Map<String, Integer> competencyWeights) {
+    public SocraticTrainingEngine(List<String> letterOrder, int wpm, Consumer<String> letterChosenCallback, List<String> playableKeys, @Nonnull Map<String, Integer> competencyWeights, int toneFrequency, boolean easyMode) {
         this.letterOrder = letterOrder;
         this.letterChosenCallback = letterChosenCallback;
-        this.cwToneManager = new CWToneManager(wpm);
+        this.cwToneManager = new CWToneManager(wpm, toneFrequency);
         this.playableKeys = playableKeys;
         this.competencyWeights = competencyWeights;
         this.playLetterWPM = wpm;

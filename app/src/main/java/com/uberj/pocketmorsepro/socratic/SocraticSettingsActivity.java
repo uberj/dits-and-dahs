@@ -1,14 +1,15 @@
-package com.uberj.pocketmorsepro.transcribe;
+package com.uberj.pocketmorsepro.socratic;
 
 import android.os.Bundle;
 import android.view.MenuItem;
 
 import com.uberj.pocketmorsepro.R;
+import com.uberj.pocketmorsepro.transcribe.TranscribePreferenceFragment;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-public abstract class TranscribeSettingsActivity extends AppCompatActivity {
+public abstract class SocraticSettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,5 +34,5 @@ public abstract class TranscribeSettingsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public abstract TranscribePreferenceFragment getPreferenceFragment();
+    public abstract SocraticPreferenceFragment getPreferenceFragment();
 }

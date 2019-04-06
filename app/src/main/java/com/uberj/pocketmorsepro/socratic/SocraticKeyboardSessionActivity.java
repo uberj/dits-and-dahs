@@ -36,10 +36,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity implements DialogInterface.OnDismissListener {
-    private static final String engineMutex = "engineMutex";
+    public static final String EASY_MODE = "easy-mode";
     public static final String REQUEST_WEIGHTS_RESET = "request-weights-reset";
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
     public static final String WPM_REQUESTED = "wpm-requested";
+    public static final String TONE_FREQUENCY_HZ = "tone-frequency-hz";
+    private static final String engineMutex = "engineMutex";
     private Menu menu;
 
     public static final float ENABLED_BUTTON_ALPHA = 1f;
@@ -186,6 +188,8 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
         boolean resetWeights = receiveBundle.getBoolean(REQUEST_WEIGHTS_RESET, false);
         int durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
         int wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
+        int toneFrequency = receiveBundle.getInt(TONE_FREQUENCY_HZ, 440);
+        boolean easyMode = receiveBundle.getBoolean(EASY_MODE, true);
 
         viewModel = ViewModelProviders.of(this,
                 new SocraticTrainingSessionViewModel.Factory(
@@ -193,6 +197,8 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
                         resetWeights,
                         durationMinutesRequested,
                         wpmRequested,
+                        toneFrequency,
+                        easyMode,
                         getSessionType(),
                         getSessionKeys())
         ).get(SocraticTrainingSessionViewModel.class);

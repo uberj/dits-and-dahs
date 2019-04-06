@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -85,6 +86,8 @@ public abstract class SocraticStartScreenActivity extends AppCompatActivity impl
     public FragmentManager getHelpDialogFragmentManager() {
         return getSupportFragmentManager();
     }
+
+    public abstract Class<? extends Activity> getSettingsActivity();
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to

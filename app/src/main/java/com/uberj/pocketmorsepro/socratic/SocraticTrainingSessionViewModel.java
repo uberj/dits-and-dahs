@@ -35,6 +35,8 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
     private final int wpmRequested;
     private final SocraticSessionType sessionType;
     private final Keys keys;
+    private final int toneFrequency;
+    private final boolean easyMode;
 
     private List<String> inPlayKeyNames;
     private CountDownTimer countDownTimer;
@@ -49,12 +51,14 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
     private long currentLetterFirstPlayedAt;
     private String currentMessage;
 
-    public SocraticTrainingSessionViewModel(@NonNull Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, SocraticSessionType sessionType, Keys keys) {
+    public SocraticTrainingSessionViewModel(@NonNull Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, int toneFrequency, boolean easyMode, SocraticSessionType sessionType, Keys keys) {
         super(application);
         this.resetWeights = resetWeights;
         this.durationMinutesRequested = durationMinutesRequested;
         this.durationRequestedMillis = 1000 * (durationMinutesRequested * 60);
         this.wpmRequested = wpmRequested;
+        this.toneFrequency = toneFrequency;
+        this.easyMode = easyMode;
         this.repository = new Repository(application);
         this.sessionType = sessionType;
         this.keys = keys;
@@ -67,13 +71,17 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
         private final int wpmRequested;
         private final SocraticSessionType sessionType;
         private final Keys keys;
+        private final int toneFrequency;
+        private final boolean easyMode;
 
 
-        public Factory(Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, SocraticSessionType sessionType, Keys keys) {
+        public Factory(Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, int toneFrequency, boolean easyMode, SocraticSessionType sessionType, Keys keys) {
             this.application = application;
             this.resetWeights = resetWeights;
             this.durationMinutesRequested = durationMinutesRequested;
             this.wpmRequested = wpmRequested;
+            this.toneFrequency = toneFrequency;
+            this.easyMode = easyMode;
             this.sessionType = sessionType;
             this.keys = keys;
         }
@@ -81,7 +89,7 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
-            return (T) new SocraticTrainingSessionViewModel(application, resetWeights, durationMinutesRequested, wpmRequested, sessionType, keys);
+            return (T) new SocraticTrainingSessionViewModel(application, resetWeights, durationMinutesRequested, wpmRequested, toneFrequency, easyMode, sessionType, keys);
         }
     }
 
@@ -98,7 +106,7 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
         Map<String, Integer> competencyWeights = buildInitialCompetencyWeights(resetWeights ? null : previousSettings);
         inPlayKeyNames = getInitialInPlayKeyNames(previousSettings);
         countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
-        engine = new SocraticTrainingEngine(KochLetterSequence.sequence, wpmRequested, this::letterChosenCallback, this::letterDonePlayingCallback, inPlayKeyNames, competencyWeights);
+        engine = new SocraticTrainingEngine(KochLetterSequence.sequence, wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights, toneFrequency, easyMode);
         engine.prime();
     }
 
@@ -213,6 +221,7 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
         trainingSession.durationWorkedMillis = durationWorkedMillis;
         trainingSession.completed = durationWorkedMillis == 0;
         trainingSession.sessionType = sessionType.name();
+        trainingSession.easyMode = easyMode;
 
         repository.insertSocraticTrainingSessionAndEvents(trainingSession, engine.events);
 
