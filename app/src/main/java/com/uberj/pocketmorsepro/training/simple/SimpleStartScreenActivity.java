@@ -16,7 +16,7 @@ public class SimpleStartScreenActivity extends SocraticStartScreenActivity {
 
     @Override
     public Class<? extends Activity> getSettingsActivity() {
-        return null;
+        return SimpleLetterSettingsActivity.class;
     }
 
     @Override

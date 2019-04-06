@@ -114,8 +114,6 @@ public class SocraticStartScreenFragment extends Fragment {
 
         Button startButton = rootView.findViewById(R.id.start_button);
         startButton.setOnClickListener(this::handleStartButtonClick);
-        startButton.setOnClickListener(v -> {
-        });
 
         return rootView;
     }
