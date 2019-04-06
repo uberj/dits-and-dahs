@@ -61,6 +61,7 @@ public abstract class SocraticStartScreenActivity extends AppCompatActivity impl
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
+        super.onActivityResult(requestCode, resultCode, resultIntent);
         if (KEYBOARD_REQUEST_CODE == 0) {
             mViewPager.setCurrentItem(1);
         }
