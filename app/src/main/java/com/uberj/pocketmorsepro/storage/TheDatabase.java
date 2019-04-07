@@ -51,6 +51,7 @@ public abstract class TheDatabase extends RoomDatabase {
             synchronized (TheDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(), TheDatabase.class, THE_DATABASE_NAME)
+                            .addMigrations(MIGRATION_1_2)
                             .build();
                 }
             }
