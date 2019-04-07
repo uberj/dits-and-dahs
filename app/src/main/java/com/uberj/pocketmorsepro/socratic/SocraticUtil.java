@@ -3,7 +3,7 @@ package com.uberj.pocketmorsepro.socratic;
 import com.crashlytics.android.Crashlytics;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.uberj.pocketmorsepro.CWToneManager;
+import com.uberj.pocketmorsepro.AudioManager;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticEngineEvent;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSessionWithEvents;
 
@@ -403,7 +403,7 @@ public class SocraticUtil {
         int totalCorrectSymbols = 0;
         for (SocraticEngineEvent event : events) {
             if (event.eventType.equals(SocraticEngineEvent.EventType.CORRECT_GUESS)) {
-                totalCorrectSymbols += CWToneManager.numSymbolsForStringNoFarnsworth(event.info);
+                totalCorrectSymbols += AudioManager.numSymbolsForStringNoFarnsworth(event.info);
             }
         }
         return totalCorrectSymbols;

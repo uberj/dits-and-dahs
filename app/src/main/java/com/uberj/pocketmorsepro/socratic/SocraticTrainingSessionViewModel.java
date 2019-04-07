@@ -1,10 +1,12 @@
 package com.uberj.pocketmorsepro.socratic;
 
 import android.app.Application;
+import android.media.MediaPlayer;
 
-import com.uberj.pocketmorsepro.CWToneManager;
+import com.uberj.pocketmorsepro.AudioManager;
 import com.uberj.pocketmorsepro.CountDownTimer;
 import com.uberj.pocketmorsepro.KochLetterSequence;
+import com.uberj.pocketmorsepro.R;
 import com.uberj.pocketmorsepro.keyboards.Keys;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSession;
@@ -37,6 +39,8 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
     private final Keys keys;
     private final int toneFrequency;
     private final boolean easyMode;
+    public final MediaPlayer incorrectSound;
+    public final MediaPlayer correctSound;
 
     private List<String> inPlayKeyNames;
     private CountDownTimer countDownTimer;
@@ -50,9 +54,12 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
     private SocraticTrainingEngine engine;
     private long currentLetterFirstPlayedAt;
     private String currentMessage;
+    private AudioManager audioManager;
 
     public SocraticTrainingSessionViewModel(@NonNull Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, int toneFrequency, boolean easyMode, SocraticSessionType sessionType, Keys keys) {
         super(application);
+        this.incorrectSound = MediaPlayer.create(application.getBaseContext(), R.raw.incorrect_mp3);
+        this.correctSound = MediaPlayer.create(application.getBaseContext(), R.raw.correct_wav);
         this.resetWeights = resetWeights;
         this.durationMinutesRequested = durationMinutesRequested;
         this.durationRequestedMillis = 1000 * (durationMinutesRequested * 60);
@@ -62,6 +69,14 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
         this.repository = new Repository(application);
         this.sessionType = sessionType;
         this.keys = keys;
+    }
+
+    public void playCorrectSound() {
+        audioManager.playCorrectTone();
+    }
+
+    public void playIncorrectSound() {
+        audioManager.playIncorrectTone();
     }
 
     public static class Factory implements ViewModelProvider.Factory {
@@ -106,7 +121,8 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
         Map<String, Integer> competencyWeights = buildInitialCompetencyWeights(resetWeights ? null : previousSettings);
         inPlayKeyNames = getInitialInPlayKeyNames(previousSettings);
         countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
-        engine = new SocraticTrainingEngine(KochLetterSequence.sequence, wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights, toneFrequency, easyMode);
+        audioManager = new AudioManager(wpmRequested, toneFrequency, getApplication().getResources());
+        engine = new SocraticTrainingEngine(audioManager, KochLetterSequence.sequence, wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights, easyMode);
         engine.prime();
     }
 
@@ -234,7 +250,7 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
     public void updateCompetencyWeights(String letter, boolean wasCorrectGuess) {
         if (wasCorrectGuess) {
             totalCorrectGuesses++;
-            totalAccurateSymbolsGuessed += CWToneManager.numSymbolsForStringNoFarnsworth(letter);
+            totalAccurateSymbolsGuessed += AudioManager.numSymbolsForStringNoFarnsworth(letter);
         } else {
             totalIncorrectGuesses++;
         }

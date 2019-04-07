@@ -1,6 +1,6 @@
 package com.uberj.pocketmorsepro.socratic;
 
-import com.uberj.pocketmorsepro.CWToneManager;
+import com.uberj.pocketmorsepro.AudioManager;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticEngineEvent;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
 import com.google.common.collect.Lists;
@@ -24,14 +24,17 @@ public class SocraticTrainingEngine {
 
     private static final String guessGate = "guessGate";
     private static final String pauseGate = "pauseGate";
+    private static final String easyModePause = "easyModePause";
     private static final int LETTER_WEIGHT_MAX = 100;
     private static final int LETTER_WEIGHT_MIN = 0;
     private static final int INCLUSION_COMPETENCY_CUTOFF_WEIGHT = 50;
 
-    private final CWToneManager cwToneManager;
+    private final AudioManager cwToneManager;
     private final Consumer<String> letterChosenCallback;
     private final int playLetterWPM;
     private static volatile boolean audioThreadKeepAlive = true;
+    private final boolean easyMode;
+    private volatile boolean waitingForGuess = false;
     private volatile boolean isPaused = false;
     private volatile boolean engineIsStarted = false;
     private volatile boolean shortCircuitGuessWait;
@@ -42,11 +45,13 @@ public class SocraticTrainingEngine {
     private final Map<String, Integer> competencyWeights;
     private final List<String> letterOrder;
     public final List<SocraticEngineEvent> events = Lists.newArrayList();
+    private volatile long sleepTime = -1;
 
-    public SocraticTrainingEngine(List<String> letterOrder, int wpm, Consumer<String> letterChosenCallback, List<String> playableKeys, @Nonnull Map<String, Integer> competencyWeights, int toneFrequency, boolean easyMode) {
+    public SocraticTrainingEngine(AudioManager audioManager, List<String> letterOrder, int wpm, Consumer<String> letterChosenCallback, List<String> playableKeys, @Nonnull Map<String, Integer> competencyWeights, boolean easyMode) {
+        this.cwToneManager = audioManager;
+        this.easyMode = easyMode;
         this.letterOrder = letterOrder;
         this.letterChosenCallback = letterChosenCallback;
-        this.cwToneManager = new CWToneManager(wpm, toneFrequency);
         this.playableKeys = playableKeys;
         this.competencyWeights = competencyWeights;
         this.playLetterWPM = wpm;
@@ -69,6 +74,17 @@ public class SocraticTrainingEngine {
                         * pause() and guess() should end this
 
                     /*/
+                    if (easyMode) {
+                        while (sleepTime > 0) {
+                            synchronized (easyModePause) {
+                                if (sleepTime > 0) {
+                                    Thread.sleep(sleepTime);
+                                    sleepTime = 0;
+                                }
+                            }
+                        }
+                    }
+
                     while (isPaused)  {
                         synchronized (pauseGate) {
                             pauseGate.wait();
@@ -80,6 +96,7 @@ public class SocraticTrainingEngine {
                         Timber.d("Playing letter: %s", currentLetter);
                         cwToneManager.playLetter(currentLetter);
                         events.add(SocraticEngineEvent.letterDonePlaying(currentLetter));
+                        waitingForGuess = true;
                     }
 
                     // start the callback timer to play again
@@ -111,6 +128,10 @@ public class SocraticTrainingEngine {
 
     public Optional<Boolean> guess(String guess) {
         // Don't allow guesses when we are paused
+        if (easyMode && !waitingForGuess) {
+            return Optional.empty();
+        }
+
         if (isPaused) {
             return Optional.empty();
         }
@@ -124,6 +145,14 @@ public class SocraticTrainingEngine {
         } else {
             events.add(SocraticEngineEvent.incorrectGuess(guess));
         }
+
+        if (easyMode) {
+            synchronized (easyModePause) {
+                sleepTime = isCorrectGuess ? 1000L : 2000L;
+            }
+            waitingForGuess = false;
+        }
+
 
         synchronized (guessGate) {
             guessGate.notify();

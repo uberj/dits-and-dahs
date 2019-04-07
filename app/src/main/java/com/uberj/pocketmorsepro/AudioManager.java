@@ -1,14 +1,20 @@
 package com.uberj.pocketmorsepro;
 
+import android.content.res.Resources;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioTrack;
 
 import com.google.common.collect.ImmutableMap;
 
+import org.apache.commons.io.IOUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+
 import timber.log.Timber;
 
-public class CWToneManager {
+public class AudioManager {
     private static final int sampleRateHz = 44100;
     private static int silenceSymbolsAfterDitDah = 1;
 
@@ -58,11 +64,15 @@ public class CWToneManager {
             .build();
 
 
-    private final AudioTrack player;
+    private final AudioTrack cwplayer;
     private final int minBufferSize;
     private final int letterWpm;
     private final double farnsworth;
     private final int freqOfToneHz;
+    private final AudioTrack incorrectTonePlayer;
+    private final AudioTrack correctTonePlayer;
+    private final byte[] incorrectTone;
+    private final byte[] correctTone;
 
     /*
         16 = 1 + 7 + 7 + 1 = .--.
@@ -134,6 +144,14 @@ public class CWToneManager {
     public long letterSpaceToMillis() {
         int numSymbols = numSymbols('/', farnsworth);
         return symbolCountToMillis(numSymbols);
+    }
+
+    public void playIncorrectTone() {
+        incorrectTonePlayer.write(incorrectTone, 0, incorrectTone.length);
+    }
+
+    public void playCorrectTone() {
+        correctTonePlayer.write(correctTone, 0, correctTone.length);
     }
 
 
@@ -258,7 +276,7 @@ public class CWToneManager {
         }
     }
 
-    public CWToneManager(int letterWpm, int effective, int audioToneFrequency) {
+    public AudioManager(int letterWpm, int effective, int audioToneFrequency, Resources resources) {
         this.freqOfToneHz = audioToneFrequency;
         this.letterWpm = letterWpm;
         this.farnsworth = calcFarnsworth(letterWpm, effective);
@@ -266,7 +284,7 @@ public class CWToneManager {
         int channelOutStereo = AudioFormat.CHANNEL_OUT_MONO;
         int encoding = AudioFormat.ENCODING_PCM_16BIT;
         minBufferSize = AudioTrack.getMinBufferSize(sampleRateHz, channelOutStereo, encoding);
-        player = new AudioTrack.Builder()
+        cwplayer = new AudioTrack.Builder()
                 .setAudioAttributes(new AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_MEDIA)
                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
@@ -278,7 +296,46 @@ public class CWToneManager {
                         .build())
                 .setBufferSizeInBytes(minBufferSize)
                 .build();
-        player.play();
+
+        InputStream incorrectToneInputStream = resources.openRawResource(R.raw.incorrect);
+        try {
+            incorrectTone = IOUtils.toByteArray(incorrectToneInputStream);
+        } catch (IOException e) {
+            throw new RuntimeException("Couldn't load incorrect tone");
+        }
+        incorrectTonePlayer = new AudioTrack.Builder()
+                .setAudioAttributes(new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build())
+                .setAudioFormat(new AudioFormat.Builder()
+                        .setEncoding(encoding)
+                        .setSampleRate(16000)
+                        .setChannelMask(channelOutStereo)
+                        .build())
+                .setBufferSizeInBytes(incorrectTone.length)
+                .build();
+        incorrectTonePlayer.play();
+
+        InputStream correctToneInputStream = resources.openRawResource(R.raw.correct);
+        try {
+            correctTone = IOUtils.toByteArray(correctToneInputStream);
+        } catch (IOException e) {
+            throw new RuntimeException("Couldn't load correct tone");
+        }
+        correctTonePlayer = new AudioTrack.Builder()
+                .setAudioAttributes(new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build())
+                .setAudioFormat(new AudioFormat.Builder()
+                        .setEncoding(encoding)
+                        .setSampleRate(16000)
+                        .setChannelMask(channelOutStereo)
+                        .build())
+                .setBufferSizeInBytes(correctTone.length)
+                .build();
+        correctTonePlayer.play();
     }
 
     private double calcFarnsworth(int letterWpm, int effectiveWpm) {
@@ -294,13 +351,17 @@ public class CWToneManager {
         return Math.max(1, f);
     }
 
-    public CWToneManager(int letterWpm, int audioToneFrequency) {
-        this(letterWpm, letterWpm, audioToneFrequency);
+    public AudioManager(int letterWpm, int audioToneFrequency, Resources resources) {
+        this(letterWpm, letterWpm, audioToneFrequency, resources);
     }
 
     public void destroy() {
-        player.stop();
-        player.release();
+        cwplayer.stop();
+        cwplayer.release();
+        incorrectTonePlayer.stop();
+        incorrectTonePlayer.release();
+        correctTonePlayer.stop();
+        correctTonePlayer.release();
     }
 
     void playSoundTest(){
@@ -325,7 +386,10 @@ public class CWToneManager {
             } else {
                 size = minBufferSize;
             }
-            player.write(generatedSnd, i, size);
+            cwplayer.write(generatedSnd, i, size);
+            if (cwplayer.getPlayState() != AudioTrack.PLAYSTATE_PLAYING) {
+                cwplayer.play();
+            }
         }
 
     }

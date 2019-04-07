@@ -1,6 +1,6 @@
 package com.uberj.pocketmorsepro.transcribe;
 
-import com.uberj.pocketmorsepro.CWToneManager;
+import com.uberj.pocketmorsepro.AudioManager;
 import com.google.common.collect.ImmutableList;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
@@ -28,7 +28,7 @@ public class TranscribeTrainingEngine {
     ));
 
     private final Runnable audioLoop;
-    private final CWToneManager cwToneManager;
+    private final AudioManager audioManager;
     private final String pauseGate = "pauseGate";
     private final String farnsworthPause = "farnsworthPause";
     private final Consumer<String> letterPlayedCallback;
@@ -41,10 +41,10 @@ public class TranscribeTrainingEngine {
     private int lettersLeftInGroup = LENGTH_DISTRIBUTION.sample();
     private boolean awaitingShutdown = false;
 
-    public TranscribeTrainingEngine(int audioToneFrequency, int startDelaySeconds, int letterWpmRequested, int effectiveWpmRequested, List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters, Consumer<String> letterPlayedCallback) {
+    public TranscribeTrainingEngine(AudioManager audioManager, int startDelaySeconds, List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters, Consumer<String> letterPlayedCallback) {
         this.nextLetterDistribution = new EnumeratedDistribution<>(letterWeights(inPlayLetters));
         this.letterPlayedCallback = letterPlayedCallback;
-        this.cwToneManager = new CWToneManager(letterWpmRequested, effectiveWpmRequested, audioToneFrequency);
+        this.audioManager = audioManager;
         this.audioLoop = () -> {
             try {
                 synchronized (pauseGate) {
@@ -62,7 +62,7 @@ public class TranscribeTrainingEngine {
                         String currentLetter = nextLetter();
                         Timber.d("Playing letter: '%s'", currentLetter);
                         this.letterPlayedCallback.accept(currentLetter);
-                        cwToneManager.playLetter(currentLetter);
+                        audioManager.playLetter(currentLetter);
                     }
 
                     // The session is ending soon
@@ -72,7 +72,7 @@ public class TranscribeTrainingEngine {
 
                     // start the callback timer to play again
                     synchronized (farnsworthPause) {
-                        long millis = cwToneManager.wordSpaceToMillis();
+                        long millis = audioManager.wordSpaceToMillis();
                         farnsworthPause.wait(millis);
                     }
                 }
@@ -142,7 +142,7 @@ public class TranscribeTrainingEngine {
         if (audioThread != null && audioThread.isAlive() && !audioThread.isInterrupted()) {
             audioThread = null;
         }
-        cwToneManager.destroy();
+        audioManager.destroy();
     }
 
     public void prepareForShutdown() {

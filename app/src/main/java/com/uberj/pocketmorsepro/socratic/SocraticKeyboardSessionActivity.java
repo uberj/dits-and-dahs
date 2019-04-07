@@ -12,7 +12,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.HandlerThread;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,6 +32,7 @@ import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
 import com.google.common.collect.Lists;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -134,9 +137,11 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
             if (!wasCorrectGuess) {
                 Drawable incorrectDrawable = getResources().getDrawable(R.drawable.incorrect_guess_timer_bar_progress_background, getTheme());
                 timerProgressBar.setProgressDrawable(incorrectDrawable);
+                new Thread(() -> viewModel.playIncorrectSound()).start();
             } else {
                 Drawable correctDrawable = getResources().getDrawable(R.drawable.correct_guess_timer_bar_progress_background, getTheme());
                 timerProgressBar.setProgressDrawable(correctDrawable);
+                new Thread(() -> viewModel.playCorrectSound()).start();
             }
 
             TransitionDrawable background = (TransitionDrawable) timerProgressBar.getProgressDrawable();

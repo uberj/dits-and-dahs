@@ -2,6 +2,7 @@ package com.uberj.pocketmorsepro.transcribe;
 
 import android.app.Application;
 
+import com.uberj.pocketmorsepro.AudioManager;
 import com.uberj.pocketmorsepro.CountDownTimer;
 import com.uberj.pocketmorsepro.keyboards.Keys;
 import com.uberj.pocketmorsepro.storage.Repository;
@@ -144,7 +145,8 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
             }
             weightedRequestedStrings.add(Pair.of(s, 1D + error));
         }
-        engine = new TranscribeTrainingEngine(audioToneFrequency, startDelaySeconds, letterWpmRequested, effectiveWpmRequested, weightedRequestedStrings, this::letterPlayedCallback);
+        AudioManager audioManager = new AudioManager(letterWpmRequested, effectiveWpmRequested, audioToneFrequency, getApplication().getResources());
+        engine = new TranscribeTrainingEngine(audioManager, startDelaySeconds, weightedRequestedStrings, this::letterPlayedCallback);
         engine.prime();
     }
 
