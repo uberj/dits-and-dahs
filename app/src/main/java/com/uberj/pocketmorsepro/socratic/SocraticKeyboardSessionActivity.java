@@ -137,10 +137,12 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
             if (!wasCorrectGuess) {
                 Drawable incorrectDrawable = getResources().getDrawable(R.drawable.incorrect_guess_timer_bar_progress_background, getTheme());
                 timerProgressBar.setProgressDrawable(incorrectDrawable);
+                // TODO, handler thread!
                 new Thread(() -> viewModel.playIncorrectSound()).start();
             } else {
                 Drawable correctDrawable = getResources().getDrawable(R.drawable.correct_guess_timer_bar_progress_background, getTheme());
                 timerProgressBar.setProgressDrawable(correctDrawable);
+                // TODO, handler thread!
                 new Thread(() -> viewModel.playCorrectSound()).start();
             }
 
@@ -279,6 +281,7 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
             builder.setPositiveButton("Yes", (dialog, which) -> {
                 // Duration always seems to be off by -1s when back is pressed
                 viewModel.setDurationRemainingMillis(viewModel.getDurationRemainingMillis().getValue() - 1000 );
+                viewModel.prepairShutDown();
                 Intent data = buildResultIntent();
                 setResult(Activity.RESULT_OK, data);
                 finish();

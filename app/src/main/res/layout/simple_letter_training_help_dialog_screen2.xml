@@ -100,7 +100,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="8dp"
-        android:text="If you guess a letter incorrectly the top bar will blink red."
+        android:text='If you guess a letter incorrectly the top bar will blink red. In easy mode, a "incorrect" tone will play.'
         android:textSize="18sp"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
         app:layout_constraintStart_toStartOf="@+id/guideline5"
@@ -127,7 +127,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="8dp"
-        android:text="A correct guess will make the top bar blink green."
+        android:text='A correct guess will make the top bar blink green. In easy mode, a "correct" tone will play.'
         android:textSize="18sp"
         app:layout_constraintEnd_toStartOf="@+id/guideline6"
         app:layout_constraintStart_toStartOf="@+id/guideline"

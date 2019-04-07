@@ -72,11 +72,19 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
     }
 
     public void playCorrectSound() {
-        audioManager.playCorrectTone();
+        if (easyMode) {
+            audioManager.playCorrectTone();
+        }
     }
 
     public void playIncorrectSound() {
-        audioManager.playIncorrectTone();
+        if (easyMode) {
+            audioManager.playIncorrectTone();
+        }
+    }
+
+    public void prepairShutDown() {
+        engine.destroy();
     }
 
     public static class Factory implements ViewModelProvider.Factory {
@@ -160,7 +168,6 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        engine.destroy();
         recordSessionDetails();
     }
 
