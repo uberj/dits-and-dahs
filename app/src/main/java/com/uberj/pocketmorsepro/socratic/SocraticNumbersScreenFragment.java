@@ -206,7 +206,7 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
                     (a1, a2) -> {
                         double v1 = a1.accuracy == null || a1.chances == 0 ? Double.MAX_VALUE : a1.accuracy;
                         double v2 = a2.accuracy == null || a2.chances == 0 ? Double.MAX_VALUE : a2.accuracy;
-                        return (int) (v1 - v2);
+                        return (int) (v1 * 1000 - v2 * 1000);
                     }
             );
         });

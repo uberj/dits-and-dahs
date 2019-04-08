@@ -223,6 +223,7 @@ public class DynamicKeyboard {
             button = new Button(context);
             ((Button)button).setText(keyName);
         }
+        button.setHapticFeedbackEnabled(true);
 
         int buttonId = context.getResources().getIdentifier(getButtonIdName(keyName), "id", context.getPackageName());
         button.setId(buttonId);
