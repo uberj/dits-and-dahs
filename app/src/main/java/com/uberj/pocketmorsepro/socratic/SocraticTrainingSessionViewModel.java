@@ -2,6 +2,9 @@ package com.uberj.pocketmorsepro.socratic;
 
 import android.app.Application;
 import android.media.MediaPlayer;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Message;
 
 import com.uberj.pocketmorsepro.AudioManager;
 import com.uberj.pocketmorsepro.CountDownTimer;
@@ -28,6 +31,8 @@ import timber.log.Timber;
 
 class SocraticTrainingSessionViewModel extends AndroidViewModel {
     private static final String sessionStartLock = "Lock";
+    private static final int CORRECT_GUESS = 100;
+    private static final int INCORRECT_GUESS = 200;
     private final Repository repository;
 
     private final Boolean resetWeights;
@@ -41,6 +46,8 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
     private final boolean easyMode;
     public final MediaPlayer incorrectSound;
     public final MediaPlayer correctSound;
+    private final HandlerThread guessSoundHandlerThread;
+    private final Handler guessHandler;
 
     private List<String> inPlayKeyNames;
     private CountDownTimer countDownTimer;
@@ -58,6 +65,9 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
 
     public SocraticTrainingSessionViewModel(@NonNull Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, int toneFrequency, boolean easyMode, SocraticSessionType sessionType, Keys keys) {
         super(application);
+        guessSoundHandlerThread = new HandlerThread("GuessSoundHandler", HandlerThread.MAX_PRIORITY);
+        guessSoundHandlerThread.start();
+        guessHandler = new Handler(guessSoundHandlerThread.getLooper(), this::guessCallBack);
         this.incorrectSound = MediaPlayer.create(application.getBaseContext(), R.raw.incorrect_mp3);
         this.correctSound = MediaPlayer.create(application.getBaseContext(), R.raw.correct_wav);
         this.resetWeights = resetWeights;
@@ -71,16 +81,23 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
         this.keys = keys;
     }
 
-    public void playCorrectSound() {
+    private boolean guessCallBack(Message message) {
         if (easyMode) {
-            audioManager.playCorrectTone();
+            if (message.what == CORRECT_GUESS) {
+                audioManager.playCorrectTone();
+            } else if (message.what == INCORRECT_GUESS) {
+                audioManager.playIncorrectTone();
+            }
         }
+        return true;
+    }
+
+    public void playCorrectSound() {
+        guessHandler.sendEmptyMessage(CORRECT_GUESS);
     }
 
     public void playIncorrectSound() {
-        if (easyMode) {
-            audioManager.playIncorrectTone();
-        }
+        guessHandler.sendEmptyMessage(INCORRECT_GUESS);
     }
 
     public void prepairShutDown() {

@@ -297,7 +297,7 @@ public class AudioManager {
                 .setBufferSizeInBytes(minBufferSize)
                 .build();
 
-        InputStream incorrectToneInputStream = resources.openRawResource(R.raw.incorrect);
+        InputStream incorrectToneInputStream = resources.openRawResource(R.raw.incorrect_wav_16000);
         try {
             incorrectTone = IOUtils.toByteArray(incorrectToneInputStream);
         } catch (IOException e) {
@@ -317,7 +317,7 @@ public class AudioManager {
                 .build();
         incorrectTonePlayer.play();
 
-        InputStream correctToneInputStream = resources.openRawResource(R.raw.correct);
+        InputStream correctToneInputStream = resources.openRawResource(R.raw.correct_wav_16000);
         try {
             correctTone = IOUtils.toByteArray(correctToneInputStream);
         } catch (IOException e) {

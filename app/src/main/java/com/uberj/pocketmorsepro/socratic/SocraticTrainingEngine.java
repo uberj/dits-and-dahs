@@ -34,7 +34,6 @@ public class SocraticTrainingEngine {
     private final int playLetterWPM;
     private static volatile boolean audioThreadKeepAlive = true;
     private final boolean easyMode;
-    private volatile boolean waitingForGuess = false;
     private volatile boolean isPaused = false;
     private volatile boolean engineIsStarted = false;
     private volatile boolean shortCircuitGuessWait;
@@ -58,28 +57,13 @@ public class SocraticTrainingEngine {
         this.audioLoop = () -> {
             try {
                 while (Thread.currentThread() == audioThread) {
-                    /*/
-                    This loop will wait for
-
-                    Pause
-                    -----
-                    - When the engine is paused
-                        * No timeout
-                        * resume() should be the only one to trigger this notify
-
-                    WaitGuess
-                    ---------
-                    - When the engine is waiting for the player to guess
-                        * Timeout happens after getGuessWaitTimeMillis()
-                        * pause() and guess() should end this
-
-                    /*/
                     if (easyMode) {
                         while (sleepTime > 0) {
                             synchronized (easyModePause) {
                                 if (sleepTime > 0) {
-                                    Thread.sleep(sleepTime);
+                                    long preSleepTime = sleepTime;
                                     sleepTime = 0;
+                                    easyModePause.wait(preSleepTime);
                                 }
                             }
                         }
@@ -94,12 +78,10 @@ public class SocraticTrainingEngine {
                     // play it letter
                     if (audioThreadKeepAlive) {
                         Timber.d("Playing letter: %s", currentLetter);
+                        shortCircuitGuessWait = false;
                         cwToneManager.playLetter(currentLetter);
                         events.add(SocraticEngineEvent.letterDonePlaying(currentLetter));
-                        waitingForGuess = true;
                     }
-
-                    // start the callback timer to play again
 
                     synchronized (guessGate) {
                         // shortCircuitGuessWait will be true after a correct guess has been entered.
@@ -128,10 +110,6 @@ public class SocraticTrainingEngine {
 
     public Optional<Boolean> guess(String guess) {
         // Don't allow guesses when we are paused
-        if (easyMode && !waitingForGuess) {
-            return Optional.empty();
-        }
-
         if (isPaused) {
             return Optional.empty();
         }
@@ -148,11 +126,10 @@ public class SocraticTrainingEngine {
 
         if (easyMode) {
             synchronized (easyModePause) {
-                sleepTime = isCorrectGuess ? 1000L : 2000L;
+                sleepTime = isCorrectGuess ? 350L : 1500L;
+                easyModePause.notifyAll();
             }
-            waitingForGuess = false;
         }
-
 
         synchronized (guessGate) {
             guessGate.notify();
@@ -214,8 +191,12 @@ public class SocraticTrainingEngine {
         }
         events.add(SocraticEngineEvent.resumed());
         isPaused = false;
+        sleepTime = 0;
         synchronized (pauseGate) {
             pauseGate.notify();
+        }
+        synchronized (easyModePause) {
+            easyModePause.notifyAll();
         }
     }
 
@@ -225,9 +206,13 @@ public class SocraticTrainingEngine {
         }
         events.add(SocraticEngineEvent.paused());
         isPaused = true;
+        sleepTime = 0;
 
         synchronized (guessGate) {
             guessGate.notify();
+        }
+        synchronized (easyModePause) {
+            easyModePause.notifyAll();
         }
     }
 
