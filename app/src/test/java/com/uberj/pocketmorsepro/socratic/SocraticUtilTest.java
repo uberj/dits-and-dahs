@@ -96,7 +96,7 @@ public class SocraticUtilTest {
         SocraticUtil.SymbolAnalysis sa = symbolAnalyses.get(0);
         Assert.assertEquals("A", sa.symbol);
         Assert.assertEquals(0.002, sa.averageSecondsBeforeCorrectGuessSeconds, 0);
-        Assert.assertEquals(2, sa.incorrectGuessesBeforeCorrectGuess, 0);
+        Assert.assertEquals(1, sa.incorrectGuessesBeforeCorrectGuess, 0);
         Assert.assertEquals(2, sa.numberPlays);
         Assert.assertEquals(1, sa.averagePlaysBeforeCorrectGuess, 0);
         Assert.assertNotNull(sa.accuracy);
@@ -133,7 +133,7 @@ public class SocraticUtilTest {
         Assert.assertEquals(2, symbolAnalyses.size());
         SocraticUtil.SymbolAnalysis symbolA = getSymbol("A", symbolAnalyses);
         Assert.assertEquals("A", symbolA.symbol);
-        Assert.assertEquals(4, symbolA.incorrectGuessesBeforeCorrectGuess.intValue());
+        Assert.assertEquals((1D + 3D)/2D, symbolA.incorrectGuessesBeforeCorrectGuess, 0);
         Assert.assertEquals(((2D + 8D)/2D)/1000, symbolA.averageSecondsBeforeCorrectGuessSeconds, 0.00001);
         Assert.assertEquals(2, symbolA.numberPlays, 0);
         Assert.assertEquals(1, symbolA.averagePlaysBeforeCorrectGuess, 0);

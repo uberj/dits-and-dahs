@@ -377,16 +377,25 @@ public class SocraticUtil {
         return totalPausedTime;
     }
 
-    private static Integer calcICGBCG(List<List<SocraticEngineEvent>> segments) {
+    private static Double calcICGBCG(List<List<SocraticEngineEvent>> segments) {
         if (segments.isEmpty()) {
             return null;
         }
 
-        return segments.stream().map(
-                    events -> events.stream()
-                            .filter(e -> e.eventType == SocraticEngineEvent.EventType.INCORRECT_GUESS)
-                            .count()
-            ).mapToInt(Long::intValue).sum();
+        OptionalDouble average = segments.stream()
+                .map(
+                        events -> events.stream()
+                                .filter(e -> e.eventType == SocraticEngineEvent.EventType.INCORRECT_GUESS)
+                                .count()
+                )
+                .mapToDouble(Double::valueOf)
+                .average();
+
+        if (average.isPresent()) {
+            return average.getAsDouble();
+        } else {
+            return null;
+        }
     }
 
     private static SocraticEngineEvent findFirst(SocraticEngineEvent.EventType eventType, List<SocraticEngineEvent> events) {
@@ -426,7 +435,7 @@ public class SocraticUtil {
         @Nullable
         public Double averagePlaysBeforeCorrectGuess = null;
         @Nullable
-        public Integer incorrectGuessesBeforeCorrectGuess;
+        public Double incorrectGuessesBeforeCorrectGuess;
         @Nullable
         public Double averageSecondsBeforeCorrectGuessSeconds = null;
         public List<String> topFiveIncorrectGuesses;
