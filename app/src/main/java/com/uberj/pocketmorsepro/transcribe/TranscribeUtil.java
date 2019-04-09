@@ -76,20 +76,11 @@ public class TranscribeUtil {
         return messageDiff;
     }
 
-    private static List<String> stripTrailingSpaces(List<String> inputStrings) {
-        List<String> outputStrings = Lists.newArrayList();
-        boolean skip = true;
-        for (String inputString : Lists.reverse(inputStrings)) {
-            if (skip && !inputString.equals("SPC")) {
-                skip = false;
-            }
-
-            if (skip) {
-                continue;
-            }
-            outputStrings.add(0, inputString);
+    protected static List<String> stripTrailingSpaces(List<String> inputStrings) {
+        List<String> outputStrings = Lists.newArrayList(inputStrings);
+        while (outputStrings.size() > 0 && outputStrings.get(outputStrings.size() - 1).equals("SPC")) {
+            outputStrings.remove(outputStrings.size() -1);
         }
-
         return outputStrings;
     }
 
