@@ -2,7 +2,6 @@ package com.uberj.pocketmorsepro.socratic;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.tomergoldst.tooltips.ToolTipsManager;
 import com.uberj.pocketmorsepro.ProgressGradient;
 import com.uberj.pocketmorsepro.R;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
@@ -20,7 +19,6 @@ import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -35,13 +33,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
 
-public class SocraticNumbersScreenFragment extends Fragment implements View.OnTouchListener {
+public class SocraticNumbersScreenFragment extends Fragment {
     private static final DecimalFormat DECIMAL_STAT_FORMATTER = new DecimalFormat("#.##");
     private static final String SYMBOL_COLUMN_NAME = "Symbol";
     private static final String BLANK_DETAIL = "-";
     private SocraticTrainingMainScreenViewModel sessionViewModel;
     private SocraticSessionType sessionType;
-    private ToolTipsManager mToolTipsManager;
     private ScrollView detailsContainerScroll;
 
     public static SocraticNumbersScreenFragment newInstance(SocraticSessionType sessionType) {
@@ -69,9 +66,6 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
         }
 
         ConstraintLayout rootView = (ConstraintLayout) inflater.inflate(R.layout.socratic_training_numbers_screen_fragment, container, false);
-        rootView.setOnTouchListener(this);
-        mToolTipsManager = new ToolTipsManager();
-
 
         TextView detailsTitle = rootView.findViewById(R.id.details_title);
         TextView detailsExplanation = rootView.findViewById(R.id.details_explaination);
@@ -130,12 +124,6 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
 
 
         return rootView;
-    }
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        mToolTipsManager.dismissAll();
-        return false;
     }
 
     private static class Column {
