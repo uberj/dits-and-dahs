@@ -34,7 +34,6 @@ import static com.uberj.pocketmorsepro.socratic.SocraticKeyboardSessionActivity.
 public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivity implements Keys, DialogInterface.OnDismissListener {
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
     public static final String LETTER_WPM_REQUESTED = "letter-wpm-requested";
-    public static final String FARNSWORTH_SPACES = "farnsworth-spaces";
     public static final String STRINGS_REQUESTED = "strings-requested";
     public static final String EFFECTIVE_WPM_REQUESTED = "effective-wpm-requested";
     public static final String TARGET_ISSUE_STRINGS = "target-issue-strings";
@@ -54,13 +53,12 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
         Bundle receiveBundle = getIntent().getExtras();
         assert receiveBundle != null;
         Toolbar keyboardToolbar = findViewById(R.id.keyboard_toolbar);
-        keyboardToolbar.inflateMenu(R.menu.keyboard);
+        keyboardToolbar.inflateMenu(R.menu.socratic_keyboard);
         setSupportActionBar(keyboardToolbar);
 
         int durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
         int letterWpmRequested = receiveBundle.getInt(LETTER_WPM_REQUESTED);
         int effectiveWpmRequested = receiveBundle.getInt(EFFECTIVE_WPM_REQUESTED);
-        int fransworth = receiveBundle.getInt(FARNSWORTH_SPACES);
         boolean targetIssueLetters = receiveBundle.getBoolean(TARGET_ISSUE_STRINGS);
         int audioToneFrequency = receiveBundle.getInt(AUDIO_TONE_FREQUENCY);
         int startDelaySeconds = receiveBundle.getInt(SESSION_START_DELAY_SECONDS);
@@ -73,13 +71,12 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
                         letterWpmRequested,
                         effectiveWpmRequested,
                         stringsRequested,
-                        fransworth,
                         targetIssueLetters,
                         audioToneFrequency,
                         startDelaySeconds,
                         endDelaySeconds,
-                        getSessionType(),
-                        this)
+                        getSessionType()
+                )
         ).get(TranscribeTrainingSessionViewModel.class);
 
         LinearLayout keyboardContainer = findViewById(R.id.keyboard_base);
@@ -148,7 +145,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
-        getMenuInflater().inflate(R.menu.keyboard, menu);
+        getMenuInflater().inflate(R.menu.transcribe_keyboard, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -192,7 +189,6 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
     }
 
     public void onClickHelpButton(MenuItem item) {
-
     }
 
     public void onClickPlayPauseHandler(MenuItem m) {

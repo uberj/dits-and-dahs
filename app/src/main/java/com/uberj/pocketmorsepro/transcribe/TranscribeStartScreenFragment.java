@@ -234,12 +234,11 @@ public class TranscribeStartScreenFragment extends Fragment {
     private void handleStartButtonClick(View view) {
         Intent sendIntent = new Intent(view.getContext(), sessionActivityClass);
         Bundle bundle = new Bundle();
-        bundle.putInt(TranscribeKeyboardSessionActivity.FARNSWORTH_SPACES, 3);
         bundle.putInt(TranscribeKeyboardSessionActivity.LETTER_WPM_REQUESTED, letterWpmNumberPicker.getProgress());
         bundle.putInt(TranscribeKeyboardSessionActivity.EFFECTIVE_WPM_REQUESTED, effectiveWpmNumberPicker.getProgress());
         bundle.putInt(TranscribeKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
         boolean targetIssueStrings = preferences.getBoolean(getResources().getString(R.string.setting_transcribe_target_issue_letters), false);
-        int audioToneFrequency = preferences.getInt(getResources().getString(R.string.setting_transcribe_audio_tone), 700);
+        int audioToneFrequency = preferences.getInt(getResources().getString(R.string.setting_transcribe_audio_tone), 440);
         int startDelaySeconds = preferences.getInt(getResources().getString(R.string.setting_transcribe_start_delay_seconds), 3);
         int endDelaySeconds = preferences.getInt(getResources().getString(R.string.setting_transcribe_end_delay_seconds), 3);
         bundle.putBoolean(TranscribeKeyboardSessionActivity.TARGET_ISSUE_STRINGS, targetIssueStrings);

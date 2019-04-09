@@ -29,9 +29,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     private final int letterWpmRequested;
     private final int effectiveWpmRequested;
     private final TranscribeSessionType sessionType;
-    private final Keys keys;
     private final Repository repository;
-    private final int farnsworth;
     public final MutableLiveData<Long> durationRemainingMillis = new MutableLiveData<>(-1L);
     public final MutableLiveData<List<String>> transcribedMessage = new MutableLiveData<>(Lists.newArrayList());
     private final ArrayList<String> stringsRequested;
@@ -46,17 +44,15 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     private long endTimeEpocMillis = -1;
     private List<String> playedMessage = Lists.newArrayList();
 
-    public TranscribeTrainingSessionViewModel(@NonNull Application application, int durationMinutesRequested, ArrayList<String> stringsRequested, int letterWpmRequested, int effectiveWpmRequested, int farnsworth, boolean targetIssueLetters, TranscribeSessionType sessionType, Keys keys, int audioToneFrequency, int startDelaySeconds, int endDelaySeconds) {
+    public TranscribeTrainingSessionViewModel(@NonNull Application application, int durationMinutesRequested, ArrayList<String> stringsRequested, int letterWpmRequested, int effectiveWpmRequested, boolean targetIssueLetters, TranscribeSessionType sessionType, int audioToneFrequency, int startDelaySeconds, int endDelaySeconds) {
         super(application);
         this.repository = new Repository(application);
         this.durationMinutesRequested = durationMinutesRequested;
         this.letterWpmRequested = letterWpmRequested;
         this.effectiveWpmRequested = effectiveWpmRequested;
         this.stringsRequested = stringsRequested;
-        this.farnsworth = farnsworth;
         this.targetIssueLetters = targetIssueLetters;
         this.sessionType = sessionType;
-        this.keys = keys;
         this.audioToneFrequency = audioToneFrequency;
         this.startDelaySeconds = startDelaySeconds;
         this.endDelaySeconds = endDelaySeconds;
@@ -89,26 +85,22 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         private final int durationMinutesRequested;
         private final int letterWpmRequested;
         private final int effectivetWpmRequested;
-        private final int fransworth;
         private final ArrayList<String> stringsRequested;
         private final TranscribeSessionType sessionType;
-        private final Keys keys;
         private final boolean targetIssueLetters;
         private final int audioToneFrequency;
         private final int startDelaySeconds;
         private final int endDelaySeconds;
 
 
-        public Factory(Application application, int durationMinutesRequested, int letterWpmRequested, int effectivetWpmRequested, ArrayList<String> stringsRequested, int fransworth, boolean targetIssueLetters, int audioToneFrequency, int startDelaySeconds, int endDelaySeconds, TranscribeSessionType sessionType, Keys keys) {
+        public Factory(Application application, int durationMinutesRequested, int letterWpmRequested, int effectivetWpmRequested, ArrayList<String> stringsRequested, boolean targetIssueLetters, int audioToneFrequency, int startDelaySeconds, int endDelaySeconds, TranscribeSessionType sessionType) {
             this.application = application;
             this.durationMinutesRequested = durationMinutesRequested;
             this.letterWpmRequested = letterWpmRequested;
             this.effectivetWpmRequested = effectivetWpmRequested;
-            this.fransworth = fransworth;
             this.targetIssueLetters = targetIssueLetters;
             this.stringsRequested = stringsRequested;
             this.sessionType = sessionType;
-            this.keys = keys;
             this.audioToneFrequency = audioToneFrequency;
             this.startDelaySeconds = startDelaySeconds;
             this.endDelaySeconds = endDelaySeconds;
@@ -117,7 +109,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
-            return (T) new TranscribeTrainingSessionViewModel(application, durationMinutesRequested, stringsRequested, letterWpmRequested, effectivetWpmRequested, fransworth, targetIssueLetters, sessionType, keys, audioToneFrequency, startDelaySeconds, endDelaySeconds);
+            return (T) new TranscribeTrainingSessionViewModel(application, durationMinutesRequested, stringsRequested, letterWpmRequested, effectivetWpmRequested, targetIssueLetters, sessionType, audioToneFrequency, startDelaySeconds, endDelaySeconds);
         }
     }
 

@@ -30,7 +30,6 @@ import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
 import com.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
 import com.google.common.collect.Lists;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -185,7 +184,7 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
         Bundle receiveBundle = getIntent().getExtras();
         assert receiveBundle != null;
         Toolbar keyboardToolbar = findViewById(R.id.keyboard_toolbar);
-        keyboardToolbar.inflateMenu(R.menu.keyboard);
+        keyboardToolbar.inflateMenu(R.menu.socratic_keyboard);
         setSupportActionBar(keyboardToolbar);
 
         boolean resetWeights = receiveBundle.getBoolean(REQUEST_WEIGHTS_RESET, false);
@@ -293,7 +292,7 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
-        getMenuInflater().inflate(R.menu.keyboard, menu);
+        getMenuInflater().inflate(R.menu.socratic_keyboard, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
