@@ -87,7 +87,7 @@ public class TranscribeStartScreenFragment extends Fragment {
             selectedStringsBooleanMap[which] = isChecked;
         });
 
-        builder.setPositiveButton("Select All", (dialog, which) -> {
+        builder.setNeutralButton("Select All", (dialog, which) -> {
             for (int i = 0; i < selectedStringsBooleanMap.length; i++) {
                 selectedStringsBooleanMap[i] = true;
             }

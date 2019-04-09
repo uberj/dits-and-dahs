@@ -25,7 +25,6 @@ public interface SocraticTrainingSessionDAO {
 
     default void insertSessionAndEvents(SocraticTrainingSession trainingSession, List<SocraticEngineEvent> events) {
         int sessionId = (int) insertSession(trainingSession);
-        System.out.println(sessionId);
         for (SocraticEngineEvent event : events) {
             event.sessionId = sessionId;
         }

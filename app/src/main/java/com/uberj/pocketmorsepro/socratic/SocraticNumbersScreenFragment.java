@@ -2,7 +2,6 @@ package com.uberj.pocketmorsepro.socratic;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.tomergoldst.tooltips.ToolTip;
 import com.tomergoldst.tooltips.ToolTipsManager;
 import com.uberj.pocketmorsepro.ProgressGradient;
 import com.uberj.pocketmorsepro.R;
@@ -25,6 +24,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -42,6 +42,7 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
     private SocraticTrainingMainScreenViewModel sessionViewModel;
     private SocraticSessionType sessionType;
     private ToolTipsManager mToolTipsManager;
+    private ScrollView detailsContainerScroll;
 
     public static SocraticNumbersScreenFragment newInstance(SocraticSessionType sessionType) {
         SocraticNumbersScreenFragment fragment = new SocraticNumbersScreenFragment();
@@ -75,6 +76,7 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
         TextView detailsTitle = rootView.findViewById(R.id.details_title);
         TextView detailsExplanation = rootView.findViewById(R.id.details_explaination);
         TableLayout detailsContainer = rootView.findViewById(R.id.details_container);
+        detailsContainerScroll = rootView.findViewById(R.id.details_container_scroll);
         sessionViewModel = ViewModelProviders.of(this).get(SocraticTrainingMainScreenViewModel.class);
         sessionViewModel.getLatestSession(sessionType).observe(this, (mostRecentSession) -> {
             double wpmAverage = -1;
@@ -195,6 +197,7 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
             top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
             overallTop5BackgroundShow.setVisibility(View.VISIBLE);
 
+            detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
             setupDataView(
                     Lists.newArrayList(
                             new Column(SYMBOL_COLUMN_NAME, (sa) -> sa.symbol),
@@ -228,6 +231,7 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
             top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
             overallTop5BackgroundShow.setVisibility(View.VISIBLE);
 
+            detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
             setupDataView(
                     Lists.newArrayList(
                             new Column(SYMBOL_COLUMN_NAME, sa -> sa.symbol),
@@ -256,6 +260,7 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
             top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
             overallTop5BackgroundShow.setVisibility(View.VISIBLE);
 
+            detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
             setupDataView(
                     Lists.newArrayList(
                             new Column(SYMBOL_COLUMN_NAME, sa -> sa.symbol),
@@ -285,6 +290,7 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
             top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
             overallTop5BackgroundShow.setVisibility(View.VISIBLE);
 
+            detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
             setupDataView(
                     Lists.newArrayList(
                             new Column(SYMBOL_COLUMN_NAME, sa -> sa.symbol),
@@ -315,6 +321,7 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
             overallTop5BackgroundShow.setVisibility(View.INVISIBLE);
             Joiner on = Joiner.on(", ");
 
+            detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
             setupDataView(
                     Lists.newArrayList(
                             new Column(SYMBOL_COLUMN_NAME, sa -> sa.symbol),
@@ -334,22 +341,6 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
         }
 
         return aDouble.intValue();
-    }
-
-    private int orZero(Integer integer) {
-        if (integer == null) {
-            return 0;
-        }
-
-        return integer;
-    }
-
-    private double orLow(Double aDouble) {
-        if (aDouble == null) {
-            return Integer.MIN_VALUE;
-        }
-
-        return aDouble;
     }
 
     private synchronized void setupDataView(List<Column> columns, TableLayout dataContainer, SocraticUtil.Analysis analysis, Comparator<? super SocraticUtil.SymbolAnalysis> comparitor) {
@@ -393,17 +384,5 @@ public class SocraticNumbersScreenFragment extends Fragment implements View.OnTo
 
     private void setPadding(TextView tv) {
         tv.setPadding(0, 8, 48, 8);
-    }
-
-    private void setupHeader(ViewGroup rootView, TextView tv, Infos header, int tooltipPosition) {
-        tv.setText(header.title);
-        tv.setTextColor(getResources().getColor(R.color.design_default_color_primary_variant, getContext().getTheme()));
-        tv.setOnClickListener(v -> {
-            mToolTipsManager.dismissAll();
-            ToolTip.Builder builder = new ToolTip.Builder(getContext(), tv, rootView, header.info, tooltipPosition);
-            builder.setBackgroundColor(R.color.disabledTextViewGrey);
-            builder.setAlign(ToolTip.ALIGN_LEFT);
-            mToolTipsManager.show(builder.build());
-        });
     }
 }

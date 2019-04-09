@@ -3,6 +3,7 @@ package com.uberj.pocketmorsepro;
 import androidx.fragment.app.FragmentActivity;
 
 import android.graphics.drawable.Drawable;
+import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -237,7 +238,10 @@ public class DynamicKeyboard {
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         button.setLayoutParams(layoutParams);
 
-        button.setOnClickListener(this.buttonOnClickListener);
+        button.setOnClickListener(v -> {
+            button.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
+            buttonOnClickListener.onClick(v);
+        });
         button.setOnLongClickListener(this.buttonLongClickListener);
 
         this.buttonCallback.accept(button, keyConfig);
