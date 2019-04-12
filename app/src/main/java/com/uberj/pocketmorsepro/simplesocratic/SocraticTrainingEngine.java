@@ -1,8 +1,8 @@
-package com.uberj.pocketmorsepro.socratic;
+package com.uberj.pocketmorsepro.simplesocratic;
 
 import com.uberj.pocketmorsepro.AudioManager;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticEngineEvent;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticEngineEvent;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingEngineSettings;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
@@ -79,7 +79,7 @@ public class SocraticTrainingEngine {
                     if (audioThreadKeepAlive) {
                         Timber.d("Playing letter: %s", currentLetter);
                         shortCircuitGuessWait = false;
-                        cwToneManager.playLetter(currentLetter);
+                        cwToneManager.playMessage(currentLetter);
                         events.add(SocraticEngineEvent.letterDonePlaying(currentLetter));
                     }
 
@@ -271,6 +271,6 @@ public class SocraticTrainingEngine {
     }
 
     public void playLetter(String letter) {
-        cwToneManager.playLetter(letter);
+        cwToneManager.playMessage(letter);
     }
 }

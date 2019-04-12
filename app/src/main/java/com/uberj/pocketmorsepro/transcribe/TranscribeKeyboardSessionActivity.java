@@ -29,7 +29,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
 
-import static com.uberj.pocketmorsepro.socratic.SocraticKeyboardSessionActivity.DISABLED_BUTTON_ALPHA;
+import static com.uberj.pocketmorsepro.simplesocratic.SocraticKeyboardSessionActivity.DISABLED_BUTTON_ALPHA;
 
 public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivity implements Keys, DialogInterface.OnDismissListener {
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";

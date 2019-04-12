@@ -1,10 +1,9 @@
-package com.uberj.pocketmorsepro.socratic;
+package com.uberj.pocketmorsepro.simplesocratic;
 
 import android.os.Bundle;
 import android.view.MenuItem;
 
 import com.uberj.pocketmorsepro.R;
-import com.uberj.pocketmorsepro.transcribe.TranscribePreferenceFragment;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;

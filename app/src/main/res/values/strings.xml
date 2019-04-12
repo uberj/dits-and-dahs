@@ -21,4 +21,6 @@
     <string name="setting_transcribe_end_delay_seconds">setting_transcribe_end_delay_seconds</string>
     <string name="setting_socratic_easy_mode">setting_socratic_easy_mode</string>
     <string name="setting_socratic_audio_tone">setting_socratic_audio_tone</string>
+    <string name="random_words_description_what">Learn to recognize common words heard on the air</string>
+    <string name="random_words_description_why">Once you know the letters, the next step is to learn how to recognize the sound of common words.</string>
 </resources>

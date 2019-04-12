@@ -1,4 +1,4 @@
-package com.uberj.pocketmorsepro.socratic.storage;
+package com.uberj.pocketmorsepro.simplesocratic.storage;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;

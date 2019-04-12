@@ -3,11 +3,11 @@ package com.uberj.pocketmorsepro.storage;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.uberj.pocketmorsepro.socratic.storage.SocraticEngineEvent;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettingsDAO;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSession;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSessionDAO;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticEngineEvent;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingEngineSettings;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingEngineSettingsDAO;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingSession;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingSessionDAO;
 import com.uberj.pocketmorsepro.transcribe.storage.TranscribeSessionDAO;
 import com.uberj.pocketmorsepro.transcribe.storage.TranscribeTrainingSession;
 

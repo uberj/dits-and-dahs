@@ -162,14 +162,6 @@ public class AudioManager {
         public double symbolsPerSecond;
     }
 
-    public PCMDetails calcPCMDetails(String s) {
-        String ditDah = LETTER_DEFINITIONS.get(s);
-        if (ditDah == null) {
-            throw new RuntimeException("Unknown letter " + s);
-        }
-        return calcPCMDetails(letterWpm, ditDah);
-    }
-
     private PCMDetails calcPCMDetails(int wpm, String s) {
         // calculate number of symbolAnalysis
         int totalNumSymbols = 0;
@@ -226,10 +218,6 @@ public class AudioManager {
                 throw new RuntimeException("Unhandled silent check for char case " + c);
 
         }
-    }
-
-    public static double baud(int wpm) {
-        return (wpm * 50f) / 60f;
     }
 
     // ditsPerSecond = (wpm * 50 dits) / 60 seconds
@@ -371,9 +359,9 @@ public class AudioManager {
         }
     }
 
-    public void playLetter(String requestedMessage) {
+    public void playMessage(String requestedMessage) {
         Timber.d("Requested message: %s", requestedMessage);
-        String pattern = LETTER_DEFINITIONS.get(requestedMessage.toUpperCase());
+        String pattern = explodeToSymbols(requestedMessage);
         if (pattern == null) {
             throw new RuntimeException("No pattern found for letter: " + requestedMessage);
         }
@@ -392,5 +380,24 @@ public class AudioManager {
             }
         }
 
+    }
+
+    protected static String explodeToSymbols(String requestedMessage) {
+        StringBuilder symbols = new StringBuilder();
+        for (int i = 0; i < requestedMessage.length(); i++) {
+            char c = requestedMessage.charAt(i);
+            String pattern = LETTER_DEFINITIONS.get(String.valueOf(c).toUpperCase());
+            symbols.append(pattern);
+
+            boolean skipLetterSpace =
+                            i == requestedMessage.length() - 1 ||
+                            requestedMessage.charAt(i + 1) == ' ' ||
+                            c == ' ';
+
+            if (!skipLetterSpace) {
+                symbols.append("/");
+            }
+        }
+        return symbols.toString();
     }
 }

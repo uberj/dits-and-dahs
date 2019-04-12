@@ -62,7 +62,7 @@ public class TranscribeTrainingEngine {
                         String currentLetter = nextLetter();
                         Timber.d("Playing letter: '%s'", currentLetter);
                         this.letterPlayedCallback.accept(currentLetter);
-                        audioManager.playLetter(currentLetter);
+                        audioManager.playMessage(currentLetter);
                     }
 
                     // The session is ending soon

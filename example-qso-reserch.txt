@@ -54,3 +54,24 @@ GA -- Good afternoon
 GE -- Good evenging
 TNX -- Thanks
 
+
+General Structure
+=================
+INTRO
+-----
+${CALL_1} CALLS CQ
+${CALL_2} ANSWERS CQ WITH THEIR CALL
+${CALL_1} ACKS ${CALL_2}/GIVES SIGNAL REPORT/GIVES QTH/GIVES NAME/ASKS FOR RESPONSE/${CALL_2} DE ${CALL_1}
+${CALL_2} ACKS ${CALL_1}'s RPT/GIVES SIGNAL REPORT/GIVES QTH/GIVES NAME/${CALL_1} DE ${CALL_2}
+
+EXTRA
+-----
+${CALL_1} ACKS ${CALL_2}/GIVES WEATHER/GIVES RIG INFO/${CALL_2} DE ${CALL_1}
+${CALL_2} ACKS ${CALL_1}/GIVES WEATHER/GIVES RIG INFO/${CALL_2} DE ${CALL_1}
+
+1.Their rig
+2.Their key
+3.Their antenna
+4.Their job
+5.Their other hobbies
+6.Their interests in ham radio.

@@ -2,9 +2,9 @@ package com.uberj.pocketmorsepro.training.abrvandprosign;
 
 import android.app.Activity;
 
-import com.uberj.pocketmorsepro.socratic.SocraticKeyboardSessionActivity;
-import com.uberj.pocketmorsepro.socratic.SocraticStartScreenActivity;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
+import com.uberj.pocketmorsepro.simplesocratic.SocraticKeyboardSessionActivity;
+import com.uberj.pocketmorsepro.simplesocratic.SocraticStartScreenActivity;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticSessionType;
 
 import androidx.fragment.app.DialogFragment;
 

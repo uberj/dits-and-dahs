@@ -46,6 +46,21 @@
         <activity android:name="com.uberj.pocketmorsepro.training.randomletters.RandomLetterSettingsActivity"
             android:screenOrientation="landscape"
             />
+
+        <activity
+            android:name="com.uberj.pocketmorsepro.training.randomwords.RandomWordStartScreenActivity"
+            android:label="Simple Letter Training"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+            android:name="com.uberj.pocketmorsepro.training.randomwords.RandomWordKeyboardSessionActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
+        <activity android:name="com.uberj.pocketmorsepro.training.randomwords.RandomWordSettingsActivity"
+            android:screenOrientation="landscape"
+            />
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="655d414733d000254ed550dbde155f77ed418ec7" />

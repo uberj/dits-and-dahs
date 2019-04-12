@@ -1,4 +1,4 @@
-package com.uberj.pocketmorsepro.socratic.storage;
+package com.uberj.pocketmorsepro.simplesocratic.storage;
 
 import com.uberj.pocketmorsepro.storage.converters.EventTypeConverter;
 

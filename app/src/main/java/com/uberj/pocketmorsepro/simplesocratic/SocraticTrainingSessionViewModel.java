@@ -1,4 +1,4 @@
-package com.uberj.pocketmorsepro.socratic;
+package com.uberj.pocketmorsepro.simplesocratic;
 
 import android.app.Application;
 import android.media.MediaPlayer;
@@ -11,10 +11,10 @@ import com.uberj.pocketmorsepro.CountDownTimer;
 import com.uberj.pocketmorsepro.KochLetterSequence;
 import com.uberj.pocketmorsepro.R;
 import com.uberj.pocketmorsepro.keyboards.Keys;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSession;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingEngineSettings;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingSession;
 import com.uberj.pocketmorsepro.storage.Repository;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticSessionType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 

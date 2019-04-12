@@ -1,6 +1,6 @@
 package com.uberj.pocketmorsepro.storage.converters;
 
-import com.uberj.pocketmorsepro.socratic.storage.SocraticEngineEvent;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticEngineEvent;
 
 import androidx.room.TypeConverter;
 

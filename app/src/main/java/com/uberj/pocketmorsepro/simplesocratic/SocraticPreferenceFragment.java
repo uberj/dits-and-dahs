@@ -1,4 +1,4 @@
-package com.uberj.pocketmorsepro.socratic;
+package com.uberj.pocketmorsepro.simplesocratic;
 
 import android.os.Bundle;
 

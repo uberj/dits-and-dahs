@@ -7,15 +7,15 @@ import androidx.test.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
 
 import com.uberj.pocketmorsepro.TestObserver;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticEngineEvent;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettingsDAO;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSession;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSessionDAO;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticEngineEvent;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticSessionType;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingEngineSettings;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingEngineSettingsDAO;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingSession;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingSessionDAO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSessionWithEvents;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingSessionWithEvents;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;

@@ -1,4 +1,4 @@
-package com.uberj.pocketmorsepro.socratic.storage;
+package com.uberj.pocketmorsepro.simplesocratic.storage;
 
 public enum SocraticSessionType {
     ABBREVIATION_AND_PROSIGN, LETTER_ONLY, LETTER_ONLY_GROUPS

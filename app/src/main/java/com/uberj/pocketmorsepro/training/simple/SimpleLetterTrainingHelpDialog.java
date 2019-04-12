@@ -35,10 +35,10 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 
-import static com.uberj.pocketmorsepro.socratic.SocraticKeyboardSessionActivity.DISABLED_BUTTON_ALPHA;
-import static com.uberj.pocketmorsepro.socratic.SocraticKeyboardSessionActivity.DISABLED_PROGRESS_BAR_ALPHA;
-import static com.uberj.pocketmorsepro.socratic.SocraticKeyboardSessionActivity.ENABLED_BUTTON_ALPHA;
-import static com.uberj.pocketmorsepro.socratic.SocraticKeyboardSessionActivity.ENABLED_PROGRESS_BAR_ALPHA;
+import static com.uberj.pocketmorsepro.simplesocratic.SocraticKeyboardSessionActivity.DISABLED_BUTTON_ALPHA;
+import static com.uberj.pocketmorsepro.simplesocratic.SocraticKeyboardSessionActivity.DISABLED_PROGRESS_BAR_ALPHA;
+import static com.uberj.pocketmorsepro.simplesocratic.SocraticKeyboardSessionActivity.ENABLED_BUTTON_ALPHA;
+import static com.uberj.pocketmorsepro.simplesocratic.SocraticKeyboardSessionActivity.ENABLED_PROGRESS_BAR_ALPHA;
 
 public class SimpleLetterTrainingHelpDialog extends DialogFragment implements NextPrevTabHandler, DismissibleFragment {
     private ViewPager viewPager;

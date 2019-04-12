@@ -1,8 +1,8 @@
-package com.uberj.pocketmorsepro.socratic;
+package com.uberj.pocketmorsepro.simplesocratic;
 
 import com.uberj.pocketmorsepro.R;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingEngineSettings;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingEngineSettings;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticSessionType;
 import com.uberj.pocketmorsepro.training.DialogFragmentProvider;
 
 import androidx.annotation.NonNull;
@@ -28,7 +28,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
-import static com.uberj.pocketmorsepro.socratic.SocraticStartScreenActivity.KEYBOARD_REQUEST_CODE;
+import static com.uberj.pocketmorsepro.simplesocratic.SocraticStartScreenActivity.KEYBOARD_REQUEST_CODE;
 
 
 public class SocraticStartScreenFragment extends Fragment {

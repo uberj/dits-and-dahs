@@ -1,8 +1,8 @@
 package com.uberj.pocketmorsepro.training.abrvandprosign;
 
 import com.uberj.pocketmorsepro.keyboards.Keys;
-import com.uberj.pocketmorsepro.socratic.SocraticKeyboardSessionActivity;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
+import com.uberj.pocketmorsepro.simplesocratic.SocraticKeyboardSessionActivity;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticSessionType;
 
 import androidx.fragment.app.DialogFragment;
 

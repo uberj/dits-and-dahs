@@ -1,11 +1,11 @@
-package com.uberj.pocketmorsepro.socratic;
+package com.uberj.pocketmorsepro.simplesocratic;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.uberj.pocketmorsepro.AudioManager;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticEngineEvent;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSessionWithEvents;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticEngineEvent;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingSessionWithEvents;
 
 import org.apache.commons.lang3.tuple.Pair;
 

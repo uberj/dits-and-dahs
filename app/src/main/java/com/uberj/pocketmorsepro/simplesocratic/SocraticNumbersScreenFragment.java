@@ -1,11 +1,11 @@
-package com.uberj.pocketmorsepro.socratic;
+package com.uberj.pocketmorsepro.simplesocratic;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.uberj.pocketmorsepro.ProgressGradient;
 import com.uberj.pocketmorsepro.R;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticTrainingSessionWithEvents;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticSessionType;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingSessionWithEvents;
 
 import androidx.annotation.NonNull;
 

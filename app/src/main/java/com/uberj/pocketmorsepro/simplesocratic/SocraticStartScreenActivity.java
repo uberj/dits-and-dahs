@@ -1,7 +1,7 @@
-package com.uberj.pocketmorsepro.socratic;
+package com.uberj.pocketmorsepro.simplesocratic;
 
 import com.uberj.pocketmorsepro.R;
-import com.uberj.pocketmorsepro.socratic.storage.SocraticSessionType;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticSessionType;
 import com.uberj.pocketmorsepro.training.DialogFragmentProvider;
 import com.google.android.material.tabs.TabLayout;
 

@@ -1,7 +1,7 @@
 package com.uberj.pocketmorsepro.training.simple;
 
-import com.uberj.pocketmorsepro.socratic.SocraticPreferenceFragment;
-import com.uberj.pocketmorsepro.socratic.SocraticSettingsActivity;
+import com.uberj.pocketmorsepro.simplesocratic.SocraticPreferenceFragment;
+import com.uberj.pocketmorsepro.simplesocratic.SocraticSettingsActivity;
 
 public class SimpleLetterSettingsActivity extends SocraticSettingsActivity {
     @Override
