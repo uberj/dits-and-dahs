@@ -1,6 +1,6 @@
-package com.uberj.pocketmorsepro.simplesocratic.storage;
+package com.uberj.pocketmorsepro.flashcard.storage;
 
-import com.uberj.pocketmorsepro.storage.converters.SocraticEventTypeConverter;
+import com.uberj.pocketmorsepro.storage.converters.FlashcardEventTypeConverter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -10,7 +10,7 @@ import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
 @Entity
-public class SocraticEngineEvent {
+public class FlashcardEngineEvent {
 
     @PrimaryKey(autoGenerate = true)
     public int id;
@@ -18,7 +18,7 @@ public class SocraticEngineEvent {
     public int sessionId;
 
     @Nonnull
-    @TypeConverters(SocraticEventTypeConverter.class)
+    @TypeConverters(FlashcardEventTypeConverter.class)
     public EventType eventType;
 
     @Nonnull
@@ -43,53 +43,53 @@ public class SocraticEngineEvent {
         }
     }
 
-    public static SocraticEngineEvent letterDonePlaying(String currentLetter) {
-        SocraticEngineEvent engineEvent = new SocraticEngineEvent();
+    public static FlashcardEngineEvent letterDonePlaying(String currentLetter) {
+        FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
         engineEvent.eventType = EventType.DONE_PLAYING;
         engineEvent.eventAtEpoc = System.currentTimeMillis();
         engineEvent.info = currentLetter;
         return engineEvent;
     }
 
-    public static SocraticEngineEvent resumed() {
-        SocraticEngineEvent engineEvent = new SocraticEngineEvent();
+    public static FlashcardEngineEvent resumed() {
+        FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
         engineEvent.eventType = EventType.RESUME;
         engineEvent.eventAtEpoc = System.currentTimeMillis();
         return engineEvent;
     }
 
-    public static SocraticEngineEvent paused() {
-        SocraticEngineEvent engineEvent = new SocraticEngineEvent();
+    public static FlashcardEngineEvent paused() {
+        FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
         engineEvent.eventType = EventType.PAUSE;
         engineEvent.eventAtEpoc = System.currentTimeMillis();
         return engineEvent;
     }
 
-    public static SocraticEngineEvent letterChosen(String currentLetter) {
-        SocraticEngineEvent engineEvent = new SocraticEngineEvent();
+    public static FlashcardEngineEvent letterChosen(String currentLetter) {
+        FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
         engineEvent.eventType = EventType.LETTER_CHOSEN;
         engineEvent.eventAtEpoc = System.currentTimeMillis();
         engineEvent.info = currentLetter;
         return engineEvent;
     }
 
-    public static SocraticEngineEvent correctGuess(String currentLetter) {
-        SocraticEngineEvent engineEvent = new SocraticEngineEvent();
+    public static FlashcardEngineEvent correctGuess(String currentLetter) {
+        FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
         engineEvent.eventType = EventType.CORRECT_GUESS;
         engineEvent.eventAtEpoc = System.currentTimeMillis();
         engineEvent.info = currentLetter;
         return engineEvent;
     }
 
-    public static SocraticEngineEvent incorrectGuess(String currentLetter) {
-        SocraticEngineEvent engineEvent = new SocraticEngineEvent();
+    public static FlashcardEngineEvent incorrectGuess(String currentLetter) {
+        FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
         engineEvent.eventType = EventType.INCORRECT_GUESS;
         engineEvent.eventAtEpoc = System.currentTimeMillis();
         engineEvent.info = currentLetter;
         return engineEvent;
     }
-    public static SocraticEngineEvent destroyed() {
-        SocraticEngineEvent engineEvent = new SocraticEngineEvent();
+    public static FlashcardEngineEvent destroyed() {
+        FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
         engineEvent.eventType = EventType.DESTROYED;
         engineEvent.eventAtEpoc = System.currentTimeMillis();
         return engineEvent;

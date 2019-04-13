@@ -11,6 +11,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import android.content.Context;
 
+import com.uberj.pocketmorsepro.flashcard.storage.FlashcardEngineEvent;
+import com.uberj.pocketmorsepro.flashcard.storage.FlashcardTrainingSession;
+import com.uberj.pocketmorsepro.flashcard.storage.FlashcardTrainingSessionDAO;
 import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticEngineEvent;
 import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingEngineSettings;
 import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingEngineSettingsDAO;
@@ -22,11 +25,13 @@ import com.uberj.pocketmorsepro.transcribe.storage.TranscribeSessionDAO;
 import com.uberj.pocketmorsepro.transcribe.storage.TranscribeTrainingSession;
 
 @Database(entities = {
+        FlashcardTrainingSession.class,
+        FlashcardEngineEvent.class,
         SocraticTrainingEngineSettings.class,
         SocraticTrainingSession.class,
         SocraticEngineEvent.class,
         TranscribeTrainingSession.class
-}, version = 2)
+}, version = 3)
 @TypeConverters({
         StringToIntegerMapConverter.class,
         StringListConverter.class
@@ -44,6 +49,7 @@ public abstract class TheDatabase extends RoomDatabase {
     public abstract SocraticTrainingSessionDAO socraticTrainingSessionDAO();
     public abstract SocraticTrainingEngineSettingsDAO socraticEngineSettingsDAO();
     public abstract TranscribeSessionDAO transcribeTrainingSessionDAO();
+    public abstract FlashcardTrainingSessionDAO flashcardTrainingSessionDAO();
     private static TheDatabase INSTANCE;
 
     public static TheDatabase getDatabase(final Context context) {

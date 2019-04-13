@@ -4,7 +4,7 @@ import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticEngineEvent;
 
 import androidx.room.TypeConverter;
 
-public class EventTypeConverter {
+public class SocraticEventTypeConverter {
     @TypeConverter
     public static SocraticEngineEvent.EventType getType(Integer numeral){
         for(SocraticEngineEvent.EventType ds : SocraticEngineEvent.EventType.values()){

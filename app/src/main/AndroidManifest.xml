@@ -48,16 +48,16 @@
             />
 
         <activity
-            android:name="com.uberj.pocketmorsepro.training.randomwords.RandomWordStartScreenActivity"
+            android:name="com.uberj.pocketmorsepro.training.simplewordflashcards.SimpleWordFlashcardStartScreenActivity"
             android:label="Simple Letter Training"
             android:screenOrientation="landscape"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name="com.uberj.pocketmorsepro.training.randomwords.RandomWordKeyboardSessionActivity"
+            android:name="com.uberj.pocketmorsepro.training.simplewordflashcards.SimpleWordFlashcardKeyboardSessionActivity"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
-        <activity android:name="com.uberj.pocketmorsepro.training.randomwords.RandomWordSettingsActivity"
+        <activity android:name="com.uberj.pocketmorsepro.training.simplewordflashcards.SimpleWordFlashcardSettingsActivity"
             android:screenOrientation="landscape"
             />
 

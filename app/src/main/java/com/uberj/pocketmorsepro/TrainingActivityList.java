@@ -7,7 +7,7 @@ import android.os.Bundle;
 
 import com.crashlytics.android.Crashlytics;
 import com.uberj.pocketmorsepro.training.randomletters.RandomLettersStartScreenActivity;
-import com.uberj.pocketmorsepro.training.randomwords.RandomWordStartScreenActivity;
+import com.uberj.pocketmorsepro.training.simplewordflashcards.SimpleWordFlashcardStartScreenActivity;
 import com.uberj.pocketmorsepro.training.simple.SimpleStartScreenActivity;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -63,7 +63,7 @@ public class TrainingActivityList extends Activity {
                 "Random words",
                 R.string.random_words_description_what,
                 R.string.random_words_description_why,
-                new Intent(this, RandomWordStartScreenActivity.class)
+                new Intent(this, SimpleWordFlashcardStartScreenActivity.class)
         );
         trainingActivities.add(random_words);
         mAdapter = new TrainingActivityAdapter(trainingActivities);

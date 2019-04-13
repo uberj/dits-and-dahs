@@ -12,6 +12,8 @@ public class KeyConfig {
     public final KeyType type;
 
     public enum KeyType {
+        SKIP_KEY,
+        AGAIN_KEY,
         LETTER,
         PROSIGN,
         HALF_SPACE,
@@ -48,8 +50,10 @@ public class KeyConfig {
     }
 
     public enum ControlType {
-        SPACE("SPC", 4, SPACE_KEY),
-        DELETE("DEL", 2, DELETE_KEY);
+        SKIP("SKIP", 1, KeyType.SKIP_KEY),
+        AGAIN("AGAIN", 2, KeyType.AGAIN_KEY),
+        SPACE("SPC", 4, KeyType.SPACE_KEY),
+        DELETE("DEL", 2, KeyType.DELETE_KEY);
 
         public final int weight;
         public final String keyName;

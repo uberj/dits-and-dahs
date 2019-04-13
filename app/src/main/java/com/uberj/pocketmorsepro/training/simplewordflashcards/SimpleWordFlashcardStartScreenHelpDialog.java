@@ -1,4 +1,4 @@
-package com.uberj.pocketmorsepro.training.randomwords;
+package com.uberj.pocketmorsepro.training.simplewordflashcards;
 
 import android.app.Dialog;
 import android.os.Bundle;
@@ -13,7 +13,7 @@ import java.util.Objects;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
-public class RandomWordStartScreenHelpDialog extends DialogFragment {
+public class SimpleWordFlashcardStartScreenHelpDialog extends DialogFragment {
 
     @Override
     public void onStart() {
