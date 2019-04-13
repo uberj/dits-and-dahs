@@ -32,10 +32,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity implements DialogInterface.OnDismissListener {
-    public static final String REQUEST_WEIGHTS_RESET = "request-weights-reset";
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
     public static final String WPM_REQUESTED = "wpm-requested";
     public static final String TONE_FREQUENCY_HZ = "tone-frequency-hz";
+    public static final String STRINGS_REQUESTED = "strings-requested";
     private static final String engineMutex = "engineMutex";
     private Menu menu;
 

@@ -1,5 +1,7 @@
 package com.uberj.pocketmorsepro.flashcard.storage;
 
+import java.util.List;
+
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.annotation.NonNull;
@@ -25,5 +27,5 @@ public class FlashcardTrainingSession {
     public String sessionType;
 
     @NonNull
-    public Boolean easyMode;
+    public List<String> cards;
 }

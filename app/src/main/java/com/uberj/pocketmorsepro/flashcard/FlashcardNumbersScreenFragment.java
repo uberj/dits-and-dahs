@@ -73,53 +73,53 @@ public class FlashcardNumbersScreenFragment extends Fragment {
         detailsContainerScroll = rootView.findViewById(R.id.details_container_scroll);
         sessionViewModel = ViewModelProviders.of(this).get(FlashcardTrainingMainScreenViewModel.class);
         sessionViewModel.getLatestSession(sessionType).observe(this, (mostRecentSession) -> {
-            double wpmAverage = -1;
-            double accuracy = -1;
-            long prevDurationMillis = -1;
-            double overallAPBCG = -1;
-            double overallATBCG = -1;
-            double overallIGBCG = -1;
-            if (!mostRecentSession.isEmpty()) {
-                FlashcardTrainingSessionWithEvents s = mostRecentSession.get(0);
-                FlashcardUtil.Analysis analysis = FlashcardUtil.analyseSession(s);
-                wpmAverage = analysis.wpmAverage;
-                accuracy = analysis.overAllAccuracy;
-                prevDurationMillis = s.session.durationWorkedMillis;
-                overallAPBCG = analysis.overallAverageNumberPlaysBeforeCorrectGuess;
-                overallATBCG = analysis.overallAverageSecondsBeforeCorrectGuessSeconds;
-                overallIGBCG = analysis.averageNumberOfIncorrectGuessesBeforeCorrectGuess;
-                detailsContainer.removeAllViews();
-                initDetailsTable(rootView, detailsContainer, detailsTitle, detailsExplanation, analysis);
-            }
-
-            long prevDurationMinutes = (prevDurationMillis / 1000) / 60;
-            long prevDurationSeconds = (prevDurationMillis / 1000) % 60;
-
-            ((TextView) rootView.findViewById(R.id.prev_session_duration_time)).setText(
-                    prevDurationMinutes >= 0 && prevDurationSeconds >= 0 ?
-                            String.format(Locale.ENGLISH, "%02d:%02d", prevDurationMinutes, prevDurationSeconds) :
-                            "N/A"
-            );
-            ((TextView) rootView.findViewById(R.id.prev_session_wpm_average)).setText(
-                    wpmAverage >= 0 ? String.format(Locale.ENGLISH, "%.2f", wpmAverage) : "N/A"
-            );
-            ((TextView) rootView.findViewById(R.id.prev_session_accuracy)).setText(
-                    accuracy >= 0 ? (int) (100 * accuracy) + "%" : "N/A"
-            );
-            ((TextView) rootView.findViewById(R.id.prev_session_overall_atbcg)).setText(
-                    overallATBCG >= 0 ? DECIMAL_STAT_FORMATTER.format(overallATBCG) + " (s)" : "N/A"
-            );
-            ((TextView) rootView.findViewById(R.id.prev_session_overall_apbcg)).setText(
-                    overallAPBCG >= 0 ? DECIMAL_STAT_FORMATTER.format(overallAPBCG) + " plays" : "N/A"
-            );
-
-            ((TextView) rootView.findViewById(R.id.prev_session_overall_igbcg)).setText(
-                    overallAPBCG >= 0 ? DECIMAL_STAT_FORMATTER.format(overallIGBCG) + " guesses" : "N/A"
-            );
-
-            // Init
-            View overallAccuracyBackground = rootView.findViewById(R.id.overall_accuracy_background);
-            overallAccuracyBackground.callOnClick();
+//            double wpmAverage = -1;
+//            double accuracy = -1;
+//            long prevDurationMillis = -1;
+//            double overallAPBCG = -1;
+//            double overallATBCG = -1;
+//            double overallIGBCG = -1;
+//            if (!mostRecentSession.isEmpty()) {
+//                FlashcardTrainingSessionWithEvents s = mostRecentSession.get(0);
+//                FlashcardUtil.Analysis analysis = FlashcardUtil.analyseSession(s);
+//                wpmAverage = analysis.wpmAverage;
+//                accuracy = analysis.overAllAccuracy;
+//                prevDurationMillis = s.session.durationWorkedMillis;
+//                overallAPBCG = analysis.overallAverageNumberPlaysBeforeCorrectGuess;
+//                overallATBCG = analysis.overallAverageSecondsBeforeCorrectGuessSeconds;
+//                overallIGBCG = analysis.averageNumberOfIncorrectGuessesBeforeCorrectGuess;
+//                detailsContainer.removeAllViews();
+//                initDetailsTable(rootView, detailsContainer, detailsTitle, detailsExplanation, analysis);
+//            }
+//
+//            long prevDurationMinutes = (prevDurationMillis / 1000) / 60;
+//            long prevDurationSeconds = (prevDurationMillis / 1000) % 60;
+//
+//            ((TextView) rootView.findViewById(R.id.prev_session_duration_time)).setText(
+//                    prevDurationMinutes >= 0 && prevDurationSeconds >= 0 ?
+//                            String.format(Locale.ENGLISH, "%02d:%02d", prevDurationMinutes, prevDurationSeconds) :
+//                            "N/A"
+//            );
+//            ((TextView) rootView.findViewById(R.id.prev_session_wpm_average)).setText(
+//                    wpmAverage >= 0 ? String.format(Locale.ENGLISH, "%.2f", wpmAverage) : "N/A"
+//            );
+//            ((TextView) rootView.findViewById(R.id.prev_session_accuracy)).setText(
+//                    accuracy >= 0 ? (int) (100 * accuracy) + "%" : "N/A"
+//            );
+//            ((TextView) rootView.findViewById(R.id.prev_session_overall_atbcg)).setText(
+//                    overallATBCG >= 0 ? DECIMAL_STAT_FORMATTER.format(overallATBCG) + " (s)" : "N/A"
+//            );
+//            ((TextView) rootView.findViewById(R.id.prev_session_overall_apbcg)).setText(
+//                    overallAPBCG >= 0 ? DECIMAL_STAT_FORMATTER.format(overallAPBCG) + " plays" : "N/A"
+//            );
+//
+//            ((TextView) rootView.findViewById(R.id.prev_session_overall_igbcg)).setText(
+//                    overallAPBCG >= 0 ? DECIMAL_STAT_FORMATTER.format(overallIGBCG) + " guesses" : "N/A"
+//            );
+//
+//            // Init
+//            View overallAccuracyBackground = rootView.findViewById(R.id.overall_accuracy_background);
+//            overallAccuracyBackground.callOnClick();
         });
 
 

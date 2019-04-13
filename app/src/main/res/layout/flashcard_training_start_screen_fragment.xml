@@ -138,17 +138,24 @@
         app:layout_constraintStart_toStartOf="@+id/guideline17"
         app:layout_constraintTop_toTopOf="@+id/guideline18" />
 
-    <TextView
-        android:id="@+id/selected_strings"
+    <ScrollView
+        android:id="@+id/selected_strings_scroll"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
-        android:text="M, K, N, T"
+        android:maxHeight="100dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline17"
-        app:layout_constraintTop_toBottomOf="@+id/textView15" />
+        app:layout_constraintTop_toBottomOf="@+id/textView15">
+
+        <TextView
+            android:id="@+id/selected_strings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="M, K, N, T" />
+    </ScrollView>
 
     <TextView
         android:id="@+id/change_included_letters"
@@ -161,19 +168,7 @@
         android:textColor="@color/design_default_color_primary_dark"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/guideline17"
-        app:layout_constraintTop_toBottomOf="@+id/selected_strings" />
-
-    <TextView
-        android:id="@+id/suggest-add-letters-help-text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="32dp"
-        android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/guideline17"
-        app:layout_constraintTop_toBottomOf="@+id/change_included_letters" />
+        app:layout_constraintTop_toBottomOf="@+id/selected_strings_scroll" />
 
     <TextView
         android:id="@+id/additional-settings"

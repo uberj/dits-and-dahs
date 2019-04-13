@@ -1,11 +1,15 @@
 package com.uberj.pocketmorsepro.flashcard;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.uberj.pocketmorsepro.R;
 import com.uberj.pocketmorsepro.flashcard.storage.FlashcardSessionType;
+import com.uberj.pocketmorsepro.flashcard.storage.FlashcardTrainingSessionWithEvents;
 import com.uberj.pocketmorsepro.training.DialogFragmentProvider;
 
 import androidx.annotation.NonNull;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -26,17 +30,21 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.uberj.pocketmorsepro.flashcard.FlashcardStartScreenActivity.KEYBOARD_REQUEST_CODE;
 
 
 public class FlashcardStartScreenFragment extends Fragment {
+    private NumberPicker effectivePicker;
     private NumberPicker minutesPicker;
     private NumberPicker wpmPicker;
-    private CheckBox resetLetterWeights;
     private FlashcardTrainingMainScreenViewModel sessionViewModel;
     private Class<? extends FragmentActivity> sessionActivityClass;
     private FlashcardSessionType sessionType;
     private SharedPreferences preferences;
+    private TextView selectedStringsContainer;
 
 
     public static FlashcardStartScreenFragment newInstance(FlashcardSessionType sessionType, Class<? extends FragmentActivity> sessionActivityClass) {
@@ -78,37 +86,109 @@ public class FlashcardStartScreenFragment extends Fragment {
         });
 
 
+        TextView changeLetters = rootView.findViewById(R.id.change_included_letters);
+        changeLetters.setOnClickListener(this::showIncludedLetterPicker);
         PreferenceManager.setDefaultValues(getActivity().getApplicationContext(), R.xml.flashcard_settings, false);
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+        effectivePicker = rootView.findViewById(R.id.effective_wpm_number_picker);
         minutesPicker = rootView.findViewById(R.id.number_picker_minutes);
-        wpmPicker = rootView.findViewById(R.id.wpm_number_picker);
-        resetLetterWeights = rootView.findViewById(R.id.reset_weights);
+        wpmPicker = rootView.findViewById(R.id.letter_wpm_number_picker);
+        selectedStringsContainer = rootView.findViewById(R.id.selected_strings);
         sessionViewModel = ViewModelProviders.of(this).get(FlashcardTrainingMainScreenViewModel.class);
         sessionViewModel.getLatestSession(sessionType).observe(this, (sessionWithEvents) -> {
             int playLetterWPM = preferences.getInt(getResources().getString(R.string.setting_flashcard_letter_wpm), 25);
-            long prevDurationRequestedMillis = -1L;
-            if (playLetterWPM > 0) {
-                wpmPicker.setProgress(playLetterWPM);
+            int effectiveLetterWPM = preferences.getInt(getResources().getString(R.string.setting_flashcard_effective_wpm), 25);
+            int durationMinutes = preferences.getInt(getResources().getString(R.string.setting_flashcard_duration_minutes), 1);
+            wpmPicker.setProgress(playLetterWPM);
+            effectivePicker.setProgress(effectiveLetterWPM);
+            minutesPicker.setProgress(durationMinutes);
+            List<String> prevSelectedLetters;
+            if (!sessionWithEvents.isEmpty()) {
+                FlashcardTrainingSessionWithEvents session = sessionWithEvents.get(0);
+                prevSelectedLetters = session.session.cards;
             } else {
-                wpmPicker.setProgress(20);
+                prevSelectedLetters = getFlashcardActivity().initialSelectedStrings();
             }
 
-            if (prevDurationRequestedMillis > 0) {
-                long prevDurationRequestedMinutes = (prevDurationRequestedMillis / 1000) / 60;
-                minutesPicker.setProgress((int) prevDurationRequestedMinutes);
-            } else {
-                minutesPicker.setProgress(1);
+            sessionViewModel.selectedStrings.setValue(Lists.newArrayList(prevSelectedLetters));
+
+            Button startButton = rootView.findViewById(R.id.start_button);
+            startButton.setOnClickListener(this::handleStartButtonClick);
+        });
+
+        sessionViewModel.selectedStrings.observe(this, (updatedSelectedStrings) -> {
+            if (updatedSelectedStrings == null) {
+                return;
             }
+            sessionViewModel.selectedStringsBooleanMap.setValue(selectedStringsToBooleanMap(updatedSelectedStrings));
+            selectedStringsContainer.setText(Joiner.on(", ").join(updatedSelectedStrings));
         });
 
         TextView additionalSettingsLink = rootView.findViewById(R.id.additional_settings);
         additionalSettingsLink.setOnClickListener(this::launchSettings);
 
-        Button startButton = rootView.findViewById(R.id.start_button);
-        startButton.setOnClickListener(this::handleStartButtonClick);
-
         return rootView;
     }
+
+    private boolean[] selectedStringsToBooleanMap(List<String> selectedLetters) {
+        List<String> possibleStrings = getFlashcardActivity().getPossibleStrings();
+        boolean[] lettersMap = new boolean[possibleStrings.size()];
+        String possible;
+        for (int i = 0; i < possibleStrings.size(); i++) {
+            possible = possibleStrings.get(i);
+            lettersMap[i] = selectedLetters.contains(possible);
+        }
+
+        return lettersMap;
+    }
+
+    private ArrayList<String> booleanMapToSelectedStrings(List<String> possibleStrings, boolean[] selectedStringsBooleanMap) {
+        ArrayList<String> selectedStrings = Lists.newArrayList();
+        for (int i = 0; i < selectedStringsBooleanMap.length; i++) {
+            boolean selected = selectedStringsBooleanMap[i];
+            if (selected) {
+                selectedStrings.add(possibleStrings.get(i));
+            }
+        }
+
+        return selectedStrings;
+    }
+
+    public void showIncludedLetterPicker(View v) {
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());
+        builder.setTitle("Choose which letters to play");
+
+        List<String> possibleStrings = getFlashcardActivity().getPossibleStrings();
+        boolean[] selectedStringsBooleanMap = sessionViewModel.selectedStringsBooleanMap.getValue();
+        builder.setMultiChoiceItems(possibleStrings.toArray(new String[]{}), selectedStringsBooleanMap, (dialog, which, isChecked) -> {
+            // user checked or unchecked a box
+            selectedStringsBooleanMap[which] = isChecked;
+        });
+
+        builder.setNeutralButton("Select All", (dialog, which) -> {
+            for (int i = 0; i < selectedStringsBooleanMap.length; i++) {
+                selectedStringsBooleanMap[i] = true;
+            }
+            sessionViewModel.selectedStrings.setValue(booleanMapToSelectedStrings(getFlashcardActivity().getPossibleStrings(), selectedStringsBooleanMap));
+            sessionViewModel.selectedStringsBooleanMap.setValue(selectedStringsBooleanMap);
+        });
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            // user clicked OK
+            sessionViewModel.selectedStrings.setValue(booleanMapToSelectedStrings(getFlashcardActivity().getPossibleStrings(), selectedStringsBooleanMap));
+            sessionViewModel.selectedStringsBooleanMap.setValue(selectedStringsBooleanMap);
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private FlashcardStartScreenActivity getFlashcardActivity() {
+        return ((FlashcardStartScreenActivity)getActivity());
+    }
+
+
 
     private void handleStartButtonClick(View view) {
         int toneFrequency = preferences.getInt(getResources().getString(R.string.setting_flashcard_audio_tone), 440);
@@ -116,12 +196,14 @@ public class FlashcardStartScreenFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putInt(FlashcardKeyboardSessionActivity.WPM_REQUESTED, wpmPicker.getProgress());
         bundle.putInt(FlashcardKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
-        bundle.putBoolean(FlashcardKeyboardSessionActivity.REQUEST_WEIGHTS_RESET, resetLetterWeights.isChecked());
         bundle.putInt(FlashcardKeyboardSessionActivity.TONE_FREQUENCY_HZ, toneFrequency);
         sendIntent.putExtras(bundle);
         sendIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        bundle.putStringArrayList(
+                FlashcardKeyboardSessionActivity.STRINGS_REQUESTED,
+                sessionViewModel.selectedStrings.getValue()
+        );
         startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);
-        resetLetterWeights.setChecked(false);
     }
 
     private FlashcardStartScreenActivity getSocraticActivity() {

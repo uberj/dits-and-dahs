@@ -32,7 +32,7 @@ public class FlashcardTrainingEngine {
     private String currentMessage;
     private Thread audioThread;
     private Runnable audioLoop;
-    private final List<String> letterOrder;
+    private final List<String> messages;
     public final List<FlashcardEngineEvent> events = Lists.newArrayList();
     private volatile long sleepTime = -1;
     private final Handler guessHandler;
@@ -40,9 +40,9 @@ public class FlashcardTrainingEngine {
     private static final int SUBMIT_GUESS = 100;
     private static final int SKIP = 101;
 
-    public FlashcardTrainingEngine(AudioManager audioManager, List<String> letterOrder, int wpm, List<String> playableMessages) {
+    public FlashcardTrainingEngine(AudioManager audioManager, List<String> messages, int wpm, List<String> playableMessages) {
         this.audioManager = audioManager;
-        this.letterOrder = letterOrder;
+        this.messages = messages;
         this.playableMessages = playableMessages;
         int playLetterWPM = wpm;
         guessSoundHandlerThread = new HandlerThread("GuessSoundHandler", HandlerThread.MAX_PRIORITY);
@@ -78,8 +78,9 @@ public class FlashcardTrainingEngine {
     }
 
     private void chooseDifferentMessage() {
+        // TODO, smartly pick message
+        currentMessage = messages.get(0);
         events.add(FlashcardEngineEvent.letterChosen(currentMessage));
-        throw new RuntimeException("dump");
     }
 
     public void prime() {
@@ -140,19 +141,6 @@ public class FlashcardTrainingEngine {
 
     public boolean isValidGuess(String letter) {
         return playableMessages.contains(letter);
-    }
-
-    public Optional<List<String>> introduceLetter() {
-        int furthestLetterIdx = -1;
-        for (String playableKey : playableMessages) {
-            furthestLetterIdx = Math.max(furthestLetterIdx, letterOrder.indexOf(playableKey));
-        }
-        if (furthestLetterIdx > letterOrder.size()) {
-            return Optional.empty();
-        }
-        String nextLetter = letterOrder.get(furthestLetterIdx + 1);
-        this.playableMessages.add(nextLetter);
-        return Optional.of(this.playableMessages);
     }
 
     public void playLetter(String letter) {

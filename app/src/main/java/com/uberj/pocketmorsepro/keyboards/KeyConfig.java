@@ -12,6 +12,7 @@ public class KeyConfig {
     public final KeyType type;
 
     public enum KeyType {
+        SUBMIT_KEY,
         SKIP_KEY,
         AGAIN_KEY,
         LETTER,
@@ -50,6 +51,7 @@ public class KeyConfig {
     }
 
     public enum ControlType {
+        SUBMIT("SUBMIT", 2, KeyType.SUBMIT_KEY),
         SKIP("SKIP", 1, KeyType.SKIP_KEY),
         AGAIN("AGAIN", 2, KeyType.AGAIN_KEY),
         SPACE("SPC", 4, KeyType.SPACE_KEY),

@@ -1,6 +1,7 @@
 package com.uberj.pocketmorsepro.training.simplewordflashcards;
 
 import com.google.common.collect.ImmutableList;
+import com.uberj.pocketmorsepro.CommonWords;
 import com.uberj.pocketmorsepro.KochLetterSequence;
 import com.uberj.pocketmorsepro.flashcard.FlashcardKeyboardSessionActivity;
 import com.uberj.pocketmorsepro.flashcard.storage.FlashcardSessionType;
@@ -18,7 +19,7 @@ public class SimpleWordFlashcardKeyboardSessionActivity extends FlashcardKeyboar
     @Override
     protected Keys getSessionKeys() {
         return () -> {
-            ImmutableList<ImmutableList<KeyConfig>> baseKeys = KochLetterSequence.keyboard().getKeys();
+            ImmutableList<ImmutableList<KeyConfig>> baseKeys = CommonWords.keyboard().getKeys();
             Optional<Float> firstRowWeightTotal = baseKeys.get(0).stream().map(kc -> kc.weight).reduce((l, r) -> l + r);
             if (!firstRowWeightTotal.isPresent()) throw new AssertionError("No first row weight present");
             ImmutableList.Builder<ImmutableList<KeyConfig>> builder = ImmutableList.builder();
@@ -28,17 +29,18 @@ public class SimpleWordFlashcardKeyboardSessionActivity extends FlashcardKeyboar
                     KeyConfig.s(4), KeyConfig.ctrl(KeyConfig.ControlType.SPACE), KeyConfig.s(2), KeyConfig.ctrl(KeyConfig.ControlType.DELETE)
             );
             ImmutableList<KeyConfig> cardControlRow = ImmutableList.of(
-                    KeyConfig.ctrl(KeyConfig.ControlType.AGAIN), KeyConfig.s(9), KeyConfig.ctrl(KeyConfig.ControlType.SKIP)
+                    KeyConfig.ctrl(KeyConfig.ControlType.AGAIN), KeyConfig.s(7), KeyConfig.ctrl(KeyConfig.ControlType.SKIP), KeyConfig.ctrl(KeyConfig.ControlType.SUBMIT)
             );
             Optional<Float> controlRowWeight = controlRow.stream().map(kc -> kc.weight).reduce((l, r) -> l + r);
             if (!controlRowWeight.isPresent()) throw new AssertionError("Control weight not present");
-            if (!Objects.equals(controlRowWeight.get(), firstRowWeightTotal.get())) throw new AssertionError("No first row weight present");
+            if (!Objects.equals(controlRowWeight.get(), firstRowWeightTotal.get())) throw new AssertionError("Unequal Weights");
 
             Optional<Float> cardControl = cardControlRow.stream().map(kc -> kc.weight).reduce((l, r) -> l + r);
             if (!cardControl.isPresent()) throw new AssertionError("Card control weight not present");
-            if (!Objects.equals(cardControl.get(), firstRowWeightTotal.get())) throw new AssertionError("No first row weight present");
+            if (!Objects.equals(cardControl.get(), firstRowWeightTotal.get())) throw new AssertionError("Unequal Weights");
 
             builder.add(controlRow);
+            builder.add(cardControlRow);
             return builder.build();
         };
     }
