@@ -60,11 +60,11 @@ public class FlashcardUtil {
 
     public static Analysis analyseSession(FlashcardTrainingSessionWithEvents session) {
         Analysis analysis = new Analysis();
-        analysis.symbolAnalysis = buildIndividualSymbolAnalysis(session);
+        analysis.messageAnalysis = buildIndividualCardAnalysis(session);
         double overallAccuracy = 0;
         int totalCorrectGuesses = 0;
         double totalInPlay = 0;
-        for (SymbolAnalysis sa : analysis.symbolAnalysis) {
+        for (SymbolAnalysis sa : analysis.messageAnalysis) {
             if (sa.accuracy == null) {
                 continue;
             }
@@ -75,9 +75,9 @@ public class FlashcardUtil {
 
         analysis.overAllAccuracy = overallAccuracy / totalInPlay;
         analysis.wpmAverage = calcWpmAverage(session, totalCorrectGuesses);
-        analysis.averageNumberOfIncorrectGuessesBeforeCorrectGuess = calcAverageNumberOfIncorrectGuessesBeforeCorrectGuess(analysis.symbolAnalysis);
-        analysis.overallAverageNumberPlaysBeforeCorrectGuess = calcAverageNumberPlaysBeforeCorrectGuess(analysis.symbolAnalysis);
-        analysis.overallAverageSecondsBeforeCorrectGuessSeconds = calcOverallAverageSecondsBeforeCorrectGuessSeconds(analysis.symbolAnalysis);
+        analysis.averageNumberOfIncorrectGuessesBeforeCorrectGuess = calcAverageNumberOfIncorrectGuessesBeforeCorrectGuess(analysis.messageAnalysis);
+        analysis.overallAverageNumberPlaysBeforeCorrectGuess = calcAverageNumberPlaysBeforeCorrectGuess(analysis.messageAnalysis);
+        analysis.overallAverageSecondsBeforeCorrectGuessSeconds = calcOverallAverageSecondsBeforeCorrectGuessSeconds(analysis.messageAnalysis);
 
         return analysis;
     }
@@ -106,13 +106,13 @@ public class FlashcardUtil {
                 .orElse(-1D);
     }
 
-    public static List<SymbolAnalysis> buildIndividualSymbolAnalysis(FlashcardTrainingSessionWithEvents session) {
+    public static List<SymbolAnalysis> buildIndividualCardAnalysis(FlashcardTrainingSessionWithEvents session) {
         List<SymbolAnalysis> l = Lists.newArrayList();
         Map<String, List<List<FlashcardEngineEvent>>> allSegments = parseSegments(session.events);
         for (Map.Entry<String, List<List<FlashcardEngineEvent>>> entry : allSegments.entrySet()) {
             String symbol = entry.getKey();
             SymbolAnalysis sa = new SymbolAnalysis();
-            sa.symbol = symbol;
+            sa.message = symbol;
             List<List<FlashcardEngineEvent>> segments = entry.getValue();
             sa.incorrectGuessesBeforeCorrectGuess = calcICGBCG(skipIncompleteIfNoUserInput(segments));
             sa.averageSecondsBeforeCorrectGuessSeconds = calcASBCG(skipIncompleteSegments(segments));
@@ -192,9 +192,9 @@ public class FlashcardUtil {
         Map<String, List<List<FlashcardEngineEvent>>> output = Maps.newHashMap();
         String currentLetter = null;
         List<FlashcardEngineEvent> currentLetterEvents = Lists.newArrayList();
-        // This loop will segment the event stream by chopping where ever there is a LETTER_CHOSEN event
+        // This loop will segment the event stream by chopping where ever there is a MESSAGE_CHOSEN event
         for (FlashcardEngineEvent event : events) {
-            if (event.eventType == FlashcardEngineEvent.EventType.LETTER_CHOSEN) {
+            if (event.eventType == FlashcardEngineEvent.EventType.MESSAGE_CHOSEN) {
                 if (currentLetter != null) {
                     // Store the current letter's segment we have been tracking
                     if (!output.containsKey(currentLetter)) {
@@ -469,27 +469,24 @@ public class FlashcardUtil {
     }
 
     public static class SymbolAnalysis {
-        public String symbol;
-        public int numberPlays;
+        public String message;
+        public int numberPlays = -1;
+        public int correctGuesses = 0;
         @Nullable
-        public Double averagePlaysBeforeCorrectGuess = null;
+        public Double averagePlaysBeforeCorrect = null;
         @Nullable
-        public Double incorrectGuessesBeforeCorrectGuess;
+        public Double averageSecondsBeforeGuess = null;
         @Nullable
-        public Double averageSecondsBeforeCorrectGuessSeconds = null;
-        public List<String> topFiveIncorrectGuesses;
-        @Nullable
-        public Double accuracy = null;
-        public int chances;
-        public int hits;
+        public Double skipRate = null;
     }
 
     public static class Analysis {
-        public double wpmAverage;
-        public double overAllAccuracy;
-        public List<SymbolAnalysis> symbolAnalysis;
-        public double averageNumberOfIncorrectGuessesBeforeCorrectGuess;
-        public double overallAverageSecondsBeforeCorrectGuessSeconds;
-        public double overallAverageNumberPlaysBeforeCorrectGuess;
+        public int overallCardsShown;
+        public int overallCorrectGuesses;
+        public double overAllSymbolAccuracy;
+        public List<SymbolAnalysis> messageAnalysis;
+        public double overallAverageSecondsBeforeGuess;
+        public double overallSkipRate;
+        public double cardsPlayed;
     }
 }

@@ -59,18 +59,24 @@ public class FlashcardTrainingEngine {
             String guess = (String) message.obj;
             events.add(FlashcardEngineEvent.guessSubmitted(guess));
             chooseDifferentMessage();
-            audioManager.playMessage(currentMessage);
+            playMessage(currentMessage);
+            playMessage(currentMessage);
         } else if (message.what == PLAY_CURRENT_MESSAGE) {
-            audioManager.playMessage(currentMessage);
+            playMessage(currentMessage);
         } else if (message.what == REPEAT) {
-            audioManager.playMessage(currentMessage);
-            events.add(FlashcardEngineEvent.repeat(currentMessage));
+            playMessage(currentMessage);
+            events.add(FlashcardEngineEvent.repeat());
         } else if (message.what == SKIP) {
             chooseDifferentMessage();
-            audioManager.playMessage(currentMessage);
+            playMessage(currentMessage);
             events.add(FlashcardEngineEvent.skip());
         }
         return true;
+    }
+
+    private void playMessage(String currentMessage) {
+        audioManager.playMessage(currentMessage);
+        events.add(FlashcardEngineEvent.messageDonePlaying(currentMessage));
     }
 
     public void skip() {
@@ -89,7 +95,7 @@ public class FlashcardTrainingEngine {
     private void chooseDifferentMessage() {
         // TODO, smartly pick message
         currentMessage = messages.get(r.nextInt(messages.size()));
-        events.add(FlashcardEngineEvent.letterChosen(currentMessage));
+        events.add(FlashcardEngineEvent.messageChosen(currentMessage));
     }
 
     public void prime() {

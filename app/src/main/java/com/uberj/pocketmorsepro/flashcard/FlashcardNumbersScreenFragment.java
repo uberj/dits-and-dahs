@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.uberj.pocketmorsepro.ProgressGradient;
 import com.uberj.pocketmorsepro.R;
 import com.uberj.pocketmorsepro.flashcard.storage.FlashcardSessionType;
-import com.uberj.pocketmorsepro.flashcard.storage.FlashcardTrainingSessionWithEvents;
 
 import androidx.annotation.NonNull;
 
@@ -188,7 +187,7 @@ public class FlashcardNumbersScreenFragment extends Fragment {
             detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
             setupDataView(
                     Lists.newArrayList(
-                            new Column(SYMBOL_COLUMN_NAME, (sa) -> sa.symbol),
+                            new Column(SYMBOL_COLUMN_NAME, (sa) -> sa.message),
                             new Column("Accu. %", (sa) -> sa.accuracy == null ? BLANK_DETAIL : colorized((int) (sa.accuracy * 100))),
                             new Column("Hits/Chances", (sa) -> sa.chances == 0 ? BLANK_DETAIL : String.format(Locale.ENGLISH, "%d/%d", sa.hits, sa.chances))
                     ),
@@ -222,7 +221,7 @@ public class FlashcardNumbersScreenFragment extends Fragment {
             detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
             setupDataView(
                     Lists.newArrayList(
-                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.symbol),
+                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.message),
                             new Column("# of plays", sa -> sa.averagePlaysBeforeCorrectGuess == null ? BLANK_DETAIL : DECIMAL_STAT_FORMATTER.format(sa.averagePlaysBeforeCorrectGuess))
                     ),
                     dataContainer,
@@ -251,7 +250,7 @@ public class FlashcardNumbersScreenFragment extends Fragment {
             detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
             setupDataView(
                     Lists.newArrayList(
-                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.symbol),
+                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.message),
                             new Column("Seconds", sa -> sa.averageSecondsBeforeCorrectGuessSeconds == null ? BLANK_DETAIL : DECIMAL_STAT_FORMATTER.format(sa.averageSecondsBeforeCorrectGuessSeconds))
                     ),
                     dataContainer,
@@ -281,7 +280,7 @@ public class FlashcardNumbersScreenFragment extends Fragment {
             detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
             setupDataView(
                     Lists.newArrayList(
-                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.symbol),
+                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.message),
                             new Column("average wrong guesses", sa -> sa.incorrectGuessesBeforeCorrectGuess == null ? BLANK_DETAIL : DECIMAL_STAT_FORMATTER.format(sa.incorrectGuessesBeforeCorrectGuess))
                     ),
                     dataContainer,
@@ -312,7 +311,7 @@ public class FlashcardNumbersScreenFragment extends Fragment {
             detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
             setupDataView(
                     Lists.newArrayList(
-                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.symbol),
+                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.message),
                             new Column("Top 5", sa -> sa.topFiveIncorrectGuesses.isEmpty() ? BLANK_DETAIL : on.join(sa.topFiveIncorrectGuesses))
                     ),
                     dataContainer,
@@ -346,8 +345,8 @@ public class FlashcardNumbersScreenFragment extends Fragment {
 
         dataContainer.addView(headerRow);
 
-        analysis.symbolAnalysis.sort(comparitor);
-        for (FlashcardUtil.SymbolAnalysis sa : analysis.symbolAnalysis) {
+        analysis.messageAnalysis.sort(comparitor);
+        for (FlashcardUtil.SymbolAnalysis sa : analysis.messageAnalysis) {
             TableRow dataRow = new TableRow(getContext());
             dataRow.setGravity(Gravity.START);
             for (Column column : columns) {

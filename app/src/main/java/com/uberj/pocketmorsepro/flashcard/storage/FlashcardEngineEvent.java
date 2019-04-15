@@ -31,11 +31,11 @@ public class FlashcardEngineEvent {
         DONE_PLAYING(0),
         RESUME(1),
         PAUSE(2),
-        LETTER_CHOSEN(3),
-        CORRECT_GUESS(4),
-        DESTROYED(5),
-        INCORRECT_GUESS(6),
-        GUESS_SUBMITTED(7), REPEAT(8), SKIP(9);
+        MESSAGE_CHOSEN(3),
+        DESTROYED(4),
+        GUESS_SUBMITTED(5),
+        REPEAT(6),
+        SKIP(7);
 
         public final int code;
 
@@ -44,7 +44,7 @@ public class FlashcardEngineEvent {
         }
     }
 
-    public static FlashcardEngineEvent letterDonePlaying(String currentLetter) {
+    public static FlashcardEngineEvent messageDonePlaying(String currentLetter) {
         FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
         engineEvent.eventType = EventType.DONE_PLAYING;
         engineEvent.eventAtEpoc = System.currentTimeMillis();
@@ -66,29 +66,14 @@ public class FlashcardEngineEvent {
         return engineEvent;
     }
 
-    public static FlashcardEngineEvent letterChosen(String currentLetter) {
+    public static FlashcardEngineEvent messageChosen(String currentLetter) {
         FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
-        engineEvent.eventType = EventType.LETTER_CHOSEN;
+        engineEvent.eventType = EventType.MESSAGE_CHOSEN;
         engineEvent.eventAtEpoc = System.currentTimeMillis();
         engineEvent.info = currentLetter;
         return engineEvent;
     }
 
-    public static FlashcardEngineEvent correctGuess(String currentLetter) {
-        FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
-        engineEvent.eventType = EventType.CORRECT_GUESS;
-        engineEvent.eventAtEpoc = System.currentTimeMillis();
-        engineEvent.info = currentLetter;
-        return engineEvent;
-    }
-
-    public static FlashcardEngineEvent incorrectGuess(String currentLetter) {
-        FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
-        engineEvent.eventType = EventType.INCORRECT_GUESS;
-        engineEvent.eventAtEpoc = System.currentTimeMillis();
-        engineEvent.info = currentLetter;
-        return engineEvent;
-    }
     public static FlashcardEngineEvent destroyed() {
         FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
         engineEvent.eventType = EventType.DESTROYED;
@@ -104,7 +89,7 @@ public class FlashcardEngineEvent {
         return engineEvent;
     }
 
-    public static FlashcardEngineEvent repeat(String currentMessage) {
+    public static FlashcardEngineEvent repeat() {
         FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
         engineEvent.eventType = EventType.REPEAT;
         engineEvent.eventAtEpoc = System.currentTimeMillis();
