@@ -2,14 +2,16 @@ package com.uberj.pocketmorsepro.flashcard;
 
 import android.app.Application;
 
+import com.google.common.collect.Lists;
 import com.uberj.pocketmorsepro.AudioManager;
 import com.uberj.pocketmorsepro.CommonWords;
 import com.uberj.pocketmorsepro.CountDownTimer;
-import com.uberj.pocketmorsepro.KochLetterSequence;
 import com.uberj.pocketmorsepro.flashcard.storage.FlashcardSessionType;
 import com.uberj.pocketmorsepro.flashcard.storage.FlashcardTrainingSession;
 import com.uberj.pocketmorsepro.keyboards.Keys;
 import com.uberj.pocketmorsepro.storage.Repository;
+
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -23,6 +25,7 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
     private static final String sessionStartLock = "Lock";
     private final Repository repository;
 
+    public final MutableLiveData<List<String>> transcribedMessage = new MutableLiveData<>(Lists.newArrayList());
     private final int durationMinutesRequested;
     private final long durationRequestedMillis;
     private final int wpmRequested;
@@ -86,7 +89,7 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
     public void primeTheEngine() {
         countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
         audioManager = new AudioManager(wpmRequested, toneFrequency, getApplication().getResources());
-        engine = new FlashcardTrainingEngine(audioManager, CommonWords.sequence, wpmRequested, keys.allPlayableKeysNames());
+        engine = new FlashcardTrainingEngine(audioManager, CommonWords.sequence, keys.allPlayableKeysNames());
         engine.prime();
     }
 

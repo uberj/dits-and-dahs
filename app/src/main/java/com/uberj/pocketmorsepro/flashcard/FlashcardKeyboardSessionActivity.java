@@ -14,22 +14,20 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import com.google.common.base.Joiner;
 import com.uberj.pocketmorsepro.DynamicKeyboard;
-import com.uberj.pocketmorsepro.KochLetterSequence;
-import com.uberj.pocketmorsepro.ProgressGradient;
 import com.uberj.pocketmorsepro.R;
 import com.uberj.pocketmorsepro.flashcard.storage.FlashcardSessionType;
+import com.uberj.pocketmorsepro.keyboards.KeyConfig;
 import com.uberj.pocketmorsepro.keyboards.Keys;
-import com.google.common.collect.Lists;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity implements DialogInterface.OnDismissListener {
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
@@ -39,95 +37,28 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
     private static final String engineMutex = "engineMutex";
     private Menu menu;
 
-    public static final float ENABLED_BUTTON_ALPHA = 1f;
-    public static final float ENABLED_PROGRESS_BAR_ALPHA = 0.75f;
-
-    public static final float DISABLED_BUTTON_ALPHA = 0.35f;
-    public static final float DISABLED_PROGRESS_BAR_ALPHA = 0.25f;
-
     private DynamicKeyboard keyboard;
 
     private FlashcardTrainingSessionViewModel viewModel;
-
-    public static ArrayList<View> getViewsByTag(ViewGroup root, String tag) {
-        ArrayList<View> views = new ArrayList<View>();
-        final int childCount = root.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            final View child = root.getChildAt(i);
-            if (child instanceof ViewGroup) {
-                views.addAll(getViewsByTag((ViewGroup) child, tag));
-            }
-
-            final Object tagObj = child.getTag();
-            if (tagObj != null && tagObj.equals(tag)) {
-                views.add(child);
-            }
-
-        }
-
-        return views;
-    }
-
-    private List<Button> getButtonsTaggedAsPlayable() {
-        View rootView = getWindow().getDecorView().findViewById(android.R.id.content);
-        ArrayList<View> inplay = getViewsByTag((ViewGroup) rootView.getParent(), "inplay");
-        return inplay.stream().map(v -> ((Button) v)).collect(Collectors.toList());
-    }
-
-    private void updateLayoutUsingTheseLetters(List<String> updatedInPlayLetters) {
-        for (Button button : getButtonsTaggedAsPlayable()) {
-            String buttonLetter = button.getText().toString();
-            View progressBar = keyboard.getLetterProgressBar(buttonLetter);
-            if (updatedInPlayLetters.contains(buttonLetter)) {
-                button.setAlpha(ENABLED_BUTTON_ALPHA);
-                progressBar.setAlpha(ENABLED_PROGRESS_BAR_ALPHA);
-            } else {
-                button.setAlpha(DISABLED_BUTTON_ALPHA);
-                progressBar.setAlpha(DISABLED_PROGRESS_BAR_ALPHA);
-                progressBar.setBackgroundColor(ProgressGradient.DISABLED);
-            }
-        }
-    }
+    private EditText transcribeTextArea;
 
     public void keyboardButtonClicked(View v) {
-//        String letter = keyboard.getButtonLetter(v);
-//        if (viewModel.isPaused()) {
-//            viewModel.getEngine().playLetter(letter);
-//            return;
-//        }
-//
-//        if (!viewModel.getEngine().isValidGuess(letter)) {
-//            return;
-//        }
-//
-//        Optional<Boolean> guess = viewModel.getEngine().guess(letter);
-//
-//        guess.ifPresent(wasCorrectGuess -> {
-//            ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
-//            if (!wasCorrectGuess) {
-//                Drawable incorrectDrawable = getResources().getDrawable(R.drawable.incorrect_guess_timer_bar_progress_background, getTheme());
-//                timerProgressBar.setProgressDrawable(incorrectDrawable);
-//                viewModel.playIncorrectSound();
-//            } else {
-//                Drawable correctDrawable = getResources().getDrawable(R.drawable.correct_guess_timer_bar_progress_background, getTheme());
-//                timerProgressBar.setProgressDrawable(correctDrawable);
-//                viewModel.playCorrectSound();
-//            }
-//
-//            TransitionDrawable background = (TransitionDrawable) timerProgressBar.getProgressDrawable();
-//            background.startTransition(0);
-//            background.reverseTransition(500);
-//
-//            viewModel.updateCompetencyWeights(letter, wasCorrectGuess);
-//            updateProgressBarColorForLetter(letter);
-//
-//            synchronized (engineMutex) {
-//                if (viewModel.getEngine().shouldIntroduceNewLetter()) {
-//                    Optional<List<String>> updatedLetters = viewModel.getEngine().introduceLetter();
-//                    updatedLetters.ifPresent(this::updateLayoutUsingTheseLetters);
-//                }
-//            }
-//        });
+        String buttonLetter = keyboard.getButtonLetter(v);
+        Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(buttonLetter);
+        if (controlType.isPresent()) {
+            KeyConfig.ControlType type = controlType.get();
+            if (type.keyName.equals(KeyConfig.ControlType.AGAIN.keyName)) {
+                viewModel.getEngine().repeat();
+            } else if (type.keyName.equals(KeyConfig.ControlType.SKIP.keyName)) {
+                viewModel.getEngine().skip();
+            } else if (type.keyName.equals(KeyConfig.ControlType.SUBMIT.keyName)) {
+                List<String> latestCardInput = FlashcardUtil.findLatestCardInput(viewModel.transcribedMessage.getValue());
+                viewModel.getEngine().submitGuess(Joiner.on("").join(latestCardInput));
+            }
+        }
+        List<String> transcribedStrings = viewModel.transcribedMessage.getValue();
+        transcribedStrings.add(buttonLetter);
+        viewModel.transcribedMessage.setValue(transcribedStrings);
     }
 
 
@@ -177,18 +108,11 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
                 .setButtonOnClickListener(this::keyboardButtonClicked)
                 .setDrawProgressBar(false)
                 .setButtonCallback((button, keyConfig) -> {
-                    if (button instanceof Button) {
-                        String letter = ((Button) button).getText().toString();
-                        button.setAlpha(ENABLED_BUTTON_ALPHA);
-                    }
                 })
                 .setProgressBarCallback((button, progressBar) -> {
-                    progressBar.setBackgroundColor(ProgressGradient.DISABLED);
-                    progressBar.setAlpha(ENABLED_PROGRESS_BAR_ALPHA);
                 })
                 .build();
         keyboard.buildAtRoot();
-        viewModel.startTheEngine();
 
         ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
         viewModel.getDurationRemainingMillis().observe(this, (remainingMillis) -> {
@@ -201,6 +125,19 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
             timerProgressBar.setProgress(progress, true);
         });
 
+        transcribeTextArea = findViewById(R.id.transcribe_text_area);
+        transcribeTextArea.requestFocus();
+        transcribeTextArea.setShowSoftInputOnFocus(false);
+        getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+        viewModel.transcribedMessage.observe(this, (enteredStrings) -> {
+            String message = FlashcardUtil.convertKeyPressesToString(enteredStrings);
+            transcribeTextArea.setText(message);
+            transcribeTextArea.setSelection(transcribeTextArea.getText().length());
+        });
+
+        viewModel.startTheEngine();
     }
 
     protected abstract Keys getSessionKeys();

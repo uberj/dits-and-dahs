@@ -90,4 +90,7 @@
     <item name="progressBarForKeyEQUALS" type="id"/>
     <item name="keyDEL" type="id"/>
     <item name="keySPC" type="id"/>
+    <item name="keySUBMIT" type="id"/>
+    <item name="keySKIP" type="id"/>
+    <item name="keyAGAIN" type="id"/>
 </resources>

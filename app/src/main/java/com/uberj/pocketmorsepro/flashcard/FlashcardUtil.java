@@ -1,17 +1,20 @@
 package com.uberj.pocketmorsepro.flashcard;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.uberj.pocketmorsepro.AudioManager;
 import com.uberj.pocketmorsepro.flashcard.storage.FlashcardEngineEvent;
 import com.uberj.pocketmorsepro.flashcard.storage.FlashcardTrainingSessionWithEvents;
+import com.uberj.pocketmorsepro.keyboards.KeyConfig;
 
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,6 +22,42 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 public class FlashcardUtil {
+
+    protected static List<String> findLatestCardInput(List<String> inputStrings) {
+        List<String> latestGuessInput = Lists.newArrayList();
+        List<String> reversedStrings = Lists.newArrayList(inputStrings);
+        Collections.reverse(reversedStrings);
+        for (String outputString : reversedStrings) {
+            if (outputString.equals(KeyConfig.ControlType.SKIP.keyName) || outputString.equals(KeyConfig.ControlType.SUBMIT.keyName)) {
+                break;
+            }
+            latestGuessInput.add(0, outputString);
+        }
+        return latestGuessInput;
+    }
+
+    public static String convertKeyPressesToString(List<String> enteredStrings) {
+        List<String> stringsToDisplay = Lists.newArrayList();
+        List<String> latestCardInput = findLatestCardInput(enteredStrings);
+        for (String transcribedString : latestCardInput) {
+            Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(transcribedString);
+            if (controlType.isPresent()) {
+                if (controlType.get().equals(KeyConfig.ControlType.DELETE)) {
+                    stringsToDisplay.remove(stringsToDisplay.size() - 1);
+                } else if (controlType.get().equals(KeyConfig.ControlType.SPACE)) {
+                    stringsToDisplay.add(" ");
+                } else if (controlType.get().equals(KeyConfig.ControlType.AGAIN)) {
+                } else if (controlType.get().equals(KeyConfig.ControlType.SUBMIT)) {
+                } else {
+                    throw new RuntimeException("unhandled control eventType " + transcribedString);
+                }
+            } else {
+                stringsToDisplay.add(transcribedString);
+            }
+        }
+        return Joiner.on("").join(stringsToDisplay);
+    }
+
     public static Analysis analyseSession(FlashcardTrainingSessionWithEvents session) {
         Analysis analysis = new Analysis();
         analysis.symbolAnalysis = buildIndividualSymbolAnalysis(session);

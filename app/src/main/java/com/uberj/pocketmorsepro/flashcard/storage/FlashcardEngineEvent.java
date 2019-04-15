@@ -34,7 +34,8 @@ public class FlashcardEngineEvent {
         LETTER_CHOSEN(3),
         CORRECT_GUESS(4),
         DESTROYED(5),
-        INCORRECT_GUESS(6);
+        INCORRECT_GUESS(6),
+        GUESS_SUBMITTED(7), REPEAT(8), SKIP(9);
 
         public final int code;
 
@@ -91,6 +92,28 @@ public class FlashcardEngineEvent {
     public static FlashcardEngineEvent destroyed() {
         FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
         engineEvent.eventType = EventType.DESTROYED;
+        engineEvent.eventAtEpoc = System.currentTimeMillis();
+        return engineEvent;
+    }
+
+    public static FlashcardEngineEvent guessSubmitted(String guess) {
+        FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
+        engineEvent.eventType = EventType.GUESS_SUBMITTED;
+        engineEvent.eventAtEpoc = System.currentTimeMillis();
+        engineEvent.info = guess;
+        return engineEvent;
+    }
+
+    public static FlashcardEngineEvent repeat(String currentMessage) {
+        FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
+        engineEvent.eventType = EventType.REPEAT;
+        engineEvent.eventAtEpoc = System.currentTimeMillis();
+        return engineEvent;
+    }
+
+    public static FlashcardEngineEvent skip() {
+        FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
+        engineEvent.eventType = EventType.SKIP;
         engineEvent.eventAtEpoc = System.currentTimeMillis();
         return engineEvent;
     }

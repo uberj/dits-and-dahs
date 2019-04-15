@@ -9,20 +9,16 @@ import com.google.common.collect.Lists;
 import com.uberj.pocketmorsepro.flashcard.storage.FlashcardEngineEvent;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Random;
 
 
 public class FlashcardTrainingEngine {
-    private static final int MISSED_LETTER_POINTS_REMOVED = 10;
-    private static final int CORRECT_LETTER_POINTS_ADDED = 2;
 
     private static final String guessGate = "guessGate";
     private static final String pauseGate = "pauseGate";
     private static final String easyModePause = "easyModePause";
-    private static final int LETTER_WEIGHT_MAX = 100;
-    private static final int LETTER_WEIGHT_MIN = 0;
-    private static final int INCLUSION_COMPETENCY_CUTOFF_WEIGHT = 50;
 
+    private static final Random r = new Random();
     private final AudioManager audioManager;
     private static volatile boolean audioThreadKeepAlive = true;
     private volatile boolean isPaused = false;
@@ -35,27 +31,44 @@ public class FlashcardTrainingEngine {
     private final List<String> messages;
     public final List<FlashcardEngineEvent> events = Lists.newArrayList();
     private volatile long sleepTime = -1;
-    private final Handler guessHandler;
-    private final HandlerThread guessSoundHandlerThread;
+    private final Handler eventHandler;
+    private final HandlerThread eventHandlerThread;
     private static final int SUBMIT_GUESS = 100;
     private static final int SKIP = 101;
+    private static final int REPEAT = 102;
+    private static final int PLAY_CURRENT_MESSAGE = 103;
 
-    public FlashcardTrainingEngine(AudioManager audioManager, List<String> messages, int wpm, List<String> playableMessages) {
+    public FlashcardTrainingEngine(AudioManager audioManager, List<String> messages, List<String> playableMessages) {
         this.audioManager = audioManager;
         this.messages = messages;
         this.playableMessages = playableMessages;
-        int playLetterWPM = wpm;
-        guessSoundHandlerThread = new HandlerThread("GuessSoundHandler", HandlerThread.MAX_PRIORITY);
-        guessSoundHandlerThread.start();
-        guessHandler = new Handler(guessSoundHandlerThread.getLooper(), this::guessCallBack);
+        eventHandlerThread = new HandlerThread("GuessSoundHandler", HandlerThread.MAX_PRIORITY);
+        eventHandlerThread.start();
+        eventHandler = new Handler(eventHandlerThread.getLooper(), this::eventCallback);
         this.chooseDifferentMessage();
     }
 
-    private boolean guessCallBack(Message message) {
+    public void repeat() {
+        Message msg = new Message();
+        msg.what = REPEAT;
+        eventHandler.sendMessage(msg);
+    }
+
+    private boolean eventCallback(Message message) {
         if (message.what == SUBMIT_GUESS) {
             String guess = (String) message.obj;
+            events.add(FlashcardEngineEvent.guessSubmitted(guess));
+            chooseDifferentMessage();
+            audioManager.playMessage(currentMessage);
+        } else if (message.what == PLAY_CURRENT_MESSAGE) {
+            audioManager.playMessage(currentMessage);
+        } else if (message.what == REPEAT) {
+            audioManager.playMessage(currentMessage);
+            events.add(FlashcardEngineEvent.repeat(currentMessage));
         } else if (message.what == SKIP) {
             chooseDifferentMessage();
+            audioManager.playMessage(currentMessage);
+            events.add(FlashcardEngineEvent.skip());
         }
         return true;
     }
@@ -63,23 +76,19 @@ public class FlashcardTrainingEngine {
     public void skip() {
         Message msg = new Message();
         msg.what = SKIP;
-        guessHandler.sendMessage(msg);
+        eventHandler.sendMessage(msg);
     }
 
     public void submitGuess(String guess) {
         Message msg = new Message();
         msg.obj = guess;
         msg.what = SUBMIT_GUESS;
-        guessHandler.sendMessage(msg);
-    }
-
-    private long getGuessWaitTimeMillis() {
-        return 3000;
+        eventHandler.sendMessage(msg);
     }
 
     private void chooseDifferentMessage() {
         // TODO, smartly pick message
-        currentMessage = messages.get(0);
+        currentMessage = messages.get(r.nextInt(messages.size()));
         events.add(FlashcardEngineEvent.letterChosen(currentMessage));
     }
 
@@ -92,6 +101,7 @@ public class FlashcardTrainingEngine {
         audioThread.start();
         engineIsStarted = true;
         audioThreadKeepAlive = true;
+        eventHandler.sendEmptyMessageDelayed(PLAY_CURRENT_MESSAGE, 500L);
     }
 
     public void destroy() {
@@ -130,17 +140,6 @@ public class FlashcardTrainingEngine {
         synchronized (easyModePause) {
             easyModePause.notifyAll();
         }
-    }
-
-    public void setPlayableMessages(List<String> playableMessages) {
-        this.playableMessages = playableMessages;
-        if (!playableMessages.contains(currentMessage)) {
-            chooseDifferentMessage();
-        }
-    }
-
-    public boolean isValidGuess(String letter) {
-        return playableMessages.contains(letter);
     }
 
     public void playLetter(String letter) {
