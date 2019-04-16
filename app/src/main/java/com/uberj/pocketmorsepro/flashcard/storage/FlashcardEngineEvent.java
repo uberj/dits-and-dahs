@@ -27,15 +27,32 @@ public class FlashcardEngineEvent {
     @Nullable
     public String info;
 
+    public static FlashcardEngineEvent correctGuessSubmitted(String guess) {
+        FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
+        engineEvent.eventType = EventType.CORRECT_GUESS;
+        engineEvent.eventAtEpoc = System.currentTimeMillis();
+        engineEvent.info = guess;
+        return engineEvent;
+    }
+
+    public static FlashcardEngineEvent incorrectGuessSubmitted(String guess) {
+        FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
+        engineEvent.eventType = EventType.INCORRECT_GUESS;
+        engineEvent.eventAtEpoc = System.currentTimeMillis();
+        engineEvent.info = guess;
+        return engineEvent;
+    }
+
     public enum EventType {
         DONE_PLAYING(0),
         RESUME(1),
         PAUSE(2),
         MESSAGE_CHOSEN(3),
         DESTROYED(4),
-        GUESS_SUBMITTED(5),
-        REPEAT(6),
-        SKIP(7);
+        REPEAT(5),
+        SKIP(6),
+        CORRECT_GUESS(7),
+        INCORRECT_GUESS(8);
 
         public final int code;
 
@@ -78,14 +95,6 @@ public class FlashcardEngineEvent {
         FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
         engineEvent.eventType = EventType.DESTROYED;
         engineEvent.eventAtEpoc = System.currentTimeMillis();
-        return engineEvent;
-    }
-
-    public static FlashcardEngineEvent guessSubmitted(String guess) {
-        FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
-        engineEvent.eventType = EventType.GUESS_SUBMITTED;
-        engineEvent.eventAtEpoc = System.currentTimeMillis();
-        engineEvent.info = guess;
         return engineEvent;
     }
 

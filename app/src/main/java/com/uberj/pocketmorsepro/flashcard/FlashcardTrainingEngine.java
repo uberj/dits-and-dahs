@@ -4,11 +4,18 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 
+import com.google.common.collect.Maps;
 import com.uberj.pocketmorsepro.AudioManager;
 import com.google.common.collect.Lists;
 import com.uberj.pocketmorsepro.flashcard.storage.FlashcardEngineEvent;
+import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticEngineEvent;
 
+import org.apache.commons.math3.distribution.EnumeratedDistribution;
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import androidx.lifecycle.MutableLiveData;
@@ -23,6 +30,7 @@ public class FlashcardTrainingEngine {
     private String currentMessage;
     private final List<String> messages;
     public final List<FlashcardEngineEvent> events = Lists.newArrayList();
+    public final Map<String, Integer> competencyWeights;
     private final Handler eventHandler;
     private static final int SUBMIT_GUESS = 100;
     private static final int SKIP = 101;
@@ -33,10 +41,19 @@ public class FlashcardTrainingEngine {
         this.audioManager = audioManager;
         this.messages = messages;
         this.cardsRemaining = durationUnitsRemaining;
-        HandlerThread eventHandlerThread = new HandlerThread("GuessSoundHandler", HandlerThread.MAX_PRIORITY);
+        this.competencyWeights = buildInitialCompetencyWeights(messages);
+        HandlerThread eventHandlerThread = new HandlerThread("GuessHandler", HandlerThread.MAX_PRIORITY);
         eventHandlerThread.start();
         eventHandler = new Handler(eventHandlerThread.getLooper(), this::eventCallback);
         this.chooseDifferentMessage();
+    }
+
+    private Map<String, Integer> buildInitialCompetencyWeights(List<String> messages) {
+        Map<String, Integer> weights = Maps.newConcurrentMap();
+        for (String message : messages) {
+            weights.put(message, 100);
+        }
+        return weights;
     }
 
     public void repeat() {
@@ -48,19 +65,33 @@ public class FlashcardTrainingEngine {
     private boolean eventCallback(Message message) {
         synchronized (eventHandler) {
             if (message.what == SUBMIT_GUESS) {
-                String guess = (String) message.obj;
-                events.add(FlashcardEngineEvent.guessSubmitted(guess));
-                if (cardsRemaining != null) {
-                    cardsRemaining.postValue(cardsRemaining.getValue() - 1);
+                Pair<Boolean, String> obj = (Pair<Boolean, String>) message.obj;
+                Boolean wasCorrect = obj.getLeft();
+                String guess = obj.getRight();
+                if (wasCorrect) {
+                    competencyWeights.compute(currentMessage, (m, v) -> Math.max(1, v - 20));
+                    events.add(FlashcardEngineEvent.correctGuessSubmitted(guess));
+                    if (cardsRemaining != null) {
+                        cardsRemaining.postValue(cardsRemaining.getValue() - 1);
+                    }
+                    audioManager.playCorrectTone();
+                    chooseDifferentMessage();
+                    playMessage(currentMessage);
+                } else {
+                    competencyWeights.compute(currentMessage, (m, v) -> Math.min(100, v + 20));
+                    events.add(FlashcardEngineEvent.incorrectGuessSubmitted(guess));
+                    audioManager.playIncorrectTone();
+                    if (cardsRemaining != null) {
+                        cardsRemaining.postValue(cardsRemaining.getValue() - 1);
+                    }
                 }
-                chooseDifferentMessage();
-                playMessage(currentMessage);
             } else if (message.what == PLAY_CURRENT_MESSAGE) {
                 playMessage(currentMessage);
             } else if (message.what == REPEAT) {
                 playMessage(currentMessage);
                 events.add(FlashcardEngineEvent.repeat());
             } else if (message.what == SKIP) {
+                competencyWeights.compute(currentMessage, (m, v) -> Math.min(100, v + 20));
                 if (cardsRemaining != null) {
                     cardsRemaining.postValue(cardsRemaining.getValue() - 1);
                 }
@@ -83,16 +114,28 @@ public class FlashcardTrainingEngine {
         eventHandler.sendMessage(msg);
     }
 
-    public void submitGuess(String guess) {
+    public boolean submitGuess(String guess) {
         Message msg = new Message();
-        msg.obj = guess;
         msg.what = SUBMIT_GUESS;
+        boolean isCorrect = currentMessage.equals(guess);
+        msg.obj = Pair.of(isCorrect, guess);
         eventHandler.sendMessage(msg);
+        return isCorrect;
+    }
+
+    private List<org.apache.commons.math3.util.Pair<String,Double>> buildPmfCompetencyWeights() {
+        ArrayList<org.apache.commons.math3.util.Pair<String, Double>> pmf = Lists.newArrayList();
+        for (Map.Entry<String, Integer> entry : competencyWeights.entrySet()) {
+            String letter = entry.getKey();
+            int letterWeight = entry.getValue();
+            pmf.add(new org.apache.commons.math3.util.Pair<>(letter, Math.max(1, (double) letterWeight)));
+        }
+        return pmf;
     }
 
     private void chooseDifferentMessage() {
-        // TODO, smartly pick message
-        currentMessage = messages.get(r.nextInt(messages.size()));
+        List<org.apache.commons.math3.util.Pair<String, Double>> pmfCompetencyWeights = buildPmfCompetencyWeights();
+        currentMessage = new EnumeratedDistribution<>(pmfCompetencyWeights).sample();
         events.add(FlashcardEngineEvent.messageChosen(currentMessage));
     }
 

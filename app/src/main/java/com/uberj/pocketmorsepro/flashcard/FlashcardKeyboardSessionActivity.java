@@ -10,7 +10,10 @@ import androidx.lifecycle.ViewModelProviders;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
+import android.text.Editable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,7 +48,8 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
     private String durationUnit;
 
     public void keyboardButtonClicked(View v) {
-        String buttonLetter = keyboard.getButtonLetter(v);
+        String buttonLetter = keyboard.getButtonLetter(v).toUpperCase();
+        String currentGuess = transcribeTextArea.getText().toString();
         Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(buttonLetter);
         if (controlType.isPresent()) {
             KeyConfig.ControlType type = controlType.get();
@@ -54,8 +58,19 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
             } else if (type.keyName.equals(KeyConfig.ControlType.SKIP.keyName)) {
                 viewModel.getEngine().skip();
             } else if (type.keyName.equals(KeyConfig.ControlType.SUBMIT.keyName)) {
-                List<String> latestCardInput = FlashcardUtil.findLatestCardInput(viewModel.transcribedMessage.getValue());
-                viewModel.getEngine().submitGuess(Joiner.on("").join(latestCardInput));
+                boolean wasCorrectGuess = viewModel.getEngine().submitGuess(currentGuess);
+                ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
+                if (!wasCorrectGuess) {
+                    Drawable incorrectDrawable = getResources().getDrawable(R.drawable.incorrect_guess_timer_bar_progress_background, getTheme());
+                    timerProgressBar.setProgressDrawable(incorrectDrawable);
+                } else {
+                    Drawable correctDrawable = getResources().getDrawable(R.drawable.correct_guess_timer_bar_progress_background, getTheme());
+                    timerProgressBar.setProgressDrawable(correctDrawable);
+                }
+
+                TransitionDrawable background = (TransitionDrawable) timerProgressBar.getProgressDrawable();
+                background.startTransition(0);
+                background.reverseTransition(500);
             }
         }
         List<String> transcribedStrings = viewModel.transcribedMessage.getValue();
