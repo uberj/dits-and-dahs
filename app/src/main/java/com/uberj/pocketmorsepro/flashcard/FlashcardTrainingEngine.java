@@ -8,7 +8,6 @@ import com.google.common.collect.Maps;
 import com.uberj.pocketmorsepro.AudioManager;
 import com.google.common.collect.Lists;
 import com.uberj.pocketmorsepro.flashcard.storage.FlashcardEngineEvent;
-import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticEngineEvent;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.lang3.tuple.Pair;

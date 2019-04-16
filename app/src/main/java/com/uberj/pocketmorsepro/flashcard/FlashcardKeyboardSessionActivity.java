@@ -13,7 +13,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
-import android.text.Editable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +21,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
-import com.google.common.base.Joiner;
 import com.uberj.pocketmorsepro.DynamicKeyboard;
 import com.uberj.pocketmorsepro.R;
 import com.uberj.pocketmorsepro.flashcard.storage.FlashcardSessionType;
@@ -158,6 +156,7 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         viewModel.transcribedMessage.observe(this, (enteredStrings) -> {
+            // TODO, disable SUBMIT button when the message is empty
             String message = FlashcardUtil.convertKeyPressesToString(enteredStrings);
             transcribeTextArea.setText(message);
             transcribeTextArea.setSelection(transcribeTextArea.getText().length());
