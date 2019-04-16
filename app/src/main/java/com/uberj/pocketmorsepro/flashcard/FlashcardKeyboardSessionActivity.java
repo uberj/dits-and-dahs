@@ -31,16 +31,18 @@ import java.util.List;
 import java.util.Optional;
 
 public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity implements DialogInterface.OnDismissListener {
-    public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
+    public static final String DURATION_UNITS_REQUESTED = "duration-requested-minutes";
     public static final String WPM_REQUESTED = "wpm-requested";
     public static final String TONE_FREQUENCY_HZ = "tone-frequency-hz";
     public static final String MESSAGES_REQUESTED = "messages-requested";
+    public static final String DURATION_UNIT = "duration-unit";
     private Menu menu;
 
     private DynamicKeyboard keyboard;
 
     private FlashcardTrainingSessionViewModel viewModel;
     private EditText transcribeTextArea;
+    private String durationUnit;
 
     public void keyboardButtonClicked(View v) {
         String buttonLetter = keyboard.getButtonLetter(v);
@@ -84,7 +86,8 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
         keyboardToolbar.inflateMenu(R.menu.socratic_keyboard);
         setSupportActionBar(keyboardToolbar);
 
-        int durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
+        int durationUnitsRequested = receiveBundle.getInt(DURATION_UNITS_REQUESTED, 0);
+        durationUnit = receiveBundle.getString(DURATION_UNIT, "num_cards");
         int wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
         int toneFrequency = receiveBundle.getInt(TONE_FREQUENCY_HZ, 440);
         ArrayList<String> requestedMessages = receiveBundle.getStringArrayList(MESSAGES_REQUESTED);
@@ -93,7 +96,8 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
                 new FlashcardTrainingSessionViewModel.Factory(
                         this.getApplication(),
                         requestedMessages,
-                        durationMinutesRequested,
+                        durationUnitsRequested,
+                        durationUnit,
                         wpmRequested,
                         toneFrequency,
                         getSessionType())
@@ -115,13 +119,20 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
         keyboard.buildAtRoot();
 
         ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
-        viewModel.getDurationRemainingMillis().observe(this, (remainingMillis) -> {
-            if (remainingMillis == 0) {
+        viewModel.getDurationUnitsRemaining().observe(this, (remainingParts) -> {
+            if (remainingParts == 0) {
                 finish();
                 return;
             }
-
-            int progress = Math.round((((float) remainingMillis / (float) viewModel.getDurationRequestedMillis())) * 1000f);
+            int progress;
+            if (durationUnit.equals(FlashcardTrainingSessionViewModel.TIME_LIMITED_SESSION_TYPE)) {
+                float millisRequested = durationUnitsRequested * 60 * 1000;
+                System.out.println("remainingParts: " + remainingParts);
+                System.out.println("durationRequested: " + millisRequested);
+                progress = Math.round(((float) remainingParts / millisRequested) * 1000f);
+            } else {
+                progress = Math.round(((float) remainingParts / (float) durationUnitsRequested) * 1000f);
+            }
             timerProgressBar.setProgress(progress, true);
         });
 
@@ -144,7 +155,7 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        if (viewModel.getDurationRemainingMillis().getValue() != 0) {
+        if (viewModel.getDurationUnitsRemaining().getValue() != 0) {
             viewModel.pause();
 
             // Update UI to indicate paused session. Player will need to manually trigger play to resume
@@ -157,7 +168,7 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
             builder.setMessage("Do you want to end this session?");
             builder.setPositiveButton("Yes", (dialog, which) -> {
                 // Duration always seems to be off by -1s when back is pressed
-                viewModel.setDurationRemainingMillis(viewModel.getDurationRemainingMillis().getValue() - 1000 );
+                viewModel.setDurationUnitsRemainingMillis(viewModel.getDurationUnitsRemaining().getValue() - 1000 );
                 viewModel.prepairShutDown();
                 Intent data = buildResultIntent();
                 setResult(Activity.RESULT_OK, data);
@@ -173,6 +184,9 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        if (!durationUnit.equals(FlashcardTrainingSessionViewModel.TIME_LIMITED_SESSION_TYPE)) {
+            // TODO, ignore the pause/play button
+        }
         this.menu = menu;
         getMenuInflater().inflate(R.menu.socratic_keyboard, menu);
         return super.onCreateOptionsMenu(menu);

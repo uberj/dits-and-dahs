@@ -4,13 +4,8 @@
     xmlns:whatever="http://schemas.android.com/apk/res-auto"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
-    <SwitchPreferenceCompat
-        app:key="@string/setting_socratic_easy_mode"
-        app:defaultValue="true"
-        app:title="Easy Mode"
-        app:summary="Pause after a mistake is made and play an error tone"/>
     <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
-        app:key="@string/setting_socratic_audio_tone"
+        app:key="@string/setting_flashcard_audio_tone"
         app:title="Tone Frequency"
         app:summary="The audio frequency that tones will be played at"
         app:showSeekBarValue="true"
@@ -21,4 +16,12 @@
         whatever:step_floor="10"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+    <ListPreference
+        android:key="@string/setting_flashcard_duration_unit"
+        android:title="Duration Preference"
+        android:summary="%s"
+        android:defaultValue="@string/flashcard_num_cards_option"
+        android:entryValues="@array/flashcard_duration_options"
+        android:entries="@array/flashcard_duration_option_names"
+        />
 </PreferenceScreen>

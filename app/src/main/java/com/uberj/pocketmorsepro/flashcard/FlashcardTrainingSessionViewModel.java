@@ -21,28 +21,31 @@ import androidx.lifecycle.ViewModelProvider;
 import timber.log.Timber;
 
 class FlashcardTrainingSessionViewModel extends AndroidViewModel {
+    public static final String TIME_LIMITED_SESSION_TYPE = "time_limited";
     private static final String sessionStartLock = "Lock";
     private final Repository repository;
 
     public final MutableLiveData<List<String>> transcribedMessage = new MutableLiveData<>(Lists.newArrayList());
-    private final int durationMinutesRequested;
+    private final long durationUnitsRequested;
     private final long durationRequestedMillis;
+    private final String durationUnit;
     private final int wpmRequested;
     private final FlashcardSessionType sessionType;
     private final int toneFrequency;
     private final List<String> requestedMessages;
 
     private CountDownTimer countDownTimer;
-    private final MutableLiveData<Long> durationRemainingMillis = new MutableLiveData<>(-1L);
+    private final MutableLiveData<Long> durationUnitsRemaining = new MutableLiveData<>(-1L);
     private boolean sessiontHasBeenStarted = false;
     private long endTimeEpocMillis = -1;
     private FlashcardTrainingEngine engine;
     private AudioManager audioManager;
 
-    public FlashcardTrainingSessionViewModel(@NonNull Application application, List<String> requestedMessages, int durationMinutesRequested, int wpmRequested, int toneFrequency, FlashcardSessionType sessionType) {
+    public FlashcardTrainingSessionViewModel(@NonNull Application application, List<String> requestedMessages, int durationUnitsRequested, String durationUnit, int wpmRequested, int toneFrequency, FlashcardSessionType sessionType) {
         super(application);
-        this.durationMinutesRequested = durationMinutesRequested;
-        this.durationRequestedMillis = 1000 * (durationMinutesRequested * 60);
+        this.durationUnitsRequested = durationUnitsRequested;
+        this.durationUnit = durationUnit;
+        this.durationRequestedMillis = 1000 * (durationUnitsRequested * 60);
         this.wpmRequested = wpmRequested;
         this.toneFrequency = toneFrequency;
         this.repository = new Repository(application);
@@ -59,17 +62,19 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
 
     public static class Factory implements ViewModelProvider.Factory {
         private final Application application;
-        private final int durationMinutesRequested;
+        private final int durationUnitsRequested;
+        private final String durationUnit;
         private final int wpmRequested;
         private final FlashcardSessionType sessionType;
         private final int toneFrequency;
         private final ArrayList<String> requestedMessages;
 
 
-        public Factory(Application application, ArrayList<String> requestedMessages, int durationMinutesRequested, int wpmRequested, int toneFrequency, FlashcardSessionType sessionType) {
+        public Factory(Application application, ArrayList<String> requestedMessages, int durationUnitsRequested, String durationUnit, int wpmRequested, int toneFrequency, FlashcardSessionType sessionType) {
             this.application = application;
             this.requestedMessages = requestedMessages;
-            this.durationMinutesRequested = durationMinutesRequested;
+            this.durationUnitsRequested = durationUnitsRequested;
+            this.durationUnit = durationUnit;
             this.wpmRequested = wpmRequested;
             this.toneFrequency = toneFrequency;
             this.sessionType = sessionType;
@@ -78,19 +83,28 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
-            return (T) new FlashcardTrainingSessionViewModel(application, requestedMessages, durationMinutesRequested, wpmRequested, toneFrequency, sessionType);
+            return (T) new FlashcardTrainingSessionViewModel(application, requestedMessages, durationUnitsRequested, durationUnit, wpmRequested, toneFrequency, sessionType);
         }
     }
 
-    public long getDurationRequestedMillis() {
-        return durationRequestedMillis;
+    public long getDurationRequested() {
+        if (durationUnit.equals(TIME_LIMITED_SESSION_TYPE)) {
+            return durationRequestedMillis;
+        } else {
+            return -1L;
+        }
     }
 
 
     public void primeTheEngine() {
-        countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
         audioManager = new AudioManager(wpmRequested, toneFrequency, getApplication().getResources());
-        engine = new FlashcardTrainingEngine(audioManager, requestedMessages);
+        if (durationUnit.equals(TIME_LIMITED_SESSION_TYPE)) {
+            countDownTimer = setupCountDownTimer(1000 * (durationUnitsRequested * 60 + 1));
+            engine = new FlashcardTrainingEngine(audioManager, requestedMessages, null);
+        } else {
+            durationUnitsRemaining.setValue(durationUnitsRequested);
+            engine = new FlashcardTrainingEngine(audioManager, requestedMessages, durationUnitsRemaining);
+        }
         engine.prime();
     }
 
@@ -101,7 +115,9 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
                 return;
             }
             engine.start();
-            countDownTimer.start();
+            if (countDownTimer != null) {
+                countDownTimer.start();
+            }
             sessiontHasBeenStarted = true;
         }
     }
@@ -109,11 +125,11 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
     private CountDownTimer setupCountDownTimer(long durationsMillis) {
         return new CountDownTimer(durationsMillis, 50) {
             public void onTick(long millisUntilFinished) {
-                durationRemainingMillis.setValue(millisUntilFinished);
+                durationUnitsRemaining.setValue(millisUntilFinished);
             }
 
             public void onFinish() {
-                durationRemainingMillis.setValue(0l);
+                durationUnitsRemaining.setValue(0l);
             }
         };
     }
@@ -129,17 +145,9 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
         Timber.d("Finishing Session");
         FlashcardTrainingSession trainingSession = new FlashcardTrainingSession();
 
-        if (endTimeEpocMillis < 0) {
-            trainingSession.endTimeEpocMillis = System.currentTimeMillis();
-        } else {
-            trainingSession.endTimeEpocMillis = endTimeEpocMillis;
-        }
-        long durationWorkedMillis = durationRequestedMillis - durationRemainingMillis.getValue();
-
         trainingSession.endTimeEpocMillis = System.currentTimeMillis();
-        trainingSession.durationRequestedMillis = durationRequestedMillis;
-        trainingSession.durationWorkedMillis = durationWorkedMillis;
-        trainingSession.completed = durationWorkedMillis == 0;
+        trainingSession.durationUnitsRequested = durationUnitsRequested;
+        trainingSession.durationUnit = durationUnit;
         trainingSession.sessionType = sessionType.name();
         trainingSession.cards = requestedMessages;
 
@@ -174,14 +182,17 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
     }
 
     public boolean isPaused() {
-        return countDownTimer.isPaused();
+        if (countDownTimer != null) {
+            return countDownTimer.isPaused();
+        }
+        return false;
     }
 
-    public LiveData<Long> getDurationRemainingMillis() {
-        return durationRemainingMillis;
+    public LiveData<Long> getDurationUnitsRemaining() {
+        return durationUnitsRemaining;
     }
 
-    public void setDurationRemainingMillis(long durationRemainingMillis) {
-        this.durationRemainingMillis.setValue(durationRemainingMillis);
+    public void setDurationUnitsRemainingMillis(long durationUnitsRemainingMillis) {
+        this.durationUnitsRemaining.setValue(durationUnitsRemainingMillis);
     }
 }

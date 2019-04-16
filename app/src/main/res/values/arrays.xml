@@ -8,4 +8,15 @@
         <item>800 Hz</item>
         <item>900 Hz</item>
     </string-array>
+    <string-array name="flashcard_duration_options">
+        <item>@string/flashcard_time_limited_option</item>
+        <item>@string/flashcard_num_cards_option</item>
+    </string-array>
+    <!-- Don't change time_limited or num_cards. The strings are hardcoded in the flashcard engine! -->
+    <string name="flashcard_time_limited_option">time_limited</string>
+    <string name="flashcard_num_cards_option">num_cards</string>
+    <string-array name="flashcard_duration_option_names">
+        <item>Time limited</item>
+        <item>Fixed number of cards</item>
+    </string-array>
 </resources>

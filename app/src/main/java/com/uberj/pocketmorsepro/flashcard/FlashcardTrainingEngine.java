@@ -11,10 +11,13 @@ import com.uberj.pocketmorsepro.flashcard.storage.FlashcardEngineEvent;
 import java.util.List;
 import java.util.Random;
 
+import androidx.lifecycle.MutableLiveData;
+
 
 public class FlashcardTrainingEngine {
     private static final Random r = new Random();
     private final AudioManager audioManager;
+    private volatile MutableLiveData<Long> cardsRemaining;
     private volatile boolean isPaused = false;
     private volatile boolean engineIsStarted = false;
     private String currentMessage;
@@ -26,9 +29,10 @@ public class FlashcardTrainingEngine {
     private static final int REPEAT = 102;
     private static final int PLAY_CURRENT_MESSAGE = 103;
 
-    public FlashcardTrainingEngine(AudioManager audioManager, List<String> messages) {
+    public FlashcardTrainingEngine(AudioManager audioManager, List<String> messages, MutableLiveData<Long> durationUnitsRemaining) {
         this.audioManager = audioManager;
         this.messages = messages;
+        this.cardsRemaining = durationUnitsRemaining;
         HandlerThread eventHandlerThread = new HandlerThread("GuessSoundHandler", HandlerThread.MAX_PRIORITY);
         eventHandlerThread.start();
         eventHandler = new Handler(eventHandlerThread.getLooper(), this::eventCallback);
@@ -46,6 +50,9 @@ public class FlashcardTrainingEngine {
             if (message.what == SUBMIT_GUESS) {
                 String guess = (String) message.obj;
                 events.add(FlashcardEngineEvent.guessSubmitted(guess));
+                if (cardsRemaining != null) {
+                    cardsRemaining.postValue(cardsRemaining.getValue() - 1);
+                }
                 chooseDifferentMessage();
                 playMessage(currentMessage);
             } else if (message.what == PLAY_CURRENT_MESSAGE) {
@@ -54,6 +61,9 @@ public class FlashcardTrainingEngine {
                 playMessage(currentMessage);
                 events.add(FlashcardEngineEvent.repeat());
             } else if (message.what == SKIP) {
+                if (cardsRemaining != null) {
+                    cardsRemaining.postValue(cardsRemaining.getValue() - 1);
+                }
                 chooseDifferentMessage();
                 playMessage(currentMessage);
                 events.add(FlashcardEngineEvent.skip());

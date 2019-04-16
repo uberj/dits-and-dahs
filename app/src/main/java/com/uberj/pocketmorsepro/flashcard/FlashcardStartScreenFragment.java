@@ -29,6 +29,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,13 +39,14 @@ import static com.uberj.pocketmorsepro.flashcard.FlashcardStartScreenActivity.KE
 
 public class FlashcardStartScreenFragment extends Fragment {
     private NumberPicker effectivePicker;
-    private NumberPicker minutesPicker;
+    private NumberPicker durationPicker;
     private NumberPicker wpmPicker;
     private FlashcardTrainingMainScreenViewModel sessionViewModel;
     private Class<? extends FragmentActivity> sessionActivityClass;
     private FlashcardSessionType sessionType;
     private SharedPreferences preferences;
     private TextView selectedStringsContainer;
+    private TextView sessionLengthTitle;
 
 
     public static FlashcardStartScreenFragment newInstance(FlashcardSessionType sessionType, Class<? extends FragmentActivity> sessionActivityClass) {
@@ -70,6 +73,12 @@ public class FlashcardStartScreenFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        setupDurationLogic();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             sessionType = FlashcardSessionType.valueOf(savedInstanceState.getString("sessionType"));
@@ -90,17 +99,18 @@ public class FlashcardStartScreenFragment extends Fragment {
         PreferenceManager.setDefaultValues(getActivity().getApplicationContext(), R.xml.flashcard_settings, false);
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
         effectivePicker = rootView.findViewById(R.id.effective_wpm_number_picker);
-        minutesPicker = rootView.findViewById(R.id.number_picker_minutes);
+        durationPicker = rootView.findViewById(R.id.number_picker_duration);
         wpmPicker = rootView.findViewById(R.id.letter_wpm_number_picker);
+        sessionLengthTitle = rootView.findViewById(R.id.session_length);
         selectedStringsContainer = rootView.findViewById(R.id.selected_strings);
         sessionViewModel = ViewModelProviders.of(this).get(FlashcardTrainingMainScreenViewModel.class);
         sessionViewModel.getLatestSession(sessionType).observe(this, (sessionWithEvents) -> {
             int playLetterWPM = preferences.getInt(getResources().getString(R.string.setting_flashcard_letter_wpm), 25);
             int effectiveLetterWPM = preferences.getInt(getResources().getString(R.string.setting_flashcard_effective_wpm), 25);
-            int durationMinutes = preferences.getInt(getResources().getString(R.string.setting_flashcard_duration_minutes), 1);
+            setupDurationLogic();
+
             wpmPicker.setProgress(playLetterWPM);
             effectivePicker.setProgress(effectiveLetterWPM);
-            minutesPicker.setProgress(durationMinutes);
             List<String> prevSelectedLetters;
             if (!sessionWithEvents.isEmpty()) {
                 FlashcardTrainingSessionWithEvents session = sessionWithEvents.get(0);
@@ -126,7 +136,51 @@ public class FlashcardStartScreenFragment extends Fragment {
         TextView additionalSettingsLink = rootView.findViewById(R.id.additional_settings);
         additionalSettingsLink.setOnClickListener(this::launchSettings);
 
+        durationPicker.setNumberPickerChangeListener(new NumberPicker.OnNumberPickerChangeListener() {
+            @Override
+            public void onProgressChanged(@NotNull NumberPicker durationPicker, int effectiveWpm, boolean b) {
+                int durationPickerProgress = durationPicker.getProgress();
+                setDurationUnits(durationPickerProgress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(@NotNull NumberPicker numberPicker) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(@NotNull NumberPicker numberPicker) {
+
+            }
+        });
+
         return rootView;
+    }
+
+    private void setDurationUnits(int progress) {
+        String numCardsDurationUnit = getResources().getString(R.string.flashcard_num_cards_option);
+        String durationUnit = preferences.getString(getResources().getString(R.string.setting_flashcard_duration_unit), numCardsDurationUnit);
+        SharedPreferences.Editor edit = preferences.edit();
+        if (durationUnit.equals(numCardsDurationUnit)) {
+            edit.putInt(getResources().getString(R.string.setting_flashcard_duration_num_cards), progress);
+        } else {
+            edit.putInt(getResources().getString(R.string.setting_flashcard_duration_time_minutes), progress);
+        }
+        edit.apply();
+    }
+
+    private void setupDurationLogic() {
+        String numCardsDurationUnit = getResources().getString(R.string.flashcard_num_cards_option);
+        String durationUnit = preferences.getString(getResources().getString(R.string.setting_flashcard_duration_unit), numCardsDurationUnit);
+        if (durationUnit.equals(numCardsDurationUnit)) {
+            int progress = preferences.getInt(getResources().getString(R.string.setting_flashcard_duration_num_cards), 20);
+            durationPicker.setProgress(progress);
+            sessionLengthTitle.setText("# of words played:");
+        } else {
+            int progress = preferences.getInt(getResources().getString(R.string.setting_flashcard_duration_time_minutes), 5);
+            durationPicker.setProgress(progress);
+            sessionLengthTitle.setText("Duration (minutes):");
+        }
     }
 
     private boolean[] selectedStringsToBooleanMap(List<String> selectedLetters) {
@@ -191,10 +245,13 @@ public class FlashcardStartScreenFragment extends Fragment {
 
     private void handleStartButtonClick(View view) {
         int toneFrequency = preferences.getInt(getResources().getString(R.string.setting_flashcard_audio_tone), 440);
+        String numCardsDurationUnit = getResources().getString(R.string.flashcard_num_cards_option);
+        String durationUnit = preferences.getString(getResources().getString(R.string.setting_flashcard_duration_unit), numCardsDurationUnit);
         Intent sendIntent = new Intent(view.getContext(), sessionActivityClass);
         Bundle bundle = new Bundle();
         bundle.putInt(FlashcardKeyboardSessionActivity.WPM_REQUESTED, wpmPicker.getProgress());
-        bundle.putInt(FlashcardKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
+        bundle.putInt(FlashcardKeyboardSessionActivity.DURATION_UNITS_REQUESTED, durationPicker.getProgress());
+        bundle.putString(FlashcardKeyboardSessionActivity.DURATION_UNIT, durationUnit);
         bundle.putInt(FlashcardKeyboardSessionActivity.TONE_FREQUENCY_HZ, toneFrequency);
         bundle.putStringArrayList(
                 FlashcardKeyboardSessionActivity.MESSAGES_REQUESTED,
