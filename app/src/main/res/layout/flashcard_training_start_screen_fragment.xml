@@ -141,20 +141,21 @@
     <ScrollView
         android:id="@+id/selected_strings_scroll"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
+        android:layout_marginBottom="8dp"
         android:maxHeight="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline17"
-        app:layout_constraintTop_toBottomOf="@+id/textView15">
+        app:layout_constraintTop_toBottomOf="@+id/change_included_letters">
 
         <TextView
             android:id="@+id/selected_strings"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="M, K, N, T" />
+            android:layout_height="wrap_content" />
     </ScrollView>
 
     <TextView
@@ -162,13 +163,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:onClick="changeIncludedLetters"
-        android:text="Choose Messages"
+        android:text="(change)"
         android:textColor="@color/design_default_color_primary_dark"
         android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/guideline17"
-        app:layout_constraintTop_toBottomOf="@+id/selected_strings_scroll" />
+        app:layout_constraintStart_toEndOf="@+id/textView15"
+        app:layout_constraintTop_toTopOf="@+id/guideline18" />
 
     <TextView
         android:id="@+id/additional-settings"

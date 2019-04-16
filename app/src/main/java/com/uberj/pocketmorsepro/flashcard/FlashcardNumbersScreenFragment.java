@@ -152,173 +152,173 @@ public class FlashcardNumbersScreenFragment extends Fragment {
     }
 
     private synchronized void initDetailsTable(ViewGroup rootView, TableLayout dataContainer, TextView detailsTitle, TextView acronymContainer, FlashcardUtil.Analysis analysis) {
-        View overallAccuracyBackground = rootView.findViewById(R.id.overall_accuracy_background);
-        View overallAccuracyBackgroundShow = rootView.findViewById(R.id.show_accuracy_detail);
-        View overallAPBCGBackground = rootView.findViewById(R.id.overall_apbcg_background);
-        View overallAPBCGBackgroundShow = rootView.findViewById(R.id.show_apbcg_detail);
-        View overallATBCGBackground = rootView.findViewById(R.id.overall_atbcg_background);
-        View overallATBCGBackgroundShow = rootView.findViewById(R.id.show_atbcg_detail);
-
-        View overallIGBCGBackground = rootView.findViewById(R.id.overall_igbcg_background);
-        View overallIGBCGBackgroundShow = rootView.findViewById(R.id.show_igbcg_detail);
-
-        View top5Background = rootView.findViewById(R.id.top_five_mistaken_background);
-        View overallTop5BackgroundShow = rootView.findViewById(R.id.show_top5_detail);
-
-        overallAccuracyBackground.setOnClickListener(v -> {
-            acronymContainer.setText(Infos.ACCURACY.info);
-            detailsTitle.setText(Infos.ACCURACY.title);
-
-            overallAccuracyBackground.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
-            overallAccuracyBackgroundShow.setVisibility(View.INVISIBLE);
-
-            overallAPBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallAPBCGBackgroundShow.setVisibility(View.VISIBLE);
-
-            overallATBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallATBCGBackgroundShow.setVisibility(View.VISIBLE);
-
-            overallIGBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallIGBCGBackgroundShow.setVisibility(View.VISIBLE);
-
-            top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallTop5BackgroundShow.setVisibility(View.VISIBLE);
-
-            detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
-            setupDataView(
-                    Lists.newArrayList(
-                            new Column(SYMBOL_COLUMN_NAME, (sa) -> sa.message),
-                            new Column("Accu. %", (sa) -> sa.accuracy == null ? BLANK_DETAIL : colorized((int) (sa.accuracy * 100))),
-                            new Column("Hits/Chances", (sa) -> sa.chances == 0 ? BLANK_DETAIL : String.format(Locale.ENGLISH, "%d/%d", sa.hits, sa.chances))
-                    ),
-                    dataContainer,
-                    analysis,
-                    (a1, a2) -> {
-                        double v1 = a1.accuracy == null || a1.chances == 0 ? Double.MAX_VALUE : a1.accuracy;
-                        double v2 = a2.accuracy == null || a2.chances == 0 ? Double.MAX_VALUE : a2.accuracy;
-                        return (int) (v1 * 1000 - v2 * 1000);
-                    }
-            );
-        });
-        overallAPBCGBackground.setOnClickListener(v -> {
-            acronymContainer.setText(Infos.APBCG.info);
-            detailsTitle.setText(Infos.APBCG.title);
-            overallAccuracyBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallAccuracyBackgroundShow.setVisibility(View.VISIBLE);
-
-            overallAPBCGBackground.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
-            overallAPBCGBackgroundShow.setVisibility(View.INVISIBLE);
-
-            overallATBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallATBCGBackgroundShow.setVisibility(View.VISIBLE);
-
-            overallIGBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallIGBCGBackgroundShow.setVisibility(View.VISIBLE);
-
-            top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallTop5BackgroundShow.setVisibility(View.VISIBLE);
-
-            detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
-            setupDataView(
-                    Lists.newArrayList(
-                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.message),
-                            new Column("# of plays", sa -> sa.averagePlaysBeforeCorrectGuess == null ? BLANK_DETAIL : DECIMAL_STAT_FORMATTER.format(sa.averagePlaysBeforeCorrectGuess))
-                    ),
-                    dataContainer,
-                    analysis,
-                    (a1, a2) -> (int) (orZero(a2.averagePlaysBeforeCorrectGuess) * 1000 - orZero(a1.averagePlaysBeforeCorrectGuess) * 1000)
-            );
-        });
-        overallATBCGBackground.setOnClickListener(v -> {
-            acronymContainer.setText(Infos.ATBCG.info);
-            detailsTitle.setText(Infos.ATBCG.title);
-            overallAccuracyBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallAccuracyBackgroundShow.setVisibility(View.VISIBLE);
-
-            overallAPBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallAPBCGBackgroundShow.setVisibility(View.VISIBLE);
-
-            overallATBCGBackground.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
-            overallATBCGBackgroundShow.setVisibility(View.INVISIBLE);
-
-            overallIGBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallIGBCGBackgroundShow.setVisibility(View.VISIBLE);
-
-            top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallTop5BackgroundShow.setVisibility(View.VISIBLE);
-
-            detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
-            setupDataView(
-                    Lists.newArrayList(
-                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.message),
-                            new Column("Seconds", sa -> sa.averageSecondsBeforeCorrectGuessSeconds == null ? BLANK_DETAIL : DECIMAL_STAT_FORMATTER.format(sa.averageSecondsBeforeCorrectGuessSeconds))
-                    ),
-                    dataContainer,
-                    analysis,
-                    (a1, a2) -> (int) (orZero(a2.averageSecondsBeforeCorrectGuessSeconds) * 1000 - orZero(a1.averageSecondsBeforeCorrectGuessSeconds) * 1000)
-            );
-        });
-
-        overallIGBCGBackground.setOnClickListener(v -> {
-            acronymContainer.setText(Infos.IGBCG.info);
-            detailsTitle.setText(Infos.IGBCG.title);
-            overallAccuracyBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallAccuracyBackgroundShow.setVisibility(View.VISIBLE);
-
-            overallAPBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallAPBCGBackgroundShow.setVisibility(View.VISIBLE);
-
-            overallATBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallATBCGBackgroundShow.setVisibility(View.VISIBLE);
-
-            overallIGBCGBackground.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
-            overallIGBCGBackgroundShow.setVisibility(View.INVISIBLE);
-
-            top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallTop5BackgroundShow.setVisibility(View.VISIBLE);
-
-            detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
-            setupDataView(
-                    Lists.newArrayList(
-                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.message),
-                            new Column("average wrong guesses", sa -> sa.incorrectGuessesBeforeCorrectGuess == null ? BLANK_DETAIL : DECIMAL_STAT_FORMATTER.format(sa.incorrectGuessesBeforeCorrectGuess))
-                    ),
-                    dataContainer,
-                    analysis,
-                    (a1, a2) -> orZero(a2.incorrectGuessesBeforeCorrectGuess) - orZero(a1.incorrectGuessesBeforeCorrectGuess)
-            );
-        });
-
-        top5Background.setOnClickListener(v -> {
-            acronymContainer.setText(Infos.TOP5.info);
-            detailsTitle.setText(Infos.TOP5.title);
-            overallAccuracyBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallAccuracyBackgroundShow.setVisibility(View.VISIBLE);
-
-            overallAPBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallAPBCGBackgroundShow.setVisibility(View.VISIBLE);
-
-            overallATBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallATBCGBackgroundShow.setVisibility(View.VISIBLE);
-
-            overallIGBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
-            overallIGBCGBackgroundShow.setVisibility(View.VISIBLE);
-
-            top5Background.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
-            overallTop5BackgroundShow.setVisibility(View.INVISIBLE);
-            Joiner on = Joiner.on(", ");
-
-            detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
-            setupDataView(
-                    Lists.newArrayList(
-                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.message),
-                            new Column("Top 5", sa -> sa.topFiveIncorrectGuesses.isEmpty() ? BLANK_DETAIL : on.join(sa.topFiveIncorrectGuesses))
-                    ),
-                    dataContainer,
-                    analysis,
-                    (a1, a2) -> a2.topFiveIncorrectGuesses.size() - a1.topFiveIncorrectGuesses.size()
-            );
-        });
+//        View overallAccuracyBackground = rootView.findViewById(R.id.overall_accuracy_background);
+//        View overallAccuracyBackgroundShow = rootView.findViewById(R.id.show_accuracy_detail);
+//        View overallAPBCGBackground = rootView.findViewById(R.id.overall_apbcg_background);
+//        View overallAPBCGBackgroundShow = rootView.findViewById(R.id.show_apbcg_detail);
+//        View overallATBCGBackground = rootView.findViewById(R.id.overall_atbcg_background);
+//        View overallATBCGBackgroundShow = rootView.findViewById(R.id.show_atbcg_detail);
+//
+//        View overallIGBCGBackground = rootView.findViewById(R.id.overall_igbcg_background);
+//        View overallIGBCGBackgroundShow = rootView.findViewById(R.id.show_igbcg_detail);
+//
+//        View top5Background = rootView.findViewById(R.id.top_five_mistaken_background);
+//        View overallTop5BackgroundShow = rootView.findViewById(R.id.show_top5_detail);
+//
+//        overallAccuracyBackground.setOnClickListener(v -> {
+//            acronymContainer.setText(Infos.ACCURACY.info);
+//            detailsTitle.setText(Infos.ACCURACY.title);
+//
+//            overallAccuracyBackground.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
+//            overallAccuracyBackgroundShow.setVisibility(View.INVISIBLE);
+//
+//            overallAPBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallAPBCGBackgroundShow.setVisibility(View.VISIBLE);
+//
+//            overallATBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallATBCGBackgroundShow.setVisibility(View.VISIBLE);
+//
+//            overallIGBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallIGBCGBackgroundShow.setVisibility(View.VISIBLE);
+//
+//            top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallTop5BackgroundShow.setVisibility(View.VISIBLE);
+//
+//            detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
+//            setupDataView(
+//                    Lists.newArrayList(
+//                            new Column(SYMBOL_COLUMN_NAME, (sa) -> sa.message),
+//                            new Column("Accu. %", (sa) -> sa.accuracy == null ? BLANK_DETAIL : colorized((int) (sa.accuracy * 100))),
+//                            new Column("Hits/Chances", (sa) -> sa.chances == 0 ? BLANK_DETAIL : String.format(Locale.ENGLISH, "%d/%d", sa.hits, sa.chances))
+//                    ),
+//                    dataContainer,
+//                    analysis,
+//                    (a1, a2) -> {
+//                        double v1 = a1.accuracy == null || a1.chances == 0 ? Double.MAX_VALUE : a1.accuracy;
+//                        double v2 = a2.accuracy == null || a2.chances == 0 ? Double.MAX_VALUE : a2.accuracy;
+//                        return (int) (v1 * 1000 - v2 * 1000);
+//                    }
+//            );
+//        });
+//        overallAPBCGBackground.setOnClickListener(v -> {
+//            acronymContainer.setText(Infos.APBCG.info);
+//            detailsTitle.setText(Infos.APBCG.title);
+//            overallAccuracyBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallAccuracyBackgroundShow.setVisibility(View.VISIBLE);
+//
+//            overallAPBCGBackground.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
+//            overallAPBCGBackgroundShow.setVisibility(View.INVISIBLE);
+//
+//            overallATBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallATBCGBackgroundShow.setVisibility(View.VISIBLE);
+//
+//            overallIGBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallIGBCGBackgroundShow.setVisibility(View.VISIBLE);
+//
+//            top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallTop5BackgroundShow.setVisibility(View.VISIBLE);
+//
+//            detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
+//            setupDataView(
+//                    Lists.newArrayList(
+//                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.message),
+//                            new Column("# of plays", sa -> sa.averagePlaysBeforeCorrectGuess == null ? BLANK_DETAIL : DECIMAL_STAT_FORMATTER.format(sa.averagePlaysBeforeCorrectGuess))
+//                    ),
+//                    dataContainer,
+//                    analysis,
+//                    (a1, a2) -> (int) (orZero(a2.averagePlaysBeforeCorrectGuess) * 1000 - orZero(a1.averagePlaysBeforeCorrectGuess) * 1000)
+//            );
+//        });
+//        overallATBCGBackground.setOnClickListener(v -> {
+//            acronymContainer.setText(Infos.ATBCG.info);
+//            detailsTitle.setText(Infos.ATBCG.title);
+//            overallAccuracyBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallAccuracyBackgroundShow.setVisibility(View.VISIBLE);
+//
+//            overallAPBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallAPBCGBackgroundShow.setVisibility(View.VISIBLE);
+//
+//            overallATBCGBackground.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
+//            overallATBCGBackgroundShow.setVisibility(View.INVISIBLE);
+//
+//            overallIGBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallIGBCGBackgroundShow.setVisibility(View.VISIBLE);
+//
+//            top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallTop5BackgroundShow.setVisibility(View.VISIBLE);
+//
+//            detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
+//            setupDataView(
+//                    Lists.newArrayList(
+//                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.message),
+//                            new Column("Seconds", sa -> sa.averageSecondsBeforeCorrectGuessSeconds == null ? BLANK_DETAIL : DECIMAL_STAT_FORMATTER.format(sa.averageSecondsBeforeCorrectGuessSeconds))
+//                    ),
+//                    dataContainer,
+//                    analysis,
+//                    (a1, a2) -> (int) (orZero(a2.averageSecondsBeforeCorrectGuessSeconds) * 1000 - orZero(a1.averageSecondsBeforeCorrectGuessSeconds) * 1000)
+//            );
+//        });
+//
+//        overallIGBCGBackground.setOnClickListener(v -> {
+//            acronymContainer.setText(Infos.IGBCG.info);
+//            detailsTitle.setText(Infos.IGBCG.title);
+//            overallAccuracyBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallAccuracyBackgroundShow.setVisibility(View.VISIBLE);
+//
+//            overallAPBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallAPBCGBackgroundShow.setVisibility(View.VISIBLE);
+//
+//            overallATBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallATBCGBackgroundShow.setVisibility(View.VISIBLE);
+//
+//            overallIGBCGBackground.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
+//            overallIGBCGBackgroundShow.setVisibility(View.INVISIBLE);
+//
+//            top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallTop5BackgroundShow.setVisibility(View.VISIBLE);
+//
+//            detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
+//            setupDataView(
+//                    Lists.newArrayList(
+//                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.message),
+//                            new Column("average wrong guesses", sa -> sa.incorrectGuessesBeforeCorrectGuess == null ? BLANK_DETAIL : DECIMAL_STAT_FORMATTER.format(sa.incorrectGuessesBeforeCorrectGuess))
+//                    ),
+//                    dataContainer,
+//                    analysis,
+//                    (a1, a2) -> orZero(a2.incorrectGuessesBeforeCorrectGuess) - orZero(a1.incorrectGuessesBeforeCorrectGuess)
+//            );
+//        });
+//
+//        top5Background.setOnClickListener(v -> {
+//            acronymContainer.setText(Infos.TOP5.info);
+//            detailsTitle.setText(Infos.TOP5.title);
+//            overallAccuracyBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallAccuracyBackgroundShow.setVisibility(View.VISIBLE);
+//
+//            overallAPBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallAPBCGBackgroundShow.setVisibility(View.VISIBLE);
+//
+//            overallATBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallATBCGBackgroundShow.setVisibility(View.VISIBLE);
+//
+//            overallIGBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+//            overallIGBCGBackgroundShow.setVisibility(View.VISIBLE);
+//
+//            top5Background.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
+//            overallTop5BackgroundShow.setVisibility(View.INVISIBLE);
+//            Joiner on = Joiner.on(", ");
+//
+//            detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
+//            setupDataView(
+//                    Lists.newArrayList(
+//                            new Column(SYMBOL_COLUMN_NAME, sa -> sa.message),
+//                            new Column("Top 5", sa -> sa.topFiveIncorrectGuesses.isEmpty() ? BLANK_DETAIL : on.join(sa.topFiveIncorrectGuesses))
+//                    ),
+//                    dataContainer,
+//                    analysis,
+//                    (a1, a2) -> a2.topFiveIncorrectGuesses.size() - a1.topFiveIncorrectGuesses.size()
+//            );
+//        });
 
     }
 

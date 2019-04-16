@@ -26,7 +26,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -197,12 +196,12 @@ public class FlashcardStartScreenFragment extends Fragment {
         bundle.putInt(FlashcardKeyboardSessionActivity.WPM_REQUESTED, wpmPicker.getProgress());
         bundle.putInt(FlashcardKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
         bundle.putInt(FlashcardKeyboardSessionActivity.TONE_FREQUENCY_HZ, toneFrequency);
-        sendIntent.putExtras(bundle);
-        sendIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         bundle.putStringArrayList(
-                FlashcardKeyboardSessionActivity.STRINGS_REQUESTED,
+                FlashcardKeyboardSessionActivity.MESSAGES_REQUESTED,
                 sessionViewModel.selectedStrings.getValue()
         );
+        sendIntent.putExtras(bundle);
+        sendIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);
     }
 

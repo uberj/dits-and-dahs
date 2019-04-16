@@ -4,13 +4,12 @@ import android.app.Application;
 
 import com.google.common.collect.Lists;
 import com.uberj.pocketmorsepro.AudioManager;
-import com.uberj.pocketmorsepro.CommonWords;
 import com.uberj.pocketmorsepro.CountDownTimer;
 import com.uberj.pocketmorsepro.flashcard.storage.FlashcardSessionType;
 import com.uberj.pocketmorsepro.flashcard.storage.FlashcardTrainingSession;
-import com.uberj.pocketmorsepro.keyboards.Keys;
 import com.uberj.pocketmorsepro.storage.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -31,7 +30,7 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
     private final int wpmRequested;
     private final FlashcardSessionType sessionType;
     private final int toneFrequency;
-    private final Keys keys;
+    private final List<String> requestedMessages;
 
     private CountDownTimer countDownTimer;
     private final MutableLiveData<Long> durationRemainingMillis = new MutableLiveData<>(-1L);
@@ -40,7 +39,7 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
     private FlashcardTrainingEngine engine;
     private AudioManager audioManager;
 
-    public FlashcardTrainingSessionViewModel(@NonNull Application application, int durationMinutesRequested, int wpmRequested, int toneFrequency, FlashcardSessionType sessionType, Keys keys) {
+    public FlashcardTrainingSessionViewModel(@NonNull Application application, List<String> requestedMessages, int durationMinutesRequested, int wpmRequested, int toneFrequency, FlashcardSessionType sessionType) {
         super(application);
         this.durationMinutesRequested = durationMinutesRequested;
         this.durationRequestedMillis = 1000 * (durationMinutesRequested * 60);
@@ -48,7 +47,9 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
         this.toneFrequency = toneFrequency;
         this.repository = new Repository(application);
         this.sessionType = sessionType;
-        this.keys = keys;
+        this.requestedMessages = requestedMessages;
+        primeTheEngine();
+        startTheEngine();
     }
 
 
@@ -61,23 +62,23 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
         private final int durationMinutesRequested;
         private final int wpmRequested;
         private final FlashcardSessionType sessionType;
-        private final Keys keys;
         private final int toneFrequency;
+        private final ArrayList<String> requestedMessages;
 
 
-        public Factory(Application application, int durationMinutesRequested, int wpmRequested, int toneFrequency, FlashcardSessionType sessionType, Keys keys) {
+        public Factory(Application application, ArrayList<String> requestedMessages, int durationMinutesRequested, int wpmRequested, int toneFrequency, FlashcardSessionType sessionType) {
             this.application = application;
+            this.requestedMessages = requestedMessages;
             this.durationMinutesRequested = durationMinutesRequested;
             this.wpmRequested = wpmRequested;
             this.toneFrequency = toneFrequency;
             this.sessionType = sessionType;
-            this.keys = keys;
         }
 
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
-            return (T) new FlashcardTrainingSessionViewModel(application, durationMinutesRequested, wpmRequested, toneFrequency, sessionType, keys);
+            return (T) new FlashcardTrainingSessionViewModel(application, requestedMessages, durationMinutesRequested, wpmRequested, toneFrequency, sessionType);
         }
     }
 
@@ -89,7 +90,7 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
     public void primeTheEngine() {
         countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
         audioManager = new AudioManager(wpmRequested, toneFrequency, getApplication().getResources());
-        engine = new FlashcardTrainingEngine(audioManager, CommonWords.sequence, keys.allPlayableKeysNames());
+        engine = new FlashcardTrainingEngine(audioManager, requestedMessages);
         engine.prime();
     }
 
@@ -140,6 +141,7 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
         trainingSession.durationWorkedMillis = durationWorkedMillis;
         trainingSession.completed = durationWorkedMillis == 0;
         trainingSession.sessionType = sessionType.name();
+        trainingSession.cards = requestedMessages;
 
         repository.insertFlashcardTrainingSessionAndEvents(trainingSession, engine.events);
     }

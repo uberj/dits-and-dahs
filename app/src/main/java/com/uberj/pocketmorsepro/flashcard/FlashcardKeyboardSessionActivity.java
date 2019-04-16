@@ -26,6 +26,7 @@ import com.uberj.pocketmorsepro.flashcard.storage.FlashcardSessionType;
 import com.uberj.pocketmorsepro.keyboards.KeyConfig;
 import com.uberj.pocketmorsepro.keyboards.Keys;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,8 +34,7 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
     public static final String WPM_REQUESTED = "wpm-requested";
     public static final String TONE_FREQUENCY_HZ = "tone-frequency-hz";
-    public static final String STRINGS_REQUESTED = "strings-requested";
-    private static final String engineMutex = "engineMutex";
+    public static final String MESSAGES_REQUESTED = "messages-requested";
     private Menu menu;
 
     private DynamicKeyboard keyboard;
@@ -87,18 +87,18 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
         int durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
         int wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
         int toneFrequency = receiveBundle.getInt(TONE_FREQUENCY_HZ, 440);
+        ArrayList<String> requestedMessages = receiveBundle.getStringArrayList(MESSAGES_REQUESTED);
 
         viewModel = ViewModelProviders.of(this,
                 new FlashcardTrainingSessionViewModel.Factory(
                         this.getApplication(),
+                        requestedMessages,
                         durationMinutesRequested,
                         wpmRequested,
                         toneFrequency,
-                        getSessionType(),
-                        getSessionKeys())
+                        getSessionType())
         ).get(FlashcardTrainingSessionViewModel.class);
 
-        viewModel.primeTheEngine();
         Keys sessionKeys = getSessionKeys();
         LinearLayout keyboardContainer = findViewById(R.id.keyboard_base);
         keyboard = new DynamicKeyboard.Builder()
@@ -136,8 +136,6 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
             transcribeTextArea.setText(message);
             transcribeTextArea.setSelection(transcribeTextArea.getText().length());
         });
-
-        viewModel.startTheEngine();
     }
 
     protected abstract Keys getSessionKeys();
