@@ -49,6 +49,7 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
         String buttonLetter = keyboard.getButtonLetter(v).toUpperCase();
         String currentGuess = transcribeTextArea.getText().toString();
         Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(buttonLetter);
+        boolean includeInMessage = true;
         if (controlType.isPresent()) {
             KeyConfig.ControlType type = controlType.get();
             if (type.keyName.equals(KeyConfig.ControlType.AGAIN.keyName)) {
@@ -61,6 +62,7 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
                 if (!wasCorrectGuess) {
                     Drawable incorrectDrawable = getResources().getDrawable(R.drawable.incorrect_guess_timer_bar_progress_background, getTheme());
                     timerProgressBar.setProgressDrawable(incorrectDrawable);
+                    includeInMessage = false;
                 } else {
                     Drawable correctDrawable = getResources().getDrawable(R.drawable.correct_guess_timer_bar_progress_background, getTheme());
                     timerProgressBar.setProgressDrawable(correctDrawable);
@@ -71,9 +73,12 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
                 background.reverseTransition(500);
             }
         }
-        List<String> transcribedStrings = viewModel.transcribedMessage.getValue();
-        transcribedStrings.add(buttonLetter);
-        viewModel.transcribedMessage.setValue(transcribedStrings);
+
+        if (includeInMessage) {
+            List<String> transcribedStrings = viewModel.transcribedMessage.getValue();
+            transcribedStrings.add(buttonLetter);
+            viewModel.transcribedMessage.setValue(transcribedStrings);
+        }
     }
 
 
@@ -140,8 +145,6 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
             int progress;
             if (durationUnit.equals(FlashcardTrainingSessionViewModel.TIME_LIMITED_SESSION_TYPE)) {
                 float millisRequested = durationUnitsRequested * 60 * 1000;
-                System.out.println("remainingParts: " + remainingParts);
-                System.out.println("durationRequested: " + millisRequested);
                 progress = Math.round(((float) remainingParts / millisRequested) * 1000f);
             } else {
                 progress = Math.round(((float) remainingParts / (float) durationUnitsRequested) * 1000f);
@@ -156,10 +159,25 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         viewModel.transcribedMessage.observe(this, (enteredStrings) -> {
-            // TODO, disable SUBMIT button when the message is empty
             String message = FlashcardUtil.convertKeyPressesToString(enteredStrings);
             transcribeTextArea.setText(message);
             transcribeTextArea.setSelection(transcribeTextArea.getText().length());
+            boolean enableSubmit;
+            if (message.isEmpty()) {
+                enableSubmit = false;
+            } else  {
+                enableSubmit = true;
+            }
+            findViewById(R.id.keySUBMIT).setEnabled(enableSubmit);
+
+        });
+        findViewById(R.id.keyDEL).setOnLongClickListener(v -> {
+            List<String> transcribedStrings = viewModel.transcribedMessage.getValue();
+            for (char c : transcribeTextArea.getText().toString().toCharArray()) {
+                transcribedStrings.add("DEL");
+            }
+            viewModel.transcribedMessage.setValue(transcribedStrings);
+            return false;
         });
     }
 

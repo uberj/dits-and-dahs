@@ -68,14 +68,14 @@ public class FlashcardTrainingEngine {
                 Boolean wasCorrect = obj.getLeft();
                 String guess = obj.getRight();
                 if (wasCorrect) {
-                    competencyWeights.compute(currentMessage, (m, v) -> Math.max(1, v - 20));
+                    competencyWeights.compute(currentMessage, (m, v) -> Math.max(10, v - 50));
                     events.add(FlashcardEngineEvent.correctGuessSubmitted(guess));
                     if (cardsRemaining != null) {
                         cardsRemaining.postValue(cardsRemaining.getValue() - 1);
                     }
                     audioManager.playCorrectTone();
                     chooseDifferentMessage();
-                    playMessage(currentMessage);
+                    playMessageAfterDelay();
                 } else {
                     competencyWeights.compute(currentMessage, (m, v) -> Math.min(100, v + 20));
                     events.add(FlashcardEngineEvent.incorrectGuessSubmitted(guess));
@@ -95,11 +95,17 @@ public class FlashcardTrainingEngine {
                     cardsRemaining.postValue(cardsRemaining.getValue() - 1);
                 }
                 chooseDifferentMessage();
-                playMessage(currentMessage);
                 events.add(FlashcardEngineEvent.skip());
+                playMessageAfterDelay();
             }
             return true;
         }
+    }
+
+    private void playMessageAfterDelay() {
+        Message playAgainMsg = new Message();
+        playAgainMsg.what = PLAY_CURRENT_MESSAGE;
+        eventHandler.sendMessageDelayed(playAgainMsg, 500);
     }
 
     private void playMessage(String currentMessage) {
@@ -122,10 +128,14 @@ public class FlashcardTrainingEngine {
         return isCorrect;
     }
 
-    private List<org.apache.commons.math3.util.Pair<String,Double>> buildPmfCompetencyWeights() {
+    private List<org.apache.commons.math3.util.Pair<String,Double>> buildPmfCompetencyWeights(String currentMessage) {
         ArrayList<org.apache.commons.math3.util.Pair<String, Double>> pmf = Lists.newArrayList();
         for (Map.Entry<String, Integer> entry : competencyWeights.entrySet()) {
             String letter = entry.getKey();
+            if (letter.equals(currentMessage)) {
+                // Don't include the current letter in the pmf
+                continue;
+            }
             int letterWeight = entry.getValue();
             pmf.add(new org.apache.commons.math3.util.Pair<>(letter, Math.max(1, (double) letterWeight)));
         }
@@ -133,7 +143,7 @@ public class FlashcardTrainingEngine {
     }
 
     private void chooseDifferentMessage() {
-        List<org.apache.commons.math3.util.Pair<String, Double>> pmfCompetencyWeights = buildPmfCompetencyWeights();
+        List<org.apache.commons.math3.util.Pair<String, Double>> pmfCompetencyWeights = buildPmfCompetencyWeights(currentMessage);
         currentMessage = new EnumeratedDistribution<>(pmfCompetencyWeights).sample();
         events.add(FlashcardEngineEvent.messageChosen(currentMessage));
     }
