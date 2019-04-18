@@ -33,13 +33,13 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Playback WPM: "
+        android:text="First guess accuracy rate:"
         android:visibility="visible"
         app:layout_constraintStart_toStartOf="@+id/guideline10"
         app:layout_constraintTop_toBottomOf="@+id/prev-session-duration-title" />
 
     <TextView
-        android:id="@+id/prev-session-wpm-average"
+        android:id="@+id/prev-session-first-guess-accuracy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -54,13 +54,24 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Overal Accuracy:"
+        android:text="Skip count:"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="@+id/guideline10"
+        app:layout_constraintTop_toBottomOf="@+id/prev-session-num-cards-completed-title" />
+
+    <TextView
+        android:id="@+id/prev-session-num-cards-completed-title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Cards completed:"
         android:visibility="visible"
         app:layout_constraintStart_toStartOf="@+id/guideline10"
         app:layout_constraintTop_toBottomOf="@+id/prev-session-wpm-title" />
 
     <TextView
-        android:id="@+id/prev-session-accuracy"
+        android:id="@+id/prev-session-skip-count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -69,12 +80,22 @@
         app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-accuracy-rate-title"
         app:layout_constraintStart_toStartOf="@+id/guideline17" />
 
+    <TextView
+        android:id="@+id/prev-session-num-cards-completed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="N/A"
+        android:visibility="visible"
+        app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-num-cards-completed-title"
+        app:layout_constraintStart_toStartOf="@+id/guideline17" />
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline17"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.31" />
+        app:layout_constraintGuide_percent="0.62" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline18"
@@ -95,163 +116,12 @@
         app:layout_constraintStart_toStartOf="@+id/guideline10"
         app:layout_constraintTop_toTopOf="@+id/guideline18" />
 
-    <TextView
-        android:id="@+id/stats-title2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Accuracy Breakdown"
-        android:textAllCaps="true"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/guideline10"
-        app:layout_constraintTop_toBottomOf="@+id/prev-session-accuracy" />
-
-    <ScrollView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="24dp"
-        android:background="@drawable/black_border"
-        android:padding="5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.51"
-        app:layout_constraintStart_toStartOf="@+id/guideline9"
-        app:layout_constraintTop_toBottomOf="@+id/correct-color-example">
-
-        <TextView
-            android:id="@+id/transcribe_diff"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp" />
-    </ScrollView>
-
-    <TextView
-        android:id="@+id/transcribe_diff2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:text="Message Analysis"
-        android:textAllCaps="true"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/guideline9"
-        app:layout_constraintTop_toTopOf="@+id/guideline18" />
-
-    <View
-        android:id="@+id/incorrect-add-color-example"
-        android:layout_width="10dp"
-        android:layout_height="10dp"
-        android:layout_marginEnd="24dp"
-        android:background="@color/incorrectAddedCharacterColor"
-        app:layout_constraintBottom_toBottomOf="@+id/incorrect-missed-text"
-        app:layout_constraintEnd_toStartOf="@+id/incorrect-missed-text"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/incorrect-add-text-color"
-        app:layout_constraintTop_toTopOf="@+id/incorrect-missed-text" />
-
-    <View
-        android:id="@+id/incorrect-missed-color-example"
-        android:layout_width="10dp"
-        android:layout_height="10dp"
-        android:layout_marginEnd="24dp"
-        android:background="@color/incorrectMissedCharacterColor"
-        app:layout_constraintBottom_toBottomOf="@+id/incorrect-add-text-color3"
-        app:layout_constraintEnd_toStartOf="@+id/incorrect-add-text-color3"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/incorrect-missed-text"
-        app:layout_constraintTop_toTopOf="@+id/incorrect-add-text-color3" />
-
-    <View
-        android:id="@+id/correct-color-example"
-        android:layout_width="10dp"
-        android:layout_height="10dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/black_border"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/incorrect-add-text-color3"
-        app:layout_constraintTop_toBottomOf="@+id/transcribe_diff2" />
-
-    <TextView
-        android:id="@+id/incorrect-add-text-color"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:text="Added:"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@+id/incorrect-add-color-example"
-        app:layout_constraintEnd_toStartOf="@+id/incorrect-add-color-example"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toStartOf="@+id/guideline9"
-        app:layout_constraintTop_toTopOf="@+id/incorrect-add-color-example" />
-
-    <TextView
-        android:id="@+id/incorrect-missed-text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:text="Missed:"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@+id/incorrect-missed-color-example"
-        app:layout_constraintEnd_toStartOf="@+id/incorrect-missed-color-example"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/incorrect-add-color-example"
-        app:layout_constraintTop_toTopOf="@+id/incorrect-missed-color-example" />
-
-    <TextView
-        android:id="@+id/incorrect-add-text-color3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:text="Correct:"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@+id/correct-color-example"
-        app:layout_constraintEnd_toStartOf="@+id/correct-color-example"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/incorrect-missed-color-example"
-        app:layout_constraintTop_toTopOf="@+id/correct-color-example" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline9"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.54" />
-
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline10"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.103125" />
-
-    <ScrollView
-        android:id="@+id/error-breakdown-container"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/guideline9"
-        app:layout_constraintStart_toStartOf="@+id/guideline10"
-        app:layout_constraintTop_toBottomOf="@+id/stats-title2">
-
-        <TableLayout
-            android:id="@+id/error-breakdown-list-container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </ScrollView>
+        app:layout_constraintGuide_percent="0.33" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

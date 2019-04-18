@@ -60,46 +60,6 @@ public class FlashcardUtil {
         return Joiner.on("").join(stringsToDisplay);
     }
 
-    public static Analysis analyseSession(FlashcardTrainingSessionWithEvents session) {
-        Analysis analysis = new Analysis();
-        analysis.messageAnalysis = buildIndividualCardAnalysis(session);
-        double overallAccuracy = 0;
-        int totalCorrectGuesses = 0;
-        double totalInPlay = 0;
-//        for (SymbolAnalysis sa : analysis.messageAnalysis) {
-//            if (sa.accuracy == null) {
-//                continue;
-//            }
-//            totalInPlay += 1;
-//            overallAccuracy += sa.accuracy;
-//            totalCorrectGuesses += sa.hits;
-//        }
-//
-//
-//        analysis.overAllAccuracy = overallAccuracy / totalInPlay;
-
-        return analysis;
-    }
-
-    public static List<SymbolAnalysis> buildIndividualCardAnalysis(FlashcardTrainingSessionWithEvents session) {
-        List<SymbolAnalysis> l = Lists.newArrayList();
-        Map<String, List<List<FlashcardEngineEvent>>> allSegments = parseSegments(session.events);
-        for (Map.Entry<String, List<List<FlashcardEngineEvent>>> entry : allSegments.entrySet()) {
-            String symbol = entry.getKey();
-            List<List<FlashcardEngineEvent>> segments = entry.getValue();
-            SymbolAnalysis sa = new SymbolAnalysis();
-            sa.message = symbol;
-            sa.numberPlays = segments.size();
-//            sa.correctGuesses = calcCorrectGuesses(segments);
-//            sa.averagePlaysBeforeGuess = calcAveragePlaysBeforeGuess(segments);
-//            sa.averageSecondsBeforeGuess = calcAverageSecondsBeforeGuess(segments);
-//            sa.skipRate = calcSkipRate(segments);
-            l.add(sa);
-        }
-
-        return l;
-    }
-
     protected static Map<String, List<List<FlashcardEngineEvent>>> parseSegments(List<FlashcardEngineEvent> events) {
         Map<String, List<List<FlashcardEngineEvent>>> output = Maps.newHashMap();
         String currentMessage = null;
@@ -160,29 +120,16 @@ public class FlashcardUtil {
         return totalPausedTime;
     }
 
-    private static FlashcardEngineEvent findFirst(FlashcardEngineEvent.EventType eventType, List<FlashcardEngineEvent> events) {
-        for (FlashcardEngineEvent event : events) {
-            if (event.eventType == eventType) {
-                return event;
-            }
+    public static long calcDurationMillis(List<FlashcardEngineEvent> events) {
+        if (events.isEmpty()) {
+            return -1;
         }
 
-        return null;
+        long timePaused = calcTotalTimePaused(events);
+        return events.get(events.size() - 1).eventAtEpoc - events.get(0).eventAtEpoc - timePaused;
     }
 
-    public static class SymbolAnalysis {
-        public String message;
-        public int numberPlays = -1;
-        public int correctGuesses = 0;
-        @Nullable
-        public Double averagePlaysBeforeGuess = null;
-        @Nullable
-        public Double averageSecondsBeforeGuess = null;
-        @Nullable
-        public Double skipRate = null;
-    }
-
-    public static class Analysis {
-        public List<SymbolAnalysis> messageAnalysis;
+    public static int calcNumCardsCompleted(List<FlashcardEngineEvent> events) {
+        return (int) events.stream().filter(e -> e.eventType == FlashcardEngineEvent.EventType.CORRECT_GUESS).count();
     }
 }
