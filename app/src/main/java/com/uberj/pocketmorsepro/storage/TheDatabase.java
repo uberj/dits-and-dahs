@@ -46,6 +46,12 @@ public abstract class TheDatabase extends RoomDatabase {
         }
     };
 
+    public static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+        }
+    };
+
     public abstract SocraticTrainingSessionDAO socraticTrainingSessionDAO();
     public abstract SocraticTrainingEngineSettingsDAO socraticEngineSettingsDAO();
     public abstract TranscribeSessionDAO transcribeTrainingSessionDAO();
@@ -58,6 +64,7 @@ public abstract class TheDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(), TheDatabase.class, THE_DATABASE_NAME)
                             .addMigrations(MIGRATION_1_2)
+                            .addMigrations(MIGRATION_2_3)
                             .build();
                 }
             }
