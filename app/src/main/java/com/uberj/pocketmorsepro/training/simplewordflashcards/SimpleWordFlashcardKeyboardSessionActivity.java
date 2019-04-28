@@ -52,6 +52,6 @@ public class SimpleWordFlashcardKeyboardSessionActivity extends FlashcardKeyboar
 
     @Override
     protected DialogFragment getHelpDialog() {
-        return new SimpleWordFlashcardStartScreenHelpDialog();
+        return new SimpleWordFlashcardKeyboardSessionHelpDialog();
     }
 }

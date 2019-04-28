@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Pocket Morse Pro</string>
+    <string name="app_name">Dits &amp; Dahs</string>
     <string name="action_settings">Settings</string>
 
     <string name="random_letters_description_what">Learn to copy groups of random characters</string>
