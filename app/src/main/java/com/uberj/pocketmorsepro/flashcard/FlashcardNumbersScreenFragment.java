@@ -80,6 +80,8 @@ public class FlashcardNumbersScreenFragment extends Fragment {
                 FlashcardTrainingSessionWithEvents s = mostRecentSession.get(0);
                 durationUnits = FlashcardUtil.calcDurationMillis(s.events);
                 numberCardsCompleted = FlashcardUtil.calcNumCardsCompleted(s.events);
+                firstGuessAccuracy = FlashcardUtil.calcFirstGuessAccuracy(s.events);
+                skipCount = FlashcardUtil.calcSkipCount(s.events);
             }
             long prevDurationMinutes = (durationUnits / 1000) / 60;
             long prevDurationSeconds = (durationUnits / 1000) % 60;
@@ -90,7 +92,7 @@ public class FlashcardNumbersScreenFragment extends Fragment {
                             "N/A"
             );
             ((TextView) rootView.findViewById(R.id.prev_session_first_guess_accuracy)).setText(
-                    firstGuessAccuracy >= 0 ? String.format(Locale.ENGLISH, "%.2f", firstGuessAccuracy) : "N/A"
+                    firstGuessAccuracy >= 0 ? String.format(Locale.ENGLISH, "%s%%", (int) (firstGuessAccuracy * 100)) : "N/A"
             );
             ((TextView) rootView.findViewById(R.id.prev_session_num_cards_completed)).setText(
                     skipCount >= 0 ? String.valueOf(numberCardsCompleted) : "N/A"

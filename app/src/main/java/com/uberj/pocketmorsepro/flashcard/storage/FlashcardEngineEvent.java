@@ -61,11 +61,11 @@ public class FlashcardEngineEvent {
         }
     }
 
-    public static FlashcardEngineEvent messageDonePlaying(String currentLetter) {
+    public static FlashcardEngineEvent messageDonePlaying(String message) {
         FlashcardEngineEvent engineEvent = new FlashcardEngineEvent();
         engineEvent.eventType = EventType.DONE_PLAYING;
         engineEvent.eventAtEpoc = System.currentTimeMillis();
-        engineEvent.info = currentLetter;
+        engineEvent.info = message;
         return engineEvent;
     }
 

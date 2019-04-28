@@ -192,7 +192,9 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
 
             // Update UI to indicate paused session. Player will need to manually trigger play to resume
             MenuItem playPauseIcon = menu.findItem(R.id.keyboard_pause_play);
-            playPauseIcon.setIcon(R.mipmap.ic_play);
+            if (durationUnit.equals(FlashcardTrainingSessionViewModel.TIME_LIMITED_SESSION_TYPE)) {
+                playPauseIcon.setIcon(R.mipmap.ic_play);
+            }
 
             // Build alert and show to user for exit confirmation
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -216,11 +218,12 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!durationUnit.equals(FlashcardTrainingSessionViewModel.TIME_LIMITED_SESSION_TYPE)) {
-            // TODO, ignore the pause/play button
-        }
         this.menu = menu;
-        getMenuInflater().inflate(R.menu.socratic_keyboard, menu);
+        if (durationUnit.equals(FlashcardTrainingSessionViewModel.TIME_LIMITED_SESSION_TYPE)) {
+            getMenuInflater().inflate(R.menu.socratic_keyboard, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.no_pause_keyboard, menu);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -235,8 +238,10 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
 
     @Override
     public void onDismiss(DialogInterface dialog) {
-        MenuItem item = menu.findItem(R.id.keyboard_pause_play);
-        item.setIcon(R.mipmap.ic_pause);
+        if (durationUnit.equals(FlashcardTrainingSessionViewModel.TIME_LIMITED_SESSION_TYPE)) {
+            MenuItem item = menu.findItem(R.id.keyboard_pause_play);
+            item.setIcon(R.mipmap.ic_pause);
+        }
         viewModel.resume();
     }
 
@@ -250,11 +255,15 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
     public void onClickPlayPauseHandler(MenuItem m) {
         if (!viewModel.isPaused()) {
             // User wants pause
-            m.setIcon(R.mipmap.ic_play);
+            if (durationUnit.equals(FlashcardTrainingSessionViewModel.TIME_LIMITED_SESSION_TYPE)) {
+                m.setIcon(R.mipmap.ic_play);
+            }
             viewModel.pause();
         } else {
             // User wants play
-            m.setIcon(R.mipmap.ic_pause);
+            if (durationUnit.equals(FlashcardTrainingSessionViewModel.TIME_LIMITED_SESSION_TYPE)) {
+                m.setIcon(R.mipmap.ic_pause);
+            }
             viewModel.resume();
         }
     }

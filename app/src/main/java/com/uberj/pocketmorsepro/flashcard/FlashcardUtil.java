@@ -11,6 +11,7 @@ import com.uberj.pocketmorsepro.keyboards.KeyConfig;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -131,5 +132,42 @@ public class FlashcardUtil {
 
     public static int calcNumCardsCompleted(List<FlashcardEngineEvent> events) {
         return (int) events.stream().filter(e -> e.eventType == FlashcardEngineEvent.EventType.CORRECT_GUESS).count();
+    }
+
+    public static double calcFirstGuessAccuracy(List<FlashcardEngineEvent> events) {
+        Collection<List<List<FlashcardEngineEvent>>> segments = parseSegments(events).values();
+        double correctFirstGuesses = 0;
+        double incorrectFirstGuesses = 0;
+        for (List<List<FlashcardEngineEvent>> segment : segments) {
+            for (List<FlashcardEngineEvent> segmentEvents : segment) {
+                for (FlashcardEngineEvent event : segmentEvents) {
+                    if (event.eventType == FlashcardEngineEvent.EventType.CORRECT_GUESS) {
+                        correctFirstGuesses += 1;
+                        break;
+                    }
+                    if (event.eventType == FlashcardEngineEvent.EventType.INCORRECT_GUESS) {
+                        incorrectFirstGuesses += 1;
+                        break;
+                    }
+                }
+            }
+        }
+        return correctFirstGuesses / (correctFirstGuesses + incorrectFirstGuesses);
+    }
+
+    public static int calcSkipCount(List<FlashcardEngineEvent> events) {
+        Collection<List<List<FlashcardEngineEvent>>> segments = parseSegments(events).values();
+        int skipCount = 0;
+        for (List<List<FlashcardEngineEvent>> segment : segments) {
+            for (List<FlashcardEngineEvent> segmentEvents : segment) {
+                for (FlashcardEngineEvent event : segmentEvents) {
+                    if (event.eventType == FlashcardEngineEvent.EventType.SKIP) {
+                        skipCount += 1;
+                        break;
+                    }
+                }
+            }
+        }
+        return skipCount;
     }
 }

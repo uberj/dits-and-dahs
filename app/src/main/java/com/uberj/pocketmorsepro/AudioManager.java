@@ -21,7 +21,7 @@ public class AudioManager {
     private static final ImmutableMap<String, String> LETTER_DEFINITIONS = ImmutableMap.<String, String>builder()
             .put("A", ".-")
             .put("B", "-...")
-            .put("C", ".-.-")
+            .put("C", "-.-.")
             .put("D", "-..")
             .put("E", ".")
             .put("F", "..-.")
