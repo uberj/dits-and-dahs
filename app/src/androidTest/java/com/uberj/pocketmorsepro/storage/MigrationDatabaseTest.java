@@ -26,5 +26,10 @@ public class MigrationDatabaseTest {
 
         SupportSQLiteDatabase db = testHelper.runMigrationsAndValidate(TheDatabase.THE_DATABASE_NAME, 2, true, TheDatabase.MIGRATION_1_2);
     }
+    @Test
+    public void testMigration2to3() throws IOException {
+
+        SupportSQLiteDatabase db = testHelper.runMigrationsAndValidate(TheDatabase.THE_DATABASE_NAME, 3, true, TheDatabase.MIGRATION_1_2, TheDatabase.MIGRATION_2_3);
+    }
 
 }

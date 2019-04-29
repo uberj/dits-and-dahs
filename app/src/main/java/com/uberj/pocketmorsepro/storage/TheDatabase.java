@@ -49,6 +49,8 @@ public abstract class TheDatabase extends RoomDatabase {
     public static final Migration MIGRATION_2_3 = new Migration(2, 3) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE IF NOT EXISTS `FlashcardTrainingSession` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `endTimeEpocMillis` INTEGER NOT NULL, `sessionType` TEXT NOT NULL, `cards` TEXT NOT NULL, `durationUnitsRequested` INTEGER NOT NULL, `durationUnit` TEXT NOT NULL)");
+            database.execSQL("CREATE TABLE IF NOT EXISTS `FlashcardEngineEvent` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `sessionId` INTEGER NOT NULL, `eventType` INTEGER, `eventAtEpoc` INTEGER, `info` TEXT)");
         }
     };
 
