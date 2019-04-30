@@ -146,12 +146,24 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         return new CountDownTimer(durationsMillis, 50) {
             public void onTick(long millisUntilFinished) {
                 durationRemainingMillis.setValue(millisUntilFinished);
+                // If we get here, its done
+                if (millisUntilFinished <= 0) {
+                    engine.prepareForShutdown();
+                }
+
+                // unlimited delay is negative. Don't do anything
+                if (endDelaySeconds < 0) {
+                    return;
+                }
+
+                // there's some off by one error somewhere, a second before the delay ends, get ready to shut down
                 if (millisUntilFinished <= endDelaySeconds * 1000) {
                     engine.prepareForShutdown();
                 }
             }
 
             public void onFinish() {
+                engine.prepareForShutdown();
                 durationRemainingMillis.setValue(0l);
             }
         };

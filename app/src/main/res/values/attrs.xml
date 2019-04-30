@@ -2,6 +2,7 @@
 <resources>
     <declare-styleable name="FormattingSeeKBarPreference">
         <attr name="value_suffix" format="string" />
+        <attr name="max_value" format="string" />
         <attr name="step_floor" format="integer" />
     </declare-styleable>
 </resources>

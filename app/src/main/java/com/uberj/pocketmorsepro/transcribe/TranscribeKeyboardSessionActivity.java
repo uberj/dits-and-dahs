@@ -119,7 +119,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
 
         ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
         viewModel.durationRemainingMillis.observe(this, (remainingMillis) -> {
-            if (remainingMillis == 0) {
+            if (endDelaySeconds >= 0 && remainingMillis == 0) {
                 finish();
                 return;
             }

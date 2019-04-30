@@ -39,10 +39,11 @@
         app:summary="Give yourself time at the end of the session to make last second changes"
         app:showSeekBarValue="true"
         app:min="1"
-        android:max="10"
+        android:max="@string/setting_transcribe_end_delay_seconds_max_value"
         android:defaultValue="4"
         whatever:value_suffix=" Seconds"
         whatever:step_floor="1"
+        whatever:max_value=" Unlimited"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 </PreferenceScreen>

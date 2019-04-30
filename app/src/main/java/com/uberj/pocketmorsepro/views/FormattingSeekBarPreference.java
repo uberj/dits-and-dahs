@@ -21,6 +21,7 @@ import androidx.preference.SeekBarPreference;
 public class FormattingSeekBarPreference extends Preference {
 
     private static final String TAG = "SeekBarPreference";
+    private String maxValue;
     private String valueSuffix;
     private int stepValue = 1;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -135,6 +136,7 @@ public class FormattingSeekBarPreference extends Preference {
     public FormattingSeekBarPreference(Context context, AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FormattingSeeKBarPreference, defStyleAttr, 0);
+        maxValue = a.getString(R.styleable.FormattingSeeKBarPreference_max_value);
         valueSuffix = a.getString(R.styleable.FormattingSeeKBarPreference_value_suffix);
         stepValue = a.getInt(R.styleable.FormattingSeeKBarPreference_step_floor, 1);
         a.recycle();
@@ -144,6 +146,7 @@ public class FormattingSeekBarPreference extends Preference {
         this(context, attrs, R.attr.seekBarPreferenceStyle);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FormattingSeeKBarPreference);
 
+        maxValue = a.getString(R.styleable.FormattingSeeKBarPreference_max_value);
         valueSuffix = a.getString(R.styleable.FormattingSeeKBarPreference_value_suffix);
         stepValue = a.getInt(R.styleable.FormattingSeeKBarPreference_step_floor, 1);
         a.recycle();
@@ -403,8 +406,12 @@ public class FormattingSeekBarPreference extends Preference {
     }
 
     public String formatValue(int value) {
+        if (value == mMax) {
+            return maxValue;
+        }
+
         if (!Strings.isNullOrEmpty(valueSuffix)) {
-            return String.valueOf(value) + valueSuffix;
+            return value + valueSuffix;
         }
         return String.valueOf(value);
     }
