@@ -2,11 +2,11 @@
     <string name="app_name">Dits &amp; Dahs</string>
     <string name="action_settings">Settings</string>
 
-    <string name="random_letters_description_what">Learn to copy groups of random characters</string>
-    <string name="random_letters_description_why">During this exercise, you recognize a stream of letters without pausing to check if your guess was correct. This exercise focuses on setting aside inhibition and the anxiety of making mistakes.</string>
+    <string name="random_letters_description_what">Learn to copy groups of random characters.</string>
+    <string name="random_letters_description_why">During this exercise, you recognize a stream of characters without pausing to check if your guess was correct. This exercise focuses on setting aside inhibition and the anxiety of making mistakes.</string>
 
-    <string name="letter_training_description_what">Listen to a morse code pattern and guess which letter is being played.</string>
-    <string name="letter_training_description_why">This exercise introduces the alphabet in Morse Code. After ever session you are measured on how accurate you were at recognizing the tones being played.</string>
+    <string name="letter_training_description_what">Listen to a Morse code pattern and guess which character is being played.</string>
+    <string name="letter_training_description_why">This exercise introduces the alphabet in Morse code. After each session you can view your accuracy.</string>
     <string name="title_activity_main4">Main4Activity</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
@@ -24,8 +24,8 @@
     <string name="setting_socratic_easy_mode">setting_socratic_easy_mode</string>
     <string name="setting_socratic_audio_tone">setting_socratic_audio_tone</string>
 
-    <string name="random_words_description_what">Learn to recognize common words heard on the air</string>
-    <string name="random_words_description_why">Once you know the letters, the next step is to learn how to recognize the sound of common words.</string>
+    <string name="random_words_description_what">Learn to recognize common words heard on the air.</string>
+    <string name="random_words_description_why">You know the characters, learn to recognize the sound of common words.</string>
 
     <string name="setting_flashcard_audio_tone">setting_flashcard_audio_tone</string>
     <string name="setting_flashcard_letter_wpm">setting_flashcard_letter_wpm</string>
@@ -37,4 +37,5 @@
     <string name="setting_flashcard_duration_unit">setting_flashcard_duration_unit</string>
     <string name="setting_flashcard_duration_time_minutes">setting_flashcard_duration_time_minutes</string>
     <string name="setting_flashcard_duration_num_cards">setting_flashcard_duration_num_cards</string>
+    <string name="letter_training_start_help_description">Choose how fast you want the letters to play and press START. Set the WPM (words per minute) to something like 20 or 25. When you learn to recognize the characters at higher speeds you\'ll have an easier time later in your training.</string>
 </resources>

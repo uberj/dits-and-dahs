@@ -46,7 +46,7 @@ public class TrainingActivityList extends Activity {
         // specify an adapter (see also next example)
         ArrayList<TrainingCardData> trainingActivities = new ArrayList<>();
         TrainingCardData letter_training = new TrainingCardData(
-                "Letters",
+                "Learn the Characters",
                 R.string.letter_training_description_what,
                 R.string.letter_training_description_why,
                 new Intent(this, SimpleStartScreenActivity.class)
@@ -60,7 +60,7 @@ public class TrainingActivityList extends Activity {
         );
         trainingActivities.add(letter_groups);
         TrainingCardData random_words = new TrainingCardData(
-                "Random words",
+                "Random Words",
                 R.string.random_words_description_what,
                 R.string.random_words_description_why,
                 new Intent(this, SimpleWordFlashcardStartScreenActivity.class)

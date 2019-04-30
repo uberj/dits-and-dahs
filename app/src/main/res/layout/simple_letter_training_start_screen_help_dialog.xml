@@ -52,7 +52,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Choose how fast you want the letters to play and press 'Start'. Set the WPM (Words per minute) to something like 20 or 25. When you learn to recognize the characters at realistic speeds you'll have an easier time later in your training."
+                android:text="@string/letter_training_start_help_description"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="@+id/textConstraints"
                 app:layout_constraintStart_toStartOf="@+id/textConstraints"
