@@ -124,8 +124,8 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
 
     private void setupViewPager(ViewPager viewPager) {
         Adapter adapter = new Adapter(getChildFragmentManager());
-        adapter.addFragment(new HelpScreen0(), "Listen and Guess");
-        adapter.addFragment(new HelpScreen1(), "Playing a letter tone");
+        adapter.addFragment(new HelpScreen0(), "Listen and guess");
+        adapter.addFragment(new HelpScreen1(), "Playing a character's tone");
         adapter.addFragment(new HelpScreen2(), "The timer bar");
         adapter.addFragment(new HelpScreen3(), "Progress");
         adapter.addFragment(new HelpScreen4(), "Ready?");

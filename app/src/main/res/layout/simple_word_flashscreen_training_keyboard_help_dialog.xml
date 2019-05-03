@@ -52,7 +52,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Listen to the word, enter what you think it is, and press &quot;SUBMIT&quot;. Press &quot;AGAIN&quot; to play the word again. If you don't want to guess the word press &quot;SKIP&quot;. "
+                android:text="Listen to the word, enter what you think it is, and press SUBMIT. Press AGAIN to play the word again. If you don't want to guess the word press SKIP."
                 android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="@+id/textConstraints"
                 app:layout_constraintStart_toStartOf="@+id/textConstraints"

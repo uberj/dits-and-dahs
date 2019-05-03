@@ -110,11 +110,11 @@ public class SocraticNumbersScreenFragment extends Fragment {
                     overallATBCG >= 0 ? DECIMAL_STAT_FORMATTER.format(overallATBCG) + " (s)" : "N/A"
             );
             ((TextView) rootView.findViewById(R.id.prev_session_overall_apbcg)).setText(
-                    overallAPBCG >= 0 ? DECIMAL_STAT_FORMATTER.format(overallAPBCG) + " plays" : "N/A"
+                    overallAPBCG >= 0 ? DECIMAL_STAT_FORMATTER.format(overallAPBCG) : "N/A"
             );
 
             ((TextView) rootView.findViewById(R.id.prev_session_overall_igbcg)).setText(
-                    overallAPBCG >= 0 ? DECIMAL_STAT_FORMATTER.format(overallIGBCG) + " guesses" : "N/A"
+                    overallAPBCG >= 0 ? DECIMAL_STAT_FORMATTER.format(overallIGBCG) : "N/A"
             );
 
             // Init
