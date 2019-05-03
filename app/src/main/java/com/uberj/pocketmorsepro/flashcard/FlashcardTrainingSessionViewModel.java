@@ -56,7 +56,7 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
     }
 
 
-    public void prepairShutDown() {
+    public void destroyEngine() {
         engine.destroy();
     }
 
@@ -138,6 +138,7 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
+        destroyEngine();
         recordSessionDetails();
     }
 

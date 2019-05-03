@@ -21,8 +21,8 @@ import androidx.lifecycle.MutableLiveData;
 
 
 public class FlashcardTrainingEngine {
-    private static final Random r = new Random();
     private final AudioManager audioManager;
+    private final HandlerThread eventHandlerThread;
     private volatile MutableLiveData<Long> cardsRemaining;
     private volatile boolean isPaused = false;
     private volatile boolean engineIsStarted = false;
@@ -41,7 +41,7 @@ public class FlashcardTrainingEngine {
         this.messages = messages;
         this.cardsRemaining = durationUnitsRemaining;
         this.competencyWeights = buildInitialCompetencyWeights(messages);
-        HandlerThread eventHandlerThread = new HandlerThread("GuessHandler", HandlerThread.MAX_PRIORITY);
+        eventHandlerThread = new HandlerThread("GuessHandler", HandlerThread.MAX_PRIORITY);
         eventHandlerThread.start();
         eventHandler = new Handler(eventHandlerThread.getLooper(), this::eventCallback);
         this.chooseDifferentMessage();
@@ -158,8 +158,11 @@ public class FlashcardTrainingEngine {
     }
 
     public void destroy() {
-        audioManager.destroy();
-        events.add(FlashcardEngineEvent.destroyed());
+        synchronized (eventHandler) {
+            eventHandlerThread.quit();
+            audioManager.destroy();
+            events.add(FlashcardEngineEvent.destroyed());
+        }
     }
 
     public void resume() {
