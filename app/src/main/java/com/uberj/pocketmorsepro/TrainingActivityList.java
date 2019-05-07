@@ -3,6 +3,7 @@ package com.uberj.pocketmorsepro;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 
 import com.crashlytics.android.Crashlytics;
@@ -33,6 +34,7 @@ public class TrainingActivityList extends Activity {
             Timber.plant(new ReleaseTree());
         }
         setContentView(R.layout.activity_training_list);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
         mRecyclerView = findViewById(R.id.my_recycler_view);
 
         // use this setting to improve performance if you know that changes
@@ -45,27 +47,36 @@ public class TrainingActivityList extends Activity {
 
         // specify an adapter (see also next example)
         ArrayList<TrainingCardData> trainingActivities = new ArrayList<>();
+        Intent simpleStartScreen = new Intent(this, SimpleStartScreenActivity.class);
+        simpleStartScreen.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         TrainingCardData letter_training = new TrainingCardData(
                 "Learn the Characters",
                 R.string.letter_training_description_what,
                 R.string.letter_training_description_why,
-                new Intent(this, SimpleStartScreenActivity.class)
+                simpleStartScreen
         );
         trainingActivities.add(letter_training);
+
+        Intent randomLettersStartScreen = new Intent(this, RandomLettersStartScreenActivity.class);
+        randomLettersStartScreen.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         TrainingCardData letter_groups = new TrainingCardData(
                 "Letter Groups",
                 R.string.random_letters_description_what,
                 R.string.random_letters_description_why,
-                new Intent(this, RandomLettersStartScreenActivity.class)
+                randomLettersStartScreen
         );
         trainingActivities.add(letter_groups);
+
+        Intent simpleWordFlashcard = new Intent(this, SimpleWordFlashcardStartScreenActivity.class);
+        simpleWordFlashcard.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         TrainingCardData random_words = new TrainingCardData(
                 "Random Words",
                 R.string.random_words_description_what,
                 R.string.random_words_description_why,
-                new Intent(this, SimpleWordFlashcardStartScreenActivity.class)
+                simpleWordFlashcard
         );
         trainingActivities.add(random_words);
+
         mAdapter = new TrainingActivityAdapter(trainingActivities);
         mRecyclerView.setAdapter(mAdapter);
     }

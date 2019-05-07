@@ -203,7 +203,6 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
             builder.setPositiveButton("Yes", (dialog, which) -> {
                 // Duration always seems to be off by -1s when back is pressed
                 viewModel.setDurationUnitsRemainingMillis(viewModel.getDurationUnitsRemaining().getValue() - 1000 );
-                viewModel.destroyEngine();
                 Intent data = buildResultIntent();
                 setResult(Activity.RESULT_OK, data);
                 finish();

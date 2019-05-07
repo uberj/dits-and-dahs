@@ -55,11 +55,6 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
         startTheEngine();
     }
 
-
-    public void destroyEngine() {
-        engine.destroy();
-    }
-
     public static class Factory implements ViewModelProvider.Factory {
         private final Application application;
         private final int durationUnitsRequested;
@@ -138,7 +133,7 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        destroyEngine();
+        engine.destroy();
         recordSessionDetails();
     }
 

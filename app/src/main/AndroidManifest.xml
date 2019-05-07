@@ -11,7 +11,6 @@
         android:theme="@style/AppTheme">
         <activity android:name="com.uberj.pocketmorsepro.MainActivity"></activity>
         <activity android:name="com.uberj.pocketmorsepro.TrainingActivityList"
-            android:screenOrientation="landscape"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
