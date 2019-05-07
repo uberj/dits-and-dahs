@@ -103,11 +103,12 @@ public class AudioManager {
                     rawSnd[sndIdx++] = 0;
                 }
             } else {
-                int rampSamples = (int) (pcmDetails.numSamplesPerSymbol * 0.10); // 5% ramp up
+                int rampSamples = (int) (pcmDetails.numSamplesPerSymbol * 0.20); // 20% ramp up/down
 
                 for (int j = 0; j < rampSamples; j++) {
                     rawSnd[sndIdx++] = ((double) j/(double) rampSamples) * Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
                 }
+
                 for (int j = rampSamples; j < numSamplesForCurSymbol - rampSamples; j++) {
                     rawSnd[sndIdx++] = Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
                 }
