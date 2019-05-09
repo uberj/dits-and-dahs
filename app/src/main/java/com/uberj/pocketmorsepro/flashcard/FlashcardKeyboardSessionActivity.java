@@ -134,7 +134,7 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
                 .setProgressBarCallback((button, progressBar) -> {
                 })
                 .build();
-        keyboard.buildAtRoot();
+        keyboard.buildConstraintLayoutAtRoot();
 
         ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
         viewModel.getDurationUnitsRemaining().observe(this, (remainingParts) -> {

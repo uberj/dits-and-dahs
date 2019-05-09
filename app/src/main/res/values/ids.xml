@@ -93,4 +93,17 @@
     <item name="keySUBMIT" type="id"/>
     <item name="keySKIP" type="id"/>
     <item name="keyAGAIN" type="id"/>
+    <item name="keys_container" type="id"/>
+    <item name="space0" type="id"/>
+    <item name="space1" type="id"/>
+    <item name="space2" type="id"/>
+    <item name="space3" type="id"/>
+    <item name="space4" type="id"/>
+    <item name="space5" type="id"/>
+    <item name="space6" type="id"/>
+    <item name="space7" type="id"/>
+    <item name="space8" type="id"/>
+    <item name="space9" type="id"/>
+    <item name="space10" type="id"/>
+    <item name="space11" type="id"/>
 </resources>

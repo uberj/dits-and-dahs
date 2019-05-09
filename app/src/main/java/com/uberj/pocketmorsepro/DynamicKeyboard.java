@@ -1,5 +1,7 @@
 package com.uberj.pocketmorsepro;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.FragmentActivity;
 
 import android.graphics.drawable.Drawable;
@@ -14,6 +16,8 @@ import android.widget.Space;
 import com.uberj.pocketmorsepro.keyboards.KeyConfig;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.function.BiConsumer;
 
@@ -98,6 +102,132 @@ public class DynamicKeyboard {
             }
             Preconditions.checkNotNull(buttonCallback);
             return new DynamicKeyboard(context, keys, buttonOnClickListener, buttonLongClickListener, buttonCallback, progressBarCallback, rootView, drawProgressBar);
+        }
+    }
+
+    public void buildConstraintLayoutAtRoot() {
+        ImmutableList.Builder<ImmutableList<Pair<View, Float>>> views = ImmutableList.builder();
+        int spaceCount = 0;
+        for (ImmutableList<KeyConfig> row : keys) {
+            ImmutableList.Builder<Pair<View, Float>> viewRow = ImmutableList.builder();
+            for (KeyConfig keyConfig : row) {
+                Float weight = keyConfig.weight;
+                String keyName = keyConfig.textName;
+                if (keyConfig.type == KeyConfig.KeyType.HALF_SPACE) {
+//                    Space space = makeSpace(context, spaceCount);
+//                    spaceCount += 1;
+//                    ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
+//                    space.setLayoutParams(params);
+//                    viewRow.add(Pair.of(space, weight));
+                } else {
+                    keyName = keyName.toUpperCase();
+                    View button = makeButton(keyName, keyConfig);
+                    ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(0, 50);
+                    button.setLayoutParams(params);
+                    viewRow.add(Pair.of(button, weight));
+                }
+            }
+            views.add(viewRow.build());
+        }
+
+        ConstraintLayout constraintLayout = convertToConstraints(views.build());
+        constraintLayout.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        rootView.addView(constraintLayout);
+    }
+
+    private Space makeSpace(FragmentActivity context, int spaceCount) {
+        Space space = new Space(context);
+        int spaceId = context.getResources().getIdentifier(getSpaceIdName(spaceCount), "id", context.getPackageName());
+        space.setId(spaceId);
+        return space;
+    }
+
+    private String getSpaceIdName(int spaceCount) {
+        if (spaceCount > 11) {
+            throw new RuntimeException("I only have 11 space ids. Add more then bump this number");
+        }
+        return "space" + spaceCount;
+    }
+
+    private ConstraintLayout convertToConstraints(ImmutableList<ImmutableList<Pair<View, Float>>> views) {
+        ConstraintLayout constraintLayout = new ConstraintLayout(context);
+        constraintLayout.setId(R.id.keys_container);
+        ConstraintSet constraintSet = new ConstraintSet();
+        addAllViews(constraintLayout, views);
+        connectVerticalChains(constraintLayout, constraintSet, views);
+        connectHorizontalChains(constraintLayout, constraintSet, views);
+        constraintSet.applyTo(constraintLayout);
+        return constraintLayout;
+    }
+
+    private void addAllViews(ConstraintLayout constraintLayout, ImmutableList<ImmutableList<Pair<View, Float>>> views) {
+        for (ImmutableList<Pair<View, Float>> row : views) {
+            for (Pair<View, Float> view : row) {
+                constraintLayout.addView(view.getLeft());
+            }
+        }
+    }
+
+    private void connectHorizontalChains(ConstraintLayout constraintLayout, ConstraintSet constraintSet, ImmutableList<ImmutableList<Pair<View, Float>>> views) {
+
+        // For each row, align keys and chain
+        for (ImmutableList<Pair<View, Float>> row : views) {
+            View prev = null;
+            for (int i = 0; i < row.size(); i++) {
+                View cur = row.get(i).getLeft();
+                Float weight = row.get(i).getRight();
+                constraintSet.setHorizontalWeight(cur.getId(), weight);
+                if (i >= row.size() - 1) {
+                    // This is the last element. Connect it to the right of the constraint layout
+                    constraintSet.connect(cur.getId(), ConstraintSet.START, prev.getId(), ConstraintSet.END);
+                    constraintSet.connect(cur.getId(), ConstraintSet.END, constraintLayout.getId(), ConstraintSet.END);
+                    constraintSet.connect(cur.getId(), ConstraintSet.BOTTOM, prev.getId(), ConstraintSet.BOTTOM);
+                    constraintSet.connect(cur.getId(), ConstraintSet.TOP, prev.getId(), ConstraintSet.TOP);
+
+                } else if (i == 0) {
+                    // This is the first element. Connect it to the left of constraint layout, bottom to next
+                    View next = row.get(i + 1).getLeft();
+                    constraintSet.connect(cur.getId(), ConstraintSet.END, next.getId(), ConstraintSet.START);
+                    constraintSet.connect(cur.getId(), ConstraintSet.START, constraintLayout.getId(), ConstraintSet.START);
+                } else {
+                    // Connect it to the prev right and the next left
+                    View next = row.get(i + 1).getLeft();
+                    constraintSet.connect(cur.getId(), ConstraintSet.END, next.getId(), ConstraintSet.START);
+                    constraintSet.connect(cur.getId(), ConstraintSet.START, prev.getId(), ConstraintSet.END);
+                    constraintSet.connect(cur.getId(), ConstraintSet.BOTTOM, prev.getId(), ConstraintSet.BOTTOM);
+                    constraintSet.connect(cur.getId(), ConstraintSet.TOP, prev.getId(), ConstraintSet.TOP);
+                }
+                prev = cur;
+            }
+        }
+    }
+
+    private void connectVerticalChains(ConstraintLayout constraintLayout, ConstraintSet constraintSet, ImmutableList<ImmutableList<Pair<View, Float>>> views) {
+        View prev = null;
+        for (int i = 0; i < views.size(); i++) {
+            ImmutableList<Pair<View, Float>> row = views.get(i);
+            View cur = row.get(0).getLeft();
+            // Set first element in row to 'spread_inside'
+            constraintSet.setVerticalChainStyle(cur.getId(), ConstraintSet.CHAIN_SPREAD_INSIDE);
+
+            // connect last first to constraint bottom
+            if (i >= views.size() - 1) {
+                // This is the last element. Connect it to the bottom of the constraint layout. Top to prev
+                constraintSet.connect(cur.getId(), ConstraintSet.TOP, prev.getId(), ConstraintSet.BOTTOM);
+                constraintSet.connect(cur.getId(), ConstraintSet.BOTTOM, constraintLayout.getId(), ConstraintSet.BOTTOM);
+            } else if (i == 0) {
+                // connect first first to constraint top
+                // This is the first element. Connect it to the top of constraint layout, bottom to next
+                View next = views.get(i + 1).get(0).getLeft();
+                constraintSet.connect(cur.getId(), ConstraintSet.TOP, constraintLayout.getId(), ConstraintSet.TOP);
+                constraintSet.connect(cur.getId(), ConstraintSet.BOTTOM, next.getId(), ConstraintSet.TOP);
+            } else {
+                // Connect it to the prev bottom and the next time
+                View next = views.get(i + 1).get(0).getLeft();
+                constraintSet.connect(cur.getId(), ConstraintSet.TOP, prev.getId(), ConstraintSet.BOTTOM);
+                constraintSet.connect(cur.getId(), ConstraintSet.BOTTOM, next.getId(), ConstraintSet.TOP);
+            }
+            prev = cur;
         }
     }
 
@@ -232,11 +362,6 @@ public class DynamicKeyboard {
         if (keyConfig.isPlayable) {
             button.setTag("inplay");
         }
-
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        button.setLayoutParams(layoutParams);
 
         button.setOnClickListener(v -> {
             button.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
