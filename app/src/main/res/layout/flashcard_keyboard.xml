@@ -10,12 +10,14 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="1 "
+        app:layout_constraintBottom_toTopOf="@+id/space1left"
         app:layout_constraintEnd_toStartOf="@+id/button3"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="16dp" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <Button
         android:id="@+id/button2"
@@ -163,18 +165,20 @@
     <Space
         android:id="@+id/space1left"
         android:layout_width="0dp"
-        android:layout_height="13dp"
+        android:layout_height="50dp"
+        app:layout_constraintBottom_toTopOf="@+id/space2left"
         app:layout_constraintEnd_toStartOf="@+id/button38"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
         app:layout_constraintHorizontal_weight="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="88dp" />
+        app:layout_constraintTop_toBottomOf="@+id/button"
+        tools:layout_constraintVertical_weight="1" />
 
     <Button
         android:id="@+id/button37"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="P"
         app:layout_constraintBottom_toBottomOf="@+id/button46"
         app:layout_constraintEnd_toStartOf="@+id/space1right"
@@ -186,7 +190,7 @@
     <Button
         android:id="@+id/button46"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="O"
         app:layout_constraintBottom_toBottomOf="@+id/button45"
         app:layout_constraintEnd_toStartOf="@+id/button37"
@@ -198,7 +202,7 @@
     <Button
         android:id="@+id/button45"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="I"
         app:layout_constraintBottom_toBottomOf="@+id/button44"
         app:layout_constraintEnd_toStartOf="@+id/button46"
@@ -210,7 +214,7 @@
     <Button
         android:id="@+id/button44"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="U"
         app:layout_constraintBottom_toBottomOf="@+id/button43"
         app:layout_constraintEnd_toStartOf="@+id/button45"
@@ -222,7 +226,7 @@
     <Button
         android:id="@+id/button43"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="Y"
         app:layout_constraintBottom_toBottomOf="@+id/button42"
         app:layout_constraintEnd_toStartOf="@+id/button44"
@@ -234,7 +238,7 @@
     <Button
         android:id="@+id/button42"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="T"
         app:layout_constraintBottom_toBottomOf="@+id/button41"
         app:layout_constraintEnd_toStartOf="@+id/button43"
@@ -246,7 +250,7 @@
     <Button
         android:id="@+id/button41"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="R"
         app:layout_constraintBottom_toBottomOf="@+id/button40"
         app:layout_constraintEnd_toStartOf="@+id/button42"
@@ -258,7 +262,7 @@
     <Button
         android:id="@+id/button40"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="E"
         app:layout_constraintBottom_toBottomOf="@+id/button39"
         app:layout_constraintEnd_toStartOf="@+id/button41"
@@ -270,7 +274,7 @@
     <Button
         android:id="@+id/button39"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="W"
         app:layout_constraintBottom_toBottomOf="@+id/button38"
         app:layout_constraintEnd_toStartOf="@+id/button40"
@@ -282,7 +286,7 @@
     <Button
         android:id="@+id/button38"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="Q"
         app:layout_constraintBottom_toBottomOf="@+id/space1left"
         app:layout_constraintEnd_toStartOf="@+id/button39"
@@ -294,7 +298,7 @@
     <Button
         android:id="@+id/button48"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="S"
         app:layout_constraintBottom_toBottomOf="@+id/button49"
         app:layout_constraintEnd_toStartOf="@+id/button50"
@@ -306,7 +310,7 @@
     <Button
         android:id="@+id/button50"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="D"
         app:layout_constraintBottom_toBottomOf="@+id/button48"
         app:layout_constraintEnd_toStartOf="@+id/button51"
@@ -318,7 +322,7 @@
     <Button
         android:id="@+id/button51"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="F"
         app:layout_constraintBottom_toBottomOf="@+id/button50"
         app:layout_constraintEnd_toStartOf="@+id/button53"
@@ -330,7 +334,7 @@
     <Button
         android:id="@+id/button52"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="J"
         app:layout_constraintBottom_toBottomOf="@+id/button54"
         app:layout_constraintEnd_toStartOf="@+id/button56"
@@ -342,7 +346,7 @@
     <Button
         android:id="@+id/button55"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="?"
         app:layout_constraintBottom_toBottomOf="@+id/button57"
         app:layout_constraintEnd_toStartOf="@+id/space2right"
@@ -354,7 +358,7 @@
     <Button
         android:id="@+id/button57"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="L"
         app:layout_constraintBottom_toBottomOf="@+id/button56"
         app:layout_constraintEnd_toStartOf="@+id/button55"
@@ -366,7 +370,7 @@
     <Button
         android:id="@+id/button56"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="K"
         app:layout_constraintBottom_toBottomOf="@+id/button52"
         app:layout_constraintEnd_toStartOf="@+id/button57"
@@ -378,7 +382,7 @@
     <Button
         android:id="@+id/button54"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="H"
         app:layout_constraintBottom_toBottomOf="@+id/button53"
         app:layout_constraintEnd_toStartOf="@+id/button52"
@@ -390,7 +394,7 @@
     <Button
         android:id="@+id/button53"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="G"
         app:layout_constraintBottom_toBottomOf="@+id/button51"
         app:layout_constraintEnd_toStartOf="@+id/button54"
@@ -402,7 +406,7 @@
     <Button
         android:id="@+id/button49"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="wrap_content"
         android:text="A"
         app:layout_constraintBottom_toBottomOf="@+id/space2left"
         app:layout_constraintEnd_toStartOf="@+id/button48"
@@ -414,12 +418,13 @@
     <Space
         android:id="@+id/space2left"
         android:layout_width="0dp"
-        android:layout_height="20dp"
+        android:layout_height="50dp"
+        app:layout_constraintBottom_toTopOf="@+id/space3left"
         app:layout_constraintEnd_toStartOf="@+id/button49"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="134dp" />
+        app:layout_constraintTop_toBottomOf="@+id/space1left" />
 
     <Space
         android:id="@+id/space2right"
@@ -435,12 +440,13 @@
     <Space
         android:id="@+id/space3left"
         android:layout_width="0dp"
-        android:layout_height="13dp"
+        android:layout_height="50dp"
+        app:layout_constraintBottom_toTopOf="@+id/space4left"
         app:layout_constraintEnd_toStartOf="@+id/button59"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_weight="1.5"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="194dp" />
+        app:layout_constraintTop_toBottomOf="@+id/space2left" />
 
     <Space
         android:id="@+id/space3right"
@@ -456,7 +462,7 @@
     <Button
         android:id="@+id/button58"
         android:layout_width="0dp"
-        android:layout_height="43dp"
+        android:layout_height="wrap_content"
         android:text="V"
         app:layout_constraintBottom_toBottomOf="@+id/button62"
         app:layout_constraintEnd_toStartOf="@+id/button63"
@@ -468,7 +474,7 @@
     <Button
         android:id="@+id/button62"
         android:layout_width="0dp"
-        android:layout_height="43dp"
+        android:layout_height="wrap_content"
         android:text="C"
         app:layout_constraintBottom_toBottomOf="@+id/button60"
         app:layout_constraintEnd_toStartOf="@+id/button58"
@@ -480,7 +486,7 @@
     <Button
         android:id="@+id/button66"
         android:layout_width="0dp"
-        android:layout_height="43dp"
+        android:layout_height="wrap_content"
         android:text="."
         app:layout_constraintBottom_toBottomOf="@+id/button65"
         app:layout_constraintEnd_toStartOf="@+id/space3right"
@@ -492,7 +498,7 @@
     <Button
         android:id="@+id/button65"
         android:layout_width="0dp"
-        android:layout_height="43dp"
+        android:layout_height="wrap_content"
         android:text="M"
         app:layout_constraintBottom_toBottomOf="@+id/button64"
         app:layout_constraintEnd_toStartOf="@+id/button66"
@@ -504,7 +510,7 @@
     <Button
         android:id="@+id/button64"
         android:layout_width="0dp"
-        android:layout_height="43dp"
+        android:layout_height="wrap_content"
         android:text="N"
         app:layout_constraintBottom_toBottomOf="@+id/button63"
         app:layout_constraintEnd_toStartOf="@+id/button65"
@@ -516,7 +522,7 @@
     <Button
         android:id="@+id/button63"
         android:layout_width="0dp"
-        android:layout_height="43dp"
+        android:layout_height="wrap_content"
         android:text="B"
         app:layout_constraintBottom_toBottomOf="@+id/button58"
         app:layout_constraintEnd_toStartOf="@+id/button64"
@@ -528,7 +534,7 @@
     <Button
         android:id="@+id/button60"
         android:layout_width="0dp"
-        android:layout_height="43dp"
+        android:layout_height="wrap_content"
         android:text="X"
         app:layout_constraintBottom_toBottomOf="@+id/button59"
         app:layout_constraintEnd_toStartOf="@+id/button62"
@@ -540,7 +546,7 @@
     <Button
         android:id="@+id/button59"
         android:layout_width="0dp"
-        android:layout_height="43dp"
+        android:layout_height="wrap_content"
         android:text="Z"
         app:layout_constraintBottom_toBottomOf="@+id/space3left"
         app:layout_constraintEnd_toStartOf="@+id/button60"
@@ -552,12 +558,13 @@
     <Space
         android:id="@+id/space4left"
         android:layout_width="0dp"
-        android:layout_height="12dp"
+        android:layout_height="50dp"
+        app:layout_constraintBottom_toTopOf="@+id/button70"
         app:layout_constraintEnd_toStartOf="@+id/button67"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_weight="2"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="244dp" />
+        app:layout_constraintTop_toBottomOf="@+id/space3left" />
 
     <Space
         android:id="@+id/space4right"
@@ -573,7 +580,7 @@
     <ImageButton
         android:id="@+id/button67"
         android:layout_width="0dp"
-        android:layout_height="37dp"
+        android:layout_height="wrap_content"
         android:src="@drawable/ic_space_bar"
         app:layout_constraintBottom_toBottomOf="@+id/space4left"
         app:layout_constraintEnd_toStartOf="@+id/space4right"
@@ -585,7 +592,7 @@
     <ImageButton
         android:id="@+id/button68"
         android:layout_width="0dp"
-        android:layout_height="36dp"
+        android:layout_height="wrap_content"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_backspace"
         app:layout_constraintBottom_toBottomOf="@+id/space4right"
@@ -599,45 +606,47 @@
         android:id="@+id/space5center"
         android:layout_width="0dp"
         android:layout_height="12dp"
-        app:layout_constraintBottom_toBottomOf="@+id/button71"
+        app:layout_constraintBottom_toBottomOf="@+id/button70"
         app:layout_constraintEnd_toStartOf="@+id/button71"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_weight="5"
         app:layout_constraintStart_toEndOf="@+id/button70"
-        app:layout_constraintTop_toTopOf="@+id/button71" />
+        app:layout_constraintTop_toTopOf="@+id/button70"
+        app:layout_constraintVertical_bias="0.555" />
 
     <Button
         android:id="@+id/button69"
         android:layout_width="0dp"
-        android:layout_height="33dp"
+        android:layout_height="wrap_content"
         android:text="SUBMIT"
+        app:layout_constraintBottom_toBottomOf="@+id/button71"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_weight="2"
         app:layout_constraintStart_toEndOf="@+id/button71"
-        tools:layout_editor_absoluteY="280dp" />
+        app:layout_constraintTop_toTopOf="@+id/button71" />
 
     <Button
         android:id="@+id/button71"
         android:layout_width="0dp"
-        android:layout_height="33dp"
+        android:layout_height="wrap_content"
         android:text="SKIP"
-        app:layout_constraintBottom_toBottomOf="@+id/button69"
+        app:layout_constraintBottom_toBottomOf="@+id/space5center"
         app:layout_constraintEnd_toStartOf="@+id/button69"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toEndOf="@+id/space5center"
-        app:layout_constraintTop_toTopOf="@+id/button69" />
+        app:layout_constraintTop_toTopOf="@+id/space5center" />
 
     <Button
         android:id="@+id/button70"
         android:layout_width="0dp"
-        android:layout_height="33dp"
+        android:layout_height="wrap_content"
         android:text="AGAIN"
-        app:layout_constraintBottom_toBottomOf="@+id/space5center"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/space5center"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_weight="1.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/space5center" />
+        app:layout_constraintTop_toBottomOf="@+id/space4left" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
