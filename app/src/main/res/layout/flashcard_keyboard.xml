@@ -442,9 +442,9 @@
         android:layout_width="0dp"
         android:layout_height="50dp"
         app:layout_constraintBottom_toTopOf="@+id/space4left"
-        app:layout_constraintEnd_toStartOf="@+id/keyZ"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_weight="1.5"
+        app:layout_constraintEnd_toStartOf="@+id/keyCOMMA"
+        app:layout_constraintHorizontal_bias=".50"
+        app:layout_constraintHorizontal_weight=".5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/space2left" />
 
@@ -469,7 +469,8 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toEndOf="@+id/keyC"
-        app:layout_constraintTop_toTopOf="@+id/keyC" />
+        app:layout_constraintTop_toTopOf="@+id/keyC"
+        app:layout_constraintVertical_weight="1" />
 
     <Button
         android:id="@+id/keyC"
@@ -548,12 +549,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Z"
-        app:layout_constraintBottom_toBottomOf="@+id/space3left"
+        app:layout_constraintBottom_toBottomOf="@+id/keyCOMMA"
         app:layout_constraintEnd_toStartOf="@+id/keyX"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintStart_toEndOf="@+id/space3left"
-        app:layout_constraintTop_toTopOf="@+id/space3left" />
+        app:layout_constraintStart_toEndOf="@+id/keyCOMMA"
+        app:layout_constraintTop_toTopOf="@+id/keyCOMMA"
+        app:layout_constraintVertical_weight="1" />
 
     <Space
         android:id="@+id/space4left"
@@ -618,8 +620,8 @@
         android:id="@+id/keySUBMIT"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="SUBMIT"
         android:minHeight="40dip"
+        android:text="SUBMIT"
         app:layout_constraintBottom_toBottomOf="@+id/keySKIP"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -631,8 +633,8 @@
         android:id="@+id/keySKIP"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="SKIP"
         android:minHeight="40dip"
+        android:text="SKIP"
         app:layout_constraintBottom_toBottomOf="@+id/space5center"
         app:layout_constraintEnd_toStartOf="@+id/keySUBMIT"
         app:layout_constraintHorizontal_bias="0.5"
@@ -651,5 +653,19 @@
         app:layout_constraintHorizontal_weight="1.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/space4left" />
+
+    <Button
+        android:id="@+id/keyCOMMA"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Button"
+        app:layout_constraintBottom_toBottomOf="@+id/space3left"
+        app:layout_constraintEnd_toStartOf="@+id/keyZ"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintStart_toEndOf="@+id/space3left"
+        app:layout_constraintTop_toTopOf="@+id/space3left"
+        app:layout_constraintVertical_bias="0.454"
+        tools:text="," />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
