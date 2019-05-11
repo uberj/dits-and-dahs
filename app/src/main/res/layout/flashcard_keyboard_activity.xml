@@ -7,10 +7,20 @@
     android:screenOrientation="landscape"
     android:id="@+id/keyboard-base"
     app:layout_constraintWidth_max="wrap">
+    <!--<androidx.appcompat.widget.Toolbar-->
+        <!--android:id="@+id/keyboard_toolbar"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="?attr/actionBarSize"-->
+        <!--android:background="?attr/colorPrimary"-->
+        <!--android:elevation="4dp"-->
+        <!--android:theme="@style/ThemeOverlay.AppCompat.ActionBar"-->
+        <!--app:popupTheme="@style/ThemeOverlay.AppCompat.Light"-->
+        <!--&gt;-->
+    <!--</androidx.appcompat.widget.Toolbar>-->
 
     <FrameLayout
         android:id="@+id/timer-progress-bar-frame"
-        android:layout_width="560dp"
+        android:layout_width="0dp"
         android:layout_height="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -60,8 +70,7 @@
         android:id="@+id/nested_flashcard_keyboard"
         layout="@layout/flashcard_keyboard"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/transcribe_text_area_container" />
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
