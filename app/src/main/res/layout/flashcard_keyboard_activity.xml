@@ -1,38 +1,38 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:screenOrientation="landscape"
     android:id="@+id/keyboard-base"
     app:layout_constraintWidth_max="wrap">
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/keyboard_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        >
-    </androidx.appcompat.widget.Toolbar>
+
     <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="4dp">
+        android:id="@+id/timer-progress-bar-frame"
+        android:layout_width="560dp"
+        android:layout_height="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
         <ProgressBar
             android:id="@+id/timer-progress-bar"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:max="1000"
-            android:progressDrawable="@drawable/incorrect_guess_timer_bar_progress_background"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            />
+            android:max="1000"
+            android:progressDrawable="@drawable/incorrect_guess_timer_bar_progress_background" />
     </FrameLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/transcribe_text_area_container"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@color/disabledTextViewGrey">
+        android:layout_height="40dp"
+        android:background="@color/disabledTextViewGrey"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/timer-progress-bar-frame">
 
         <EditText
             android:id="@+id/transcribe_text_area"
@@ -40,18 +40,28 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:focusable="true"
             android:cursorVisible="true"
-            android:textCursorDrawable="@null"
+            android:focusable="true"
             android:focusedByDefault="false"
             android:gravity="bottom|start"
             android:inputType="textNoSuggestions"
-            android:text="top top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top top            top top top bottom"
+            android:text="TOP top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top top            top top top bottom"
             android:textColor="@color/disabledText"
+            android:textCursorDrawable="@null"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</LinearLayout>
+    <include
+        android:id="@+id/nested_flashcard_keyboard"
+        layout="@layout/flashcard_keyboard"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/transcribe_text_area_container" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

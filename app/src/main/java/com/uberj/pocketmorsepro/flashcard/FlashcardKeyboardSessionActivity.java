@@ -100,9 +100,9 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
         setContentView(R.layout.flashcard_keyboard_activity);
         Bundle receiveBundle = getIntent().getExtras();
         assert receiveBundle != null;
-        Toolbar keyboardToolbar = findViewById(R.id.keyboard_toolbar);
-        keyboardToolbar.inflateMenu(R.menu.socratic_keyboard);
-        setSupportActionBar(keyboardToolbar);
+//        Toolbar keyboardToolbar = findViewById(R.id.keyboard_toolbar);
+//        keyboardToolbar.inflateMenu(R.menu.socratic_keyboard);
+//        setSupportActionBar(keyboardToolbar);
 
         int durationUnitsRequested = receiveBundle.getInt(DURATION_UNITS_REQUESTED, 0);
         durationUnit = receiveBundle.getString(DURATION_UNIT, "num_cards");
@@ -122,19 +122,19 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
         ).get(FlashcardTrainingSessionViewModel.class);
 
         Keys sessionKeys = getSessionKeys();
-        LinearLayout keyboardContainer = findViewById(R.id.keyboard_base);
-        keyboard = new DynamicKeyboard.Builder()
-                .setContext(this)
-                .setRootView(keyboardContainer)
-                .setKeys(sessionKeys.getKeys())
-                .setButtonOnClickListener(this::keyboardButtonClicked)
-                .setDrawProgressBar(false)
-                .setButtonCallback((button, keyConfig) -> {
-                })
-                .setProgressBarCallback((button, progressBar) -> {
-                })
-                .build();
-        keyboard.buildAtRoot();
+//        LinearLayout keyboardContainer = findViewById(R.id.keyboard_base);
+//        keyboard = new DynamicKeyboard.Builder()
+//                .setContext(this)
+//                .setRootView(keyboardContainer)
+//                .setKeys(sessionKeys.getKeys())
+//                .setButtonOnClickListener(this::keyboardButtonClicked)
+//                .setDrawProgressBar(false)
+//                .setButtonCallback((button, keyConfig) -> {
+//                })
+//                .setProgressBarCallback((button, progressBar) -> {
+//                })
+//                .build();
+//        keyboard.buildAtRoot();
 
         ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
         viewModel.getDurationUnitsRemaining().observe(this, (remainingParts) -> {
