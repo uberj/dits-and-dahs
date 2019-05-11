@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
 import com.uberj.pocketmorsepro.training.randomletters.RandomLettersStartScreenActivity;
 import com.uberj.pocketmorsepro.training.simplewordflashcards.SimpleWordFlashcardStartScreenActivity;
 import com.uberj.pocketmorsepro.training.simple.SimpleStartScreenActivity;
@@ -27,7 +28,8 @@ public class TrainingActivityList extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Fabric.with(this, new Crashlytics());
+        CrashlyticsCore core = new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build();
+        Fabric.with(this, new Crashlytics.Builder().core(core).build());
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         } else {

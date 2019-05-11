@@ -2,6 +2,7 @@ package com.uberj.pocketmorsepro;
 
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.HapticFeedbackConstants;
 import android.view.View;
@@ -91,7 +92,6 @@ public class DynamicKeyboard {
 
         public DynamicKeyboard build() {
             Preconditions.checkNotNull(context);
-            Preconditions.checkNotNull(rootView);
             Preconditions.checkNotNull(keys);
             if (drawProgressBar) {
                 Preconditions.checkNotNull(progressBarCallback);
@@ -158,13 +158,17 @@ public class DynamicKeyboard {
         return rootView.findViewById(progressBarId);
     }
 
-    public String getButtonLetter(View v) {
+    public static String getButtonLetter(Context context, View v) {
         String buttonId = context.getResources().getResourceEntryName(v.getId());
         if (!buttonId.startsWith("key")) {
             throw new RuntimeException("unknown button " + buttonId);
         }
 
         return idNameToButtonLetter(buttonId.replace("key", ""));
+    }
+
+    public String getButtonLetter(View v) {
+        return getButtonLetter(context, v);
     }
 
 

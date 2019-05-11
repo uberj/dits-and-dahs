@@ -39,14 +39,12 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
     public static final String DURATION_UNIT = "duration-unit";
     private Menu menu;
 
-    private DynamicKeyboard keyboard;
-
     private FlashcardTrainingSessionViewModel viewModel;
     private EditText transcribeTextArea;
     private String durationUnit;
 
     public void keyboardButtonClicked(View v) {
-        String buttonLetter = keyboard.getButtonLetter(v).toUpperCase();
+        String buttonLetter = DynamicKeyboard.getButtonLetter(getApplicationContext(), v).toUpperCase();
         String currentGuess = transcribeTextArea.getText().toString();
         Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(buttonLetter);
         boolean includeInMessage = true;
