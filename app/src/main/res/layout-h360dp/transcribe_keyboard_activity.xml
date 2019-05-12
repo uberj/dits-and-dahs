@@ -1,0 +1,64 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:screenOrientation="landscape"
+    android:id="@+id/keyboard-base"
+    app:layout_constraintWidth_max="wrap">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/keyboard_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        >
+    </androidx.appcompat.widget.Toolbar>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="4dp">
+        <ProgressBar
+            android:id="@+id/timer-progress-bar"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:max="1000"
+            android:progressDrawable="@drawable/incorrect_guess_timer_bar_progress_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+    </FrameLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/disabledTextViewGrey">
+
+        <EditText
+            android:id="@+id/transcribe_text_area"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:focusable="true"
+            android:cursorVisible="true"
+            android:textCursorDrawable="@null"
+            android:focusedByDefault="false"
+            android:gravity="bottom|start"
+            android:inputType="textNoSuggestions"
+            android:text="top top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top top            top top top bottom"
+            android:textColor="@color/disabledText"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/nested_transcribe_keyboard"
+        layout="@layout/transcribe_regular_keyboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</LinearLayout>

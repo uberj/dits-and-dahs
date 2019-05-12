@@ -6,106 +6,12 @@
     android:layout_height="match_parent">
 
 
-    <TextView
-        android:id="@+id/prev-session-duration-title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Duration:"
-        android:visibility="visible"
-        app:layout_constraintStart_toStartOf="@+id/guideline10"
-        app:layout_constraintTop_toBottomOf="@+id/stats-title" />
-
-    <TextView
-        android:id="@+id/prev-session-duration-time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="N/A"
-        android:visibility="visible"
-        app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-duration-title"
-        app:layout_constraintStart_toStartOf="@+id/guideline17" />
-
-    <TextView
-        android:id="@+id/prev-session-wpm-title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Playback WPM: "
-        android:visibility="visible"
-        app:layout_constraintStart_toStartOf="@+id/guideline10"
-        app:layout_constraintTop_toBottomOf="@+id/prev-session-duration-title" />
-
-    <TextView
-        android:id="@+id/prev-session-wpm-average"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="N/A"
-        android:visibility="visible"
-        app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-wpm-title"
-        app:layout_constraintStart_toStartOf="@+id/guideline17" />
-
-    <TextView
-        android:id="@+id/prev-session-accuracy-rate-title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Overall Accuracy:"
-        android:visibility="visible"
-        app:layout_constraintStart_toStartOf="@+id/guideline10"
-        app:layout_constraintTop_toBottomOf="@+id/prev-session-wpm-title" />
-
-    <TextView
-        android:id="@+id/prev-session-accuracy"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="N/A"
-        android:visibility="visible"
-        app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-accuracy-rate-title"
-        app:layout_constraintStart_toStartOf="@+id/guideline17" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline17"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.31" />
-
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline18"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.07" />
-
-    <TextView
-        android:id="@+id/stats-title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Previous Session Numbers"
-        android:textAllCaps="true"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/guideline10"
-        app:layout_constraintTop_toTopOf="@+id/guideline18" />
-
-    <TextView
-        android:id="@+id/stats-title2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Accuracy Breakdown"
-        android:textAllCaps="true"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/guideline10"
-        app:layout_constraintTop_toBottomOf="@+id/prev-session-accuracy" />
 
     <ScrollView
         android:layout_width="0dp"
@@ -231,26 +137,116 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.103125" />
+        app:layout_constraintGuide_percent="0.08" />
 
     <ScrollView
-        android:id="@+id/error-breakdown-container"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
         app:layout_constraintStart_toStartOf="@+id/guideline10"
-        app:layout_constraintTop_toBottomOf="@+id/stats-title2">
+        app:layout_constraintTop_toTopOf="@+id/guideline18">
 
-        <TableLayout
-            android:id="@+id/error-breakdown-list-container"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/prev-session-wpm-average"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="N/A"
+                android:visibility="visible"
+                app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-wpm-title"
+                app:layout_constraintStart_toStartOf="@+id/prev-session-accuracy" />
+
+            <TableLayout
+                android:id="@+id/error-breakdown-list-container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/stats-title2" />
+
+            <TextView
+                android:id="@+id/prev-session-accuracy-rate-title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="Overall Accuracy:"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/prev-session-wpm-title" />
+
+            <TextView
+                android:id="@+id/stats-title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Previous Session Numbers"
+                android:textAllCaps="true"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/prev-session-duration-title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="Duration:"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/stats-title" />
+
+            <TextView
+                android:id="@+id/prev-session-wpm-title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="Playback WPM: "
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/prev-session-duration-title" />
+
+            <TextView
+                android:id="@+id/prev-session-accuracy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:text="N/A"
+                android:visibility="visible"
+                app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-accuracy-rate-title"
+                app:layout_constraintStart_toEndOf="@+id/prev-session-accuracy-rate-title" />
+
+            <TextView
+                android:id="@+id/stats-title2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="Accuracy Breakdown"
+                android:textAllCaps="true"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/prev-session-accuracy-rate-title" />
+
+            <TextView
+                android:id="@+id/prev-session-duration-time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="N/A"
+                android:visibility="visible"
+                app:layout_constraintBaseline_toBaselineOf="@+id/prev-session-duration-title"
+                app:layout_constraintStart_toStartOf="@+id/prev-session-wpm-average" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
 
