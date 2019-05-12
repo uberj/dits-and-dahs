@@ -27,6 +27,7 @@ import java.util.Optional;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProviders;
 
 import static com.uberj.pocketmorsepro.simplesocratic.SocraticKeyboardSessionActivity.DISABLED_BUTTON_ALPHA;
@@ -79,31 +80,14 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
                 )
         ).get(TranscribeTrainingSessionViewModel.class);
 
-        LinearLayout keyboardContainer = findViewById(R.id.keyboard_base);
-        keyboard = new DynamicKeyboard.Builder()
-                .setContext(this)
-                .setRootView(keyboardContainer)
-                .setDrawProgressBar(false)
-                .setKeys(getKeys())
-                .setButtonOnClickListener(this::keyboardButtonClicked)
-                .setButtonLongClickListener(this::playableKeyLongClickHandler)
-                .setButtonCallback((view, keyConfig) -> {
-                    assert stringsRequested != null;
-                    if (keyConfig.type == KeyConfig.KeyType.DELETE_KEY || keyConfig.type == KeyConfig.KeyType.SPACE_KEY) {
-                        return;
-                    }
-
-                    if (!(view instanceof Button)) {
-                        return;
-                    }
-
-                    Button button = (Button) view;
-                    if (!stringsRequested.contains(button.getText().toString())) {
-                        button.setAlpha(DISABLED_BUTTON_ALPHA);
-                    }
-
-                })
-                .build();
+        ConstraintLayout keyboardContainer = findViewById(R.id.nested_transcribe_keyboard);
+        ArrayList<View> inPlayButtons = DynamicKeyboard.getViewsByTag(keyboardContainer, "inplay");
+        for (View inPlayButton : inPlayButtons) {
+            Button button = (Button) inPlayButton;
+            if (!stringsRequested.contains(button.getText().toString())) {
+                button.setAlpha(DISABLED_BUTTON_ALPHA);
+            }
+        }
 
         viewModel.getLatestTrainingSession().observe(this, (possibleSession) -> {
             TranscribeTrainingSession session;
@@ -113,7 +97,6 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
                 session = possibleSession.get(0);
             }
             viewModel.primeTheEngine(session);
-            keyboard.buildAtRoot();
             viewModel.startTheEngine();
         });
 
@@ -203,12 +186,9 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
         }
     }
 
-    private boolean playableKeyLongClickHandler(View view) {
-        return false;
-    }
-
-    private void keyboardButtonClicked(View view) {
-        String buttonLetter = keyboard.getButtonLetter(view);
+    // Called via xml
+    public void keyboardButtonClicked(View view) {
+        String buttonLetter = DynamicKeyboard.getButtonLetter(getApplicationContext(), view);
         Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(buttonLetter);
         if (!viewModel.isARequstedString(buttonLetter) && !controlType.isPresent()) {
             return;

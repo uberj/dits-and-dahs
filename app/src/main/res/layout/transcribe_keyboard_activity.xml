@@ -6,16 +6,15 @@
     android:screenOrientation="landscape"
     android:id="@+id/keyboard-base"
     app:layout_constraintWidth_max="wrap">
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/keyboard_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="35dp"
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        >
-    </androidx.appcompat.widget.Toolbar>
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"></androidx.appcompat.widget.Toolbar>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="4dp">
@@ -31,7 +30,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="40dp"
         android:background="@color/disabledTextViewGrey">
 
         <EditText
@@ -40,18 +39,25 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:focusable="true"
             android:cursorVisible="true"
-            android:textCursorDrawable="@null"
+            android:focusable="true"
             android:focusedByDefault="false"
             android:gravity="bottom|start"
             android:inputType="textNoSuggestions"
-            android:text="top top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top top            top top top bottom"
+            android:text="TOP top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top toptop top top            top top top bottom"
             android:textColor="@color/disabledText"
+            android:textCursorDrawable="@null"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/nested_transcribe_keyboard"
+        layout="@layout/transcribe_small_keyboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </LinearLayout>

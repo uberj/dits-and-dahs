@@ -16,6 +16,7 @@ import com.uberj.pocketmorsepro.keyboards.KeyConfig;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
+import java.util.ArrayList;
 import java.util.function.BiConsumer;
 
 public class DynamicKeyboard {
@@ -28,6 +29,26 @@ public class DynamicKeyboard {
     private final BiConsumer<View, View> progressBarCallback;
     private final LinearLayout rootView;
     private final boolean drawProgressBar;
+
+    public static ArrayList<View> getViewsByTag(ViewGroup root, String tag) {
+        ArrayList<View> views = new ArrayList<>();
+        final int childCount = root.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final View child = root.getChildAt(i);
+            if (child instanceof ViewGroup) {
+                views.addAll(getViewsByTag((ViewGroup) child, tag));
+            }
+
+            final Object tagObj = child.getTag();
+            if (tagObj != null && tagObj.equals(tag)) {
+                views.add(child);
+            }
+
+        }
+
+        return views;
+    }
+
 
     public DynamicKeyboard(FragmentActivity context, ImmutableList<ImmutableList<KeyConfig>> keys, View.OnClickListener buttonOnClickListener, View.OnLongClickListener buttonLongClickListener, BiConsumer<View, KeyConfig> buttonCallback, BiConsumer<View, View> progressBarCallback, LinearLayout rootView, boolean drawProgressBar) {
         this.context = context;
