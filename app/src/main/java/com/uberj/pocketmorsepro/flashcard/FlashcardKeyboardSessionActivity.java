@@ -99,9 +99,11 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
         setContentView(R.layout.flashcard_keyboard_activity);
         Bundle receiveBundle = getIntent().getExtras();
         assert receiveBundle != null;
-//        Toolbar keyboardToolbar = findViewById(R.id.keyboard_toolbar);
-//        keyboardToolbar.inflateMenu(R.menu.socratic_keyboard);
-//        setSupportActionBar(keyboardToolbar);
+        Toolbar keyboardToolbar = findViewById(R.id.keyboard_toolbar);
+        if (keyboardToolbar != null) {
+            keyboardToolbar.inflateMenu(R.menu.socratic_keyboard);
+            setSupportActionBar(keyboardToolbar);
+        }
 
         int durationUnitsRequested = receiveBundle.getInt(DURATION_UNITS_REQUESTED, 0);
         durationUnit = receiveBundle.getString(DURATION_UNIT, "num_cards");
@@ -195,9 +197,11 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
             viewModel.pause();
 
             // Update UI to indicate paused session. Player will need to manually trigger play to resume
-            MenuItem playPauseIcon = menu.findItem(R.id.keyboard_pause_play);
-            if (durationUnit.equals(FlashcardTrainingSessionViewModel.TIME_LIMITED_SESSION_TYPE)) {
-                playPauseIcon.setIcon(R.mipmap.ic_play);
+            if (menu != null) {
+                MenuItem playPauseIcon = menu.findItem(R.id.keyboard_pause_play);
+                if (durationUnit.equals(FlashcardTrainingSessionViewModel.TIME_LIMITED_SESSION_TYPE)) {
+                    playPauseIcon.setIcon(R.mipmap.ic_play);
+                }
             }
 
             // Build alert and show to user for exit confirmation
@@ -242,8 +246,10 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
     @Override
     public void onDismiss(DialogInterface dialog) {
         if (durationUnit.equals(FlashcardTrainingSessionViewModel.TIME_LIMITED_SESSION_TYPE)) {
-            MenuItem item = menu.findItem(R.id.keyboard_pause_play);
-            item.setIcon(R.mipmap.ic_pause);
+            if (menu != null) {
+                MenuItem item = menu.findItem(R.id.keyboard_pause_play);
+                item.setIcon(R.mipmap.ic_pause);
+            }
         }
         viewModel.resume();
     }
