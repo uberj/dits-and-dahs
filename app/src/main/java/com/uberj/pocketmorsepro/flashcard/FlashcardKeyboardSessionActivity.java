@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -133,6 +134,11 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
 //                })
 //                .build();
 //        keyboard.buildAtRoot();
+        DisplayMetrics displayMetrics = getApplication().getResources().getDisplayMetrics();
+        float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
+        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+        System.out.println("Height: " + dpHeight);
+        System.out.println("Width: " + dpWidth);
 
         ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
         viewModel.getDurationUnitsRemaining().observe(this, (remainingParts) -> {
