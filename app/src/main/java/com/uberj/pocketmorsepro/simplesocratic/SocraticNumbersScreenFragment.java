@@ -65,7 +65,7 @@ public class SocraticNumbersScreenFragment extends Fragment {
             sessionType = SocraticSessionType.valueOf(savedInstanceState.getString("sessionType"));
         }
 
-        ConstraintLayout rootView = (ConstraintLayout) inflater.inflate(R.layout.socratic_training_numbers_screen_fragment, container, false);
+        ScrollView rootView = (ScrollView) inflater.inflate(R.layout.socratic_training_numbers_screen_fragment, container, false);
 
         TextView detailsTitle = rootView.findViewById(R.id.details_title);
         TextView detailsExplanation = rootView.findViewById(R.id.details_explaination);
