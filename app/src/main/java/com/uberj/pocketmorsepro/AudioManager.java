@@ -363,22 +363,18 @@ public class AudioManager {
     public void playMessage(String requestedMessage) {
         Timber.d("Requested message: %s", requestedMessage);
         String pattern = explodeToSymbols(requestedMessage);
-        if (pattern == null) {
-            throw new RuntimeException("No pattern found for letter: " + requestedMessage);
-        }
-
         byte[] generatedSnd = buildSnd(letterWpm, pattern);
-        for (int i = 0; i < generatedSnd.length; i += minBufferSize) {
+        for (int i = 0; i <= generatedSnd.length; i += minBufferSize) {
             int size;
             if (i + minBufferSize > generatedSnd.length) {
                 size = generatedSnd.length - i;
             } else {
                 size = minBufferSize;
             }
-            cwplayer.write(generatedSnd, i, size);
             if (cwplayer.getPlayState() != AudioTrack.PLAYSTATE_PLAYING) {
                 cwplayer.play();
             }
+            cwplayer.write(generatedSnd, i, size);
         }
 
     }

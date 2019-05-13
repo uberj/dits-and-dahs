@@ -9,7 +9,7 @@ import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingSessionWi
 
 import androidx.annotation.NonNull;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -39,7 +39,7 @@ public class SocraticNumbersScreenFragment extends Fragment {
     private static final String BLANK_DETAIL = "-";
     private SocraticTrainingMainScreenViewModel sessionViewModel;
     private SocraticSessionType sessionType;
-    private ScrollView detailsContainerScroll;
+    private NestedScrollView detailsContainerScroll;
 
     public static SocraticNumbersScreenFragment newInstance(SocraticSessionType sessionType) {
         SocraticNumbersScreenFragment fragment = new SocraticNumbersScreenFragment();
@@ -371,6 +371,6 @@ public class SocraticNumbersScreenFragment extends Fragment {
     }
 
     private void setPadding(TextView tv) {
-        tv.setPadding(0, 8, 48, 8);
+        tv.setPadding(0, 0, 48, 2);
     }
 }
