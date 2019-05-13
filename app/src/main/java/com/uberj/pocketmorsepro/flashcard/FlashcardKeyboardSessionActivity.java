@@ -38,6 +38,7 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
     public static final String TONE_FREQUENCY_HZ = "tone-frequency-hz";
     public static final String MESSAGES_REQUESTED = "messages-requested";
     public static final String DURATION_UNIT = "duration-unit";
+    public static final String FADE_IN_OUT_PERCENTAGE = "fade-in-out-precentage";
     private Menu menu;
 
     private FlashcardTrainingSessionViewModel viewModel;
@@ -109,6 +110,7 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
         durationUnit = receiveBundle.getString(DURATION_UNIT, "num_cards");
         int wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
         int toneFrequency = receiveBundle.getInt(TONE_FREQUENCY_HZ, 440);
+        int fadeInOutPercentage = receiveBundle.getInt(FADE_IN_OUT_PERCENTAGE, 30);
         ArrayList<String> requestedMessages = receiveBundle.getStringArrayList(MESSAGES_REQUESTED);
 
         viewModel = ViewModelProviders.of(this,
@@ -119,28 +121,14 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
                         durationUnit,
                         wpmRequested,
                         toneFrequency,
-                        getSessionType())
+                        getSessionType(),
+                        fadeInOutPercentage
+                )
         ).get(FlashcardTrainingSessionViewModel.class);
 
-        Keys sessionKeys = getSessionKeys();
-//        LinearLayout keyboardContainer = findViewById(R.id.keyboard_base);
-//        keyboard = new DynamicKeyboard.Builder()
-//                .setContext(this)
-//                .setRootView(keyboardContainer)
-//                .setKeys(sessionKeys.getKeys())
-//                .setButtonOnClickListener(this::keyboardButtonClicked)
-//                .setDrawProgressBar(false)
-//                .setButtonCallback((button, keyConfig) -> {
-//                })
-//                .setProgressBarCallback((button, progressBar) -> {
-//                })
-//                .build();
-//        keyboard.buildAtRoot();
         DisplayMetrics displayMetrics = getApplication().getResources().getDisplayMetrics();
         float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
         float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
-        System.out.println("Height: " + dpHeight);
-        System.out.println("Width: " + dpWidth);
 
         ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
         viewModel.getDurationUnitsRemaining().observe(this, (remainingParts) -> {

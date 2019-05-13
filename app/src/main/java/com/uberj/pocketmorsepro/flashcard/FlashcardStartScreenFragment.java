@@ -247,12 +247,14 @@ public class FlashcardStartScreenFragment extends Fragment {
         int toneFrequency = preferences.getInt(getResources().getString(R.string.setting_flashcard_audio_tone), 440);
         String numCardsDurationUnit = getResources().getString(R.string.flashcard_num_cards_option);
         String durationUnit = preferences.getString(getResources().getString(R.string.setting_flashcard_duration_unit), numCardsDurationUnit);
+        int fadeInOutPercentage = preferences.getInt(getResources().getString(R.string.setting_fade_in_out_percentage), 30);
         Intent sendIntent = new Intent(view.getContext(), sessionActivityClass);
         Bundle bundle = new Bundle();
         bundle.putInt(FlashcardKeyboardSessionActivity.WPM_REQUESTED, wpmPicker.getProgress());
         bundle.putInt(FlashcardKeyboardSessionActivity.DURATION_UNITS_REQUESTED, durationPicker.getProgress());
         bundle.putString(FlashcardKeyboardSessionActivity.DURATION_UNIT, durationUnit);
         bundle.putInt(FlashcardKeyboardSessionActivity.TONE_FREQUENCY_HZ, toneFrequency);
+        bundle.putInt(FlashcardKeyboardSessionActivity.FADE_IN_OUT_PERCENTAGE, fadeInOutPercentage);
         bundle.putStringArrayList(
                 FlashcardKeyboardSessionActivity.MESSAGES_REQUESTED,
                 sessionViewModel.selectedStrings.getValue()

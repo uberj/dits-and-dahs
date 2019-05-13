@@ -48,6 +48,7 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
     public final MediaPlayer correctSound;
     private final HandlerThread guessSoundHandlerThread;
     private final Handler guessHandler;
+    private final int fadeInOutPercentage;
 
     private List<String> inPlayKeyNames;
     private CountDownTimer countDownTimer;
@@ -63,8 +64,9 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
     private String currentMessage;
     private AudioManager audioManager;
 
-    public SocraticTrainingSessionViewModel(@NonNull Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, int toneFrequency, boolean easyMode, SocraticSessionType sessionType, Keys keys) {
+    public SocraticTrainingSessionViewModel(@NonNull Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, int toneFrequency, boolean easyMode, SocraticSessionType sessionType, Keys keys, int fadeInOutPercentage) {
         super(application);
+        this.fadeInOutPercentage = fadeInOutPercentage;
         guessSoundHandlerThread = new HandlerThread("GuessSoundHandler", HandlerThread.MAX_PRIORITY);
         guessSoundHandlerThread.start();
         guessHandler = new Handler(guessSoundHandlerThread.getLooper(), this::guessCallBack);
@@ -113,9 +115,10 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
         private final Keys keys;
         private final int toneFrequency;
         private final boolean easyMode;
+        private final int fadeInOutPercentage;
 
 
-        public Factory(Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, int toneFrequency, boolean easyMode, SocraticSessionType sessionType, Keys keys) {
+        public Factory(Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, int toneFrequency, boolean easyMode, SocraticSessionType sessionType, Keys keys, int fadeInOutPercentage) {
             this.application = application;
             this.resetWeights = resetWeights;
             this.durationMinutesRequested = durationMinutesRequested;
@@ -124,12 +127,13 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
             this.easyMode = easyMode;
             this.sessionType = sessionType;
             this.keys = keys;
+            this.fadeInOutPercentage = fadeInOutPercentage;
         }
 
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
-            return (T) new SocraticTrainingSessionViewModel(application, resetWeights, durationMinutesRequested, wpmRequested, toneFrequency, easyMode, sessionType, keys);
+            return (T) new SocraticTrainingSessionViewModel(application, resetWeights, durationMinutesRequested, wpmRequested, toneFrequency, easyMode, sessionType, keys, fadeInOutPercentage);
         }
     }
 
@@ -146,7 +150,7 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
         Map<String, Integer> competencyWeights = buildInitialCompetencyWeights(resetWeights ? null : previousSettings);
         inPlayKeyNames = getInitialInPlayKeyNames(previousSettings);
         countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
-        audioManager = new AudioManager(wpmRequested, toneFrequency, getApplication().getResources());
+        audioManager = new AudioManager(wpmRequested, toneFrequency, getApplication().getResources(), ((double) fadeInOutPercentage)/100D);
         engine = new SocraticTrainingEngine(audioManager, KochLetterSequence.sequence, wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights, easyMode);
         engine.prime();
     }

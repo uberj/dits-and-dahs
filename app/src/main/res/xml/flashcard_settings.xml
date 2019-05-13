@@ -4,24 +4,40 @@
     xmlns:whatever="http://schemas.android.com/apk/res-auto"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
-    <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
-        app:key="@string/setting_flashcard_audio_tone"
-        app:title="Tone Frequency"
-        app:summary="The audio frequency that tones will be played at"
-        app:showSeekBarValue="true"
-        whatever:value_suffix=" Hz"
-        app:min="300"
-        android:max="1000"
-        android:defaultValue="440"
-        whatever:step_floor="10"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-    <ListPreference
-        android:key="@string/setting_flashcard_duration_unit"
-        android:title="Duration Preference"
-        android:summary="%s"
-        android:defaultValue="@string/flashcard_num_cards_option"
-        android:entryValues="@array/flashcard_duration_options"
-        android:entries="@array/flashcard_duration_option_names"
-        />
+    <PreferenceCategory android:title="Activity Settings">
+        <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
+            app:key="@string/setting_flashcard_audio_tone"
+            app:title="Tone Frequency"
+            app:summary="The audio frequency that tones will be played at"
+            app:showSeekBarValue="true"
+            whatever:value_suffix=" Hz"
+            app:min="300"
+            android:max="1000"
+            android:defaultValue="440"
+            whatever:step_floor="10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <ListPreference
+            android:key="@string/setting_flashcard_duration_unit"
+            android:title="Duration Preference"
+            android:summary="%s"
+            android:defaultValue="@string/flashcard_num_cards_option"
+            android:entryValues="@array/flashcard_duration_options"
+            android:entries="@array/flashcard_duration_option_names"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Global Settings">
+        <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
+            app:key="@string/setting_fade_in_out_percentage"
+            app:title="Tone fade-in/fade-out control"
+            app:summary="If you are hearing 'clipping' noises, increase this setting until you no longer hear the issue"
+            app:showSeekBarValue="true"
+            whatever:value_suffix=" %"
+            app:min="0"
+            android:max="50"
+            android:defaultValue="30"
+            whatever:step_floor="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </PreferenceCategory>
 </PreferenceScreen>

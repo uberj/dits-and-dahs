@@ -406,7 +406,7 @@ public class FormattingSeekBarPreference extends Preference {
     }
 
     public String formatValue(int value) {
-        if (value == mMax) {
+        if (value == mMax && !Strings.isNullOrEmpty(maxValue)) {
             return maxValue;
         }
 

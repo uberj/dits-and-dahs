@@ -41,6 +41,7 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
     public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
     public static final String WPM_REQUESTED = "wpm-requested";
     public static final String TONE_FREQUENCY_HZ = "tone-frequency-hz";
+    public static final String FADE_IN_OUT_PERCENTAGE = "fade-in-out-percentage";
     private static final String engineMutex = "engineMutex";
     private Menu menu;
 
@@ -192,6 +193,7 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
         int wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
         int toneFrequency = receiveBundle.getInt(TONE_FREQUENCY_HZ, 440);
         boolean easyMode = receiveBundle.getBoolean(EASY_MODE, true);
+        int fadeInOutPercentage = receiveBundle.getInt(FADE_IN_OUT_PERCENTAGE, 30);
 
         viewModel = ViewModelProviders.of(this,
                 new SocraticTrainingSessionViewModel.Factory(
@@ -202,7 +204,8 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
                         toneFrequency,
                         easyMode,
                         getSessionType(),
-                        getSessionKeys())
+                        getSessionKeys(),
+                        fadeInOutPercentage)
         ).get(SocraticTrainingSessionViewModel.class);
 
         viewModel.getLatestEngineSetting().observe(this, (prevSettings) -> {

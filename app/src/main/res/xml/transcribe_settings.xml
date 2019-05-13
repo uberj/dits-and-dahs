@@ -4,46 +4,62 @@
     xmlns:whatever="http://schemas.android.com/apk/res-auto"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
-    <SwitchPreferenceCompat
-        app:key="@string/setting_transcribe_target_issue_letters"
-        app:title="Targeted Letters"
-        app:summary="Favor playing letters that I have trouble with"/>
+    <PreferenceCategory android:title="Activity Settings">
+        <SwitchPreferenceCompat
+            app:key="@string/setting_transcribe_target_issue_letters"
+            app:title="Targeted Letters"
+            app:summary="Favor playing letters that I have trouble with"/>
 
-    <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
-        app:key="@string/setting_transcribe_audio_tone"
-        app:title="Tone Frequency"
-        app:summary="The audio frequency that tones will be played at"
-        app:showSeekBarValue="true"
-        whatever:value_suffix=" Hz"
-        app:min="300"
-        android:max="1000"
-        android:defaultValue="440"
-        whatever:step_floor="10"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-    <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
-        app:key="@string/setting_transcribe_start_delay_seconds"
-        app:title="Start Delay (Seconds)"
-        app:summary="Give yourself a countdown before your session starts"
-        app:showSeekBarValue="true"
-        app:min="1"
-        android:max="10"
-        android:defaultValue="1"
-        whatever:value_suffix=" Seconds"
-        whatever:step_floor="1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-    <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
-        app:key="@string/setting_transcribe_end_delay_seconds"
-        app:title="End Delay (Seconds)"
-        app:summary="Give yourself time at the end of the session to make last second changes"
-        app:showSeekBarValue="true"
-        app:min="1"
-        android:max="@string/setting_transcribe_end_delay_seconds_max_value"
-        android:defaultValue="4"
-        whatever:value_suffix=" Seconds"
-        whatever:step_floor="1"
-        whatever:max_value=" Unlimited"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
+            app:key="@string/setting_transcribe_audio_tone"
+            app:title="Tone Frequency"
+            app:summary="The audio frequency that tones will be played at"
+            app:showSeekBarValue="true"
+            whatever:value_suffix=" Hz"
+            app:min="300"
+            android:max="1000"
+            android:defaultValue="440"
+            whatever:step_floor="10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
+            app:key="@string/setting_transcribe_start_delay_seconds"
+            app:title="Start Delay (Seconds)"
+            app:summary="Give yourself a countdown before your session starts"
+            app:showSeekBarValue="true"
+            app:min="1"
+            android:max="10"
+            android:defaultValue="1"
+            whatever:value_suffix=" Seconds"
+            whatever:step_floor="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
+            app:key="@string/setting_transcribe_end_delay_seconds"
+            app:title="End Delay (Seconds)"
+            app:summary="Give yourself time at the end of the session to make last second changes"
+            app:showSeekBarValue="true"
+            app:min="1"
+            android:max="@string/setting_transcribe_end_delay_seconds_max_value"
+            android:defaultValue="4"
+            whatever:value_suffix=" Seconds"
+            whatever:step_floor="1"
+            whatever:max_value=" Unlimited"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Global Settings">
+        <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
+            app:key="@string/setting_fade_in_out_percentage"
+            app:title="Tone fade-in/fade-out control"
+            app:summary="If you are hearing 'clipping' noises, increase this setting until you no longer hear the issue"
+            app:showSeekBarValue="true"
+            whatever:value_suffix=" %"
+            app:min="0"
+            android:max="50"
+            android:defaultValue="30"
+            whatever:step_floor="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </PreferenceCategory>
 </PreferenceScreen>

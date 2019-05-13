@@ -4,7 +4,6 @@ import android.app.Application;
 
 import com.uberj.pocketmorsepro.AudioManager;
 import com.uberj.pocketmorsepro.CountDownTimer;
-import com.uberj.pocketmorsepro.keyboards.Keys;
 import com.uberj.pocketmorsepro.storage.Repository;
 import com.uberj.pocketmorsepro.transcribe.storage.TranscribeSessionType;
 import com.uberj.pocketmorsepro.transcribe.storage.TranscribeTrainingSession;
@@ -43,8 +42,9 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     private static final String sessionStartLock = "lock";
     private long endTimeEpocMillis = -1;
     private List<String> playedMessage = Lists.newArrayList();
+    private final int fadeInOutPercentage;
 
-    public TranscribeTrainingSessionViewModel(@NonNull Application application, int durationMinutesRequested, ArrayList<String> stringsRequested, int letterWpmRequested, int effectiveWpmRequested, boolean targetIssueLetters, TranscribeSessionType sessionType, int audioToneFrequency, int startDelaySeconds, int endDelaySeconds) {
+    public TranscribeTrainingSessionViewModel(@NonNull Application application, int durationMinutesRequested, ArrayList<String> stringsRequested, int letterWpmRequested, int effectiveWpmRequested, boolean targetIssueLetters, TranscribeSessionType sessionType, int audioToneFrequency, int startDelaySeconds, int endDelaySeconds, int fadeInOutPercentage) {
         super(application);
         this.repository = new Repository(application);
         this.durationMinutesRequested = durationMinutesRequested;
@@ -56,6 +56,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         this.audioToneFrequency = audioToneFrequency;
         this.startDelaySeconds = startDelaySeconds;
         this.endDelaySeconds = endDelaySeconds;
+        this.fadeInOutPercentage = fadeInOutPercentage;
     }
 
     public long getDurationRequestedMillis() {
@@ -91,9 +92,10 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         private final int audioToneFrequency;
         private final int startDelaySeconds;
         private final int endDelaySeconds;
+        private final int fadeInOutPercentage;
 
 
-        public Factory(Application application, int durationMinutesRequested, int letterWpmRequested, int effectivetWpmRequested, ArrayList<String> stringsRequested, boolean targetIssueLetters, int audioToneFrequency, int startDelaySeconds, int endDelaySeconds, TranscribeSessionType sessionType) {
+        public Factory(Application application, int durationMinutesRequested, int letterWpmRequested, int effectivetWpmRequested, ArrayList<String> stringsRequested, boolean targetIssueLetters, int audioToneFrequency, int startDelaySeconds, int endDelaySeconds, TranscribeSessionType sessionType, int fadeInOutPercentage) {
             this.application = application;
             this.durationMinutesRequested = durationMinutesRequested;
             this.letterWpmRequested = letterWpmRequested;
@@ -104,12 +106,13 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
             this.audioToneFrequency = audioToneFrequency;
             this.startDelaySeconds = startDelaySeconds;
             this.endDelaySeconds = endDelaySeconds;
+            this.fadeInOutPercentage = fadeInOutPercentage;
         }
 
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
-            return (T) new TranscribeTrainingSessionViewModel(application, durationMinutesRequested, stringsRequested, letterWpmRequested, effectivetWpmRequested, targetIssueLetters, sessionType, audioToneFrequency, startDelaySeconds, endDelaySeconds);
+            return (T) new TranscribeTrainingSessionViewModel(application, durationMinutesRequested, stringsRequested, letterWpmRequested, effectivetWpmRequested, targetIssueLetters, sessionType, audioToneFrequency, startDelaySeconds, endDelaySeconds, fadeInOutPercentage);
         }
     }
 
@@ -137,7 +140,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
             }
             weightedRequestedStrings.add(Pair.of(s, 1D + error));
         }
-        AudioManager audioManager = new AudioManager(letterWpmRequested, effectiveWpmRequested, audioToneFrequency, getApplication().getResources());
+        AudioManager audioManager = new AudioManager(letterWpmRequested, effectiveWpmRequested, audioToneFrequency, getApplication().getResources(), ((double) fadeInOutPercentage)/100D);
         engine = new TranscribeTrainingEngine(audioManager, startDelaySeconds, weightedRequestedStrings, this::letterPlayedCallback);
         engine.prime();
     }

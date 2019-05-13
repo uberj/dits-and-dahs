@@ -33,6 +33,7 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
     private final FlashcardSessionType sessionType;
     private final int toneFrequency;
     private final List<String> requestedMessages;
+    private final int fadeInOutPercentage;
 
     private CountDownTimer countDownTimer;
     private final MutableLiveData<Long> durationUnitsRemaining = new MutableLiveData<>(-1L);
@@ -41,7 +42,7 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
     private FlashcardTrainingEngine engine;
     private AudioManager audioManager;
 
-    public FlashcardTrainingSessionViewModel(@NonNull Application application, List<String> requestedMessages, int durationUnitsRequested, String durationUnit, int wpmRequested, int toneFrequency, FlashcardSessionType sessionType) {
+    public FlashcardTrainingSessionViewModel(@NonNull Application application, List<String> requestedMessages, int durationUnitsRequested, String durationUnit, int wpmRequested, int toneFrequency, FlashcardSessionType sessionType, int fadeInOutPercentage) {
         super(application);
         this.durationUnitsRequested = durationUnitsRequested;
         this.durationUnit = durationUnit;
@@ -51,6 +52,7 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
         this.repository = new Repository(application);
         this.sessionType = sessionType;
         this.requestedMessages = requestedMessages;
+        this.fadeInOutPercentage = fadeInOutPercentage;
         primeTheEngine();
         startTheEngine();
     }
@@ -63,9 +65,10 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
         private final FlashcardSessionType sessionType;
         private final int toneFrequency;
         private final ArrayList<String> requestedMessages;
+        private int fadeInOutPercentage;
 
 
-        public Factory(Application application, ArrayList<String> requestedMessages, int durationUnitsRequested, String durationUnit, int wpmRequested, int toneFrequency, FlashcardSessionType sessionType) {
+        public Factory(Application application, ArrayList<String> requestedMessages, int durationUnitsRequested, String durationUnit, int wpmRequested, int toneFrequency, FlashcardSessionType sessionType, int fadeInOutPercentage) {
             this.application = application;
             this.requestedMessages = requestedMessages;
             this.durationUnitsRequested = durationUnitsRequested;
@@ -73,12 +76,13 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
             this.wpmRequested = wpmRequested;
             this.toneFrequency = toneFrequency;
             this.sessionType = sessionType;
+            this.fadeInOutPercentage = fadeInOutPercentage;
         }
 
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
-            return (T) new FlashcardTrainingSessionViewModel(application, requestedMessages, durationUnitsRequested, durationUnit, wpmRequested, toneFrequency, sessionType);
+            return (T) new FlashcardTrainingSessionViewModel(application, requestedMessages, durationUnitsRequested, durationUnit, wpmRequested, toneFrequency, sessionType, fadeInOutPercentage);
         }
     }
 
@@ -92,7 +96,7 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
 
 
     public void primeTheEngine() {
-        audioManager = new AudioManager(wpmRequested, toneFrequency, getApplication().getResources());
+        audioManager = new AudioManager(wpmRequested, toneFrequency, getApplication().getResources(), ((double) fadeInOutPercentage)/100D);
         if (durationUnit.equals(TIME_LIMITED_SESSION_TYPE)) {
             countDownTimer = setupCountDownTimer(1000 * (durationUnitsRequested * 60 + 1));
             engine = new FlashcardTrainingEngine(audioManager, requestedMessages, null);

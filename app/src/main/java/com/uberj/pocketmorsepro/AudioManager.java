@@ -65,6 +65,7 @@ public class AudioManager {
 
 
     private final AudioTrack cwplayer;
+    // crispness describes how much the pcm should be scaled up
     private final int minBufferSize;
     private final int letterWpm;
     private final double farnsworth;
@@ -73,6 +74,7 @@ public class AudioManager {
     private final AudioTrack correctTonePlayer;
     private final byte[] incorrectTone;
     private final byte[] correctTone;
+    private final double fadeInOutPercentage;
 
     /*
         16 = 1 + 7 + 7 + 1 = .--.
@@ -89,7 +91,7 @@ public class AudioManager {
      */
     public byte[] buildSnd(int wpm, String s) {
         PCMDetails pcmDetails = calcPCMDetails(wpm, s);
-        double rawSnd[] = new double[pcmDetails.totalNumberSamples];
+        double[] rawSnd = new double[pcmDetails.totalNumberSamples];
 
         int sndIdx = 0;
         for (int i = 0; i < s.length(); i++) {
@@ -103,20 +105,23 @@ public class AudioManager {
                     rawSnd[sndIdx++] = 0;
                 }
             } else {
-                int rampSamples = (int) (pcmDetails.numSamplesPerSymbol * 0.20); // 20% ramp up/down
+                int rampSamples = (int) (pcmDetails.numSamplesPerSymbol * fadeInOutPercentage);
 
                 for (int j = 0; j < rampSamples; j++) {
-                    rawSnd[sndIdx++] = ((double) j/(double) rampSamples) * Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
+                    double amplitude = (double) j / (double) rampSamples;
+//                    double amplitude = Math.pow(2D, ((10D * amplitudeX) - 10D));
+                    rawSnd[sndIdx++] = amplitude * Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
                 }
 
                 for (int j = rampSamples; j < numSamplesForCurSymbol - rampSamples; j++) {
                     rawSnd[sndIdx++] = Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
                 }
 
-                int x = rampSamples;
+                int rampIdx = rampSamples;
                 for (int j = numSamplesForCurSymbol - rampSamples; j < numSamplesForCurSymbol; j++) {
-                    rawSnd[sndIdx++] = ((double) x/(double) rampSamples) * Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
-                    x--;
+                    double amplitude = (double) rampIdx / (double) rampSamples;
+                    rawSnd[sndIdx++] = amplitude * Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
+                    rampIdx--;
                 }
             }
 
@@ -265,9 +270,10 @@ public class AudioManager {
         }
     }
 
-    public AudioManager(int letterWpm, int effective, int audioToneFrequency, Resources resources) {
+    public AudioManager(int letterWpm, int effective, int audioToneFrequency, Resources resources, double fadeInOutPercentage) {
         this.freqOfToneHz = audioToneFrequency;
         this.letterWpm = letterWpm;
+        this.fadeInOutPercentage = fadeInOutPercentage;
         this.farnsworth = calcFarnsworth(letterWpm, effective);
 
         int channelOutStereo = AudioFormat.CHANNEL_OUT_MONO;
@@ -340,8 +346,8 @@ public class AudioManager {
         return Math.max(1, f);
     }
 
-    public AudioManager(int letterWpm, int audioToneFrequency, Resources resources) {
-        this(letterWpm, letterWpm, audioToneFrequency, resources);
+    public AudioManager(int letterWpm, int audioToneFrequency, Resources resources, double fadeInOutPercentage) {
+        this(letterWpm, letterWpm, audioToneFrequency, resources, fadeInOutPercentage);
     }
 
     public void destroy() {

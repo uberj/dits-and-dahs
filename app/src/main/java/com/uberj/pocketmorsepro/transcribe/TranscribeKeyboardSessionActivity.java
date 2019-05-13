@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.uberj.pocketmorsepro.DynamicKeyboard;
@@ -41,6 +40,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
     public static final String AUDIO_TONE_FREQUENCY = "audio-tone-frequency";
     public static final String SESSION_START_DELAY_SECONDS = "session-start-delay-seconds";
     public static final String SESSION_END_DELAY_SECONDS = "session-end-delay-seconds";
+    public static final String FADE_IN_OUT_PERCENTAGE = "fade-in-out-percentage";
 
     private TranscribeTrainingSessionViewModel viewModel;
     private DynamicKeyboard keyboard;
@@ -64,6 +64,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
         int audioToneFrequency = receiveBundle.getInt(AUDIO_TONE_FREQUENCY);
         int startDelaySeconds = receiveBundle.getInt(SESSION_START_DELAY_SECONDS);
         int endDelaySeconds = receiveBundle.getInt(SESSION_END_DELAY_SECONDS);
+        int fadeInOutPercentage = receiveBundle.getInt(FADE_IN_OUT_PERCENTAGE);
         ArrayList<String> stringsRequested = receiveBundle.getStringArrayList(STRINGS_REQUESTED);
         viewModel = ViewModelProviders.of(this,
                 new TranscribeTrainingSessionViewModel.Factory(
@@ -76,8 +77,8 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
                         audioToneFrequency,
                         startDelaySeconds,
                         endDelaySeconds,
-                        getSessionType()
-                )
+                        getSessionType(),
+                        fadeInOutPercentage)
         ).get(TranscribeTrainingSessionViewModel.class);
 
         ConstraintLayout keyboardContainer = findViewById(R.id.nested_transcribe_keyboard);

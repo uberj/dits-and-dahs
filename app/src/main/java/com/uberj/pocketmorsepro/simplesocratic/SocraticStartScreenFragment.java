@@ -121,12 +121,14 @@ public class SocraticStartScreenFragment extends Fragment {
     private void handleStartButtonClick(View view) {
         int toneFrequency = preferences.getInt(getResources().getString(R.string.setting_socratic_audio_tone), 440);
         boolean easyMode = preferences.getBoolean(getResources().getString(R.string.setting_socratic_easy_mode), true);
+        int fadeInOutPercentage = preferences.getInt(getResources().getString(R.string.setting_fade_in_out_percentage), 30);
         Intent sendIntent = new Intent(view.getContext(), sessionActivityClass);
         Bundle bundle = new Bundle();
         bundle.putInt(SocraticKeyboardSessionActivity.WPM_REQUESTED, wpmPicker.getProgress());
         bundle.putInt(SocraticKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
         bundle.putBoolean(SocraticKeyboardSessionActivity.REQUEST_WEIGHTS_RESET, resetLetterWeights.isChecked());
         bundle.putBoolean(SocraticKeyboardSessionActivity.EASY_MODE, easyMode);
+        bundle.putInt(SocraticKeyboardSessionActivity.FADE_IN_OUT_PERCENTAGE, fadeInOutPercentage);
         bundle.putInt(SocraticKeyboardSessionActivity.TONE_FREQUENCY_HZ, toneFrequency);
         sendIntent.putExtras(bundle);
         sendIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
