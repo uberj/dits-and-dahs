@@ -15,6 +15,7 @@ import android.widget.Space;
 import com.uberj.pocketmorsepro.keyboards.KeyConfig;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.uberj.pocketmorsepro.views.ProgressDots;
 
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
@@ -173,7 +174,7 @@ public class DynamicKeyboard {
         return rootView.findViewById(buttonId);
     }
 
-    public View getLetterProgressBar(String letter) {
+    public ProgressDots getLetterProgressBar(String letter) {
         String progressBarIdName = getProgressBarIdName(letter);
         int progressBarId = context.getResources().getIdentifier(progressBarIdName, "id", context.getApplicationContext().getPackageName());
         return rootView.findViewById(progressBarId);
@@ -275,7 +276,9 @@ public class DynamicKeyboard {
     }
 
     private View makeProgressBar(View button, String keyName) {
-        View progressBar = new View(context);
+        int density= context.getResources().getDisplayMetrics().densityDpi;
+        ProgressDots progressBar;
+        progressBar = new ProgressDots(context, null, density);
         progressBar.setTag("progressBar");
 
         int progressBarId = context.getResources().getIdentifier(getProgressBarIdName(keyName), "id", context.getPackageName());
@@ -287,9 +290,6 @@ public class DynamicKeyboard {
         int topMargin = Math.round(context.getResources().getDimension(R.dimen.progressBarTopMargin));
         int startEndMargin = Math.round(context.getResources().getDimension(R.dimen.progressBarStartEndMargin));
         layoutParams.setMargins(startEndMargin, topMargin, startEndMargin, 0);
-
-        progressBar.setBackground(context.getResources().getDrawable(R.drawable.progress_bar, context.getTheme()));
-
 
         this.progressBarCallback.accept(button, progressBar);
 

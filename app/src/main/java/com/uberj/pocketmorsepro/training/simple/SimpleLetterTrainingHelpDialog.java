@@ -15,10 +15,10 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.uberj.pocketmorsepro.DynamicKeyboard;
-import com.uberj.pocketmorsepro.ProgressGradient;
 import com.uberj.pocketmorsepro.R;
 import com.uberj.pocketmorsepro.keyboards.KeyConfig;
 import com.google.common.collect.ImmutableList;
+import com.uberj.pocketmorsepro.views.ProgressDots;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -243,13 +243,12 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
             keyboard.buildAtRoot();
 
             BiConsumer<String, Map<String, Integer>> progressBarUpdater = (letter, weights) -> {
-                View progressBar = keyboard.getLetterProgressBar(letter);
+                ProgressDots progressBar = keyboard.getLetterProgressBar(letter);
                 if (progressBar == null) {
                     return;
                 }
-                Integer competencyWeight = weights.get(letter);
-                Integer color = ProgressGradient.forWeight(competencyWeight);
-                progressBar.setBackgroundColor(color);
+                Integer competencyWeight = weights.getOrDefault(letter, 0);
+                progressBar.setCompetencyWeight(competencyWeight);
             };
 
             viewModel.inPlayLetterKeys.observe(this, (inPlayKeys) -> {
@@ -270,7 +269,6 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
                     } else {
                         button.setAlpha(DISABLED_BUTTON_ALPHA);
                         progressBar.setAlpha(DISABLED_PROGRESS_BAR_ALPHA);
-                        progressBar.setBackgroundColor(ProgressGradient.DISABLED);
                     }
                 }
             });

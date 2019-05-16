@@ -2,7 +2,7 @@
 <resources>
     <dimen name="numberRowPadding">25dp</dimen>
     <dimen name="progressBarHeight">5dp</dimen>
-    <dimen name="progressBarStartEndMargin">4dp</dimen>
+    <dimen name="progressBarStartEndMargin">3dp</dimen>
     <dimen name="progressBarTopMargin">-3dp</dimen>
     <dimen name="numberPickerHeight">70dp</dimen>
     <!-- Default screen margins, per the Android Design guidelines. -->

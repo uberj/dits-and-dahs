@@ -29,6 +29,7 @@ import com.uberj.pocketmorsepro.keyboards.Keys;
 import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingEngineSettings;
 import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticSessionType;
 import com.google.common.collect.Lists;
+import com.uberj.pocketmorsepro.views.ProgressDots;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,8 +49,8 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
     public static final float ENABLED_BUTTON_ALPHA = 1f;
     public static final float ENABLED_PROGRESS_BAR_ALPHA = 0.75f;
 
-    public static final float DISABLED_BUTTON_ALPHA = 0.35f;
-    public static final float DISABLED_PROGRESS_BAR_ALPHA = 0.25f;
+    public static final float DISABLED_BUTTON_ALPHA = 0.15f;
+    public static final float DISABLED_PROGRESS_BAR_ALPHA = 0.05f;
 
     private DynamicKeyboard keyboard;
 
@@ -104,15 +105,16 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
     private void updateLayoutUsingTheseLetters(List<String> updatedInPlayLetters) {
         for (Button button : getButtonsTaggedAsPlayable()) {
             String buttonLetter = button.getText().toString();
-            View progressBar = keyboard.getLetterProgressBar(buttonLetter);
+            ProgressDots progressBar = keyboard.getLetterProgressBar(buttonLetter);
             if (updatedInPlayLetters.contains(buttonLetter)) {
                 updateProgressBarColorForLetter(buttonLetter);
                 button.setAlpha(ENABLED_BUTTON_ALPHA);
                 progressBar.setAlpha(ENABLED_PROGRESS_BAR_ALPHA);
+                progressBar.setShowSegments(true);
             } else {
                 button.setAlpha(DISABLED_BUTTON_ALPHA);
                 progressBar.setAlpha(DISABLED_PROGRESS_BAR_ALPHA);
-                progressBar.setBackgroundColor(ProgressGradient.DISABLED);
+                progressBar.setShowSegments(false);
             }
         }
     }
@@ -159,10 +161,10 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
     }
 
     private void updateProgressBarColorForLetter(String letter) {
-        View progressBar = keyboard.getLetterProgressBar(letter);
+        ProgressDots progressBar = keyboard.getLetterProgressBar(letter);
         Integer competencyWeight = viewModel.getEngine().getCompetencyWeight(letter);
-        Integer color = ProgressGradient.forWeight(competencyWeight);
-        progressBar.setBackgroundColor(color);
+        progressBar.setCompetencyWeight(competencyWeight);
+        progressBar.setShowSegments(true);
     }
 
 
@@ -235,8 +237,6 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
                         }
                     })
                     .setProgressBarCallback((button, progressBar) -> {
-                        progressBar.setBackgroundColor(ProgressGradient.DISABLED);
-                        progressBar.setAlpha(ENABLED_PROGRESS_BAR_ALPHA);
                     })
                     .build();
             keyboard.buildAtRoot();

@@ -20,7 +20,7 @@ import timber.log.Timber;
 
 public class SocraticTrainingEngine {
     private static final int MISSED_LETTER_POINTS_REMOVED = 10;
-    private static final int CORRECT_LETTER_POINTS_ADDED = 2;
+    private static final int CORRECT_LETTER_POINTS_ADDED = 5;
 
     private static final String guessGate = "guessGate";
     private static final String pauseGate = "pauseGate";
