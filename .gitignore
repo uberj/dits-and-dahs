@@ -80,3 +80,5 @@ app/release/
 *.swp
 
 app/fabric.properties
+
+build2/
