@@ -56,9 +56,6 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
-
-        // Remove this after debug
-        Timber.plant(new Timber.DebugTree());
     }
 
     protected abstract TranscribeSessionType getSessionType();

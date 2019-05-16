@@ -9,8 +9,8 @@
         android:roundIcon="@drawable/ditsanddahs"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.uberj.pocketmorsepro.MainActivity"></activity>
         <activity android:name="com.uberj.pocketmorsepro.TrainingActivityList"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
