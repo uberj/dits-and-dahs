@@ -282,7 +282,7 @@ public class SocraticNumbersScreenFragment extends Fragment {
             setupDataView(
                     Lists.newArrayList(
                             new Column(SYMBOL_COLUMN_NAME, sa -> sa.symbol),
-                            new Column("average wrong guesses", sa -> sa.incorrectGuessesBeforeCorrectGuess == null ? BLANK_DETAIL : DECIMAL_STAT_FORMATTER.format(sa.incorrectGuessesBeforeCorrectGuess))
+                            new Column("avg. wrong guesses", sa -> sa.incorrectGuessesBeforeCorrectGuess == null ? BLANK_DETAIL : DECIMAL_STAT_FORMATTER.format(sa.incorrectGuessesBeforeCorrectGuess))
                     ),
                     dataContainer,
                     analysis,
