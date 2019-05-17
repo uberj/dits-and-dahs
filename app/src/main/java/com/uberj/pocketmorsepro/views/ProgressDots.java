@@ -1,6 +1,7 @@
 package com.uberj.pocketmorsepro.views;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -13,6 +14,8 @@ import com.uberj.pocketmorsepro.R;
 public class ProgressDots extends ConstraintLayout {
     private final boolean highDensity;
     private Boolean showSegments = false;
+
+
     private View progressSegment0;
     private View progressSegment1;
     private View progressSegment2;
@@ -88,39 +91,45 @@ public class ProgressDots extends ConstraintLayout {
     }
 
     private void setLowDensityCompetencyWeight(int competencyWeight) {
+        int color = -1;
+        Resources.Theme theme = getResources().newTheme();
         if (competencyWeight < 5) {
             progressSegment0.setVisibility(VISIBLE);
             progressSegment1.setVisibility(INVISIBLE);
             progressSegment2.setVisibility(INVISIBLE);
             progressSegment3.setVisibility(INVISIBLE);
             progressSegment4.setVisibility(INVISIBLE);
+            color = getResources().getColor(R.color.progressSegment0, theme);
         } else if (competencyWeight < 20) {
             progressSegment0.setVisibility(VISIBLE);
             progressSegment1.setVisibility(VISIBLE);
             progressSegment2.setVisibility(INVISIBLE);
             progressSegment3.setVisibility(INVISIBLE);
             progressSegment4.setVisibility(INVISIBLE);
+            color = getResources().getColor(R.color.progressSegment2, theme);
         } else if (competencyWeight < 30) {
             progressSegment0.setVisibility(VISIBLE);
             progressSegment1.setVisibility(VISIBLE);
             progressSegment2.setVisibility(VISIBLE);
             progressSegment3.setVisibility(INVISIBLE);
             progressSegment4.setVisibility(INVISIBLE);
+            color = getResources().getColor(R.color.progressSegment4, theme);
         } else if (competencyWeight < 40) {
             progressSegment0.setVisibility(VISIBLE);
             progressSegment1.setVisibility(VISIBLE);
             progressSegment2.setVisibility(VISIBLE);
             progressSegment3.setVisibility(VISIBLE);
             progressSegment4.setVisibility(INVISIBLE);
+            color = getResources().getColor(R.color.progressSegment5, theme);
         } else if (competencyWeight >= 50) {
             progressSegment0.setVisibility(VISIBLE);
             progressSegment1.setVisibility(VISIBLE);
             progressSegment2.setVisibility(VISIBLE);
             progressSegment3.setVisibility(VISIBLE);
             progressSegment4.setVisibility(VISIBLE);
+            color = getResources().getColor(R.color.progressSegment7, theme);
         }
 
-        Integer color = ProgressGradient.forWeight(competencyWeight);
         progressSegment0.setBackgroundColor(color);
         progressSegment1.setBackgroundColor(color);
         progressSegment2.setBackgroundColor(color);
@@ -129,6 +138,8 @@ public class ProgressDots extends ConstraintLayout {
     }
 
     private void setHighDensityCompetencyWeight(int competencyWeight) {
+        int color = -1;
+        Resources.Theme theme = getResources().newTheme();
         if (competencyWeight < 5) {
             progressSegment0.setVisibility(VISIBLE);
             progressSegment1.setVisibility(INVISIBLE);
@@ -138,6 +149,7 @@ public class ProgressDots extends ConstraintLayout {
             progressSegment5.setVisibility(INVISIBLE);
             progressSegment6.setVisibility(INVISIBLE);
             progressSegment7.setVisibility(INVISIBLE);
+            color = getResources().getColor(R.color.progressSegment0, theme);
         } else if (competencyWeight < 10) {
             progressSegment0.setVisibility(VISIBLE);
             progressSegment1.setVisibility(VISIBLE);
@@ -147,6 +159,7 @@ public class ProgressDots extends ConstraintLayout {
             progressSegment5.setVisibility(INVISIBLE);
             progressSegment6.setVisibility(INVISIBLE);
             progressSegment7.setVisibility(INVISIBLE);
+            color = getResources().getColor(R.color.progressSegment1, theme);
         } else if (competencyWeight < 15) {
             progressSegment0.setVisibility(VISIBLE);
             progressSegment1.setVisibility(VISIBLE);
@@ -156,6 +169,7 @@ public class ProgressDots extends ConstraintLayout {
             progressSegment5.setVisibility(INVISIBLE);
             progressSegment6.setVisibility(INVISIBLE);
             progressSegment7.setVisibility(INVISIBLE);
+            color = getResources().getColor(R.color.progressSegment2, theme);
         } else if (competencyWeight < 20) {
             progressSegment0.setVisibility(VISIBLE);
             progressSegment1.setVisibility(VISIBLE);
@@ -165,6 +179,7 @@ public class ProgressDots extends ConstraintLayout {
             progressSegment5.setVisibility(INVISIBLE);
             progressSegment6.setVisibility(INVISIBLE);
             progressSegment7.setVisibility(INVISIBLE);
+            color = getResources().getColor(R.color.progressSegment3, theme);
         } else if (competencyWeight < 25) {
             progressSegment0.setVisibility(VISIBLE);
             progressSegment1.setVisibility(VISIBLE);
@@ -174,6 +189,7 @@ public class ProgressDots extends ConstraintLayout {
             progressSegment5.setVisibility(INVISIBLE);
             progressSegment6.setVisibility(INVISIBLE);
             progressSegment7.setVisibility(INVISIBLE);
+            color = getResources().getColor(R.color.progressSegment4, theme);
         } else if (competencyWeight < 30) {
             progressSegment0.setVisibility(VISIBLE);
             progressSegment1.setVisibility(VISIBLE);
@@ -183,6 +199,7 @@ public class ProgressDots extends ConstraintLayout {
             progressSegment5.setVisibility(VISIBLE);
             progressSegment6.setVisibility(INVISIBLE);
             progressSegment7.setVisibility(INVISIBLE);
+            color = getResources().getColor(R.color.progressSegment5, theme);
         } else if (competencyWeight < 40) {
             progressSegment0.setVisibility(VISIBLE);
             progressSegment1.setVisibility(VISIBLE);
@@ -192,7 +209,8 @@ public class ProgressDots extends ConstraintLayout {
             progressSegment5.setVisibility(VISIBLE);
             progressSegment6.setVisibility(VISIBLE);
             progressSegment7.setVisibility(INVISIBLE);
-        } else if (competencyWeight >= 50) {
+            color = getResources().getColor(R.color.progressSegment6, theme);
+        } else {
             progressSegment0.setVisibility(VISIBLE);
             progressSegment1.setVisibility(VISIBLE);
             progressSegment2.setVisibility(VISIBLE);
@@ -201,9 +219,10 @@ public class ProgressDots extends ConstraintLayout {
             progressSegment5.setVisibility(VISIBLE);
             progressSegment6.setVisibility(VISIBLE);
             progressSegment7.setVisibility(VISIBLE);
+            color = getResources().getColor(R.color.progressSegment7, theme);
         }
 
-        Integer color = ProgressGradient.forWeight(competencyWeight);
+        // TODO, start using color resources for this
         progressSegment0.setBackgroundColor(color);
         progressSegment1.setBackgroundColor(color);
         progressSegment2.setBackgroundColor(color);

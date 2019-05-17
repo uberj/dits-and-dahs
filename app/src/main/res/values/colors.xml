@@ -10,4 +10,14 @@
     <color name="correctCharacterColor">#FFF</color>
     <color name="defaultBackground">#FAFAFA</color>
     <color name="selectedStatsBackground">#E9E9E9</color>
+
+    <color name="progressSegment0">#F44336</color>
+    <color name="progressSegment1">#FD6838</color>
+    <color name="progressSegment2">#FFC107</color>
+    <color name="progressSegment3">#FFCB41</color>
+    <color name="progressSegment4">#CDDC39</color>
+    <color name="progressSegment5">#8BC34A</color>
+    <color name="progressSegment6">#4CAF50</color>
+    <color name="progressSegment7">#009688</color>color>
+
 </resources>

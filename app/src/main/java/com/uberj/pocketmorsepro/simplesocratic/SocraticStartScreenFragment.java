@@ -115,6 +115,8 @@ public class SocraticStartScreenFragment extends Fragment {
         Button startButton = rootView.findViewById(R.id.start_button);
         startButton.setOnClickListener(this::handleStartButtonClick);
 
+        resetLetterWeights.setChecked(false);
+
         return rootView;
     }
 
@@ -133,7 +135,6 @@ public class SocraticStartScreenFragment extends Fragment {
         sendIntent.putExtras(bundle);
         sendIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);
-        resetLetterWeights.setChecked(false);
     }
 
     private SocraticStartScreenActivity getSocraticActivity() {
