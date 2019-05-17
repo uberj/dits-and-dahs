@@ -97,7 +97,11 @@ public class TranscribeStartScreenFragment extends Fragment {
 
         builder.setPositiveButton("OK", (dialog, which) -> {
             // user clicked OK
-            sessionViewModel.selectedStrings.setValue(booleanMapToSelectedStrings(getTranscribeActivity().getPossibleStrings(), selectedStringsBooleanMap));
+            ArrayList<String> strings = booleanMapToSelectedStrings(getTranscribeActivity().getPossibleStrings(), selectedStringsBooleanMap);
+            if (strings.isEmpty()) {
+                strings = new ArrayList<>(getTranscribeActivity().initialSelectedStrings());
+            }
+            sessionViewModel.selectedStrings.setValue(strings);
             sessionViewModel.selectedStringsBooleanMap.setValue(selectedStringsBooleanMap);
         });
 

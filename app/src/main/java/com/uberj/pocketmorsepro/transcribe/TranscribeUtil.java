@@ -28,7 +28,9 @@ public class TranscribeUtil {
             Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(transcribedString);
             if (controlType.isPresent()) {
                 if (controlType.get().equals(KeyConfig.ControlType.DELETE)) {
-                    stringsToDisplay.remove(stringsToDisplay.size() - 1);
+                    if (!stringsToDisplay.isEmpty()) {
+                        stringsToDisplay.remove(stringsToDisplay.size() - 1);
+                    }
                 } else if (controlType.get().equals(KeyConfig.ControlType.SPACE)) {
                     stringsToDisplay.add(" ");
                 } else {
