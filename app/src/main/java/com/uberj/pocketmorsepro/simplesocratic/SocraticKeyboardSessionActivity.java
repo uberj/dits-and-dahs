@@ -130,6 +130,7 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
             return;
         }
 
+        String currentLetter = viewModel.getEngine().getCurrentLetter();
         Optional<Boolean> guess = viewModel.getEngine().guess(letter);
 
         guess.ifPresent(wasCorrectGuess -> {
@@ -148,10 +149,9 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
             background.startTransition(0);
             background.reverseTransition(500);
 
-            viewModel.updateCompetencyWeights(letter, wasCorrectGuess);
-            updateProgressBarColorForLetter(letter);
 
             synchronized (engineMutex) {
+                updateProgressBarColorForLetter(currentLetter);
                 if (viewModel.getEngine().shouldIntroduceNewLetter()) {
                     Optional<List<String>> updatedLetters = viewModel.getEngine().introduceLetter();
                     updatedLetters.ifPresent(this::updateLayoutUsingTheseLetters);

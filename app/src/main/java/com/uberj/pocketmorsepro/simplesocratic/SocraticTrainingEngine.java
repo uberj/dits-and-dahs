@@ -19,7 +19,7 @@ import javax.annotation.Nonnull;
 import timber.log.Timber;
 
 public class SocraticTrainingEngine {
-    private static final int MISSED_LETTER_POINTS_REMOVED = 10;
+    private static final int MISSED_LETTER_POINTS_REMOVED = 5;
     private static final int CORRECT_LETTER_POINTS_ADDED = 5;
 
     private static final String guessGate = "guessGate";
@@ -120,8 +120,12 @@ public class SocraticTrainingEngine {
             chooseDifferentLetter();
             isCorrectGuess = true;
             shortCircuitGuessWait = true;
+            competencyWeights.computeIfPresent(guess,
+                    (cLetter, existingCompetency) -> Math.min(LETTER_WEIGHT_MAX, existingCompetency + CORRECT_LETTER_POINTS_ADDED));
         } else {
             events.add(SocraticEngineEvent.incorrectGuess(guess));
+            competencyWeights.computeIfPresent(currentLetter,
+                    (cLetter, existingCompetency) -> Math.max(LETTER_WEIGHT_MIN, existingCompetency - MISSED_LETTER_POINTS_REMOVED));
         }
 
         if (easyMode) {
@@ -133,14 +137,6 @@ public class SocraticTrainingEngine {
 
         synchronized (guessGate) {
             guessGate.notify();
-        }
-
-        if (isCorrectGuess) {
-            competencyWeights.computeIfPresent(guess,
-                    (cLetter, existingCompetency) -> Math.min(LETTER_WEIGHT_MAX, existingCompetency + CORRECT_LETTER_POINTS_ADDED));
-        } else {
-            competencyWeights.computeIfPresent(guess,
-                    (cLetter, existingCompetency) -> Math.max(LETTER_WEIGHT_MIN, existingCompetency - MISSED_LETTER_POINTS_REMOVED));
         }
 
         return Optional.of(isCorrectGuess);
@@ -201,18 +197,20 @@ public class SocraticTrainingEngine {
     }
 
     public void pause() {
-        if (isPaused || !engineIsStarted) {
-            return;
-        }
-        events.add(SocraticEngineEvent.paused());
-        isPaused = true;
-        sleepTime = 0;
+        synchronized (pauseGate) {
+            if (isPaused || !engineIsStarted) {
+                return;
+            }
+            events.add(SocraticEngineEvent.paused());
+            isPaused = true;
+            sleepTime = 0;
 
-        synchronized (guessGate) {
-            guessGate.notify();
-        }
-        synchronized (easyModePause) {
-            easyModePause.notifyAll();
+            synchronized (guessGate) {
+                guessGate.notify();
+            }
+            synchronized (easyModePause) {
+                easyModePause.notifyAll();
+            }
         }
     }
 
@@ -223,7 +221,7 @@ public class SocraticTrainingEngine {
         }
     }
 
-    public int getCompetencyWeight(String letter) {
+    public synchronized int getCompetencyWeight(String letter) {
         if (!competencyWeights.containsKey(letter)) {
             competencyWeights.put(letter, 0);
             return 0;
@@ -272,5 +270,9 @@ public class SocraticTrainingEngine {
 
     public void playLetter(String letter) {
         cwToneManager.playMessage(letter);
+    }
+
+    public String getCurrentLetter() {
+        return currentLetter;
     }
 }

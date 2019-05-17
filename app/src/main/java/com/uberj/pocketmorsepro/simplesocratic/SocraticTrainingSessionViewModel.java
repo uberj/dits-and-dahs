@@ -54,14 +54,8 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
     private CountDownTimer countDownTimer;
     private final MutableLiveData<Long> durationRemainingMillis = new MutableLiveData<>(-1L);
     private boolean sessiontHasBeenStarted = false;
-    private int totalUniqueLettersChosen;
-    private int totalCorrectGuesses;
-    private int totalAccurateSymbolsGuessed;
-    private int totalIncorrectGuesses;
     private long endTimeEpocMillis = -1;
     private SocraticTrainingEngine engine;
-    private long currentLetterFirstPlayedAt;
-    private String currentMessage;
     private AudioManager audioManager;
 
     public SocraticTrainingSessionViewModel(@NonNull Application application, Boolean resetWeights, int durationMinutesRequested, int wpmRequested, int toneFrequency, boolean easyMode, SocraticSessionType sessionType, Keys keys, int fadeInOutPercentage) {
@@ -155,12 +149,6 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
         engine.prime();
     }
 
-    private void letterDonePlayingCallback(String playedLetter) {
-        if (currentLetterFirstPlayedAt < 0) {
-            currentLetterFirstPlayedAt = System.currentTimeMillis();
-        }
-    }
-
     public void startTheEngine() {
         synchronized (sessionStartLock) {
             if (sessiontHasBeenStarted) {
@@ -235,16 +223,6 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
         return competencyWeights;
     }
 
-    private float calcWpmAverage(long durationWorkedMillis) {
-        int spacesBetweenLetters = (totalCorrectGuesses - 1) * 3;
-        // accurateWords = (accurateSymbols / 50)
-        float accurateSymbols = (float) (totalAccurateSymbolsGuessed + spacesBetweenLetters);
-        float accurateWords = accurateSymbols / 50f;
-        // wpmAverage = accurateWords / minutes
-        float minutesWorked = (float) (durationWorkedMillis / 1000) / 60;
-        return accurateWords / minutesWorked;
-    }
-
     public List<String> getInPlayKeyNames() {
         return this.inPlayKeyNames;
     }
@@ -273,15 +251,6 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
         settings.durationRequestedMillis = durationRequestedMillis;
         settings.sessionType = sessionType.name();
         repository.insertSocraticEngineSettings(settings);
-    }
-
-    public void updateCompetencyWeights(String letter, boolean wasCorrectGuess) {
-        if (wasCorrectGuess) {
-            totalCorrectGuesses++;
-            totalAccurateSymbolsGuessed += AudioManager.numSymbolsForStringNoFarnsworth(letter);
-        } else {
-            totalIncorrectGuesses++;
-        }
     }
 
     public SocraticTrainingEngine getEngine() {
@@ -316,7 +285,6 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
     }
 
     private void letterChosenCallback(String letterChosen) {
-        totalUniqueLettersChosen++;
     }
 
     public LiveData<Long> getDurationRemainingMillis() {
