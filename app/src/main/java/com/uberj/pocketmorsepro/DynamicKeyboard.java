@@ -264,10 +264,12 @@ public class DynamicKeyboard {
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         button.setLayoutParams(layoutParams);
 
-        button.setOnClickListener(v -> {
-            button.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
-            buttonOnClickListener.onClick(v);
-        });
+        if (buttonLongClickListener != null) {
+            button.setOnClickListener(v -> {
+                button.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
+                buttonOnClickListener.onClick(v);
+            });
+        }
         button.setOnLongClickListener(this.buttonLongClickListener);
 
         this.buttonCallback.accept(button, keyConfig);

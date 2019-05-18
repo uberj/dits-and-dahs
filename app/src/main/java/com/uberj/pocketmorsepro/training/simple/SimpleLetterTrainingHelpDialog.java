@@ -143,6 +143,7 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
                     .setContext(getActivity())
                     .setKeys(ImmutableList.of(ImmutableList.of(KeyConfig.l("M"))))
                     .setButtonCallback((b, kc) -> {})
+                    .setButtonOnClickListener((v) -> {})
                     .setProgressBarCallback((p, v) -> {})
                     .build();
 
@@ -166,6 +167,7 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
                     .setContext(getActivity())
                     .setKeys(ImmutableList.of(ImmutableList.of(KeyConfig.l("M"))))
                     .setButtonCallback((b, kc) -> {})
+                    .setButtonOnClickListener((v) -> {})
                     .setProgressBarCallback((p, v) -> {})
                     .build();
 
@@ -238,6 +240,7 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
                     .setContext(getActivity())
                     .setKeys(SimpleLetterTrainingHelpDialogViewModel.EXAMPLE_BOARD_KEYS)
                     .setButtonCallback((b, kc) -> {})
+                    .setButtonOnClickListener((v) -> {})
                     .setProgressBarCallback((p, v) -> {})
                     .build();
             keyboard.buildAtRoot();

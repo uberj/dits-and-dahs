@@ -14,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.view.HapticFeedbackConstants;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,6 +47,7 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
     private String durationUnit;
 
     public void keyboardButtonClicked(View v) {
+        v.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
         String buttonLetter = DynamicKeyboard.getButtonLetter(getApplicationContext(), v).toUpperCase();
         String currentGuess = transcribeTextArea.getText().toString();
         Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(buttonLetter);

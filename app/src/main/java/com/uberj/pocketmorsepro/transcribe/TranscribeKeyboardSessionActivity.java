@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.HapticFeedbackConstants;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -189,6 +190,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
 
     // Called via xml
     public void keyboardButtonClicked(View view) {
+        view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
         String buttonLetter = DynamicKeyboard.getButtonLetter(getApplicationContext(), view);
         Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(buttonLetter);
         if (!viewModel.isARequstedString(buttonLetter) && !controlType.isPresent()) {

@@ -51,7 +51,7 @@ public class SimpleLetterTrainingHelpDialogViewModel extends AndroidViewModel {
         List<String> updatedInPlayKeys = Lists.newArrayList();
         for (String letter : EXAMPLE_LETTERS) {
             Integer weight = weights.getValue().get(letter);
-            if (weight >= 75) {
+            if (weight >= 50) {
                 updatedInPlayKeys.add(letter);
             } else {
                 updatedInPlayKeys.add(letter);
@@ -73,7 +73,7 @@ public class SimpleLetterTrainingHelpDialogViewModel extends AndroidViewModel {
             if (weight == 100) {
                 continue;
             }
-            weight = Math.min(100, weight + 10);
+            weight = Math.min(100, weight + 5);
             weightMap.put(letter, weight);
             weights.postValue(weightMap);
             break;

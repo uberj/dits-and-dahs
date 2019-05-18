@@ -65,6 +65,12 @@ public class SocraticStartScreenFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        resetLetterWeights.setChecked(false);
+        super.onResume();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             sessionType = SocraticSessionType.valueOf(savedInstanceState.getString("sessionType"));
