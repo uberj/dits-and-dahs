@@ -82,3 +82,5 @@ app/release/
 app/fabric.properties
 
 build2/
+
+jacoco.exec
