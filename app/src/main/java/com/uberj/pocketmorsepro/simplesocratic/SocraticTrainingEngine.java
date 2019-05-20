@@ -141,7 +141,14 @@ public class SocraticTrainingEngine {
                 continue;
             }
 
-            pmf.add(new Pair<>(letter, Math.max(1, LETTER_WEIGHT_MAX - (double) letterWeight)));
+            double repeatDeterrent;
+            if (letter.equals(currentLetter)) {
+                repeatDeterrent = 60;
+            } else {
+                repeatDeterrent = 0;
+            }
+
+            pmf.add(new Pair<>(letter, Math.max(1, LETTER_WEIGHT_MAX - (double) letterWeight - repeatDeterrent)));
         }
         return pmf;
     }
