@@ -23,7 +23,6 @@ import android.widget.ProgressBar;
 
 import com.uberj.pocketmorsepro.DynamicKeyboard;
 import com.uberj.pocketmorsepro.KochLetterSequence;
-import com.uberj.pocketmorsepro.ProgressGradient;
 import com.uberj.pocketmorsepro.R;
 import com.uberj.pocketmorsepro.keyboards.Keys;
 import com.uberj.pocketmorsepro.simplesocratic.storage.SocraticTrainingEngineSettings;
@@ -217,7 +216,7 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
             } else {
                 settings = prevSettings.get(0);
             }
-            viewModel.primeTheEngine(settings);
+            viewModel.setUp(settings);
             Keys sessionKeys = getSessionKeys();
             LinearLayout keyboardContainer = findViewById(R.id.keyboard_base);
             keyboard = new DynamicKeyboard.Builder()

@@ -140,13 +140,12 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
     }
 
 
-    public void primeTheEngine(SocraticTrainingEngineSettings previousSettings) {
+    public void setUp(SocraticTrainingEngineSettings previousSettings) {
         Map<String, Integer> competencyWeights = buildInitialCompetencyWeights(resetWeights ? null : previousSettings);
         inPlayKeyNames = getInitialInPlayKeyNames(previousSettings);
         countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
         audioManager = new AudioManager(wpmRequested, toneFrequency, getApplication().getResources(), ((double) fadeInOutPercentage)/100D);
         engine = new SocraticTrainingEngine(audioManager, KochLetterSequence.sequence, wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights, easyMode);
-        engine.prime();
     }
 
     public void startTheEngine() {
@@ -165,6 +164,7 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
         return new CountDownTimer(durationsMillis, 50) {
             public void onTick(long millisUntilFinished) {
                 durationRemainingMillis.setValue(millisUntilFinished);
+                engine.timeClick(millisUntilFinished);
             }
 
             public void onFinish() {
