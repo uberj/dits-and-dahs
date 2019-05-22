@@ -10,7 +10,7 @@
             app:title="Targeted Letters"
             app:summary="Favor playing letters that I have trouble with"/>
 
-        <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
             app:key="@string/setting_transcribe_audio_tone"
             app:title="Tone Frequency"
             app:summary="The audio frequency that tones will be played at"
@@ -22,7 +22,7 @@
             whatever:step_floor="10"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
-        <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
             app:key="@string/setting_transcribe_start_delay_seconds"
             app:title="Start Delay (Seconds)"
             app:summary="Give yourself a countdown before your session starts"
@@ -34,7 +34,7 @@
             whatever:step_floor="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
-        <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
             app:key="@string/setting_transcribe_end_delay_seconds"
             app:title="End Delay (Seconds)"
             app:summary="Give yourself time at the end of the session to make last second changes"
@@ -49,7 +49,7 @@
             android:layout_height="wrap_content"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="Global Settings">
-        <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
             app:key="@string/setting_fade_in_out_percentage"
             app:title="Tone fade-in/fade-out control"
             app:summary="If you are hearing 'clipping' noises, increase this setting until you no longer hear the issue"

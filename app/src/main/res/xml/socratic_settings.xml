@@ -10,7 +10,7 @@
             app:defaultValue="true"
             app:title="Easy Mode"
             app:summary="Pause after a mistake is made and play an error tone"/>
-        <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
             app:key="@string/setting_socratic_audio_tone"
             app:title="Tone Frequency"
             app:summary="The audio frequency that tones will be played at"
@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="Global Settings">
-        <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
             app:key="@string/setting_fade_in_out_percentage"
             app:title="Tone fade-in/fade-out control"
             app:summary="This settings can help alleviate 'clicking' sounds at the beginning and/or end of tones. Slowly increase this setting until you no longer hear the clicks"

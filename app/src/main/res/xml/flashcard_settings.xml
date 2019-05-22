@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent">
     <PreferenceCategory android:title="Activity Settings">
-        <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
             app:key="@string/setting_flashcard_audio_tone"
             app:title="Tone Frequency"
             app:summary="The audio frequency that tones will be played at"
@@ -27,7 +27,7 @@
             />
     </PreferenceCategory>
     <PreferenceCategory android:title="Global Settings">
-        <com.uberj.pocketmorsepro.views.FormattingSeekBarPreference
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
             app:key="@string/setting_fade_in_out_percentage"
             app:title="Tone fade-in/fade-out control"
             app:summary="If you are hearing 'clipping' noises, increase this setting until you no longer hear the issue"
