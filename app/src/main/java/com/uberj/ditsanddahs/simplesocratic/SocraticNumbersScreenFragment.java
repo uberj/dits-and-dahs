@@ -1,5 +1,6 @@
 package com.uberj.ditsanddahs.simplesocratic;
 
+import com.annimon.stream.function.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.uberj.ditsanddahs.ProgressGradient;
@@ -9,6 +10,7 @@ import com.uberj.ditsanddahs.simplesocratic.storage.SocraticTrainingSessionWithE
 
 import androidx.annotation.NonNull;
 
+import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
@@ -16,7 +18,9 @@ import androidx.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.UnderlineSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,10 +32,10 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.Function;
 
 public class SocraticNumbersScreenFragment extends Fragment {
     private static final DecimalFormat DECIMAL_STAT_FORMATTER = new DecimalFormat("#.##");
@@ -139,7 +143,7 @@ public class SocraticNumbersScreenFragment extends Fragment {
     private enum Infos {
         ACCURACY("Guess Accuracy Breakdown", "Percent of time the first guess was correct"),
         APBCG("Replay Count Breakdown", "AVERAGE number of times a letter was PLAYED BEFORE a CORRECT GUESS was made"),
-        IGBCG("Incorrect Guessing Breakdown", "Average Number of INCORRECT GUESSES were made BEFORE a CORRECT GUESS was entered"),
+        IGBCG("Wrong Guess Breakdown", "Average # of INCORRECT GUESSES made BEFORE a CORRECT GUESS"),
         ATBCG("Guess Time Breakdown", "AVERAGE TIME, in seconds, BEFORE CORRECT guess was entered"),
         TOP5("Mistake Breakdown", "TOP FIVE INCORRECT guesses when this letter was played");
 
@@ -172,17 +176,16 @@ public class SocraticNumbersScreenFragment extends Fragment {
 
             overallAccuracyBackground.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
             overallAccuracyBackgroundShow.setVisibility(View.INVISIBLE);
-
-            overallAPBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallAPBCGBackground.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallAPBCGBackgroundShow.setVisibility(View.VISIBLE);
 
-            overallATBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallATBCGBackground.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallATBCGBackgroundShow.setVisibility(View.VISIBLE);
 
-            overallIGBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallIGBCGBackground.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallIGBCGBackgroundShow.setVisibility(View.VISIBLE);
 
-            top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            top5Background.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallTop5BackgroundShow.setVisibility(View.VISIBLE);
 
             detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
@@ -204,19 +207,19 @@ public class SocraticNumbersScreenFragment extends Fragment {
         overallAPBCGBackground.setOnClickListener(v -> {
             acronymContainer.setText(Infos.APBCG.info);
             detailsTitle.setText(Infos.APBCG.title);
-            overallAccuracyBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallAccuracyBackground.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallAccuracyBackgroundShow.setVisibility(View.VISIBLE);
 
             overallAPBCGBackground.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
             overallAPBCGBackgroundShow.setVisibility(View.INVISIBLE);
 
-            overallATBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallATBCGBackground.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallATBCGBackgroundShow.setVisibility(View.VISIBLE);
 
-            overallIGBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallIGBCGBackground.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallIGBCGBackgroundShow.setVisibility(View.VISIBLE);
 
-            top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            top5Background.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallTop5BackgroundShow.setVisibility(View.VISIBLE);
 
             detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
@@ -233,19 +236,19 @@ public class SocraticNumbersScreenFragment extends Fragment {
         overallATBCGBackground.setOnClickListener(v -> {
             acronymContainer.setText(Infos.ATBCG.info);
             detailsTitle.setText(Infos.ATBCG.title);
-            overallAccuracyBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallAccuracyBackground.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallAccuracyBackgroundShow.setVisibility(View.VISIBLE);
 
-            overallAPBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallAPBCGBackground.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallAPBCGBackgroundShow.setVisibility(View.VISIBLE);
 
             overallATBCGBackground.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
             overallATBCGBackgroundShow.setVisibility(View.INVISIBLE);
 
-            overallIGBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallIGBCGBackground.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallIGBCGBackgroundShow.setVisibility(View.VISIBLE);
 
-            top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            top5Background.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallTop5BackgroundShow.setVisibility(View.VISIBLE);
 
             detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
@@ -263,19 +266,19 @@ public class SocraticNumbersScreenFragment extends Fragment {
         overallIGBCGBackground.setOnClickListener(v -> {
             acronymContainer.setText(Infos.IGBCG.info);
             detailsTitle.setText(Infos.IGBCG.title);
-            overallAccuracyBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallAccuracyBackground.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallAccuracyBackgroundShow.setVisibility(View.VISIBLE);
 
-            overallAPBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallAPBCGBackground.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallAPBCGBackgroundShow.setVisibility(View.VISIBLE);
 
-            overallATBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallATBCGBackground.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallATBCGBackgroundShow.setVisibility(View.VISIBLE);
 
             overallIGBCGBackground.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
             overallIGBCGBackgroundShow.setVisibility(View.INVISIBLE);
 
-            top5Background.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            top5Background.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallTop5BackgroundShow.setVisibility(View.VISIBLE);
 
             detailsContainerScroll.fullScroll(ScrollView.FOCUS_UP);
@@ -293,16 +296,16 @@ public class SocraticNumbersScreenFragment extends Fragment {
         top5Background.setOnClickListener(v -> {
             acronymContainer.setText(Infos.TOP5.info);
             detailsTitle.setText(Infos.TOP5.title);
-            overallAccuracyBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallAccuracyBackground.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallAccuracyBackgroundShow.setVisibility(View.VISIBLE);
 
-            overallAPBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallAPBCGBackground.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallAPBCGBackgroundShow.setVisibility(View.VISIBLE);
 
-            overallATBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallATBCGBackground.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallATBCGBackgroundShow.setVisibility(View.VISIBLE);
 
-            overallIGBCGBackground.setBackgroundColor(getResources().getColor(R.color.defaultBackground, getContext().getTheme()));
+            overallIGBCGBackground.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.defaultBackground));
             overallIGBCGBackgroundShow.setVisibility(View.VISIBLE);
 
             top5Background.setBackground(getResources().getDrawable(R.drawable.rounded_corners_for_numbers_detail_view, getContext().getTheme()));
@@ -323,6 +326,12 @@ public class SocraticNumbersScreenFragment extends Fragment {
 
     }
 
+    private SpannableStringBuilder underline(String s) {
+        SpannableStringBuilder ssb = new SpannableStringBuilder(s);
+        ssb.setSpan(new UnderlineSpan(), 0, s.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return ssb;
+    }
+
     private int orZero(Double aDouble) {
         if (aDouble == null) {
             return 0;
@@ -339,14 +348,14 @@ public class SocraticNumbersScreenFragment extends Fragment {
 
         for (Column column : columns) {
             TextView symbol = new TextView(getContext());
-            symbol.setText(column.columnName);
+            symbol.setText(underline(column.columnName));
             setPadding(symbol);
             headerRow.addView(symbol);
         }
 
         dataContainer.addView(headerRow);
 
-        analysis.symbolAnalysis.sort(comparitor);
+        Collections.sort(analysis.symbolAnalysis, comparitor);
         for (SocraticUtil.SymbolAnalysis sa : analysis.symbolAnalysis) {
             TableRow dataRow = new TableRow(getContext());
             dataRow.setGravity(Gravity.START);
@@ -371,6 +380,6 @@ public class SocraticNumbersScreenFragment extends Fragment {
     }
 
     private void setPadding(TextView tv) {
-        tv.setPadding(0, 0, 48, 2);
+        tv.setPadding(0, 0, 20, 2);
     }
 }

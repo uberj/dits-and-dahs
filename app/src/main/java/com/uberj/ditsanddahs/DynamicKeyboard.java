@@ -4,6 +4,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,13 +13,13 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Space;
 
+import com.annimon.stream.function.BiConsumer;
 import com.uberj.ditsanddahs.keyboards.KeyConfig;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.uberj.ditsanddahs.views.ProgressDots;
 
 import java.util.ArrayList;
-import java.util.function.BiConsumer;
 
 public class DynamicKeyboard {
 
@@ -266,7 +267,9 @@ public class DynamicKeyboard {
 
         if (buttonLongClickListener != null) {
             button.setOnClickListener(v -> {
-                button.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                    button.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
+                }
                 buttonOnClickListener.onClick(v);
             });
         }

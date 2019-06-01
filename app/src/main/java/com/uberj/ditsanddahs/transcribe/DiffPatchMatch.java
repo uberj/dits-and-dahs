@@ -1197,8 +1197,6 @@ public class DiffPatchMatch {
                             if (commonlength != 0) {
                                 if (pointer.hasPrevious()) {
                                     thisDiff = pointer.previous();
-                                    assert thisDiff.operation == Operation.EQUAL
-                                            : "Previous diff should have been an equality.";
                                     thisDiff.text += text_insert.substring(0, commonlength);
                                     pointer.next();
                                 } else {
@@ -1587,9 +1585,6 @@ public class DiffPatchMatch {
      * @return Best match index or -1.
      */
     protected int match_bitap(String text, String pattern, int loc) {
-        assert (Match_MaxBits == 0 || pattern.length() <= Match_MaxBits)
-                : "Pattern too long for this application.";
-
         // Initialise the alphabet.
         Map<Character, Integer> s = match_alphabet(pattern);
 

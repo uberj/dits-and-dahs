@@ -14,7 +14,6 @@
             android:id="@+id/overall-igbcg-background"
             android:layout_width="0dp"
             android:layout_height="30dp"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="12dp"
             app:layout_constraintEnd_toEndOf="@+id/details-container-scroll"
@@ -27,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="Avg. Incorrect Guesses:"
+            android:text="Avg. Wrong Guesses:"
             android:translationZ="3dp"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="@+id/overall-igbcg-background"
@@ -61,7 +60,6 @@
             android:id="@+id/prev-session-duration-title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:text="Duration:"
             android:visibility="visible"
@@ -82,7 +80,6 @@
             android:id="@+id/prev-session-wpm-title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:text="Effective WPM: "
             android:visibility="visible"
@@ -149,14 +146,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.35" />
+            app:layout_constraintGuide_percent="0.32" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline16"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.45" />
+            app:layout_constraintGuide_percent="0.44" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline12"
@@ -176,8 +173,6 @@
             android:id="@+id/stats-title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             android:text="Summary Details"
             android:textAllCaps="true"
             android:textStyle="bold"
@@ -186,13 +181,14 @@
 
         <TextView
             android:id="@+id/details-title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
             android:text="ATBCG Details"
             android:textAllCaps="true"
             android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/guideline13"
             app:layout_constraintStart_toStartOf="@+id/guideline12"
             app:layout_constraintTop_toTopOf="@+id/guideline18" />
 
@@ -252,7 +248,6 @@
             android:id="@+id/overall-atbcg-background"
             android:layout_width="0dp"
             android:layout_height="33dp"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             app:layout_constraintEnd_toEndOf="@+id/details-container-scroll"
             app:layout_constraintHorizontal_bias="1.0"
@@ -263,7 +258,6 @@
             android:id="@+id/overall-apbcg-background"
             android:layout_width="0dp"
             android:layout_height="30dp"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             app:layout_constraintEnd_toEndOf="@+id/details-container-scroll"
             app:layout_constraintHorizontal_bias="0.0"
@@ -274,7 +268,6 @@
             android:id="@+id/overall-accuracy-background"
             android:layout_width="0dp"
             android:layout_height="30dp"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             app:layout_constraintEnd_toEndOf="@+id/details-container-scroll"
             app:layout_constraintHorizontal_bias="1.0"
@@ -285,7 +278,6 @@
             android:id="@+id/top-five-mistaken-background"
             android:layout_width="0dp"
             android:layout_height="30dp"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             app:layout_constraintEnd_toEndOf="@+id/details-container-scroll"
             app:layout_constraintHorizontal_bias="0.0"

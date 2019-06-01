@@ -3,6 +3,7 @@ package com.uberj.ditsanddahs.transcribe;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.HapticFeedbackConstants;
 import android.view.Menu;
@@ -13,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import com.annimon.stream.Optional;
 import com.uberj.ditsanddahs.DynamicKeyboard;
 import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.keyboards.KeyConfig;
@@ -22,7 +24,6 @@ import com.uberj.ditsanddahs.transcribe.storage.TranscribeTrainingSession;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -91,6 +92,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
             }
         }
 
+        ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
         viewModel.getLatestTrainingSession().observe(this, (possibleSession) -> {
             TranscribeTrainingSession session;
             if (possibleSession == null || possibleSession.isEmpty()) {
@@ -102,7 +104,6 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
             viewModel.startTheEngine();
         });
 
-        ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
         viewModel.durationRemainingMillis.observe(this, (remainingMillis) -> {
             if (endDelaySeconds >= 0 && remainingMillis == 0) {
                 finish();
@@ -110,7 +111,11 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
             }
 
             int progress = Math.round((((float) remainingMillis / (float) viewModel.getDurationRequestedMillis())) * 1000f);
-            timerProgressBar.setProgress(progress, true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                timerProgressBar.setProgress(progress, true);
+            } else {
+                timerProgressBar.setProgress(progress);
+            }
         });
 
         transcribeTextArea = findViewById(R.id.transcribe_text_area);
@@ -190,7 +195,9 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
 
     // Called via xml
     public void keyboardButtonClicked(View view) {
-        view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
+        }
         String buttonLetter = DynamicKeyboard.getButtonLetter(getApplicationContext(), view);
         Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(buttonLetter);
         if (!viewModel.isARequstedString(buttonLetter) && !controlType.isPresent()) {

@@ -10,11 +10,10 @@
         style="@style/NumberPicker.Outlined"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/number_picker_height"
+        android:layout_marginStart="32dp"
         android:progress="6"
         app:layout_constraintBottom_toBottomOf="@+id/session-effective-wpm"
-        app:layout_constraintEnd_toEndOf="@+id/number_picker_duration"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/number_picker_duration"
+        app:layout_constraintStart_toEndOf="@+id/session-effective-wpm"
         app:layout_constraintTop_toTopOf="@+id/session-effective-wpm"
         app:picker_max="100"
         app:picker_min="5"
@@ -37,7 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         android:text="Letter WPM:"
         app:layout_constraintStart_toStartOf="@+id/stats-stopper"
         app:layout_constraintTop_toBottomOf="@+id/session-effective-wpm" />
@@ -49,8 +48,8 @@
         android:layout_height="@dimen/number_picker_height"
         android:progress="50"
         app:layout_constraintBottom_toBottomOf="@+id/session-letter-wpm"
-        app:layout_constraintEnd_toEndOf="@+id/number_picker_duration"
-        app:layout_constraintStart_toStartOf="@+id/number_picker_duration"
+        app:layout_constraintEnd_toEndOf="@+id/effective-wpm-number-picker"
+        app:layout_constraintStart_toStartOf="@+id/effective-wpm-number-picker"
         app:layout_constraintTop_toTopOf="@+id/session-letter-wpm"
         app:picker_max="100"
         app:picker_min="5"
@@ -63,7 +62,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         android:text="Duration:"
         app:layout_constraintStart_toStartOf="@+id/stats-stopper"
         app:layout_constraintTop_toBottomOf="@+id/session-letter-wpm" />
@@ -75,7 +74,8 @@
         android:layout_height="@dimen/number_picker_height"
         android:progress="1"
         app:layout_constraintBottom_toBottomOf="@+id/session-length"
-        app:layout_constraintEnd_toEndOf="@+id/additional-settings"
+        app:layout_constraintEnd_toEndOf="@+id/letter-wpm-number-picker"
+        app:layout_constraintStart_toStartOf="@+id/letter-wpm-number-picker"
         app:layout_constraintTop_toTopOf="@+id/session-length"
         app:layout_constraintVertical_bias="0.50"
         app:picker_max="100"
@@ -89,11 +89,11 @@
         android:layout_width="@dimen/start_button_width"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:text="Start"
         android:textAlignment="center"
         app:layout_constraintStart_toStartOf="@+id/stats-stopper"
-        app:layout_constraintTop_toBottomOf="@+id/number_picker_duration" />
+        app:layout_constraintTop_toBottomOf="@+id/additional-settings" />
 
 
     <androidx.constraintlayout.widget.Guideline
@@ -101,7 +101,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.09" />
+        app:layout_constraintGuide_percent="0.05" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline17"
@@ -175,13 +175,13 @@
         android:id="@+id/additional-settings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
         android:text="Additional Settings"
         android:textColor="@color/design_default_color_primary_dark"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/start-button"
-        app:layout_constraintStart_toEndOf="@+id/start-button"
-        app:layout_constraintTop_toTopOf="@+id/start-button" />
+        app:layout_constraintStart_toStartOf="@+id/stats-stopper"
+        app:layout_constraintTop_toBottomOf="@+id/number_picker_duration" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

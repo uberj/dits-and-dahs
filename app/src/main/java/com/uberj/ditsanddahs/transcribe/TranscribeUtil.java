@@ -6,6 +6,9 @@ import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.CharacterStyle;
 
+import androidx.core.content.ContextCompat;
+
+import com.annimon.stream.Optional;
 import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.keyboards.KeyConfig;
 import com.uberj.ditsanddahs.transcribe.storage.TranscribeTrainingSession;
@@ -19,7 +22,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public class TranscribeUtil {
     public static String convertKeyPressesToString(List<String> enteredStrings) {
@@ -88,11 +90,11 @@ public class TranscribeUtil {
 
     private static Optional<CharacterStyle> getSpanColor(Context context, DiffPatchMatch.Operation operation) {
         if (operation == DiffPatchMatch.Operation.DELETE) {
-            return Optional.of(new BackgroundColorSpan(context.getResources().getColor(R.color.incorrectMissedCharacterColor, context.getTheme())));
+            return Optional.of(new BackgroundColorSpan(ContextCompat.getColor(context, R.color.incorrectMissedCharacterColor)));
         } else if (operation == DiffPatchMatch.Operation.EQUAL) {
             return Optional.empty();
         } else if (operation == DiffPatchMatch.Operation.INSERT) {
-            return Optional.of(new BackgroundColorSpan(context.getResources().getColor(R.color.incorrectAddedCharacterColor, context.getTheme())));
+            return Optional.of(new BackgroundColorSpan(ContextCompat.getColor(context, R.color.incorrectMissedCharacterColor)));
         } else {
             throw new RuntimeException("Unknown diff operation " + operation);
         }
@@ -101,10 +103,12 @@ public class TranscribeUtil {
     public static Map<String, Double> calculateErrorMap(TranscribeTrainingSession session) {
         Map<String, Pair<Integer, Integer>> hitMap = TranscribeUtil.calculateHitMap(session);
         Map<String, Double> errorMap = Maps.newHashMap();
-        hitMap.forEach((s, hitMisses) -> {
+        for (Map.Entry<String, Pair<Integer, Integer>> entry : hitMap.entrySet()) {
+            String s = entry.getKey();
+            Pair<Integer, Integer> hitMisses = entry.getValue();
             double error = 1 - (hitMisses.getLeft().doubleValue() / hitMisses.getRight().doubleValue());
             errorMap.put(s, error);
-        });
+        }
 
         return errorMap;
     }
@@ -114,8 +118,12 @@ public class TranscribeUtil {
         HashMap<String, Integer> opportunityCountMap = Maps.newHashMap();
         HashMap<String, Integer> hitCountMap = Maps.newHashMap();
         for (String s : session.playedMessage) {
-            opportunityCountMap.putIfAbsent(s, 0);
-            opportunityCountMap.computeIfPresent(s, (k, v) -> v + 1);
+            if (opportunityCountMap.containsKey(s)) {
+                Integer v = opportunityCountMap.get(s);
+                opportunityCountMap.put(s, v + 1);
+            } else {
+                opportunityCountMap.put(s, 1);
+            }
         }
 
         for (DiffPatchMatch.Diff diff : messageDiff) {
@@ -128,8 +136,12 @@ public class TranscribeUtil {
                 if (!session.stringsRequested.contains(s) && !s.equals(" ")) {
                     throw new RuntimeException("Issue finding diff char in played keys");
                 }
-                hitCountMap.putIfAbsent(s, 0);
-                hitCountMap.computeIfPresent(s, (k, v) -> v + 1);
+                if (hitCountMap.containsKey(s)) {
+                    Integer v = hitCountMap.get(s);
+                    hitCountMap.put(s, v + 1);
+                } else {
+                    hitCountMap.put(s, 1);
+                }
             }
         }
 

@@ -4,6 +4,7 @@ import android.content.res.Resources;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioTrack;
+import android.os.Build;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -13,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import timber.log.Timber;
+
+import static android.media.AudioManager.STREAM_MUSIC;
 
 public class AudioManager {
     private static final int sampleRateHz = 44100;
@@ -153,11 +156,21 @@ public class AudioManager {
     }
 
     public void playIncorrectTone() {
-        incorrectTonePlayer.write(incorrectTone, 0, incorrectTone.length);
+        synchronized (incorrectTonePlayer) {
+            incorrectTonePlayer.write(incorrectTone, 0, incorrectTone.length);
+            if (incorrectTonePlayer.getState() == AudioTrack.STATE_INITIALIZED) {
+                incorrectTonePlayer.play();
+            }
+        }
     }
 
     public void playCorrectTone() {
-        correctTonePlayer.write(correctTone, 0, correctTone.length);
+        synchronized (correctTonePlayer) {
+            correctTonePlayer.write(correctTone, 0, correctTone.length);
+            if (correctTonePlayer.getState() == AudioTrack.STATE_INITIALIZED) {
+                correctTonePlayer.play();
+            }
+        }
     }
 
 
@@ -279,18 +292,23 @@ public class AudioManager {
         int channelOutStereo = AudioFormat.CHANNEL_OUT_MONO;
         int encoding = AudioFormat.ENCODING_PCM_16BIT;
         minBufferSize = AudioTrack.getMinBufferSize(sampleRateHz, channelOutStereo, encoding);
-        cwplayer = new AudioTrack.Builder()
-                .setAudioAttributes(new AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build())
-                .setAudioFormat(new AudioFormat.Builder()
-                        .setEncoding(encoding)
-                        .setSampleRate(sampleRateHz)
-                        .setChannelMask(channelOutStereo)
-                        .build())
-                .setBufferSizeInBytes(minBufferSize)
-                .build();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            cwplayer = new AudioTrack.Builder()
+                    .setAudioAttributes(new AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .build())
+                    .setAudioFormat(new AudioFormat.Builder()
+                            .setEncoding(encoding)
+                            .setSampleRate(sampleRateHz)
+                            .setChannelMask(channelOutStereo)
+                            .build())
+                    .setBufferSizeInBytes(minBufferSize)
+                    .build();
+            cwplayer.play();
+        } else {
+            cwplayer = new AudioTrack(STREAM_MUSIC, sampleRateHz, channelOutStereo, encoding, minBufferSize, AudioTrack.MODE_STREAM);
+        }
 
         InputStream incorrectToneInputStream = resources.openRawResource(R.raw.incorrect_wav_16000);
         try {
@@ -298,19 +316,22 @@ public class AudioManager {
         } catch (IOException e) {
             throw new RuntimeException("Couldn't load incorrect tone");
         }
-        incorrectTonePlayer = new AudioTrack.Builder()
-                .setAudioAttributes(new AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build())
-                .setAudioFormat(new AudioFormat.Builder()
-                        .setEncoding(encoding)
-                        .setSampleRate(16000)
-                        .setChannelMask(channelOutStereo)
-                        .build())
-                .setBufferSizeInBytes(incorrectTone.length)
-                .build();
-        incorrectTonePlayer.play();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            incorrectTonePlayer = new AudioTrack.Builder()
+                    .setAudioAttributes(new AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .build())
+                    .setAudioFormat(new AudioFormat.Builder()
+                            .setEncoding(encoding)
+                            .setSampleRate(16000)
+                            .setChannelMask(channelOutStereo)
+                            .build())
+                    .setBufferSizeInBytes(incorrectTone.length)
+                    .build();
+        } else {
+            incorrectTonePlayer = new AudioTrack(STREAM_MUSIC, 16000, channelOutStereo, encoding, incorrectTone.length, AudioTrack.MODE_STREAM);
+        }
 
         InputStream correctToneInputStream = resources.openRawResource(R.raw.correct_wav_16000);
         try {
@@ -318,19 +339,22 @@ public class AudioManager {
         } catch (IOException e) {
             throw new RuntimeException("Couldn't load correct tone");
         }
-        correctTonePlayer = new AudioTrack.Builder()
-                .setAudioAttributes(new AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build())
-                .setAudioFormat(new AudioFormat.Builder()
-                        .setEncoding(encoding)
-                        .setSampleRate(16000)
-                        .setChannelMask(channelOutStereo)
-                        .build())
-                .setBufferSizeInBytes(correctTone.length)
-                .build();
-        correctTonePlayer.play();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            correctTonePlayer = new AudioTrack.Builder()
+                    .setAudioAttributes(new AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .build())
+                    .setAudioFormat(new AudioFormat.Builder()
+                            .setEncoding(encoding)
+                            .setSampleRate(16000)
+                            .setChannelMask(channelOutStereo)
+                            .build())
+                    .setBufferSizeInBytes(correctTone.length)
+                    .build();
+        } else {
+            correctTonePlayer = new AudioTrack(STREAM_MUSIC, 16000, channelOutStereo, encoding, correctTone.length, AudioTrack.MODE_STREAM);
+        }
     }
 
     private double calcFarnsworth(int letterWpm, int effectiveWpm) {
@@ -351,12 +375,24 @@ public class AudioManager {
     }
 
     public void destroy() {
-        cwplayer.stop();
-        cwplayer.release();
-        incorrectTonePlayer.stop();
-        incorrectTonePlayer.release();
-        correctTonePlayer.stop();
-        correctTonePlayer.release();
+        synchronized (cwplayer) {
+            if (cwplayer.getState() == AudioTrack.STATE_INITIALIZED) {
+                cwplayer.stop();
+            }
+            cwplayer.release();
+        }
+        synchronized (incorrectTonePlayer) {
+            if (incorrectTonePlayer.getState() == AudioTrack.STATE_INITIALIZED) {
+                incorrectTonePlayer.stop();
+            }
+            incorrectTonePlayer.release();
+        }
+        synchronized (correctTonePlayer) {
+            if (correctTonePlayer.getState() == AudioTrack.STATE_INITIALIZED) {
+                correctTonePlayer.stop();
+            }
+            correctTonePlayer.release();
+        }
     }
 
     void playSoundTest(){
@@ -377,10 +413,15 @@ public class AudioManager {
             } else {
                 size = minBufferSize;
             }
-            if (cwplayer.getPlayState() != AudioTrack.PLAYSTATE_PLAYING) {
-                cwplayer.play();
+            synchronized (cwplayer) {
+                if (cwplayer.getState() == AudioTrack.STATE_INITIALIZED && cwplayer.getPlayState() != AudioTrack.PLAYSTATE_PLAYING) {
+                    cwplayer.play();
+                }
+                cwplayer.write(generatedSnd, i, size);
             }
-            cwplayer.write(generatedSnd, i, size);
+        }
+        if (cwplayer.getState() == AudioTrack.STATE_INITIALIZED) {
+            cwplayer.play();
         }
 
     }

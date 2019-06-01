@@ -1,5 +1,7 @@
 package com.uberj.ditsanddahs.training.simplewordflashcards;
 
+import com.annimon.stream.Optional;
+import com.annimon.stream.Stream;
 import com.google.common.collect.ImmutableList;
 import com.uberj.ditsanddahs.CommonWords;
 import com.uberj.ditsanddahs.flashcard.FlashcardKeyboardSessionActivity;
@@ -8,7 +10,6 @@ import com.uberj.ditsanddahs.keyboards.KeyConfig;
 import com.uberj.ditsanddahs.keyboards.Keys;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import androidx.fragment.app.DialogFragment;
 
@@ -19,7 +20,7 @@ public class SimpleWordFlashcardKeyboardSessionActivity extends FlashcardKeyboar
     protected Keys getSessionKeys() {
         return () -> {
             ImmutableList<ImmutableList<KeyConfig>> baseKeys = CommonWords.keyboard().getKeys();
-            Optional<Float> firstRowWeightTotal = baseKeys.get(0).stream().map(kc -> kc.weight).reduce((l, r) -> l + r);
+            Optional<Float> firstRowWeightTotal = Stream.of(baseKeys.get(0)).map(kc -> kc.weight).reduce((l, r) -> l + r);
             if (!firstRowWeightTotal.isPresent()) throw new AssertionError("No first row weight present");
             ImmutableList.Builder<ImmutableList<KeyConfig>> builder = ImmutableList.builder();
             builder.addAll(baseKeys);
@@ -30,11 +31,11 @@ public class SimpleWordFlashcardKeyboardSessionActivity extends FlashcardKeyboar
             ImmutableList<KeyConfig> cardControlRow = ImmutableList.of(
                     KeyConfig.ctrl(KeyConfig.ControlType.AGAIN), KeyConfig.s(7), KeyConfig.ctrl(KeyConfig.ControlType.SKIP), KeyConfig.ctrl(KeyConfig.ControlType.SUBMIT)
             );
-            Optional<Float> controlRowWeight = controlRow.stream().map(kc -> kc.weight).reduce((l, r) -> l + r);
+            Optional<Float> controlRowWeight = Stream.of(controlRow).map(kc -> kc.weight).reduce((l, r) -> l + r);
             if (!controlRowWeight.isPresent()) throw new AssertionError("Control weight not present");
             if (!Objects.equals(controlRowWeight.get(), firstRowWeightTotal.get())) throw new AssertionError("Unequal Weights");
 
-            Optional<Float> cardControl = cardControlRow.stream().map(kc -> kc.weight).reduce((l, r) -> l + r);
+            Optional<Float> cardControl = Stream.of(cardControlRow).map(kc -> kc.weight).reduce((l, r) -> l + r);
             if (!cardControl.isPresent()) throw new AssertionError("Card control weight not present");
             if (!Objects.equals(cardControl.get(), firstRowWeightTotal.get())) throw new AssertionError("Unequal Weights");
 

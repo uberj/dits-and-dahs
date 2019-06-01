@@ -1,5 +1,8 @@
 package com.uberj.ditsanddahs.simplesocratic;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.OptionalDouble;
+import com.annimon.stream.Stream;
 import com.crashlytics.android.Crashlytics;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -9,12 +12,8 @@ import com.uberj.ditsanddahs.simplesocratic.storage.SocraticTrainingSessionWithE
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.OptionalDouble;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
@@ -44,7 +43,7 @@ public class SocraticUtil {
     }
 
     private static double calcAverageNumberPlaysBeforeCorrectGuess(List<SymbolAnalysis> symbolAnalysis) {
-        return symbolAnalysis.stream()
+        return Stream.of(symbolAnalysis)
                 .filter(sa -> sa.averagePlaysBeforeCorrectGuess != null)
                 .mapToDouble(sa -> sa.averagePlaysBeforeCorrectGuess)
                 .average()
@@ -52,7 +51,7 @@ public class SocraticUtil {
     }
 
     private static double calcOverallAverageSecondsBeforeCorrectGuessSeconds(List<SymbolAnalysis> symbolAnalysis) {
-        return symbolAnalysis.stream()
+        return Stream.of(symbolAnalysis)
                 .filter(sa -> sa.averageSecondsBeforeCorrectGuessSeconds != null)
                 .mapToDouble(sa -> sa.averageSecondsBeforeCorrectGuessSeconds)
                 .average()
@@ -60,7 +59,7 @@ public class SocraticUtil {
     }
 
     private static double calcAverageNumberOfIncorrectGuessesBeforeCorrectGuess(List<SymbolAnalysis> symbolAnalysis) {
-        return symbolAnalysis.stream()
+        return Stream.of(symbolAnalysis)
                 .filter(sa -> sa.incorrectGuessesBeforeCorrectGuess != null)
                 .mapToDouble(sa -> sa.incorrectGuessesBeforeCorrectGuess)
                 .average()
@@ -201,7 +200,7 @@ public class SocraticUtil {
             }
             // We know it was played at least once
             chanceCounter += 1;
-            List<SocraticEngineEvent> inScopeEvents = events.stream().filter(event -> event.eventAtEpoc >= firstDonePlaying.eventAtEpoc)
+            List<SocraticEngineEvent> inScopeEvents = Stream.of(events).filter(event -> event.eventAtEpoc >= firstDonePlaying.eventAtEpoc)
                     .collect(Collectors.toList());
             for (SocraticEngineEvent event : inScopeEvents) {
                 // If we see a miss before we see a correct, its a miss. else, its not a miss;
@@ -241,25 +240,27 @@ public class SocraticUtil {
             if (firstDonePlaying == null) {
                 continue;
             }
-            List<SocraticEngineEvent> inScopeEvents = events.stream()
+            List<SocraticEngineEvent> inScopeEvents = Stream.of(events)
                     .filter(event -> event.eventAtEpoc >= firstDonePlaying.eventAtEpoc)
                     .collect(Collectors.toList());
             for (SocraticEngineEvent event : inScopeEvents) {
                 if (event.eventType == SocraticEngineEvent.EventType.INCORRECT_GUESS) {
                     String guess = event.info;
                     if (guess == null) {
-                        // TODO, crashlytics
                         continue;
                     }
-                    misCounter.putIfAbsent(guess, 0);
-                    misCounter.compute(event.info, (l, cur) -> cur + 1);
+                    if (!misCounter.containsKey(guess)) {
+                        misCounter.put(guess, 0);
+                    }
+
+                    Integer curGuessCount = misCounter.get(guess);
+                    misCounter.put(guess, curGuessCount + 1);
                 }
             }
         }
 
-        List<String> topMisses = misCounter.entrySet()
-                .stream()
-                .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+        List<String> topMisses = Stream.of(misCounter)
+                .sorted((o1, o2) -> o2.getValue() - o1.getValue())
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
         if (topMisses.size() <= 5) {
@@ -269,7 +270,7 @@ public class SocraticUtil {
     }
 
     private static Double calcAPBCG(List<List<SocraticEngineEvent>> segments) {
-        Stream<List<SocraticEngineEvent>> validEvents = segments.stream().map(events -> {
+        Stream<List<SocraticEngineEvent>> validEvents = Stream.of(segments).map(events -> {
             if (events.isEmpty()) {
                 return Lists.newArrayList();
             }
@@ -278,7 +279,7 @@ public class SocraticUtil {
             if (firstCorrectGuess == null || firstDonePlaying == null) {
                 return Lists.newArrayList();
             }
-            return events.stream()
+            return Stream.of(events)
                     .filter(event -> event.eventAtEpoc >= firstDonePlaying.eventAtEpoc && event.eventAtEpoc < firstCorrectGuess.eventAtEpoc)
                     .collect(Collectors.toList());
         });
@@ -312,7 +313,7 @@ public class SocraticUtil {
     }
 
     private static int calcNumPlays(List<List<SocraticEngineEvent>> segments) {
-        return segments.stream().map(events -> {
+        return Stream.of(segments).map(events -> {
             if (events.isEmpty()) {
                 return 0L;
             }
@@ -334,7 +335,7 @@ public class SocraticUtil {
             return null;
         }
 
-        OptionalDouble average = segments.stream().map(events -> {
+        OptionalDouble average = Stream.of(segments).map(events -> {
             if (events.isEmpty()) {
                 return 0L;
             }
@@ -344,7 +345,7 @@ public class SocraticUtil {
                 return 0L;
             }
             long totalDuration = firstCorrectGuess.eventAtEpoc - firstDonePlaying.eventAtEpoc;
-            List<SocraticEngineEvent> inScopeEvents = events.stream()
+            List<SocraticEngineEvent> inScopeEvents = Stream.of(events)
                     .filter(event -> event.eventAtEpoc >= firstDonePlaying.eventAtEpoc)
                     .filter(event -> event.eventAtEpoc < firstCorrectGuess.eventAtEpoc)
                     .collect(Collectors.toList());
@@ -382,9 +383,9 @@ public class SocraticUtil {
             return null;
         }
 
-        OptionalDouble average = segments.stream()
+        OptionalDouble average = Stream.of(segments)
                 .map(
-                        events -> events.stream()
+                        events -> Stream.of(events)
                                 .filter(e -> e.eventType == SocraticEngineEvent.EventType.INCORRECT_GUESS)
                                 .count()
                 )

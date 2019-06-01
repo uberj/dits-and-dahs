@@ -14,5 +14,5 @@
     <dimen name="keyHeightMin">45dp</dimen>
     <dimen name="smallKeyHeightMin">30dp</dimen>
     <dimen name="number_picker_height">30dp</dimen>
-    <dimen name="start_button_width">100dp</dimen>
+    <dimen name="start_button_width">200dp</dimen>
 </resources>

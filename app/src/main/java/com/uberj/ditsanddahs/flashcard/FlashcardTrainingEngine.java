@@ -7,6 +7,7 @@ import android.os.Message;
 import com.google.common.collect.Maps;
 import com.uberj.ditsanddahs.AudioManager;
 import com.google.common.collect.Lists;
+import com.uberj.ditsanddahs.WeightUtil;
 import com.uberj.ditsanddahs.flashcard.storage.FlashcardEngineEvent;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
@@ -67,7 +68,7 @@ public class FlashcardTrainingEngine {
                 Boolean wasCorrect = obj.getLeft();
                 String guess = obj.getRight();
                 if (wasCorrect) {
-                    competencyWeights.compute(currentMessage, (m, v) -> Math.max(10, v - 50));
+                    WeightUtil.increment(competencyWeights, currentMessage, 50);
                     events.add(FlashcardEngineEvent.correctGuessSubmitted(guess));
                     if (cardsRemaining != null) {
                         cardsRemaining.postValue(cardsRemaining.getValue() - 1);
@@ -76,7 +77,7 @@ public class FlashcardTrainingEngine {
                     chooseDifferentMessage();
                     playMessageAfterDelay();
                 } else {
-                    competencyWeights.compute(currentMessage, (m, v) -> Math.min(100, v + 20));
+                    WeightUtil.decrement(competencyWeights, currentMessage, 20);
                     events.add(FlashcardEngineEvent.incorrectGuessSubmitted(guess));
                     audioManager.playIncorrectTone();
                     if (cardsRemaining != null) {
@@ -89,7 +90,8 @@ public class FlashcardTrainingEngine {
                 playMessage(currentMessage);
                 events.add(FlashcardEngineEvent.repeat());
             } else if (message.what == SKIP) {
-                competencyWeights.compute(currentMessage, (m, v) -> Math.min(100, v + 20));
+                WeightUtil.decrement(competencyWeights, currentMessage, 20);
+
                 if (cardsRemaining != null) {
                     cardsRemaining.postValue(cardsRemaining.getValue() - 1);
                 }

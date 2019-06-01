@@ -4,7 +4,11 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 
+import androidx.core.util.Consumer;
+
+import com.annimon.stream.Optional;
 import com.uberj.ditsanddahs.AudioManager;
+import com.uberj.ditsanddahs.WeightUtil;
 import com.uberj.ditsanddahs.simplesocratic.storage.SocraticEngineEvent;
 import com.uberj.ditsanddahs.simplesocratic.storage.SocraticTrainingEngineSettings;
 import com.google.common.collect.Lists;
@@ -15,8 +19,6 @@ import org.apache.commons.math3.util.Pair;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
 
@@ -109,12 +111,10 @@ public class SocraticTrainingEngine {
             events.add(SocraticEngineEvent.correctGuess(currentLetter));
             chooseDifferentLetter();
             isCorrectGuess = true;
-            competencyWeights.computeIfPresent(guess,
-                    (cLetter, existingCompetency) -> Math.min(LETTER_WEIGHT_MAX, existingCompetency + CORRECT_LETTER_POINTS_ADDED));
+            WeightUtil.increment(competencyWeights, guess, CORRECT_LETTER_POINTS_ADDED);
         } else {
             events.add(SocraticEngineEvent.incorrectGuess(guess));
-            competencyWeights.computeIfPresent(currentLetter,
-                    (cLetter, existingCompetency) -> Math.max(LETTER_WEIGHT_MIN, existingCompetency - MISSED_LETTER_POINTS_REMOVED));
+            WeightUtil.decrement(competencyWeights, guess, MISSED_LETTER_POINTS_REMOVED);
         }
 
         Message msg = new Message();

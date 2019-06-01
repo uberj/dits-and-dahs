@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +22,9 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Optional;
+import com.annimon.stream.Stream;
 import com.uberj.ditsanddahs.DynamicKeyboard;
 import com.uberj.ditsanddahs.KochLetterSequence;
 import com.uberj.ditsanddahs.R;
@@ -32,8 +36,6 @@ import com.uberj.ditsanddahs.views.ProgressDots;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity implements DialogInterface.OnDismissListener {
     public static final String EASY_MODE = "easy-mode";
@@ -77,7 +79,7 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
     private List<Button> getButtonsTaggedAsPlayable() {
         View rootView = getWindow().getDecorView().findViewById(android.R.id.content);
         ArrayList<View> inplay = getViewsByTag((ViewGroup) rootView.getParent(), "inplay");
-        return inplay.stream().map(v -> ((Button) v)).collect(Collectors.toList());
+        return Stream.of(inplay).map(v -> ((Button) v)).collect(Collectors.toList());
     }
 
     private boolean playableKeyLongClickHandler(View view) {
@@ -209,6 +211,7 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
                         fadeInOutPercentage)
         ).get(SocraticTrainingSessionViewModel.class);
 
+        ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
         viewModel.getLatestEngineSetting().observe(this, (prevSettings) -> {
             SocraticTrainingEngineSettings settings;
             if (prevSettings == null || prevSettings.size() == 0) {
@@ -245,7 +248,7 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
             viewModel.startTheEngine();
         });
 
-        ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
+
         viewModel.getDurationRemainingMillis().observe(this, (remainingMillis) -> {
             if (remainingMillis == 0) {
                 finish();
@@ -253,7 +256,11 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
             }
 
             int progress = Math.round((((float) remainingMillis / (float) viewModel.getDurationRequestedMillis())) * 1000f);
-            timerProgressBar.setProgress(progress, true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                timerProgressBar.setProgress(progress, true);
+            } else {
+                timerProgressBar.setProgress(progress);
+            }
         });
 
     }

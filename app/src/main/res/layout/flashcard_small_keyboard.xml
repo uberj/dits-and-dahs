@@ -750,7 +750,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/keyAGAIN"
         app:layout_constraintEnd_toStartOf="@+id/keySKIP"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_weight="5"
+        app:layout_constraintHorizontal_weight="4"
         app:layout_constraintStart_toEndOf="@+id/keyAGAIN"
         app:layout_constraintTop_toTopOf="@+id/keyAGAIN"
         app:layout_constraintVertical_bias="0.555" />
@@ -774,14 +774,14 @@
         android:id="@+id/keySKIP"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:minHeight="@dimen/smallKeyHeightMin"
-        android:text="SKIP"
-        android:onClick="keyboardButtonClicked"
         android:hapticFeedbackEnabled="true"
+        android:minHeight="@dimen/smallKeyHeightMin"
+        android:onClick="keyboardButtonClicked"
+        android:text="SKIP"
         app:layout_constraintBottom_toBottomOf="@+id/space5center"
         app:layout_constraintEnd_toStartOf="@+id/keySUBMIT"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintHorizontal_weight="2"
         app:layout_constraintStart_toEndOf="@+id/space5center"
         app:layout_constraintTop_toTopOf="@+id/space5center" />
 
@@ -789,15 +789,16 @@
         android:id="@+id/keyAGAIN"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:minHeight="@dimen/smallKeyHeightMin"
-        android:text="AGAIN"
-        android:onClick="keyboardButtonClicked"
         android:hapticFeedbackEnabled="true"
+        android:minHeight="@dimen/smallKeyHeightMin"
+        android:onClick="keyboardButtonClicked"
+        android:text="AGAIN"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/space5center"
         app:layout_constraintHorizontal_weight="1.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/space4left" />
+        app:layout_constraintTop_toBottomOf="@+id/space4left"
+        tools:layout_constraintHorizontal_weight="2" />
 
     <Button
         android:id="@+id/keyCOMMA"

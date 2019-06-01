@@ -134,7 +134,11 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         for (String s : stringsRequested) {
             Double error;
             if (errorMap != null) {
-                error = errorMap.getOrDefault(s, 0D);
+                if (errorMap.containsKey(s)) {
+                    error = errorMap.get(0);
+                } else {
+                    error = 0D;
+                }
             } else {
                 error = 0D;
             }
@@ -178,8 +182,8 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
                 Timber.d("Duped request to start the session");
                 return;
             }
-            engine.start();
             countDownTimer.start();
+            engine.start();
             sessionHasBeenStarted = true;
         }
     }

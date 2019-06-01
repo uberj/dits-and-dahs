@@ -1,5 +1,7 @@
 package com.uberj.ditsanddahs.flashcard;
 
+import com.annimon.stream.Optional;
+import com.annimon.stream.Stream;
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -11,7 +13,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public class FlashcardUtil {
 
@@ -122,7 +123,7 @@ public class FlashcardUtil {
     }
 
     public static int calcNumCardsCompleted(List<FlashcardEngineEvent> events) {
-        return (int) events.stream().filter(e -> e.eventType == FlashcardEngineEvent.EventType.CORRECT_GUESS).count();
+        return (int) Stream.of(events).filter(e -> e.eventType == FlashcardEngineEvent.EventType.CORRECT_GUESS).count();
     }
 
     public static double calcFirstGuessAccuracy(List<FlashcardEngineEvent> events) {

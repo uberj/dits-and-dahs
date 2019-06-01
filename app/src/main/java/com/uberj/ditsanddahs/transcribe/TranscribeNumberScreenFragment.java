@@ -11,6 +11,8 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
 import com.uberj.ditsanddahs.ProgressGradient;
 import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.transcribe.storage.TranscribeSessionType;
@@ -21,7 +23,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -120,7 +121,7 @@ public class TranscribeNumberScreenFragment extends Fragment {
         headerRow.addView(countDetails);
 
         errorListContainer.addView(headerRow);
-        List<Map.Entry<String, Pair<Integer, Integer>>> worstFirstHitCases = analysis.hitMap.entrySet().stream().sorted((h1, h2) -> {
+        List<Map.Entry<String, Pair<Integer, Integer>>> worstFirstHitCases = Stream.of(analysis.hitMap.entrySet()).sorted((h1, h2) -> {
             Pair<Integer, Integer> h1Counts = h1.getValue();
             Integer h1HitCount = h1Counts.getLeft();
             Integer h1PlayCount = h1Counts.getRight();

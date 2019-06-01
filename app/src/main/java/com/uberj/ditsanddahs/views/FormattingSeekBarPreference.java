@@ -5,7 +5,6 @@ import android.content.res.TypedArray;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.SeekBar;
@@ -18,9 +17,10 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 import androidx.preference.SeekBarPreference;
 
+import timber.log.Timber;
+
 public class FormattingSeekBarPreference extends Preference {
 
-    private static final String TAG = "SeekBarPreference";
     private String maxValue;
     private String valueSuffix;
     private int stepValue = 1;
@@ -106,7 +106,7 @@ public class FormattingSeekBarPreference extends Preference {
             }
 
             if (mSeekBar == null) {
-                Log.e(TAG, "SeekBar view is null and hence cannot be adjusted.");
+                Timber.e("SeekBar view is null and hence cannot be adjusted.");
                 return false;
             }
             return mSeekBar.onKeyDown(keyCode, event);
@@ -170,7 +170,7 @@ public class FormattingSeekBarPreference extends Preference {
         }
 
         if (mSeekBar == null) {
-            Log.e(TAG, "SeekBar view is null in onBindViewHolder.");
+            Timber.e("SeekBar view is null in onBindViewHolder.");
             return;
         }
         mSeekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);

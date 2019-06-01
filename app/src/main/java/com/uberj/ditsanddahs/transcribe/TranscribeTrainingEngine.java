@@ -1,5 +1,8 @@
 package com.uberj.ditsanddahs.transcribe;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
+import com.annimon.stream.function.Consumer;
 import com.uberj.ditsanddahs.AudioManager;
 import com.google.common.collect.ImmutableList;
 
@@ -7,8 +10,6 @@ import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.util.Pair;
 
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import timber.log.Timber;
 
@@ -85,7 +86,7 @@ public class TranscribeTrainingEngine {
     }
 
     private List<Pair<String, Double>> letterWeights(List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters) {
-        return inPlayLetters.stream().map(pair -> Pair.create(pair.getKey(), pair.getValue())).collect(Collectors.toList());
+        return Stream.of(inPlayLetters).map(pair -> Pair.create(pair.getKey(), pair.getValue())).collect(Collectors.toList());
     }
 
     private String nextLetter() {

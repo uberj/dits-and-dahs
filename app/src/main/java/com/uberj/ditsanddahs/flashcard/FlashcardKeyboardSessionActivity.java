@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.HapticFeedbackConstants;
@@ -22,6 +23,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import com.annimon.stream.Optional;
 import com.uberj.ditsanddahs.DynamicKeyboard;
 import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.flashcard.storage.FlashcardSessionType;
@@ -30,7 +32,6 @@ import com.uberj.ditsanddahs.keyboards.Keys;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity implements DialogInterface.OnDismissListener {
     public static final String DURATION_UNITS_REQUESTED = "duration-requested-minutes";
@@ -46,7 +47,9 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
     private String durationUnit;
 
     public void keyboardButtonClicked(View v) {
-        v.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            v.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
+        }
         String buttonLetter = DynamicKeyboard.getButtonLetter(getApplicationContext(), v).toUpperCase();
         String currentGuess = transcribeTextArea.getText().toString();
         Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(buttonLetter);
@@ -144,7 +147,11 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
             } else {
                 progress = Math.round(((float) remainingParts / (float) durationUnitsRequested) * 1000f);
             }
-            timerProgressBar.setProgress(progress, true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                timerProgressBar.setProgress(progress, true);
+            } else {
+                timerProgressBar.setProgress(progress);
+            }
         });
 
         transcribeTextArea = findViewById(R.id.transcribe_text_area);

@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.drawable.TransitionDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import com.annimon.stream.function.BiConsumer;
 import com.uberj.ditsanddahs.DynamicKeyboard;
 import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.keyboards.KeyConfig;
@@ -24,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -195,7 +196,11 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
                     .get(SimpleLetterTrainingHelpDialogViewModel.class);
             viewModel.timerCountDownProgress.observe(this, (progress) -> {
                 ProgressBar progressBar = inflate.findViewById(R.id.top_example_timer_progress_bar);
-                progressBar.setProgress(progress, true);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    progressBar.setProgress(progress, true);
+                } else {
+                    progressBar.setProgress(progress);
+                }
             });
 
             viewModel.correctGuessCounter.observe(this, (progress) -> {
@@ -250,7 +255,12 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
                 if (progressBar == null) {
                     return;
                 }
-                Integer competencyWeight = weights.getOrDefault(letter, 0);
+                Integer competencyWeight;
+                if (weights.containsKey(letter)) {
+                    competencyWeight = weights.get(letter);
+                } else {
+                    competencyWeight = 0;
+                }
                 progressBar.setCompetencyWeight(competencyWeight);
             };
 

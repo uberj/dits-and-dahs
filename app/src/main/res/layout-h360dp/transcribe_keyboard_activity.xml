@@ -23,7 +23,8 @@
             android:id="@+id/timer-progress-bar"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:max="1000"
-            android:progressDrawable="@drawable/incorrect_guess_timer_bar_progress_background"
+            android:progress="1000"
+            android:progressDrawable="@drawable/progress_horizontal_from_sdk"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             />

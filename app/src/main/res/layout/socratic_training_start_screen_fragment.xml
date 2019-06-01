@@ -9,22 +9,22 @@
         android:id="@+id/additional-settings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
         android:text="Additional Settings"
         android:textColor="@color/design_default_color_primary_dark"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/start-button"
-        app:layout_constraintStart_toEndOf="@+id/start-button"
-        app:layout_constraintTop_toTopOf="@+id/start-button" />
+        app:layout_constraintStart_toStartOf="@+id/middle-marker"
+        app:layout_constraintTop_toBottomOf="@+id/number_picker_minutes" />
 
     <TextView
         android:id="@+id/session-letter-wpm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
         android:text="Letter WPM:"
-        app:layout_constraintStart_toStartOf="@+id/stats-stopper"
+        app:layout_constraintEnd_toStartOf="@+id/middle-marker"
         app:layout_constraintTop_toTopOf="@+id/guideline18" />
 
     <it.sephiroth.android.library.numberpicker.NumberPicker
@@ -47,10 +47,10 @@
         android:id="@+id/session-length"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
+        android:layout_marginEnd="24dp"
         android:text="Duration (Minutes):"
-        app:layout_constraintStart_toStartOf="@+id/stats-stopper"
+        app:layout_constraintEnd_toStartOf="@+id/middle-marker"
         app:layout_constraintTop_toBottomOf="@+id/session-letter-wpm" />
 
     <it.sephiroth.android.library.numberpicker.NumberPicker
@@ -58,10 +58,10 @@
         style="@style/NumberPicker.Outlined"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/number_picker_height"
-        android:layout_marginStart="32dp"
+        android:layout_marginStart="8dp"
         android:progress="1"
         app:layout_constraintBottom_toBottomOf="@+id/session-length"
-        app:layout_constraintStart_toEndOf="@+id/session-length"
+        app:layout_constraintStart_toStartOf="@+id/middle-marker"
         app:layout_constraintTop_toTopOf="@+id/session-length"
         app:picker_max="100"
         app:picker_min="1"
@@ -73,37 +73,37 @@
         android:id="@+id/start-button"
         android:layout_width="@dimen/start_button_width"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:text="Start"
         android:textAlignment="center"
-        app:layout_constraintStart_toStartOf="@+id/stats-stopper"
-        app:layout_constraintTop_toBottomOf="@+id/number_picker_minutes" />
+        app:layout_constraintEnd_toStartOf="@+id/middle-marker"
+        app:layout_constraintStart_toStartOf="@+id/middle-marker"
+        app:layout_constraintTop_toBottomOf="@+id/reset-weights" />
 
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/stats-stopper"
+        android:id="@+id/middle-marker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.27" />
+        app:layout_constraintGuide_percent="0.50" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline18"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.07" />
+        app:layout_constraintGuide_percent="0.02" />
 
     <CheckBox
         android:id="@+id/reset-weights"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:text="Reset letter weights"
-        app:layout_constraintStart_toStartOf="@+id/stats-stopper"
-        app:layout_constraintTop_toBottomOf="@+id/start-button" />
+        app:layout_constraintStart_toStartOf="@+id/middle-marker"
+        app:layout_constraintTop_toBottomOf="@+id/additional-settings" />
 
     <ImageView
         android:id="@+id/wpmhelp"
