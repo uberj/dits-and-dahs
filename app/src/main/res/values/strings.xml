@@ -40,4 +40,5 @@
     <string name="setting_flashcard_duration_num_cards">setting_flashcard_duration_num_cards</string>
     <string name="letter_training_start_help_description">Choose how fast you want the letters to play and press START. Set the WPM (words per minute) to something like 20 or 25. When you learn to recognize the characters at higher speeds you\'ll have an easier time later in your training.</string>
     <string name="setting_fade_in_out_percentage">setting_fade_in_out_percentage</string>
+    <string name="list_view_title"><![CDATA[Dits & Dahs -- A CW Learning Tool]]></string>
 </resources>
