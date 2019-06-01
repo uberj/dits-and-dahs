@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -47,7 +48,9 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        return super.onCreateDialog(savedInstanceState);
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        return dialog;
     }
 
     @Override
@@ -127,7 +130,10 @@ public class SimpleLetterTrainingHelpDialog extends DialogFragment implements Ne
         Adapter adapter = new Adapter(getChildFragmentManager());
         adapter.addFragment(new HelpScreen0(), "Listen and guess");
         adapter.addFragment(new HelpScreen1(), "Playing a character's tone");
-        adapter.addFragment(new HelpScreen2(), "The timer bar");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            // Older android versions error here because: android.graphics.drawable.LayerDrawable cannot be cast to android.graphics.drawable.TransitionDrawable
+            adapter.addFragment(new HelpScreen2(), "The timer bar");
+        }
         adapter.addFragment(new HelpScreen3(), "Progress");
         adapter.addFragment(new HelpScreen4(), "Ready?");
         viewPager.setAdapter(adapter);

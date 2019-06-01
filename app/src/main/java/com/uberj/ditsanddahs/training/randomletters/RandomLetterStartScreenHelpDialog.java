@@ -5,12 +5,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 
 import com.uberj.ditsanddahs.R;
 
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 public class RandomLetterStartScreenHelpDialog extends DialogFragment {
@@ -24,6 +26,14 @@ public class RandomLetterStartScreenHelpDialog extends DialogFragment {
             int height = ViewGroup.LayoutParams.MATCH_PARENT;
             Objects.requireNonNull(dialog.getWindow()).setLayout(width, height);
         }
+    }
+
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        return dialog;
     }
 
     @Override

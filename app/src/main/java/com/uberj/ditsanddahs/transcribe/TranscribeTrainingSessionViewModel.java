@@ -135,7 +135,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
             Double error;
             if (errorMap != null) {
                 if (errorMap.containsKey(s)) {
-                    error = errorMap.get(0);
+                    error = errorMap.get(s);
                 } else {
                     error = 0D;
                 }
