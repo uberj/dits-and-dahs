@@ -114,7 +114,7 @@ public class SocraticTrainingEngine {
             WeightUtil.increment(competencyWeights, guess, CORRECT_LETTER_POINTS_ADDED);
         } else {
             events.add(SocraticEngineEvent.incorrectGuess(guess));
-            WeightUtil.decrement(competencyWeights, guess, MISSED_LETTER_POINTS_REMOVED);
+            WeightUtil.decrement(competencyWeights, currentLetter, MISSED_LETTER_POINTS_REMOVED);
         }
 
         Message msg = new Message();

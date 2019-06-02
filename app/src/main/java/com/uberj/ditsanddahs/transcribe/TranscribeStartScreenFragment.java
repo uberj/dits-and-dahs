@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.uberj.ditsanddahs.ProgressGradient;
 import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.training.DialogFragmentProvider;
@@ -44,12 +45,12 @@ public class TranscribeStartScreenFragment extends Fragment {
     private NumberPicker letterWpmNumberPicker;
     private NumberPicker effectiveWpmNumberPicker;
     private TranscribeTrainingMainScreenViewModel sessionViewModel;
-    private Class<? extends FragmentActivity> sessionActivityClass;
     private TranscribeSessionType sessionType;
     private TextView selectedStringsContainer;
     private TextView suggestAddLettersHelpText;
     private TextView additionalSettingsLink;
     private SharedPreferences preferences;
+    private String sessionActivityClassName;
 
 
     public static TranscribeStartScreenFragment newInstance(TranscribeSessionType sessionType, Class<? extends FragmentActivity> sessionActivityClass) {
@@ -62,7 +63,7 @@ public class TranscribeStartScreenFragment extends Fragment {
     }
 
     private void setSessionActivityClass(Class<? extends FragmentActivity> sessionActivityClass) {
-        this.sessionActivityClass = sessionActivityClass;
+        this.sessionActivityClassName = sessionActivityClass.getName();
     }
 
     public void setSessionType(TranscribeSessionType sessionType) {
@@ -72,6 +73,7 @@ public class TranscribeStartScreenFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putString("sessionType", sessionType.name());
+        outState.putString("sessionActivityClassName", sessionActivityClassName);
         super.onSaveInstanceState(outState);
     }
 
@@ -117,6 +119,7 @@ public class TranscribeStartScreenFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             sessionType = TranscribeSessionType.valueOf(savedInstanceState.getString("sessionType"));
+            sessionActivityClassName = savedInstanceState.getString("sessionActivityClassName");
         }
         View rootView = inflater.inflate(R.layout.transcribe_training_start_screen_fragment, container, false);
         ImageView helpWPM = rootView.findViewById(R.id.wpmhelp);
@@ -236,6 +239,12 @@ public class TranscribeStartScreenFragment extends Fragment {
     }
 
     private void handleStartButtonClick(View view) {
+        Class<? extends FragmentActivity> sessionActivityClass = null;
+        try {
+            sessionActivityClass = (Class<? extends FragmentActivity>) Class.forName(sessionActivityClassName);
+        } catch (ClassNotFoundException e) {
+            Crashlytics.log(String.format("Couldn't find sessionActivityClassName with '%s'", sessionActivityClassName));
+        }
         Intent sendIntent = new Intent(view.getContext(), sessionActivityClass);
         Bundle bundle = new Bundle();
         bundle.putInt(TranscribeKeyboardSessionActivity.LETTER_WPM_REQUESTED, letterWpmNumberPicker.getProgress());

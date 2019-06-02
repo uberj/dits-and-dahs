@@ -5,6 +5,7 @@
     android:orientation="vertical"
     android:screenOrientation="landscape"
     android:id="@+id/keyboard-base"
+    android:background="?android:colorBackground"
     app:layout_constraintWidth_max="wrap">
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/keyboard_toolbar"
