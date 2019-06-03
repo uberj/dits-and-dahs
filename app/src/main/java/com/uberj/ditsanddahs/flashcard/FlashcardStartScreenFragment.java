@@ -1,5 +1,6 @@
 package com.uberj.ditsanddahs.flashcard;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.uberj.ditsanddahs.R;
@@ -42,11 +43,11 @@ public class FlashcardStartScreenFragment extends Fragment {
     private NumberPicker durationPicker;
     private NumberPicker wpmPicker;
     private FlashcardTrainingMainScreenViewModel sessionViewModel;
-    private Class<? extends FragmentActivity> sessionActivityClass;
     private FlashcardSessionType sessionType;
     private SharedPreferences preferences;
     private TextView selectedStringsContainer;
     private TextView sessionLengthTitle;
+    private String sessionActivityClassName;
 
 
     public static FlashcardStartScreenFragment newInstance(FlashcardSessionType sessionType, Class<? extends FragmentActivity> sessionActivityClass) {
@@ -59,7 +60,7 @@ public class FlashcardStartScreenFragment extends Fragment {
     }
 
     private void setSessionActivityClass(Class<? extends FragmentActivity> sessionActivityClass) {
-        this.sessionActivityClass = sessionActivityClass;
+        this.sessionActivityClassName = sessionActivityClass.getName();
     }
 
     public void setSessionType(FlashcardSessionType sessionType) {
@@ -69,6 +70,7 @@ public class FlashcardStartScreenFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putString("sessionType", sessionType.name());
+        outState.putString("sessionActivityClassName", sessionActivityClassName);
         super.onSaveInstanceState(outState);
     }
 
@@ -82,6 +84,7 @@ public class FlashcardStartScreenFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             sessionType = FlashcardSessionType.valueOf(savedInstanceState.getString("sessionType"));
+            sessionActivityClassName = savedInstanceState.getString("sessionActivityClassName");
         }
 
         View rootView = inflater.inflate(R.layout.flashcard_training_start_screen_fragment, container, false);
@@ -248,6 +251,12 @@ public class FlashcardStartScreenFragment extends Fragment {
         String numCardsDurationUnit = getResources().getString(R.string.flashcard_num_cards_option);
         String durationUnit = preferences.getString(getResources().getString(R.string.setting_flashcard_duration_unit), numCardsDurationUnit);
         int fadeInOutPercentage = preferences.getInt(getResources().getString(R.string.setting_fade_in_out_percentage), 30);
+        Class<? extends FragmentActivity> sessionActivityClass = null;
+        try {
+            sessionActivityClass = (Class<? extends FragmentActivity>) Class.forName(sessionActivityClassName);
+        } catch (ClassNotFoundException e) {
+            Crashlytics.log(String.format("Couldn't find sessionActivityClassName with '%s'", sessionActivityClassName));
+        }
         Intent sendIntent = new Intent(view.getContext(), sessionActivityClass);
         Bundle bundle = new Bundle();
         bundle.putInt(FlashcardKeyboardSessionActivity.WPM_REQUESTED, wpmPicker.getProgress());

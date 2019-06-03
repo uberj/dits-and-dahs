@@ -1,5 +1,6 @@
 package com.uberj.ditsanddahs.simplesocratic;
 
+import com.crashlytics.android.Crashlytics;
 import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.simplesocratic.storage.SocraticTrainingEngineSettings;
 import com.uberj.ditsanddahs.simplesocratic.storage.SocraticSessionType;
@@ -36,9 +37,9 @@ public class SocraticStartScreenFragment extends Fragment {
     private NumberPicker wpmPicker;
     private CheckBox resetLetterWeights;
     private SocraticTrainingMainScreenViewModel sessionViewModel;
-    private Class<? extends FragmentActivity> sessionActivityClass;
     private SocraticSessionType sessionType;
     private SharedPreferences preferences;
+    private String sessionActivityClassName;
 
 
     public static SocraticStartScreenFragment newInstance(SocraticSessionType sessionType, Class<? extends FragmentActivity> sessionActivityClass) {
@@ -51,7 +52,7 @@ public class SocraticStartScreenFragment extends Fragment {
     }
 
     private void setSessionActivityClass(Class<? extends FragmentActivity> sessionActivityClass) {
-        this.sessionActivityClass = sessionActivityClass;
+        this.sessionActivityClassName = sessionActivityClass.getName();
     }
 
     public void setSessionType(SocraticSessionType sessionType) {
@@ -61,6 +62,7 @@ public class SocraticStartScreenFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putString("sessionType", sessionType.name());
+        outState.putString("sessionActivityClassName", sessionActivityClassName);
         super.onSaveInstanceState(outState);
     }
 
@@ -74,6 +76,7 @@ public class SocraticStartScreenFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             sessionType = SocraticSessionType.valueOf(savedInstanceState.getString("sessionType"));
+            sessionActivityClassName = savedInstanceState.getString("sessionActivityClassName");
         }
 
         View rootView = inflater.inflate(R.layout.socratic_training_start_screen_fragment, container, false);
@@ -130,6 +133,12 @@ public class SocraticStartScreenFragment extends Fragment {
         int toneFrequency = preferences.getInt(getResources().getString(R.string.setting_socratic_audio_tone), 440);
         boolean easyMode = preferences.getBoolean(getResources().getString(R.string.setting_socratic_easy_mode), true);
         int fadeInOutPercentage = preferences.getInt(getResources().getString(R.string.setting_fade_in_out_percentage), 30);
+        Class<? extends FragmentActivity> sessionActivityClass = null;
+        try {
+            sessionActivityClass = (Class<? extends FragmentActivity>) Class.forName(sessionActivityClassName);
+        } catch (ClassNotFoundException e) {
+            Crashlytics.log(String.format("Couldn't find sessionActivityClassName with '%s'", sessionActivityClassName));
+        }
         Intent sendIntent = new Intent(view.getContext(), sessionActivityClass);
         Bundle bundle = new Bundle();
         bundle.putInt(SocraticKeyboardSessionActivity.WPM_REQUESTED, wpmPicker.getProgress());
