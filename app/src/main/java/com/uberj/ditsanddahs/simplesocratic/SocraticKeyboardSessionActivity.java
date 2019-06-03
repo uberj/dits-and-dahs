@@ -14,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.HapticFeedbackConstants;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -121,6 +122,12 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
     }
 
     public void keyboardButtonClicked(View v) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            v.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
+        } else {
+            getWindow().getDecorView().performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+        }
+
         String letter = keyboard.getButtonLetter(v);
         if (viewModel.isPaused()) {
             viewModel.getEngine().playLetter(letter);

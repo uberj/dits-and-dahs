@@ -49,6 +49,8 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
     public void keyboardButtonClicked(View v) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             v.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
+        } else {
+            getWindow().getDecorView().performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
         }
         String buttonLetter = DynamicKeyboard.getButtonLetter(getApplicationContext(), v).toUpperCase();
         String currentGuess = transcribeTextArea.getText().toString();

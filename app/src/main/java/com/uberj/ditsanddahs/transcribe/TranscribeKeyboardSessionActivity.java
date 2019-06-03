@@ -197,6 +197,8 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
     public void keyboardButtonClicked(View view) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
+        } else {
+            getWindow().getDecorView().performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
         }
         String buttonLetter = DynamicKeyboard.getButtonLetter(getApplicationContext(), view);
         Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(buttonLetter);
