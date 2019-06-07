@@ -22,8 +22,8 @@ android {
         applicationId "com.uberj.ditsanddahs"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 6
-        versionName "2.2.3"
+        versionCode 7
+        versionName "2.3.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         javaCompileOptions {
