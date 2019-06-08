@@ -33,7 +33,6 @@ public abstract class FlashcardStartScreenActivity extends AppCompatActivity imp
      * androidx.fragment.app.FragmentStatePagerAdapter.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
-    private FlashcardSessionType sessionType = getSessionType();
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -58,8 +57,6 @@ public abstract class FlashcardStartScreenActivity extends AppCompatActivity imp
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
     }
-
-    protected abstract FlashcardSessionType getSessionType();
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
@@ -109,9 +106,9 @@ public abstract class FlashcardStartScreenActivity extends AppCompatActivity imp
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
             if (position == 0) {
-                return FlashcardStartScreenFragment.newInstance(sessionType, sessionActivityClass);
+                return FlashcardStartScreenFragment.newInstance(sessionActivityClass);
             } else {
-                return FlashcardNumbersScreenFragment.newInstance(sessionType);
+                return FlashcardNumbersScreenFragment.newInstance();
             }
         }
 

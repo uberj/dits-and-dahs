@@ -108,7 +108,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.61" />
+        app:layout_constraintGuide_percent="0.56" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline18"
@@ -129,14 +129,14 @@
         app:srcCompat="@drawable/ic_help_outline" />
 
     <TextView
-        android:id="@+id/textView15"
+        android:id="@+id/include-title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Included cards:"
+        android:text="Included:"
         app:layout_constraintStart_toStartOf="@+id/guideline17"
-        app:layout_constraintTop_toTopOf="@+id/guideline18" />
+        app:layout_constraintTop_toBottomOf="@+id/card-type-selector" />
 
     <ScrollView
         android:id="@+id/selected_strings_scroll"
@@ -163,13 +163,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:onClick="changeIncludedLetters"
         android:text="(change)"
         android:textColor="@color/design_default_color_primary_dark"
         android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@+id/textView15"
-        app:layout_constraintTop_toTopOf="@+id/guideline18" />
+        app:layout_constraintBottom_toBottomOf="@+id/include-title"
+        app:layout_constraintStart_toEndOf="@+id/include-title"
+        app:layout_constraintTop_toTopOf="@+id/include-title" />
 
     <TextView
         android:id="@+id/additional-settings"
@@ -182,6 +182,27 @@
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/stats-stopper"
         app:layout_constraintTop_toBottomOf="@+id/number_picker_duration" />
+
+    <Spinner
+        android:id="@+id/card-type-selector"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView9"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textView9"
+        app:layout_constraintTop_toTopOf="@+id/textView9" />
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Cards:"
+        app:layout_constraintStart_toStartOf="@+id/guideline17"
+        app:layout_constraintTop_toTopOf="@+id/guideline18" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

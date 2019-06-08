@@ -72,7 +72,7 @@ public class TrainingActivityList extends Activity {
         Intent simpleWordFlashcard = new Intent(this, SimpleWordFlashcardStartScreenActivity.class);
         simpleWordFlashcard.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         TrainingCardData random_words = new TrainingCardData(
-                "Random Words",
+                "Flashcards",
                 R.string.random_words_description_what,
                 R.string.random_words_description_why,
                 simpleWordFlashcard

@@ -14,11 +14,6 @@ import androidx.fragment.app.FragmentActivity;
 public class SimpleWordFlashcardStartScreenActivity extends FlashcardStartScreenActivity {
 
     @Override
-    public FlashcardSessionType getSessionType() {
-        return FlashcardSessionType.RANDOM_WORDS;
-    }
-
-    @Override
     public Class<? extends FlashcardSettingsActivity> getSettingsActivity() {
         return SimpleWordFlashcardSettingsActivity.class;
     }

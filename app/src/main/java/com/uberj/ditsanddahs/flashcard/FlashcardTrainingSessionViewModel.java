@@ -99,10 +99,10 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
         audioManager = new AudioManager(wpmRequested, toneFrequency, getApplication().getResources(), ((double) fadeInOutPercentage)/100D);
         if (durationUnit.equals(TIME_LIMITED_SESSION_TYPE)) {
             countDownTimer = setupCountDownTimer(1000 * (durationUnitsRequested * 60 + 1));
-            engine = new FlashcardTrainingEngine(audioManager, requestedMessages, null);
+            engine = new FlashcardTrainingEngine(audioManager, sessionType, requestedMessages, null);
         } else {
             durationUnitsRemaining.setValue(durationUnitsRequested);
-            engine = new FlashcardTrainingEngine(audioManager, requestedMessages, durationUnitsRemaining);
+            engine = new FlashcardTrainingEngine(audioManager, sessionType, requestedMessages, durationUnitsRemaining);
         }
         engine.prime();
     }

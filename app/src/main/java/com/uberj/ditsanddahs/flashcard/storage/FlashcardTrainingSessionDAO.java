@@ -10,12 +10,12 @@ import java.util.List;
 
 @Dao
 public interface FlashcardTrainingSessionDAO {
-    @Query("SELECT * FROM FlashcardTrainingSession WHERE sessionType = :sessionType ORDER BY endTimeEpocMillis DESC")
-    LiveData<List<FlashcardTrainingSession>> getAllSessions(String sessionType);
+    @Query("SELECT * FROM FlashcardTrainingSession ORDER BY endTimeEpocMillis DESC")
+    LiveData<List<FlashcardTrainingSession>> getAllSessions();
 
-    @Query("SELECT * FROM FlashcardTrainingSession WHERE sessionType = :sessionType ORDER BY endTimeEpocMillis DESC LIMIT 1")
+    @Query("SELECT * FROM FlashcardTrainingSession ORDER BY endTimeEpocMillis DESC LIMIT 1")
     @Transaction
-    LiveData<List<FlashcardTrainingSessionWithEvents>> getLatestSessionAndEvents(String sessionType);
+    LiveData<List<FlashcardTrainingSessionWithEvents>> getLatestSessionAndEvents();
 
     @Insert
     long insertSession(FlashcardTrainingSession trainingSession);

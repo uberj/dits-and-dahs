@@ -24,7 +24,7 @@ public class FlashcardTrainingMainScreenViewModel extends AndroidViewModel {
         repository = new Repository(application);
     }
 
-    public LiveData<List<FlashcardTrainingSessionWithEvents>> getLatestSession(FlashcardSessionType sessionType) {
-        return repository.flashcardTrainingSessionDAO.getLatestSessionAndEvents(sessionType.name());
+    public LiveData<List<FlashcardTrainingSessionWithEvents>> getLatestSession() {
+        return repository.flashcardTrainingSessionDAO.getLatestSessionAndEvents();
     }
 }

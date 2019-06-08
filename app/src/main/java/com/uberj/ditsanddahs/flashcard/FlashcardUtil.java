@@ -1,12 +1,16 @@
 package com.uberj.ditsanddahs.flashcard;
 
+import android.content.res.Resources;
+
 import com.annimon.stream.Optional;
 import com.annimon.stream.Stream;
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.flashcard.storage.FlashcardEngineEvent;
+import com.uberj.ditsanddahs.flashcard.storage.FlashcardSessionType;
 import com.uberj.ditsanddahs.keyboards.KeyConfig;
 
 import java.util.Collection;
@@ -161,5 +165,25 @@ public class FlashcardUtil {
             }
         }
         return skipCount;
+    }
+
+    public static String getCardType(Resources resources, int pos) {
+        String[] cardTypes = resources.getStringArray(R.array.flashcard_type);
+        return cardTypes[pos];
+    }
+
+    public static int getCardTypePos(Resources resources, FlashcardSessionType sessionType) {
+        String[] cardTypes = resources.getStringArray(R.array.flashcard_type);
+        for (int i = 0; i < cardTypes.length; i++) {
+            String cardType = cardTypes[i];
+            if (sessionType.equals(FlashcardSessionType.RANDOM_FCC_CALLSIGNS) && cardType.equals(resources.getString(R.string.fcc_call_signs_flashcard_type))) {
+                return i;
+            }
+
+            if (sessionType.equals(FlashcardSessionType.RANDOM_WORDS) && cardType.equals(resources.getString(R.string.common_words_flashcard_type))) {
+                return i;
+            }
+        }
+        throw new RuntimeException("Couldn't find session type in drop down strings: " + sessionType.name());
     }
 }

@@ -14,7 +14,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.view.HapticFeedbackConstants;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,7 +38,8 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
     public static final String TONE_FREQUENCY_HZ = "tone-frequency-hz";
     public static final String MESSAGES_REQUESTED = "messages-requested";
     public static final String DURATION_UNIT = "duration-unit";
-    public static final String FADE_IN_OUT_PERCENTAGE = "fade-in-out-precentage";
+    public static final String FADE_IN_OUT_PERCENTAGE = "fade-in-out-percentage";
+    public static final String SESSION_TYPE = "flashcard-session-type";
     private Menu menu;
 
     private FlashcardTrainingSessionViewModel viewModel;
@@ -117,6 +117,7 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
         int wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
         int toneFrequency = receiveBundle.getInt(TONE_FREQUENCY_HZ, 440);
         int fadeInOutPercentage = receiveBundle.getInt(FADE_IN_OUT_PERCENTAGE, 30);
+        FlashcardSessionType flashcardSessionType = FlashcardSessionType.valueOf(receiveBundle.getString(SESSION_TYPE, FlashcardSessionType.RANDOM_WORDS.name()));
         ArrayList<String> requestedMessages = receiveBundle.getStringArrayList(MESSAGES_REQUESTED);
 
         viewModel = ViewModelProviders.of(this,
@@ -127,14 +128,10 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
                         durationUnit,
                         wpmRequested,
                         toneFrequency,
-                        getSessionType(),
+                        flashcardSessionType,
                         fadeInOutPercentage
                 )
         ).get(FlashcardTrainingSessionViewModel.class);
-
-        DisplayMetrics displayMetrics = getApplication().getResources().getDisplayMetrics();
-        float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
-        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
 
         ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
         viewModel.getDurationUnitsRemaining().observe(this, (remainingParts) -> {
@@ -186,8 +183,6 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
     }
 
     protected abstract Keys getSessionKeys();
-
-    public abstract FlashcardSessionType getSessionType();
 
     @Override
     public void onBackPressed() {

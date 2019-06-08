@@ -26,19 +26,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.uberj.ditsanddahs.flashcard.FlashcardStartScreenActivity.KEYBOARD_REQUEST_CODE;
 
 
-public class FlashcardStartScreenFragment extends Fragment {
+public class FlashcardStartScreenFragment extends Fragment implements AdapterView.OnItemSelectedListener  {
     private NumberPicker effectivePicker;
     private NumberPicker durationPicker;
     private NumberPicker wpmPicker;
@@ -48,15 +52,48 @@ public class FlashcardStartScreenFragment extends Fragment {
     private TextView selectedStringsContainer;
     private TextView sessionLengthTitle;
     private String sessionActivityClassName;
+    private Spinner spinner;
 
 
-    public static FlashcardStartScreenFragment newInstance(FlashcardSessionType sessionType, Class<? extends FragmentActivity> sessionActivityClass) {
+    public static FlashcardStartScreenFragment newInstance(Class<? extends FragmentActivity> sessionActivityClass) {
         FlashcardStartScreenFragment fragment = new FlashcardStartScreenFragment();
         fragment.setSessionActivityClass(sessionActivityClass);
-        fragment.setSessionType(sessionType);
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    public void onItemSelected(AdapterView<?> parent, View view,
+                               int pos, long id) {
+        // An item was selected. You can retrieve the selected item using
+        // parent.getItemAtPosition(pos)
+        String cardType = FlashcardUtil.getCardType(getResources(), pos);
+        if (cardType.equals(getResources().getString(R.string.fcc_call_signs_flashcard_type))) {
+            selectFCCCallSigns(parent.getRootView());
+        } else {
+            selectCommonWords(parent.getRootView());
+        }
+    }
+
+    private void selectCommonWords(View rootView) {
+        rootView.findViewById(R.id.include_title).setVisibility(View.VISIBLE);
+        rootView.findViewById(R.id.change_included_letters).setVisibility(View.VISIBLE);
+        TextView selectedStrings = rootView.findViewById(R.id.selected_strings);
+        selectedStrings.setText(Joiner.on(", ").join(Objects.requireNonNull(sessionViewModel.selectedStrings.getValue())));
+        sessionType = FlashcardSessionType.RANDOM_WORDS;
+    }
+
+    private void selectFCCCallSigns(View rootView) {
+        rootView.findViewById(R.id.include_title).setVisibility(View.GONE);
+        rootView.findViewById(R.id.change_included_letters).setVisibility(View.GONE);
+        TextView selectedStrings = rootView.findViewById(R.id.selected_strings);
+        selectedStrings.setText(getResources().getString(R.string.random_calls_selected_description));
+        sessionType = FlashcardSessionType.RANDOM_FCC_CALLSIGNS;
+    }
+
+    public void onNothingSelected(AdapterView<?> parent) {
+        // Another interface callback
+        System.out.println("here");
     }
 
     private void setSessionActivityClass(Class<? extends FragmentActivity> sessionActivityClass) {
@@ -96,6 +133,15 @@ public class FlashcardStartScreenFragment extends Fragment {
             dialog.show(supportFragmentManager, dialog.getTag());
         });
 
+        spinner = rootView.findViewById(R.id.card_type_selector);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.flashcard_type, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(this);
 
         TextView changeLetters = rootView.findViewById(R.id.change_included_letters);
         changeLetters.setOnClickListener(this::showIncludedLetterPicker);
@@ -107,10 +153,11 @@ public class FlashcardStartScreenFragment extends Fragment {
         sessionLengthTitle = rootView.findViewById(R.id.session_length);
         selectedStringsContainer = rootView.findViewById(R.id.selected_strings);
         sessionViewModel = ViewModelProviders.of(this).get(FlashcardTrainingMainScreenViewModel.class);
-        sessionViewModel.getLatestSession(sessionType).observe(this, (sessionWithEvents) -> {
+        sessionViewModel.getLatestSession().observe(this, (sessionWithEvents) -> {
             int playLetterWPM = preferences.getInt(getResources().getString(R.string.setting_flashcard_letter_wpm), 25);
             int effectiveLetterWPM = preferences.getInt(getResources().getString(R.string.setting_flashcard_effective_wpm), 25);
             setupDurationLogic();
+            FlashcardSessionType prevSessionType;
 
             wpmPicker.setProgress(playLetterWPM);
             effectivePicker.setProgress(effectiveLetterWPM);
@@ -118,11 +165,20 @@ public class FlashcardStartScreenFragment extends Fragment {
             if (!sessionWithEvents.isEmpty()) {
                 FlashcardTrainingSessionWithEvents session = sessionWithEvents.get(0);
                 prevSelectedLetters = session.session.cards;
+                prevSessionType = FlashcardSessionType.valueOf(session.session.sessionType);
             } else {
                 prevSelectedLetters = getFlashcardActivity().initialSelectedStrings();
+                prevSessionType = FlashcardSessionType.RANDOM_WORDS;
             }
 
             sessionViewModel.selectedStrings.setValue(Lists.newArrayList(prevSelectedLetters));
+
+            if (prevSessionType.equals(FlashcardSessionType.RANDOM_FCC_CALLSIGNS)) {
+                selectFCCCallSigns(rootView);
+            } else {
+                selectCommonWords(rootView);
+            }
+            spinner.setSelection(FlashcardUtil.getCardTypePos(getResources(), prevSessionType));
 
             Button startButton = rootView.findViewById(R.id.start_button);
             startButton.setOnClickListener(this::handleStartButtonClick);
@@ -251,6 +307,7 @@ public class FlashcardStartScreenFragment extends Fragment {
         String numCardsDurationUnit = getResources().getString(R.string.flashcard_num_cards_option);
         String durationUnit = preferences.getString(getResources().getString(R.string.setting_flashcard_duration_unit), numCardsDurationUnit);
         int fadeInOutPercentage = preferences.getInt(getResources().getString(R.string.setting_fade_in_out_percentage), 30);
+        String cardType = FlashcardUtil.getCardType(getResources(), spinner.getSelectedItemPosition());
         Class<? extends FragmentActivity> sessionActivityClass = null;
         try {
             sessionActivityClass = (Class<? extends FragmentActivity>) Class.forName(sessionActivityClassName);
@@ -264,6 +321,7 @@ public class FlashcardStartScreenFragment extends Fragment {
         bundle.putString(FlashcardKeyboardSessionActivity.DURATION_UNIT, durationUnit);
         bundle.putInt(FlashcardKeyboardSessionActivity.TONE_FREQUENCY_HZ, toneFrequency);
         bundle.putInt(FlashcardKeyboardSessionActivity.FADE_IN_OUT_PERCENTAGE, fadeInOutPercentage);
+        bundle.putString(FlashcardKeyboardSessionActivity.SESSION_TYPE, sessionType.name());
         bundle.putStringArrayList(
                 FlashcardKeyboardSessionActivity.MESSAGES_REQUESTED,
                 sessionViewModel.selectedStrings.getValue()

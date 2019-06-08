@@ -46,11 +46,6 @@ public class SimpleWordFlashcardKeyboardSessionActivity extends FlashcardKeyboar
     }
 
     @Override
-    public FlashcardSessionType getSessionType() {
-        return FlashcardSessionType.RANDOM_WORDS;
-    }
-
-    @Override
     protected DialogFragment getHelpDialog() {
         return new SimpleWordFlashcardKeyboardSessionHelpDialog();
     }

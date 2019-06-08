@@ -9,6 +9,7 @@ import com.uberj.ditsanddahs.AudioManager;
 import com.google.common.collect.Lists;
 import com.uberj.ditsanddahs.WeightUtil;
 import com.uberj.ditsanddahs.flashcard.storage.FlashcardEngineEvent;
+import com.uberj.ditsanddahs.flashcard.storage.FlashcardSessionType;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.lang3.tuple.Pair;
@@ -23,11 +24,11 @@ import androidx.lifecycle.MutableLiveData;
 public class FlashcardTrainingEngine {
     private final AudioManager audioManager;
     private final HandlerThread eventHandlerThread;
+    private final FlashcardSessionType sessionType;
     private volatile MutableLiveData<Long> cardsRemaining;
     private volatile boolean isPaused = false;
     private volatile boolean engineIsStarted = false;
     private String currentMessage;
-    private final List<String> messages;
     public final List<FlashcardEngineEvent> events = Lists.newArrayList();
     public final Map<String, Integer> competencyWeights;
     private final Handler eventHandler;
@@ -36,11 +37,15 @@ public class FlashcardTrainingEngine {
     private static final int REPEAT = 102;
     private static final int PLAY_CURRENT_MESSAGE = 103;
 
-    public FlashcardTrainingEngine(AudioManager audioManager, List<String> messages, MutableLiveData<Long> durationUnitsRemaining) {
+    public FlashcardTrainingEngine(AudioManager audioManager, FlashcardSessionType sessionType, List<String> messages, MutableLiveData<Long> durationUnitsRemaining) {
         this.audioManager = audioManager;
-        this.messages = messages;
         this.cardsRemaining = durationUnitsRemaining;
-        this.competencyWeights = buildInitialCompetencyWeights(messages);
+        this.sessionType = sessionType;
+        if (sessionType.equals(FlashcardSessionType.RANDOM_FCC_CALLSIGNS)) {
+            this.competencyWeights = null;
+        } else {
+            this.competencyWeights = buildInitialCompetencyWeights(messages);
+        }
         eventHandlerThread = new HandlerThread("GuessHandler", HandlerThread.MAX_PRIORITY);
         eventHandlerThread.start();
         eventHandler = new Handler(eventHandlerThread.getLooper(), this::eventCallback);
@@ -68,7 +73,9 @@ public class FlashcardTrainingEngine {
                 Boolean wasCorrect = obj.getLeft();
                 String guess = obj.getRight();
                 if (wasCorrect) {
-                    WeightUtil.increment(competencyWeights, currentMessage, 50);
+                    if (competencyWeights != null) {
+                        WeightUtil.increment(competencyWeights, currentMessage, 50);
+                    }
                     events.add(FlashcardEngineEvent.correctGuessSubmitted(guess));
                     if (cardsRemaining != null) {
                         cardsRemaining.postValue(cardsRemaining.getValue() - 1);
@@ -77,7 +84,9 @@ public class FlashcardTrainingEngine {
                     chooseDifferentMessage();
                     playMessageAfterDelay();
                 } else {
-                    WeightUtil.decrement(competencyWeights, currentMessage, 20);
+                    if (competencyWeights != null) {
+                        WeightUtil.decrement(competencyWeights, currentMessage, 20);
+                    }
                     events.add(FlashcardEngineEvent.incorrectGuessSubmitted(guess));
                     audioManager.playIncorrectTone();
                     if (cardsRemaining != null) {
@@ -90,8 +99,10 @@ public class FlashcardTrainingEngine {
                 playMessage(currentMessage);
                 events.add(FlashcardEngineEvent.repeat());
             } else if (message.what == SKIP) {
-                WeightUtil.decrement(competencyWeights, currentMessage, 20);
-
+                eventHandler.removeMessages(SKIP);
+                if (competencyWeights != null) {
+                    WeightUtil.decrement(competencyWeights, currentMessage, 20);
+                }
                 if (cardsRemaining != null) {
                     cardsRemaining.postValue(cardsRemaining.getValue() - 1);
                 }
@@ -144,9 +155,14 @@ public class FlashcardTrainingEngine {
     }
 
     private void chooseDifferentMessage() {
-        List<org.apache.commons.math3.util.Pair<String, Double>> pmfCompetencyWeights = buildPmfCompetencyWeights(currentMessage);
-        currentMessage = new EnumeratedDistribution<>(pmfCompetencyWeights).sample();
-        events.add(FlashcardEngineEvent.messageChosen(currentMessage));
+        if (sessionType.equals(FlashcardSessionType.RANDOM_FCC_CALLSIGNS)) {
+            currentMessage = RandomCallSignGenerator.getCall();
+            events.add(FlashcardEngineEvent.messageChosen(currentMessage));
+        } else {
+            List<org.apache.commons.math3.util.Pair<String, Double>> pmfCompetencyWeights = buildPmfCompetencyWeights(currentMessage);
+            currentMessage = new EnumeratedDistribution<>(pmfCompetencyWeights).sample();
+            events.add(FlashcardEngineEvent.messageChosen(currentMessage));
+        }
     }
 
     public void prime() {
@@ -180,9 +196,5 @@ public class FlashcardTrainingEngine {
         }
         events.add(FlashcardEngineEvent.paused());
         isPaused = true;
-    }
-
-    public void playLetter(String letter) {
-        audioManager.playMessage(letter);
     }
 }

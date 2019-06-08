@@ -19,4 +19,8 @@
         <item>Time limited</item>
         <item>Fixed number of cards</item>
     </string-array>
+    <string-array name="flashcard_type">
+        <item>@string/common_words_flashcard_type</item>
+        <item>@string/fcc_call_signs_flashcard_type</item>
+    </string-array>
 </resources>
