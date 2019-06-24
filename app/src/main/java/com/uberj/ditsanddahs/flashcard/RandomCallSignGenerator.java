@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Random;
 
 public class RandomCallSignGenerator {
-    private static final ImmutableList.Builder callsBuilder = new ImmutableList.Builder<String>();
+    private static final ImmutableList.Builder<String> callsBuilder = new ImmutableList.Builder<>();
     private static final ImmutableList<String> calls;
     private static final Random r = new Random();
 
