@@ -129,6 +129,10 @@ public class TranscribeUtil {
         HashMap<String, Integer> opportunityCountMap = Maps.newHashMap();
         HashMap<String, Integer> hitCountMap = Maps.newHashMap();
         for (String s : session.playedMessage) {
+            if (s.equals(QSOWordSupplier.STATION_SWITCH_MARKER)) {
+                continue;
+            }
+
             if (opportunityCountMap.containsKey(s)) {
                 Integer v = opportunityCountMap.get(s);
                 opportunityCountMap.put(s, v + 1);
