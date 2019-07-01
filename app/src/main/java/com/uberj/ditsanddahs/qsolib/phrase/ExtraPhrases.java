@@ -13,6 +13,7 @@ public class ExtraPhrases {
     private static final List<Pair<Class<? extends Phrase>, Function<StationState, Phrase>>> allExtraPhrases = Lists.newArrayList(
             Pair.of(Wx.class, (ss) -> new Wx()),
             Pair.of(Job.class, (ss) -> new Job()),
+            Pair.of(Age.class, Age::new),
             Pair.of(Equipment.class, (ss) -> new Equipment())
     );
 

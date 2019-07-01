@@ -1,56 +1,43 @@
 package com.uberj.ditsanddahs.transcribe;
 
-import com.annimon.stream.Collectors;
-import com.annimon.stream.Stream;
 import com.annimon.stream.function.Consumer;
+import com.annimon.stream.function.Supplier;
 import com.uberj.ditsanddahs.AudioManager;
-import com.google.common.collect.ImmutableList;
 
-import org.apache.commons.math3.distribution.EnumeratedDistribution;
-import org.apache.commons.math3.util.Pair;
-
-import java.util.List;
+import java.util.concurrent.Callable;
 
 import timber.log.Timber;
 
 public class TranscribeTrainingEngine {
-    private static final EnumeratedDistribution<Integer> LENGTH_DISTRIBUTION = new EnumeratedDistribution<>(ImmutableList.of(
-            Pair.create(2, 3D),
-            Pair.create(3, 4D),
-            Pair.create(4, 5D),
-            Pair.create(5, 5D),
-            Pair.create(6, 5D),
-            Pair.create(7, 5D),
-            Pair.create(8, 3D),
-            Pair.create(9, 3D),
-            Pair.create(10, 1D),
-            Pair.create(11, 1D),
-            Pair.create(12, 1D)
-    ));
-
     private final Runnable audioLoop;
     private final AudioManager audioManager;
     private final String pauseGate = "pauseGate";
     private final String farnsworthPause = "farnsworthPause";
     private final Consumer<String> letterPlayedCallback;
-    private final EnumeratedDistribution<String> nextLetterDistribution;
+    private final Supplier<String> letterSupplier;
+    private final Callable<Void> messageFinishedPlayingCallback;
+    private final AudioManager.MorseConfig morseConfig;
+    private final long stationSwitchDelay = 1000; // TODO, make this configurable
 
     private boolean audioThreadKeepAlive;
     private boolean isPaused;
     private Thread audioThread;
     private boolean engineIsStarted = false;
-    private int lettersLeftInGroup = LENGTH_DISTRIBUTION.sample();
     private boolean awaitingShutdown = false;
 
-    public TranscribeTrainingEngine(AudioManager audioManager, int startDelaySeconds, List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters, Consumer<String> letterPlayedCallback) {
-        this.nextLetterDistribution = new EnumeratedDistribution<>(letterWeights(inPlayLetters));
+    public TranscribeTrainingEngine(AudioManager audioManager, int startDelaySeconds, Consumer<String> letterPlayedCallback, Supplier<String> letterSupplier, Callable<Void> messageFinishedPlayingCallback, AudioManager.MorseConfig morseConfig) {
+        this.letterSupplier = letterSupplier;
+
         this.letterPlayedCallback = letterPlayedCallback;
         this.audioManager = audioManager;
+        this.messageFinishedPlayingCallback = messageFinishedPlayingCallback;
+        this.morseConfig = morseConfig;
         this.audioLoop = () -> {
             try {
                 synchronized (pauseGate) {
                     pauseGate.wait(startDelaySeconds * 1000);
                 }
+
                 while (Thread.currentThread() == audioThread) {
                     while (isPaused)  {
                         synchronized (pauseGate) {
@@ -60,10 +47,23 @@ public class TranscribeTrainingEngine {
 
                     // play next letter
                     if (!awaitingShutdown && audioThreadKeepAlive) {
-                        String currentLetter = nextLetter();
-                        Timber.d("Playing letter: '%s'", currentLetter);
+                        String currentLetter = this.letterSupplier.get();
+                        if (currentLetter == null) {
+                            this.messageFinishedPlayingCallback.call();
+                            return;
+                        }
+
                         this.letterPlayedCallback.accept(currentLetter);
-                        audioManager.playMessage(currentLetter);
+                        if (currentLetter.equals(QSOWordSupplier.STATION_SWITCH_MARKER)) {
+                            Timber.d("Station switch marker");
+                            // start the callback timer to play again
+                            synchronized (farnsworthPause) {
+                                farnsworthPause.wait(stationSwitchDelay);
+                            }
+                        } else {
+                            Timber.d("Playing letter: '%s'", currentLetter);
+                            audioManager.playMessage(currentLetter, this.morseConfig);
+                        }
                     }
 
                     // The session is ending soon
@@ -73,11 +73,11 @@ public class TranscribeTrainingEngine {
 
                     // start the callback timer to play again
                     synchronized (farnsworthPause) {
-                        long millis = audioManager.wordSpaceToMillis();
+                        long millis = audioManager.wordSpaceToMillis(morseConfig);
                         farnsworthPause.wait(millis);
                     }
                 }
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 Timber.d(e, "Audio loop exiting");
                 return;
             }
@@ -85,21 +85,6 @@ public class TranscribeTrainingEngine {
         };
     }
 
-    private List<Pair<String, Double>> letterWeights(List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters) {
-        return Stream.of(inPlayLetters).map(pair -> Pair.create(pair.getKey(), pair.getValue())).collect(Collectors.toList());
-    }
-
-    private String nextLetter() {
-        if (lettersLeftInGroup <= 0) {
-            lettersLeftInGroup = LENGTH_DISTRIBUTION.sample();
-            Timber.d("Planning on playing %s letters", lettersLeftInGroup);
-            return " ";
-        }
-
-        lettersLeftInGroup -= 1;
-
-        return nextLetterDistribution.sample();
-    }
 
     public void prime() {
         audioThread = new Thread(audioLoop);

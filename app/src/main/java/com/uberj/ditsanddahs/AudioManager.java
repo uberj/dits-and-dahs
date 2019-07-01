@@ -6,6 +6,7 @@ import android.media.AudioFormat;
 import android.media.AudioTrack;
 import android.os.Build;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
 import org.apache.commons.io.IOUtils;
@@ -70,14 +71,10 @@ public class AudioManager {
     private final AudioTrack cwplayer;
     // crispness describes how much the pcm should be scaled up
     private final int minBufferSize;
-    private final int letterWpm;
-    private final double farnsworth;
-    private final int freqOfToneHz;
     private final AudioTrack incorrectTonePlayer;
     private final AudioTrack correctTonePlayer;
     private final byte[] incorrectTone;
     private final byte[] correctTone;
-    private final double fadeInOutPercentage;
 
     /*
         16 = 1 + 7 + 7 + 1 = .--.
@@ -92,13 +89,15 @@ public class AudioManager {
     -------------------
        50 (symbolAnalysis in "paris"
      */
-    public byte[] buildSnd(int wpm, String s) {
-        PCMDetails pcmDetails = calcPCMDetails(wpm, s);
+    public byte[] buildSnd(String s, MorseConfig config) {
+        PCMDetails pcmDetails = calcPCMDetails(config, s);
         double[] rawSnd = new double[pcmDetails.totalNumberSamples];
 
         int sndIdx = 0;
+        double fadeInOutPercentage = (double) config.fadeInOutPercentage/(double) 100;
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
+            double farnsworth = calcFarnsworth(config.letterWpm, config.effectiveWpm);
             int curNumberSymbols = numSymbols(c, farnsworth);
             int numSamplesForCurSymbol = curNumberSymbols * pcmDetails.numSamplesPerSymbol;
 
@@ -112,18 +111,17 @@ public class AudioManager {
 
                 for (int j = 0; j < rampSamples; j++) {
                     double amplitude = (double) j / (double) rampSamples;
-//                    double amplitude = Math.pow(2D, ((10D * amplitudeX) - 10D));
-                    rawSnd[sndIdx++] = amplitude * Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
+                    rawSnd[sndIdx++] = amplitude * Math.sin((2 * Math.PI * j * config.toneFrequencyHz) / sampleRateHz);
                 }
 
                 for (int j = rampSamples; j < numSamplesForCurSymbol - rampSamples; j++) {
-                    rawSnd[sndIdx++] = Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
+                    rawSnd[sndIdx++] = Math.sin((2 * Math.PI * j * config.toneFrequencyHz) / sampleRateHz);
                 }
 
                 int rampIdx = rampSamples;
                 for (int j = numSamplesForCurSymbol - rampSamples; j < numSamplesForCurSymbol; j++) {
                     double amplitude = (double) rampIdx / (double) rampSamples;
-                    rawSnd[sndIdx++] = amplitude * Math.sin((2 * Math.PI * j * freqOfToneHz) / sampleRateHz);
+                    rawSnd[sndIdx++] = amplitude * Math.sin((2 * Math.PI * j * config.toneFrequencyHz) / sampleRateHz);
                     rampIdx--;
                 }
             }
@@ -140,19 +138,16 @@ public class AudioManager {
         return pcmConvert(rawSnd);
     }
 
-    private long symbolCountToMillis(int numSymbols) {
+    private long symbolCountToMillis(int numSymbols, int letterWpm) {
         double symbolsPerSecond = getSymbolsPerSecond(letterWpm);
-        return (long) ((1f / symbolsPerSecond) * numSymbols * 1000);
+        return (long) ((1D / symbolsPerSecond) * ((double) numSymbols) * 1000D);
     }
 
-    public long wordSpaceToMillis() {
+    public long wordSpaceToMillis(MorseConfig config) {
+        double farnsworth = calcFarnsworth(config.letterWpm, config.effectiveWpm);
         int numSymbols = numSymbols(' ', farnsworth);
-        return symbolCountToMillis(numSymbols);
-    }
-
-    public long letterSpaceToMillis() {
-        int numSymbols = numSymbols('/', farnsworth);
-        return symbolCountToMillis(numSymbols);
+        // Why scale by 70%? I'm not sure why, but if I don't do this the space just seems too long. Maybe its because of the thread context switching? probably should use a morse config flag for this
+        return (long) (symbolCountToMillis(numSymbols, config.letterWpm) * 0.7);
     }
 
     public void playIncorrectTone() {
@@ -181,9 +176,10 @@ public class AudioManager {
         public double symbolsPerSecond;
     }
 
-    private PCMDetails calcPCMDetails(int wpm, String s) {
+    private PCMDetails calcPCMDetails(MorseConfig config, String s) {
         // calculate number of symbolAnalysis
         int totalNumSymbols = 0;
+        double farnsworth = calcFarnsworth(config.letterWpm, config.effectiveWpm);
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             totalNumSymbols += numSymbols(c, farnsworth);
@@ -192,7 +188,7 @@ public class AudioManager {
             }
         }
 
-        double symbolsPerSecond = getSymbolsPerSecond(wpm);
+        double symbolsPerSecond = getSymbolsPerSecond(config.letterWpm);
         double symbolDuration = 1 / symbolsPerSecond;
         int numSamplesPerSymbol = (int) (symbolDuration * sampleRateHz);
 
@@ -283,12 +279,7 @@ public class AudioManager {
         }
     }
 
-    public AudioManager(int letterWpm, int effective, int audioToneFrequency, Resources resources, double fadeInOutPercentage) {
-        this.freqOfToneHz = audioToneFrequency;
-        this.letterWpm = letterWpm;
-        this.fadeInOutPercentage = fadeInOutPercentage;
-        this.farnsworth = calcFarnsworth(letterWpm, effective);
-
+    public AudioManager(Resources resources) {
         int channelOutStereo = AudioFormat.CHANNEL_OUT_MONO;
         int encoding = AudioFormat.ENCODING_PCM_16BIT;
         minBufferSize = AudioTrack.getMinBufferSize(sampleRateHz, channelOutStereo, encoding);
@@ -370,10 +361,6 @@ public class AudioManager {
         return Math.max(1, f);
     }
 
-    public AudioManager(int letterWpm, int audioToneFrequency, Resources resources, double fadeInOutPercentage) {
-        this(letterWpm, letterWpm, audioToneFrequency, resources, fadeInOutPercentage);
-    }
-
     public void destroy() {
         synchronized (cwplayer) {
             if (cwplayer.getState() == AudioTrack.STATE_INITIALIZED) {
@@ -397,15 +384,76 @@ public class AudioManager {
 
     void playSoundTest(){
         //byte[] generatedSnd1 = buildSnd("....");
-        byte[] generatedSnd1 = buildSnd(50, "... --- ...");
+        MorseConfig.Builder builder = MorseConfig.builder();
+        builder.setEffectiveWpm(30);
+        builder.setLetterWpm(30);
+        builder.setFadeInOutPercentage(34);
+        builder.setToneFrequencyHz(440);
+        byte[] generatedSnd1 = buildSnd("... --- ...", builder.build());
         for (int j = 0; j < 44; j++) {
         }
     }
 
-    public void playMessage(String requestedMessage) {
+    public static class MorseConfig {
+        private final int toneFrequencyHz;
+        private final int letterWpm;
+        private final int effectiveWpm;
+        private final int fadeInOutPercentage;
+
+        private MorseConfig(int toneFrequencyHz, int letterWpm, int effectiveWpm, int fadeInOutPercentage) {
+            this.toneFrequencyHz = toneFrequencyHz;
+            this.letterWpm = letterWpm;
+            this.effectiveWpm = effectiveWpm;
+            this.fadeInOutPercentage = fadeInOutPercentage;
+        }
+
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        public static class Builder {
+            private Integer toneFrequencyHz;
+            private Integer letterWpm;
+            private Integer effectiveWpm;
+            private Integer fadeInOutPercentage;
+
+            public Builder setToneFrequencyHz(int toneFrequencyHz) {
+                this.toneFrequencyHz = toneFrequencyHz;
+                return this;
+            }
+
+            public Builder setLetterWpm(int letterWpm) {
+                this.letterWpm = letterWpm;
+                return this;
+            }
+
+            public Builder setEffectiveWpm(int effectiveWpm) {
+                this.effectiveWpm = effectiveWpm;
+                return this;
+            }
+
+            public Builder setFadeInOutPercentage(int fadeInOutPercentage) {
+                this.fadeInOutPercentage = fadeInOutPercentage;
+                return this;
+            }
+
+            public MorseConfig build() {
+                Preconditions.checkNotNull(toneFrequencyHz);
+                Preconditions.checkNotNull(letterWpm);
+                Preconditions.checkNotNull(effectiveWpm);
+                Preconditions.checkNotNull(fadeInOutPercentage);
+                if (!(fadeInOutPercentage >= 1 && fadeInOutPercentage <= 100)) {
+                    throw new RuntimeException("Not using this right. Needs to be 1-100");
+                }
+                return new MorseConfig(toneFrequencyHz, letterWpm, effectiveWpm, fadeInOutPercentage);
+            }
+        }
+    }
+
+    public void playMessage(String requestedMessage, MorseConfig config) {
         Timber.d("Requested message: %s", requestedMessage);
         String pattern = explodeToSymbols(requestedMessage);
-        byte[] generatedSnd = buildSnd(letterWpm, pattern);
+        byte[] generatedSnd = buildSnd(pattern, config);
         for (int i = 0; i <= generatedSnd.length; i += minBufferSize) {
             int size;
             if (i + minBufferSize > generatedSnd.length) {

@@ -50,8 +50,9 @@ public class SocraticTrainingEngine {
     private static final int TIME_CLICK = 103;
     private static final int CHOOSE_NEW_MESSAGE = 104;
     private volatile long mostRecentEventAt;
+    private final AudioManager.MorseConfig morseConfig;
 
-    public SocraticTrainingEngine(AudioManager audioManager, List<String> letterOrder, int wpm, Consumer<String> letterChosenCallback, List<String> playableKeys, @Nonnull Map<String, Integer> competencyWeights, boolean easyMode) {
+    public SocraticTrainingEngine(AudioManager audioManager, List<String> letterOrder, int wpm, Consumer<String> letterChosenCallback, List<String> playableKeys, @Nonnull Map<String, Integer> competencyWeights, boolean easyMode, AudioManager.MorseConfig morseConfig) {
         this.cwToneManager = audioManager;
         this.easyMode = easyMode;
         this.letterOrder = letterOrder;
@@ -59,6 +60,7 @@ public class SocraticTrainingEngine {
         this.playableKeys = playableKeys;
         this.competencyWeights = competencyWeights;
         this.playLetterWPM = wpm;
+        this.morseConfig = morseConfig;
         HandlerThread eventHandlerThread = new HandlerThread("GuessHandler", HandlerThread.MAX_PRIORITY);
         eventHandlerThread.start();
         eventHandler = new Handler(eventHandlerThread.getLooper(), this::eventCallback);
@@ -70,7 +72,7 @@ public class SocraticTrainingEngine {
             eventHandler.sendEmptyMessage(PLAY_CURRENT_MESSAGE);
         } else if (message.what == PLAY_CURRENT_MESSAGE) {
             mostRecentEventAt = System.currentTimeMillis();
-            cwToneManager.playMessage(currentLetter);
+            cwToneManager.playMessage(currentLetter, morseConfig);
             events.add(SocraticEngineEvent.letterDonePlaying(currentLetter));
         } else if (message.what == CORRECT_GUESS) {
             mostRecentEventAt = System.currentTimeMillis();
@@ -83,7 +85,7 @@ public class SocraticTrainingEngine {
         } else if (message.what == TIME_CLICK) {
             if (mostRecentEventAt + getGuessWaitTimeMillis() <= System.currentTimeMillis()) {
                 mostRecentEventAt = System.currentTimeMillis();
-                cwToneManager.playMessage(currentLetter);
+                cwToneManager.playMessage(currentLetter, morseConfig);
                 events.add(SocraticEngineEvent.letterDonePlaying(currentLetter));
             }
         } else {
@@ -236,7 +238,7 @@ public class SocraticTrainingEngine {
     }
 
     public void playLetter(String letter) {
-        cwToneManager.playMessage(letter);
+        cwToneManager.playMessage(letter, morseConfig);
     }
 
     public String getCurrentLetter() {

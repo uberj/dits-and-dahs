@@ -61,6 +61,20 @@
             android:screenOrientation="landscape"
             />
 
+        <activity
+            android:name="com.uberj.ditsanddahs.training.randomqso.RandomQSOStartScreenActivity"
+            android:label="QSO Training"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+            android:name="com.uberj.ditsanddahs.training.randomqso.RandomQSOKeyboardSessionActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
+        <activity android:name="com.uberj.ditsanddahs.training.randomqso.RandomQSOSettingsActivity"
+            android:screenOrientation="landscape"
+            />
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="655d414733d000254ed550dbde155f77ed418ec7" />

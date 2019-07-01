@@ -31,6 +31,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProviders;
 
+import timber.log.Timber;
+
 import static com.uberj.ditsanddahs.simplesocratic.SocraticKeyboardSessionActivity.DISABLED_BUTTON_ALPHA;
 
 public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivity implements Keys, DialogInterface.OnDismissListener {
@@ -40,12 +42,12 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
     public static final String EFFECTIVE_WPM_REQUESTED = "effective-wpm-requested";
     public static final String TARGET_ISSUE_STRINGS = "target-issue-strings";
     public static final String AUDIO_TONE_FREQUENCY = "audio-tone-frequency";
+    public static final String SECOND_AUDIO_TONE_FREQUENCY = "second-audio-tone-frequency";
     public static final String SESSION_START_DELAY_SECONDS = "session-start-delay-seconds";
     public static final String SESSION_END_DELAY_SECONDS = "session-end-delay-seconds";
     public static final String FADE_IN_OUT_PERCENTAGE = "fade-in-out-percentage";
 
     private TranscribeTrainingSessionViewModel viewModel;
-    private DynamicKeyboard keyboard;
     private Menu menu;
     private EditText transcribeTextArea;
 
@@ -59,40 +61,44 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
         keyboardToolbar.inflateMenu(R.menu.socratic_keyboard);
         setSupportActionBar(keyboardToolbar);
 
-        int durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
-        int letterWpmRequested = receiveBundle.getInt(LETTER_WPM_REQUESTED);
-        int effectiveWpmRequested = receiveBundle.getInt(EFFECTIVE_WPM_REQUESTED);
-        boolean targetIssueLetters = receiveBundle.getBoolean(TARGET_ISSUE_STRINGS);
-        int audioToneFrequency = receiveBundle.getInt(AUDIO_TONE_FREQUENCY);
-        int startDelaySeconds = receiveBundle.getInt(SESSION_START_DELAY_SECONDS);
-        int endDelaySeconds = receiveBundle.getInt(SESSION_END_DELAY_SECONDS);
-        int fadeInOutPercentage = receiveBundle.getInt(FADE_IN_OUT_PERCENTAGE);
         ArrayList<String> stringsRequested = receiveBundle.getStringArrayList(STRINGS_REQUESTED);
-        viewModel = ViewModelProviders.of(this,
-                new TranscribeTrainingSessionViewModel.Factory(
-                        this.getApplication(),
-                        durationMinutesRequested,
-                        letterWpmRequested,
-                        effectiveWpmRequested,
-                        stringsRequested,
-                        targetIssueLetters,
-                        audioToneFrequency,
-                        startDelaySeconds,
-                        endDelaySeconds,
-                        getSessionType(),
-                        fadeInOutPercentage)
-        ).get(TranscribeTrainingSessionViewModel.class);
+        int endDelaySeconds = receiveBundle.getInt(SESSION_END_DELAY_SECONDS);
+        TranscribeSessionType sessionType = getSessionType();
+
+        TranscribeTrainingSessionViewModel.Params.Builder params = TranscribeTrainingSessionViewModel.Params.builder();
+        params.setDurationMinutesRequested(receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0));
+        params.setLetterWpmRequested(receiveBundle.getInt(LETTER_WPM_REQUESTED));
+        params.setEffectiveWpmRequested(receiveBundle.getInt(EFFECTIVE_WPM_REQUESTED));
+        params.setTargetIssueLetters(receiveBundle.getBoolean(TARGET_ISSUE_STRINGS));
+        params.setAudioToneFrequency(receiveBundle.getInt(AUDIO_TONE_FREQUENCY));
+        params.setSessionType(sessionType);
+        params.setSecondAudioToneFrequency(receiveBundle.getInt(SECOND_AUDIO_TONE_FREQUENCY));
+        params.setStartDelaySeconds(receiveBundle.getInt(SESSION_START_DELAY_SECONDS));
+        params.setEndDelaySeconds(endDelaySeconds);
+        params.setFadeInOutPercentage(receiveBundle.getInt(FADE_IN_OUT_PERCENTAGE));
+        params.setStringsRequested(stringsRequested);
+
+        viewModel = ViewModelProviders
+                .of(this, new TranscribeTrainingSessionViewModel.Factory(this.getApplication(), params.build()))
+                .get(TranscribeTrainingSessionViewModel.class);
 
         ConstraintLayout keyboardContainer = findViewById(R.id.nested_transcribe_keyboard);
-        ArrayList<View> inPlayButtons = DynamicKeyboard.getViewsByTag(keyboardContainer, "inplay");
-        for (View inPlayButton : inPlayButtons) {
-            Button button = (Button) inPlayButton;
-            if (!stringsRequested.contains(button.getText().toString())) {
-                button.setAlpha(DISABLED_BUTTON_ALPHA);
+        ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
+
+        if (sessionType.equals(TranscribeSessionType.RANDOM_LETTER_ONLY)) {
+            ArrayList<View> inPlayButtons = DynamicKeyboard.getViewsByTag(keyboardContainer, "inplay");
+            for (View inPlayButton : inPlayButtons) {
+                Button button = (Button) inPlayButton;
+                if (!stringsRequested.contains(button.getText().toString())) {
+                    button.setAlpha(DISABLED_BUTTON_ALPHA);
+                }
             }
+        } else if (sessionType.equals(TranscribeSessionType.RANDOM_QSO)) {
+            timerProgressBar.setVisibility(View.GONE);
+        } else {
+            throw new RuntimeException(("Unknown session type: ") + sessionType);
         }
 
-        ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
         viewModel.getLatestTrainingSession().observe(this, (possibleSession) -> {
             TranscribeTrainingSession session;
             if (possibleSession == null || possibleSession.isEmpty()) {
@@ -104,7 +110,20 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
             viewModel.startTheEngine();
         });
 
+        viewModel.sessionIsFinished.observe(this, (isFinished) -> {
+            if (isFinished) {
+                finish();
+                return;
+            }
+        });
+
         viewModel.durationRemainingMillis.observe(this, (remainingMillis) -> {
+            if (remainingMillis < 0) {
+                // invalid state
+                Timber.d("Invalid duration timer");
+                return;
+            }
+
             if (endDelaySeconds >= 0 && remainingMillis == 0) {
                 finish();
                 return;
@@ -201,10 +220,6 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
             getWindow().getDecorView().performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
         }
         String buttonLetter = DynamicKeyboard.getButtonLetter(getApplicationContext(), view);
-        Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(buttonLetter);
-        if (!viewModel.isARequstedString(buttonLetter) && !controlType.isPresent()) {
-            return;
-        }
         List<String> transcribedStrings = viewModel.transcribedMessage.getValue();
         transcribedStrings.add(buttonLetter);
         viewModel.transcribedMessage.setValue(transcribedStrings);

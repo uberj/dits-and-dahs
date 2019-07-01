@@ -1,19 +1,18 @@
-package com.uberj.ditsanddahs.training.randomletters;
+package com.uberj.ditsanddahs.training.randomqso;
 
 import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.transcribe.TranscribePreferenceFragment;
 import com.uberj.ditsanddahs.transcribe.TranscribeSettingsActivity;
 
-public class RandomLetterSettingsActivity extends TranscribeSettingsActivity {
-    public static class RandomLetterPreferenceFragment extends TranscribePreferenceFragment {
+public class RandomQSOSettingsActivity extends TranscribeSettingsActivity {
+    public static class RandomQSOPreferenceFragment extends TranscribePreferenceFragment {
         @Override
         protected int getSettingsResource() {
-            return R.xml.transcribe_settings;
+            return R.xml.qso_simulator_settings;
         }
     }
-
     @Override
     public TranscribePreferenceFragment getPreferenceFragment() {
-        return new RandomLetterPreferenceFragment();
+        return new RandomQSOPreferenceFragment();
     }
 }

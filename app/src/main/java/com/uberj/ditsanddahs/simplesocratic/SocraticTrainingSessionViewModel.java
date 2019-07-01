@@ -144,8 +144,13 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
         Map<String, Integer> competencyWeights = buildInitialCompetencyWeights(resetWeights ? null : previousSettings);
         inPlayKeyNames = getInitialInPlayKeyNames(previousSettings);
         countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
-        audioManager = new AudioManager(wpmRequested, toneFrequency, getApplication().getResources(), ((double) fadeInOutPercentage)/100D);
-        engine = new SocraticTrainingEngine(audioManager, KochLetterSequence.sequence, wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights, easyMode);
+        AudioManager.MorseConfig.Builder morseConfig = AudioManager.MorseConfig.builder();
+        morseConfig.setToneFrequencyHz(toneFrequency);
+        morseConfig.setFadeInOutPercentage(fadeInOutPercentage);
+        morseConfig.setLetterWpm(wpmRequested);
+        morseConfig.setEffectiveWpm(wpmRequested);
+        audioManager = new AudioManager(getApplication().getResources());
+        engine = new SocraticTrainingEngine(audioManager, KochLetterSequence.sequence, wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights, easyMode, morseConfig.build());
     }
 
     public void startTheEngine() {

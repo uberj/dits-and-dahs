@@ -36,11 +36,13 @@ public class FlashcardTrainingEngine {
     private static final int SKIP = 101;
     private static final int REPEAT = 102;
     private static final int PLAY_CURRENT_MESSAGE = 103;
+    private final AudioManager.MorseConfig morseConfig;
 
-    public FlashcardTrainingEngine(AudioManager audioManager, FlashcardSessionType sessionType, List<String> messages, MutableLiveData<Long> durationUnitsRemaining) {
+    public FlashcardTrainingEngine(AudioManager audioManager, FlashcardSessionType sessionType, List<String> messages, MutableLiveData<Long> durationUnitsRemaining, AudioManager.MorseConfig morseConfig) {
         this.audioManager = audioManager;
         this.cardsRemaining = durationUnitsRemaining;
         this.sessionType = sessionType;
+        this.morseConfig = morseConfig;
         if (sessionType.equals(FlashcardSessionType.RANDOM_FCC_CALLSIGNS)) {
             this.competencyWeights = null;
         } else {
@@ -121,7 +123,7 @@ public class FlashcardTrainingEngine {
     }
 
     private void playMessage(String currentMessage) {
-        audioManager.playMessage(currentMessage);
+        audioManager.playMessage(currentMessage, morseConfig);
         events.add(FlashcardEngineEvent.messageDonePlaying(currentMessage));
     }
 

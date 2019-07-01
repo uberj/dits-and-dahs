@@ -64,8 +64,8 @@ public class TranscribeNumberScreenFragment extends Fragment {
             TableLayout errorListContainer = rootView.findViewById(R.id.error_breakdown_list_container);
             if (!possibleSession.isEmpty()) {
                 TranscribeTrainingSession session = possibleSession.get(0);
-                prevDurationMillis = session.durationRequestedMillis;
                 TranscribeUtil.TranscribeSessionAnalysis analysis = TranscribeUtil.analyzeSession(getContext(), session);
+                prevDurationMillis = analysis.sessionDuration;
                 TextView transcribeDiff = rootView.findViewById(R.id.transcribe_diff);
                 transcribeDiff.setText(analysis.messageSpan, TextView.BufferType.EDITABLE);
                 overallAccuracyRate = analysis.overallAccuracyRate;

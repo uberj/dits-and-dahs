@@ -96,13 +96,18 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
 
 
     public void primeTheEngine() {
-        audioManager = new AudioManager(wpmRequested, toneFrequency, getApplication().getResources(), ((double) fadeInOutPercentage)/100D);
+        AudioManager.MorseConfig.Builder morseConfig = AudioManager.MorseConfig.builder();
+        morseConfig.setLetterWpm(wpmRequested);
+        morseConfig.setEffectiveWpm(wpmRequested);
+        morseConfig.setFadeInOutPercentage(fadeInOutPercentage);
+        morseConfig.setToneFrequencyHz(toneFrequency);
+        audioManager = new AudioManager(getApplication().getResources());
         if (durationUnit.equals(TIME_LIMITED_SESSION_TYPE)) {
             countDownTimer = setupCountDownTimer(1000 * (durationUnitsRequested * 60 + 1));
-            engine = new FlashcardTrainingEngine(audioManager, sessionType, requestedMessages, null);
+            engine = new FlashcardTrainingEngine(audioManager, sessionType, requestedMessages, null, morseConfig.build());
         } else {
             durationUnitsRemaining.setValue(durationUnitsRequested);
-            engine = new FlashcardTrainingEngine(audioManager, sessionType, requestedMessages, durationUnitsRemaining);
+            engine = new FlashcardTrainingEngine(audioManager, sessionType, requestedMessages, durationUnitsRemaining, morseConfig.build());
         }
         engine.prime();
     }

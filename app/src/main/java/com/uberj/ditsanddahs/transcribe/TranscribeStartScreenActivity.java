@@ -105,7 +105,7 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
             if (position == 0) {
-                return TranscribeStartScreenFragment.newInstance(sessionType, sessionActivityClass);
+                return getStartScreenFragment(sessionType, sessionActivityClass);
             } else {
                 return TranscribeNumberScreenFragment.newInstance(sessionType);
             }
@@ -117,6 +117,8 @@ public abstract class TranscribeStartScreenActivity extends AppCompatActivity im
             return 2;
         }
     }
+
+    protected abstract Fragment getStartScreenFragment(TranscribeSessionType sessionType, Class<? extends FragmentActivity> sessionActivityClass);
 
     public abstract Class<? extends Activity> getSettingsActivity();
 

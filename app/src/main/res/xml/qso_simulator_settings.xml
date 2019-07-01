@@ -1,0 +1,88 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:whatever="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+    <PreferenceCategory android:title="Activity Settings">
+
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
+            app:key="@string/setting_transcribe_audio_tone"
+            app:title="First Station Tone Frequency"
+            app:summary="The audio tone frequency that station calling 'CQ' will use"
+            app:showSeekBarValue="true"
+            whatever:value_suffix=" Hz"
+            app:min="300"
+            android:max="1000"
+            android:defaultValue="440"
+            whatever:step_floor="10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
+            app:key="@string/second_station_setting_transcribe_audio_tone"
+            app:title="Second Station Tone Frequency"
+            app:summary="The responding station's audio tone frequency"
+            app:showSeekBarValue="true"
+            whatever:value_suffix=" Hz"
+            app:min="300"
+            android:max="1000"
+            android:defaultValue="400"
+            whatever:step_floor="10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
+            app:key="@string/qso_simulator_space_between_station_transmissions"
+            app:title="Seconds between station responses"
+            app:summary="Give yourself a break between station transmissions"
+            app:showSeekBarValue="true"
+            app:min="1"
+            android:max="10"
+            android:defaultValue="1"
+            whatever:value_suffix=" Seconds"
+            whatever:step_floor="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
+            app:key="@string/setting_transcribe_start_delay_seconds"
+            app:title="Start Delay (Seconds)"
+            app:summary="Give yourself a countdown before your session starts"
+            app:showSeekBarValue="true"
+            app:min="1"
+            android:max="10"
+            android:defaultValue="1"
+            whatever:value_suffix=" Seconds"
+            whatever:step_floor="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
+            app:key="@string/setting_transcribe_end_delay_seconds"
+            app:title="End Delay (Seconds)"
+            app:summary="Give yourself time at the end of the session to make last second changes"
+            app:showSeekBarValue="true"
+            app:min="1"
+            android:max="@string/setting_transcribe_end_delay_seconds_max_value"
+            android:defaultValue="4"
+            whatever:value_suffix=" Seconds"
+            whatever:step_floor="1"
+            whatever:max_value=" Unlimited"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Global Settings">
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
+            app:key="@string/setting_fade_in_out_percentage"
+            app:title="Tone fade-in/fade-out control"
+            app:summary="If you are hearing 'clipping' noises, increase this setting until you no longer hear the issue"
+            app:showSeekBarValue="true"
+            whatever:value_suffix=" %"
+            app:min="0"
+            android:max="50"
+            android:defaultValue="30"
+            whatever:step_floor="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </PreferenceCategory>
+</PreferenceScreen>

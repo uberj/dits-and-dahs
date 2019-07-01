@@ -44,4 +44,12 @@
     <string name="common_words_flashcard_type">Common Words</string>
     <string name="fcc_call_signs_flashcard_type">FCC Call Signs</string>
     <string name="random_calls_selected_description">Random call signs from the FCC\'s ULS database will be played until the session ends</string>
+    <string name="qso_training_description_what">Practice transcribeing a QSO between two stations</string>
+    <string name="qso_training_description_why">Listening to a realistic QSO is the best way sharpen your on-air listening skills</string>
+
+    <string name="qso_simulator_start_screen_description">After you press start two stations will begin to start having a CW QSO. Call signs, locations, names, rigs, and other things are randomly generated so you can practice transcribing realistic phrases used on the air. Use the tools in "Additional Settings" to adjust how the QSO sounds.</string>
+    <string name="qso_simulator_use_second_station_settings">qso_simulator_use_second_station_settings</string>
+    <string name="qso_simulator_second_station_settings_description">Settings that control the responding station</string>
+    <string name="second_station_setting_transcribe_audio_tone">second_station_setting_transcribe_audio_tone</string>
+    <string name="qso_simulator_space_between_station_transmissions">qso_simulator_space_between_station_transmissions</string>
 </resources>

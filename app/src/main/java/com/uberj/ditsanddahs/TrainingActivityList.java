@@ -9,6 +9,7 @@ import android.os.Bundle;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.uberj.ditsanddahs.training.randomletters.RandomLettersStartScreenActivity;
+import com.uberj.ditsanddahs.training.randomqso.RandomQSOStartScreenActivity;
 import com.uberj.ditsanddahs.training.simplewordflashcards.SimpleWordFlashcardStartScreenActivity;
 import com.uberj.ditsanddahs.training.simple.SimpleStartScreenActivity;
 
@@ -78,6 +79,16 @@ public class TrainingActivityList extends Activity {
                 simpleWordFlashcard
         );
         trainingActivities.add(random_words);
+
+        Intent qsoTraining = new Intent(this, RandomQSOStartScreenActivity.class);
+        qsoTraining.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        TrainingCardData qso_training = new TrainingCardData(
+                "QSO Simulator",
+                R.string.qso_training_description_what,
+                R.string.qso_training_description_why,
+                qsoTraining
+        );
+        trainingActivities.add(qso_training);
 
         mAdapter = new TrainingActivityAdapter(trainingActivities);
         mRecyclerView.setAdapter(mAdapter);

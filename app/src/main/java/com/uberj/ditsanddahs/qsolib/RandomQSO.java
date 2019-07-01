@@ -8,35 +8,13 @@ import com.uberj.ditsanddahs.qsolib.phrase.Phrase;
 import com.uberj.ditsanddahs.qsolib.phrase.PhraseUtil;
 import com.uberj.ditsanddahs.qsolib.phrase.Sentence;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
+import java.util.Arrays;
 import java.util.List;
 
 import static com.uberj.ditsanddahs.qsolib.phrase.PhraseUtil.hasRecentlyMentionedPhrase;
 
-public class RandomCWQSOTest {
-
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    @Test
-    public void doABunchOfQSOs() {
-        int numRuns = 100;
-        for (int i = 0; i < numRuns; i++) {
-            List<String> generate = RandomQSO.generate();
-            for (String s : generate) {
-                Assert.assertFalse(s, s.contains("$"));
-                System.out.println(s);
-            }
-            System.out.println();
-            System.out.println();
-        }
-    }
-
-    private static List<String> generate() {
+public class RandomQSO {
+    public static List<String> generate() {
         List<String> lines = Lists.newArrayList();
         String station0Call = RandomCallSignGenerator.getCall();
         String station1Call = RandomCallSignGenerator.getCall();

@@ -50,10 +50,16 @@ public class TranscribeUtil {
         SpannableStringBuilder messageSpan = new SpannableStringBuilder("");
         int cursor = 0;
         for (DiffPatchMatch.Diff diff : messageDiff) {
-            messageSpan.append(diff.text);
+            String text = diff.text;
+            if (diff.text.contains(QSOWordSupplier.STATION_SWITCH_MARKER)) {
+                text = text.replace(QSOWordSupplier.STATION_SWITCH_MARKER, "\n\n");
+            }
+
+            messageSpan.append(text);
+
             Optional<CharacterStyle> spanColor = getSpanColor(context, diff.operation);
             if (spanColor.isPresent()) {
-                int cursorEnd = cursor + diff.text.length();
+                int cursorEnd = cursor + text.length();
                 messageSpan.setSpan(
                         spanColor.get(),
                         cursor,
@@ -61,12 +67,18 @@ public class TranscribeUtil {
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 );
             }
-            cursor = cursor + diff.text.length();
+            cursor = cursor + text.length();
         }
 
         Map<String, Pair<Integer, Integer>> errorMap = calculateHitMap(session);
         float overallAccuracyRate = TranscribeUtil.calculateOverallAccuracyForSession(errorMap);
-        return new TranscribeSessionAnalysis(messageSpan, overallAccuracyRate, errorMap);
+        long sessionDuration  = TranscribeUtil.calcSessionDuration(session);
+        return new TranscribeSessionAnalysis(messageSpan, overallAccuracyRate, errorMap, sessionDuration);
+    }
+
+    private static long calcSessionDuration(TranscribeTrainingSession session) {
+        // TODO
+        return session.durationRequestedMillis;
     }
 
     private static LinkedList<DiffPatchMatch.Diff> calcMessageDiff(TranscribeTrainingSession session) {
@@ -76,8 +88,7 @@ public class TranscribeUtil {
         String transcription = convertKeyPressesToString(transcribedKeys);
         String message = Joiner.on("").join(playedKeys);
         DiffPatchMatch dmp = new DiffPatchMatch();
-        LinkedList<DiffPatchMatch.Diff> messageDiff = dmp.diff_main(message, transcription);
-        return messageDiff;
+        return dmp.diff_main(message, transcription);
     }
 
     protected static List<String> stripTrailingSpaces(List<String> inputStrings) {
@@ -133,9 +144,6 @@ public class TranscribeUtil {
                     continue;
                 }
 
-                if (!session.stringsRequested.contains(s) && !s.equals(" ")) {
-                    throw new RuntimeException("Issue finding diff char in played keys");
-                }
                 if (hitCountMap.containsKey(s)) {
                     Integer v = hitCountMap.get(s);
                     hitCountMap.put(s, v + 1);
@@ -175,11 +183,13 @@ public class TranscribeUtil {
         public final SpannableStringBuilder messageSpan;
         public final double overallAccuracyRate;
         public final Map<String, Pair<Integer, Integer>> hitMap;
+        public final long sessionDuration;
 
-        public TranscribeSessionAnalysis(SpannableStringBuilder messageSpan, double overallAccuracyRate, Map<String, Pair<Integer, Integer>> hitMap) {
+        public TranscribeSessionAnalysis(SpannableStringBuilder messageSpan, double overallAccuracyRate, Map<String, Pair<Integer, Integer>> hitMap, long sessionDuration) {
             this.messageSpan = messageSpan;
             this.overallAccuracyRate = overallAccuracyRate;
             this.hitMap = hitMap;
+            this.sessionDuration = sessionDuration;
         }
     }
 }

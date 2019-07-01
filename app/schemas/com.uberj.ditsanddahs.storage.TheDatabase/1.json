@@ -1,0 +1,262 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "0d5d8067f7b96710ce12a7e73635e4e4",
+    "entities": [
+      {
+        "tableName": "SocraticTrainingEngineSettings",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `createdAtEpocMillis` INTEGER NOT NULL, `weights` TEXT, `activeLetters` TEXT, `playLetterWPM` INTEGER NOT NULL, `durationRequestedMillis` INTEGER NOT NULL, `sessionType` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "uid",
+            "columnName": "uid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAtEpocMillis",
+            "columnName": "createdAtEpocMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "weights",
+            "columnName": "weights",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "activeLetters",
+            "columnName": "activeLetters",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "playLetterWPM",
+            "columnName": "playLetterWPM",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "durationRequestedMillis",
+            "columnName": "durationRequestedMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sessionType",
+            "columnName": "sessionType",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "uid"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "SocraticTrainingSession",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `endTimeEpocMillis` INTEGER NOT NULL, `durationWorkedMillis` INTEGER NOT NULL, `durationRequestedMillis` INTEGER NOT NULL, `completed` INTEGER NOT NULL, `sessionType` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "uid",
+            "columnName": "uid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endTimeEpocMillis",
+            "columnName": "endTimeEpocMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "durationWorkedMillis",
+            "columnName": "durationWorkedMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "durationRequestedMillis",
+            "columnName": "durationRequestedMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completed",
+            "columnName": "completed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sessionType",
+            "columnName": "sessionType",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "uid"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "SocraticEngineEvent",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `sessionId` INTEGER NOT NULL, `eventType` INTEGER, `eventAtEpoc` INTEGER, `info` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sessionId",
+            "columnName": "sessionId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eventType",
+            "columnName": "eventType",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "eventAtEpoc",
+            "columnName": "eventAtEpoc",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "info",
+            "columnName": "info",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "TranscribeTrainingSession",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `endTimeEpocMillis` INTEGER NOT NULL, `durationRequestedMillis` INTEGER NOT NULL, `completed` INTEGER NOT NULL, `effectiveWpm` INTEGER NOT NULL, `letterWpm` INTEGER NOT NULL, `sessionType` TEXT NOT NULL, `playedMessage` TEXT NOT NULL, `enteredKeys` TEXT NOT NULL, `stringsRequested` TEXT NOT NULL, `targetIssueLetters` INTEGER NOT NULL, `audioToneFrequency` INTEGER NOT NULL, `startDelaySeconds` INTEGER NOT NULL, `endDelaySeconds` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "uid",
+            "columnName": "uid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endTimeEpocMillis",
+            "columnName": "endTimeEpocMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "durationRequestedMillis",
+            "columnName": "durationRequestedMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completed",
+            "columnName": "completed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "effectiveWpm",
+            "columnName": "effectiveWpm",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "letterWpm",
+            "columnName": "letterWpm",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sessionType",
+            "columnName": "sessionType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "playedMessage",
+            "columnName": "playedMessage",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "enteredKeys",
+            "columnName": "enteredKeys",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stringsRequested",
+            "columnName": "stringsRequested",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "targetIssueLetters",
+            "columnName": "targetIssueLetters",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "audioToneFrequency",
+            "columnName": "audioToneFrequency",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startDelaySeconds",
+            "columnName": "startDelaySeconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endDelaySeconds",
+            "columnName": "endDelaySeconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "uid"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"0d5d8067f7b96710ce12a7e73635e4e4\")"
+    ]
+  }
+}
