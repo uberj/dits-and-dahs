@@ -8,15 +8,12 @@ import java.util.List;
 
 public class QSOWordSupplier implements Supplier<String> {
     public static final String STATION_SWITCH_MARKER = "@STATION_SWITCH_MARKER@";
-    private final List<List<String>> messages;
+    private final List<String> messages;
     private int sentenceIdx = 0;
-    private boolean pumpSpace = false;
+    private int wordIdx = 0;
 
     public QSOWordSupplier(List<String> passedMessages) {
-        messages = Lists.newArrayList();
-        for (String passedMessage : passedMessages) {
-            messages.add(Arrays.asList(passedMessage.split(" ")));
-        }
+        this.messages = passedMessages;
     }
 
     @Override
@@ -25,22 +22,25 @@ public class QSOWordSupplier implements Supplier<String> {
             return null;
         }
 
-        List<String> currSentence = messages.get(0);
-        if (sentenceIdx >= currSentence.size()) {
-            messages.remove(0);
-            sentenceIdx = 0;
-            pumpSpace = false;
-            return messages.isEmpty() ? null : STATION_SWITCH_MARKER;
+        if (messages.size() <= sentenceIdx) {
+            // We've exhausted our sentences
+            return null;
         }
 
-        if (pumpSpace) {
-            pumpSpace = false;
-            return " ";
+        String currSentence = messages.get(sentenceIdx);
+        if (currSentence.length() <= wordIdx) {
+            sentenceIdx++;
+            wordIdx = 0;
+            if (messages.size() <= sentenceIdx) {
+                // We are going to be done next round. just end it now
+                return null;
+            } else {
+                return STATION_SWITCH_MARKER;
+            }
         }
 
-        String s = String.valueOf(currSentence.get(sentenceIdx));
-        sentenceIdx++;
-        pumpSpace = true;
-        return s;
+        char curChar = currSentence.charAt(wordIdx);
+        wordIdx++;
+        return String.valueOf(curChar);
     }
 }
