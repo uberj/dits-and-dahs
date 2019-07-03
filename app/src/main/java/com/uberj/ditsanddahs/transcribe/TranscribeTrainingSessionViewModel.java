@@ -162,8 +162,6 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
                 Preconditions.checkNotNull(sessionType);
                 if (sessionType.equals(TranscribeSessionType.RANDOM_LETTER_ONLY)) {
                     Preconditions.checkNotNull(stringsRequested);
-                    Preconditions.checkArgument(secondAudioToneFrequency == -1);
-                    Preconditions.checkArgument(secondsBetweenStationTransmissions == -1);
                 } else {
                     Preconditions.checkArgument(stringsRequested == null);
                     Preconditions.checkNotNull(secondAudioToneFrequency);
@@ -273,7 +271,6 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         AudioManager audioManager = new AudioManager(getApplication().getResources());
         engine = new TranscribeTrainingEngine(
                 audioManager,
-                startDelaySeconds,
                 this::letterPlayedCallback,
                 letterSupplier,
                 this::messagePlayingComplete,

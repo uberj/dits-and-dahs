@@ -25,7 +25,7 @@ public class TranscribeTrainingEngine {
     private volatile boolean engineIsStarted = false;
     private volatile boolean awaitingShutdown = false;
 
-    public TranscribeTrainingEngine(AudioManager audioManager, int startDelaySeconds, Consumer<String> letterPlayedCallback, Supplier<Pair<String, AudioManager.MorseConfig>> letterSupplier, Callable<Void> messageFinishedPlayingCallback, int secondsBetweenStationTransmissions) {
+    public TranscribeTrainingEngine(AudioManager audioManager, Consumer<String> letterPlayedCallback, Supplier<Pair<String, AudioManager.MorseConfig>> letterSupplier, Callable<Void> messageFinishedPlayingCallback, int secondsBetweenStationTransmissions) {
         this.letterSupplier = letterSupplier;
 
         this.letterPlayedCallback = letterPlayedCallback;
@@ -33,10 +33,6 @@ public class TranscribeTrainingEngine {
         this.messageFinishedPlayingCallback = messageFinishedPlayingCallback;
         this.audioLoop = () -> {
             try {
-                synchronized (pauseGate) {
-                    pauseGate.wait(startDelaySeconds * 1000);
-                }
-
                 while (Thread.currentThread() == audioThread) {
                     while (isPaused)  {
                         synchronized (pauseGate) {

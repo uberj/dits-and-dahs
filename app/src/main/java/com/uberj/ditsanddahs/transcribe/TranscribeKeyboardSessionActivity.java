@@ -16,10 +16,9 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.annimon.stream.Optional;
+import com.uberj.ditsanddahs.CountDownTimer;
 import com.uberj.ditsanddahs.DynamicKeyboard;
 import com.uberj.ditsanddahs.R;
-import com.uberj.ditsanddahs.keyboards.KeyConfig;
 import com.uberj.ditsanddahs.keyboards.Keys;
 import com.uberj.ditsanddahs.transcribe.storage.TranscribeSessionType;
 import com.uberj.ditsanddahs.transcribe.storage.TranscribeTrainingSession;
@@ -67,6 +66,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
 
         ArrayList<String> stringsRequested = receiveBundle.getStringArrayList(STRINGS_REQUESTED);
         int endDelaySeconds = receiveBundle.getInt(SESSION_END_DELAY_SECONDS);
+        int startDelaySeconds = receiveBundle.getInt(SESSION_START_DELAY_SECONDS, 3);
         TranscribeSessionType sessionType = getSessionType();
 
         TranscribeTrainingSessionViewModel.Params.Builder params = TranscribeTrainingSessionViewModel.Params.builder();
@@ -78,7 +78,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
         params.setSessionType(sessionType);
         params.setSecondAudioToneFrequency(receiveBundle.getInt(SECOND_AUDIO_TONE_FREQUENCY));
         params.setSecondsBetweenStationTransmissions(receiveBundle.getInt(SECONDS_BETWEEN_STATION_TRANSMISSIONS, 1));
-        params.setStartDelaySeconds(receiveBundle.getInt(SESSION_START_DELAY_SECONDS));
+        params.setStartDelaySeconds(startDelaySeconds);
         params.setEndDelaySeconds(endDelaySeconds);
         params.setFadeInOutPercentage(receiveBundle.getInt(FADE_IN_OUT_PERCENTAGE));
         params.setStringsRequested(stringsRequested);
@@ -112,14 +112,51 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
             } else {
                 session = possibleSession.get(0);
             }
-            viewModel.primeTheEngine(session);
-            viewModel.startTheEngine();
+
+            if (startDelaySeconds > 0) {
+                new CountDownTimer(startDelaySeconds * 1000, 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        keyboardToolbarTitle.setText(String.format(getString(R.string.start_timer_title), millisUntilFinished/1000));
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        keyboardToolbarTitle.setText("");
+                        viewModel.primeTheEngine(session);
+                        viewModel.startTheEngine();
+                    }
+                }.start();
+            } else {
+                viewModel.primeTheEngine(session);
+                viewModel.startTheEngine();
+            }
         });
 
         viewModel.sessionIsFinished.observe(this, (isFinished) -> {
-            if (isFinished && endDelaySeconds > 0) {
-                finish();
+            if (!isFinished) {
                 return;
+            }
+
+            if (endDelaySeconds == 0) {
+                finish();
+            } else if (endDelaySeconds < 0) {
+                // Wait for back button to be pressed
+                keyboardToolbarTitle.setText(getString(R.string.press_back_to_end_title));
+            } else {
+                // Some weird stuff going on in this CountDownTimer -- instead of fixing it, I'll just hack it until it works, thus I subtract 1
+                new CountDownTimer((endDelaySeconds * 1000) - 1, 1000) {
+
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        keyboardToolbarTitle.setText(String.format(getString(R.string.end_timer_title), millisUntilFinished/1000));
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        finish();
+                    }
+                }.start();
             }
         });
 

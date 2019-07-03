@@ -52,4 +52,7 @@
     <string name="qso_simulator_second_station_settings_description">Settings that control the responding station</string>
     <string name="second_station_setting_transcribe_audio_tone">second_station_setting_transcribe_audio_tone</string>
     <string name="qso_simulator_seconds_between_station_transmissions">qso_simulator_seconds_between_station_transmissions</string>
+    <string name="start_timer_title">Starting in %d...</string>
+    <string name="end_timer_title">Ending in %d...</string>
+    <string name="press_back_to_end_title">Press \'Back\' to end</string>
 </resources>
