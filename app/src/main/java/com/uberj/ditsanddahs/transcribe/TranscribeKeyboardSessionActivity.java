@@ -12,7 +12,9 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.annimon.stream.Optional;
 import com.uberj.ditsanddahs.DynamicKeyboard;
@@ -46,6 +48,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
     public static final String SESSION_START_DELAY_SECONDS = "session-start-delay-seconds";
     public static final String SESSION_END_DELAY_SECONDS = "session-end-delay-seconds";
     public static final String FADE_IN_OUT_PERCENTAGE = "fade-in-out-percentage";
+    public static final String SECONDS_BETWEEN_STATION_TRANSMISSIONS = "seconds-between-station-transmissions";
 
     private TranscribeTrainingSessionViewModel viewModel;
     private Menu menu;
@@ -57,6 +60,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
         setContentView(R.layout.transcribe_keyboard_activity);
         Bundle receiveBundle = getIntent().getExtras();
         assert receiveBundle != null;
+        TextView keyboardToolbarTitle = findViewById(R.id.keyboard_toolbar_title);
         Toolbar keyboardToolbar = findViewById(R.id.keyboard_toolbar);
         keyboardToolbar.inflateMenu(R.menu.socratic_keyboard);
         setSupportActionBar(keyboardToolbar);
@@ -73,6 +77,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
         params.setAudioToneFrequency(receiveBundle.getInt(AUDIO_TONE_FREQUENCY));
         params.setSessionType(sessionType);
         params.setSecondAudioToneFrequency(receiveBundle.getInt(SECOND_AUDIO_TONE_FREQUENCY));
+        params.setSecondsBetweenStationTransmissions(receiveBundle.getInt(SECONDS_BETWEEN_STATION_TRANSMISSIONS, 1));
         params.setStartDelaySeconds(receiveBundle.getInt(SESSION_START_DELAY_SECONDS));
         params.setEndDelaySeconds(endDelaySeconds);
         params.setFadeInOutPercentage(receiveBundle.getInt(FADE_IN_OUT_PERCENTAGE));
@@ -84,6 +89,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
 
         ConstraintLayout keyboardContainer = findViewById(R.id.nested_transcribe_keyboard);
         ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
+        FrameLayout timerProgressBarContainer = findViewById(R.id.timer_progress_bar_container);
 
         if (sessionType.equals(TranscribeSessionType.RANDOM_LETTER_ONLY)) {
             ArrayList<View> inPlayButtons = DynamicKeyboard.getViewsByTag(keyboardContainer, "inplay");
@@ -94,7 +100,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
                 }
             }
         } else if (sessionType.equals(TranscribeSessionType.RANDOM_QSO)) {
-            timerProgressBar.setVisibility(View.GONE);
+            timerProgressBarContainer.setVisibility(View.GONE);
         } else {
             throw new RuntimeException(("Unknown session type: ") + sessionType);
         }
@@ -111,7 +117,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
         });
 
         viewModel.sessionIsFinished.observe(this, (isFinished) -> {
-            if (isFinished) {
+            if (isFinished && endDelaySeconds > 0) {
                 finish();
                 return;
             }
@@ -160,7 +166,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
 
     @Override
     public void onBackPressed() {
-        if (viewModel.durationRemainingMillis.getValue() != 0) {
+        if (viewModel.durationRemainingMillis.getValue() != 0 && !viewModel.sessionIsFinished.getValue()) {
             viewModel.pause();
 
             // Update UI to indicate paused session. Player will need to manually trigger play to resume

@@ -6,6 +6,7 @@ import com.annimon.stream.function.Supplier;
 import com.google.common.base.Preconditions;
 import com.uberj.ditsanddahs.AudioManager;
 import com.uberj.ditsanddahs.CountDownTimer;
+import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.qsolib.RandomQSO;
 import com.uberj.ditsanddahs.storage.Repository;
 import com.uberj.ditsanddahs.transcribe.storage.TranscribeSessionType;
@@ -41,6 +42,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     private final int secondAudioToneFrequency;
     private final int startDelaySeconds;
     private final int endDelaySeconds;
+    private final int secondsBetweenStationTransmissions;
     private CountDownTimer countDownTimer = null;
     private TranscribeTrainingEngine engine;
     private boolean sessionHasBeenStarted = false;
@@ -61,8 +63,9 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         private final int endDelaySeconds;
         private final int fadeInOutPercentage;
         private final int secondAudioToneFrequency;
+        private final int secondsBetweenStationTransmissions;
 
-        private Params(int durationMinutesRequested, ArrayList<String> stringsRequested, int letterWpmRequested, int effectiveWpmRequested, boolean targetIssueLetters, TranscribeSessionType sessionType, int audioToneFrequency, int startDelaySeconds, int endDelaySeconds, int fadeInOutPercentage, int secondAudioToneFrequency) {
+        private Params(int durationMinutesRequested, ArrayList<String> stringsRequested, int letterWpmRequested, int effectiveWpmRequested, boolean targetIssueLetters, TranscribeSessionType sessionType, int audioToneFrequency, int startDelaySeconds, int endDelaySeconds, int fadeInOutPercentage, int secondAudioToneFrequency, Integer secondsBetweenStationTransmissions) {
             this.durationMinutesRequested = durationMinutesRequested;
             this.stringsRequested = stringsRequested;
             this.letterWpmRequested = letterWpmRequested;
@@ -74,6 +77,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
             this.endDelaySeconds = endDelaySeconds;
             this.fadeInOutPercentage = fadeInOutPercentage;
             this.secondAudioToneFrequency = secondAudioToneFrequency;
+            this.secondsBetweenStationTransmissions = secondsBetweenStationTransmissions;
         }
 
         public static Builder builder() {
@@ -91,7 +95,8 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
             private Integer startDelaySeconds;
             private Integer endDelaySeconds;
             private Integer fadeInOutPercentage;
-            private Integer secondAudioToneFrequency;
+            private Integer secondAudioToneFrequency = -1;
+            private Integer secondsBetweenStationTransmissions = -1;
 
             public Builder setDurationMinutesRequested(int durationMinutesRequested) {
                 this.durationMinutesRequested = durationMinutesRequested;
@@ -143,27 +148,36 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
                 return this;
             }
 
-            public void setSecondAudioToneFrequency(int secondAudioToneFrequency) {
+            public Builder setSecondAudioToneFrequency(int secondAudioToneFrequency) {
                 this.secondAudioToneFrequency = secondAudioToneFrequency;
+                return this;
+            }
+
+            public Builder setSecondsBetweenStationTransmissions(int secondsBetweenStationTransmissions) {
+                this.secondsBetweenStationTransmissions = secondsBetweenStationTransmissions;
+                return this;
             }
 
             public Params build() {
+                Preconditions.checkNotNull(sessionType);
                 if (sessionType.equals(TranscribeSessionType.RANDOM_LETTER_ONLY)) {
                     Preconditions.checkNotNull(stringsRequested);
+                    Preconditions.checkArgument(secondAudioToneFrequency == -1);
+                    Preconditions.checkArgument(secondsBetweenStationTransmissions == -1);
                 } else {
                     Preconditions.checkArgument(stringsRequested == null);
+                    Preconditions.checkNotNull(secondAudioToneFrequency);
+                    Preconditions.checkNotNull(secondsBetweenStationTransmissions);
                 }
 
                 Preconditions.checkNotNull(letterWpmRequested);
                 Preconditions.checkNotNull(effectiveWpmRequested);
                 Preconditions.checkNotNull(targetIssueLetters);
-                Preconditions.checkNotNull(sessionType);
                 Preconditions.checkNotNull(audioToneFrequency);
                 Preconditions.checkNotNull(startDelaySeconds);
                 Preconditions.checkNotNull(endDelaySeconds);
                 Preconditions.checkNotNull(fadeInOutPercentage);
-                Preconditions.checkNotNull(secondAudioToneFrequency);
-                return new Params(durationMinutesRequested, stringsRequested, letterWpmRequested, effectiveWpmRequested, targetIssueLetters, sessionType, audioToneFrequency, startDelaySeconds, endDelaySeconds, fadeInOutPercentage, secondAudioToneFrequency);
+                return new Params(durationMinutesRequested, stringsRequested, letterWpmRequested, effectiveWpmRequested, targetIssueLetters, sessionType, audioToneFrequency, startDelaySeconds, endDelaySeconds, fadeInOutPercentage, secondAudioToneFrequency, secondsBetweenStationTransmissions);
             }
         }
     }
@@ -182,6 +196,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         this.endDelaySeconds = params.endDelaySeconds;
         this.fadeInOutPercentage = params.fadeInOutPercentage;
         this.secondAudioToneFrequency = params.secondAudioToneFrequency;
+        this.secondsBetweenStationTransmissions = params.secondsBetweenStationTransmissions;
     }
 
     public long getDurationRequestedMillis() {
@@ -204,10 +219,6 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
             countDownTimer.resume();
         }
         engine.resume();
-    }
-
-    public boolean isARequstedString(String buttonLetter) {
-        return stringsRequested.contains(buttonLetter);
     }
 
     public static class Factory implements ViewModelProvider.Factory {
@@ -236,24 +247,38 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     }
 
     public void primeTheEngine(TranscribeTrainingSession prevSession) {
-        Supplier<String> letterSupplier;
+        AudioManager.MorseConfig.Builder morseConfigBuilder = AudioManager.MorseConfig.builder();
+        morseConfigBuilder.setToneFrequencyHz(audioToneFrequency);
+        morseConfigBuilder.setFadeInOutPercentage(fadeInOutPercentage);
+        morseConfigBuilder.setLetterWpm(letterWpmRequested);
+        morseConfigBuilder.setEffectiveWpm(effectiveWpmRequested);
+
+        Supplier<Pair<String, AudioManager.MorseConfig>> letterSupplier;
         if (sessionType.equals(TranscribeSessionType.RANDOM_LETTER_ONLY)) {
             countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
-            letterSupplier = new RandomLetterSupplier(buildWeightedStrings(prevSession));
+            letterSupplier = new RandomLetterSupplier(buildWeightedStrings(prevSession), morseConfigBuilder.build());
         } else if (sessionType.equals(TranscribeSessionType.RANDOM_QSO)) {
             List<String> messages = RandomQSO.generate();
-            letterSupplier = new QSOWordSupplier(messages);
+            AudioManager.MorseConfig morseConfig0 = morseConfigBuilder.build();
+
+            // Make the second station morse config have the configured tone freq
+            morseConfigBuilder.setToneFrequencyHz(secondAudioToneFrequency);
+            AudioManager.MorseConfig morseConfig1 = morseConfigBuilder.build();
+
+            letterSupplier = new QSOWordSupplier(messages, morseConfig0, morseConfig1);
         } else {
             throw new RuntimeException("unknown session type: " + sessionType);
         }
 
-        AudioManager.MorseConfig.Builder morseConfig = AudioManager.MorseConfig.builder();
-        morseConfig.setToneFrequencyHz(audioToneFrequency);
-        morseConfig.setFadeInOutPercentage(fadeInOutPercentage);
-        morseConfig.setLetterWpm(letterWpmRequested);
-        morseConfig.setEffectiveWpm(effectiveWpmRequested);
         AudioManager audioManager = new AudioManager(getApplication().getResources());
-        engine = new TranscribeTrainingEngine(audioManager, startDelaySeconds, this::letterPlayedCallback, letterSupplier, this::messagePlayingComplete, morseConfig.build());
+        engine = new TranscribeTrainingEngine(
+                audioManager,
+                startDelaySeconds,
+                this::letterPlayedCallback,
+                letterSupplier,
+                this::messagePlayingComplete,
+                secondsBetweenStationTransmissions
+        );
         engine.prime();
     }
 
@@ -295,7 +320,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
                     engine.prepareForShutdown();
                 }
 
-                // unlimited delay is negative. Don't do anything
+                // unlimited delay is set. Don't do anything
                 if (endDelaySeconds < 0) {
                     return;
                 }

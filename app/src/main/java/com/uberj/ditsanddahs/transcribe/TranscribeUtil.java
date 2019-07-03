@@ -105,7 +105,7 @@ public class TranscribeUtil {
         } else if (operation == DiffPatchMatch.Operation.EQUAL) {
             return Optional.empty();
         } else if (operation == DiffPatchMatch.Operation.INSERT) {
-            return Optional.of(new BackgroundColorSpan(ContextCompat.getColor(context, R.color.incorrectMissedCharacterColor)));
+            return Optional.of(new BackgroundColorSpan(ContextCompat.getColor(context, R.color.incorrectAddedCharacterColor)));
         } else {
             throw new RuntimeException("Unknown diff operation " + operation);
         }

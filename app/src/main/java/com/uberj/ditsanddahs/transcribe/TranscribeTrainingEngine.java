@@ -4,6 +4,8 @@ import com.annimon.stream.function.Consumer;
 import com.annimon.stream.function.Supplier;
 import com.uberj.ditsanddahs.AudioManager;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.concurrent.Callable;
 
 import timber.log.Timber;
@@ -14,24 +16,21 @@ public class TranscribeTrainingEngine {
     private final String pauseGate = "pauseGate";
     private final String farnsworthPause = "farnsworthPause";
     private final Consumer<String> letterPlayedCallback;
-    private final Supplier<String> letterSupplier;
     private final Callable<Void> messageFinishedPlayingCallback;
-    private final AudioManager.MorseConfig morseConfig;
-    private final long stationSwitchDelay = 1000; // TODO, make this configurable
+    private final Supplier<Pair<String, AudioManager.MorseConfig>> letterSupplier;
 
-    private boolean audioThreadKeepAlive;
-    private boolean isPaused;
+    private volatile boolean audioThreadKeepAlive;
+    private volatile boolean isPaused;
     private Thread audioThread;
-    private boolean engineIsStarted = false;
-    private boolean awaitingShutdown = false;
+    private volatile boolean engineIsStarted = false;
+    private volatile boolean awaitingShutdown = false;
 
-    public TranscribeTrainingEngine(AudioManager audioManager, int startDelaySeconds, Consumer<String> letterPlayedCallback, Supplier<String> letterSupplier, Callable<Void> messageFinishedPlayingCallback, AudioManager.MorseConfig morseConfig) {
+    public TranscribeTrainingEngine(AudioManager audioManager, int startDelaySeconds, Consumer<String> letterPlayedCallback, Supplier<Pair<String, AudioManager.MorseConfig>> letterSupplier, Callable<Void> messageFinishedPlayingCallback, int secondsBetweenStationTransmissions) {
         this.letterSupplier = letterSupplier;
 
         this.letterPlayedCallback = letterPlayedCallback;
         this.audioManager = audioManager;
         this.messageFinishedPlayingCallback = messageFinishedPlayingCallback;
-        this.morseConfig = morseConfig;
         this.audioLoop = () -> {
             try {
                 synchronized (pauseGate) {
@@ -46,23 +45,25 @@ public class TranscribeTrainingEngine {
                     }
 
                     // play next letter
-                    if (!awaitingShutdown && audioThreadKeepAlive) {
-                        String currentLetter = this.letterSupplier.get();
-                        if (currentLetter == null) {
-                            this.messageFinishedPlayingCallback.call();
-                            return;
-                        }
+                    Pair<String, AudioManager.MorseConfig> pair = this.letterSupplier.get();
+                    if (pair == null) {
+                        this.messageFinishedPlayingCallback.call();
+                        return;
+                    }
+                    String currentLetter = pair.getKey();
+                    AudioManager.MorseConfig morseConfig = pair.getValue();
 
+                    if (!awaitingShutdown && audioThreadKeepAlive) {
                         this.letterPlayedCallback.accept(currentLetter);
                         if (currentLetter.equals(QSOWordSupplier.STATION_SWITCH_MARKER)) {
                             Timber.d("Station switch marker");
                             // start the callback timer to play again
                             synchronized (farnsworthPause) {
-                                farnsworthPause.wait(stationSwitchDelay);
+                                farnsworthPause.wait(secondsBetweenStationTransmissions * 1000);
                             }
                         } else {
                             Timber.d("Playing letter: '%s'", currentLetter);
-                            audioManager.playMessage(currentLetter, this.morseConfig);
+                            audioManager.playMessage(currentLetter, morseConfig);
                         }
                     }
 

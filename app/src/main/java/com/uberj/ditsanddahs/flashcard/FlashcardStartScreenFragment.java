@@ -278,13 +278,34 @@ public class FlashcardStartScreenFragment extends Fragment implements AdapterVie
             selectedStringsBooleanMap[which] = isChecked;
         });
 
-        builder.setNeutralButton("Select All", (dialog, which) -> {
-            for (int i = 0; i < selectedStringsBooleanMap.length; i++) {
-                selectedStringsBooleanMap[i] = true;
+        boolean allTrue = true;
+        for (boolean b : selectedStringsBooleanMap) {
+            if (!b) {
+                allTrue = false;
             }
-            sessionViewModel.selectedStrings.setValue(booleanMapToSelectedStrings(getFlashcardActivity().getPossibleStrings(), selectedStringsBooleanMap));
-            sessionViewModel.selectedStringsBooleanMap.setValue(selectedStringsBooleanMap);
-        });
+        }
+
+        if (allTrue) {
+            builder.setNeutralButton("Reset/De-select", (dialog, which) -> {
+                for (int i = 0; i < selectedStringsBooleanMap.length; i++) {
+                    if (i == 0 || i == 1) {
+                        selectedStringsBooleanMap[i] = true;
+                    } else  {
+                        selectedStringsBooleanMap[i] = false;
+                    }
+                }
+                sessionViewModel.selectedStrings.setValue(booleanMapToSelectedStrings(getFlashcardActivity().getPossibleStrings(), selectedStringsBooleanMap));
+                sessionViewModel.selectedStringsBooleanMap.setValue(selectedStringsBooleanMap);
+            });
+        } else {
+            builder.setNeutralButton("Select All", (dialog, which) -> {
+                for (int i = 0; i < selectedStringsBooleanMap.length; i++) {
+                    selectedStringsBooleanMap[i] = true;
+                }
+                sessionViewModel.selectedStrings.setValue(booleanMapToSelectedStrings(getFlashcardActivity().getPossibleStrings(), selectedStringsBooleanMap));
+                sessionViewModel.selectedStringsBooleanMap.setValue(selectedStringsBooleanMap);
+            });
+        }
 
         builder.setPositiveButton("OK", (dialog, which) -> {
             // user clicked OK

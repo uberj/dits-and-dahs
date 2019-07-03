@@ -4,6 +4,7 @@ import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 import com.annimon.stream.function.Supplier;
 import com.google.common.collect.ImmutableList;
+import com.uberj.ditsanddahs.AudioManager;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.util.Pair;
@@ -12,7 +13,7 @@ import java.util.List;
 
 import timber.log.Timber;
 
-public class RandomLetterSupplier implements Supplier<String> {
+public class RandomLetterSupplier implements Supplier<org.apache.commons.lang3.tuple.Pair<String, AudioManager.MorseConfig>> {
     private final EnumeratedDistribution<String> nextLetterDistribution;
     private static final EnumeratedDistribution<Integer> LENGTH_DISTRIBUTION = new EnumeratedDistribution<>(ImmutableList.of(
             Pair.create(2, 3D),
@@ -29,9 +30,11 @@ public class RandomLetterSupplier implements Supplier<String> {
     ));
 
     private int lettersLeftInGroup = LENGTH_DISTRIBUTION.sample();
+    private final AudioManager.MorseConfig morseConfig;
 
-    public RandomLetterSupplier(List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters) {
+    public RandomLetterSupplier(List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters, AudioManager.MorseConfig morseConfig) {
         this.nextLetterDistribution = new EnumeratedDistribution<>(letterWeights(inPlayLetters));
+        this.morseConfig = morseConfig;
     }
 
     private List<Pair<String, Double>> letterWeights(List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters) {
@@ -40,15 +43,15 @@ public class RandomLetterSupplier implements Supplier<String> {
 
 
     @Override
-    public String get() {
+    public org.apache.commons.lang3.tuple.Pair<String, AudioManager.MorseConfig> get() {
         if (lettersLeftInGroup <= 0) {
             lettersLeftInGroup = LENGTH_DISTRIBUTION.sample();
             Timber.d("Planning on playing %s letters", lettersLeftInGroup);
-            return " ";
+            return org.apache.commons.lang3.tuple.Pair.of(" ", morseConfig);
         }
 
         lettersLeftInGroup -= 1;
 
-        return nextLetterDistribution.sample();
+        return org.apache.commons.lang3.tuple.Pair.of(nextLetterDistribution.sample(), morseConfig);
     }
 }

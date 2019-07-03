@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -20,20 +19,15 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.preference.PreferenceManager;
 
 import com.crashlytics.android.Crashlytics;
-import com.google.common.base.Joiner;
 import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.training.DialogFragmentProvider;
 import com.uberj.ditsanddahs.transcribe.TranscribeKeyboardSessionActivity;
 import com.uberj.ditsanddahs.transcribe.TranscribeStartScreenActivity;
-import com.uberj.ditsanddahs.transcribe.TranscribeStartScreenFragment;
 import com.uberj.ditsanddahs.transcribe.TranscribeTrainingMainScreenViewModel;
 import com.uberj.ditsanddahs.transcribe.storage.TranscribeSessionType;
-import com.uberj.ditsanddahs.transcribe.storage.TranscribeTrainingSession;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import it.sephiroth.android.library.numberpicker.NumberPicker;
@@ -108,7 +102,7 @@ class RandomQSOStartScreenFragment extends Fragment {
 
         additionalSettingsLink.setOnClickListener(this::launchSettings);
 
-        sessionViewModel.getLatestSession(sessionType).observe(this, this::setupPreviousSettings);
+        sessionViewModel.getLatestSession(sessionType).observe(this, mostRecentSession -> setupPreviousSettings());
 
         Button startButton = rootView.findViewById(R.id.start_button);
         startButton.setOnClickListener(this::handleStartButtonClick);
@@ -183,7 +177,8 @@ class RandomQSOStartScreenFragment extends Fragment {
         bundle.putInt(TranscribeKeyboardSessionActivity.EFFECTIVE_WPM_REQUESTED, effectiveWpmNumberPicker.getProgress());
         boolean targetIssueStrings = preferences.getBoolean(getResources().getString(R.string.setting_transcribe_target_issue_letters), false);
         int audioToneFrequency = preferences.getInt(getResources().getString(R.string.setting_transcribe_audio_tone), 440);
-        int secondAudioToneFrequency = preferences.getInt(getResources().getString(R.string.second_station_setting_transcribe_audio_tone), 400);
+        int secondsBetweenStationTransmissions = preferences.getInt(getResources().getString(R.string.qso_simulator_seconds_between_station_transmissions), 1);
+        int secondAudioToneFrequency = preferences.getInt(getResources().getString(R.string.second_station_setting_transcribe_audio_tone), 410);
         int startDelaySeconds = preferences.getInt(getResources().getString(R.string.setting_transcribe_start_delay_seconds), 3);
         int endDelaySeconds = preferences.getInt(getResources().getString(R.string.setting_transcribe_end_delay_seconds), 3);
         if (endDelaySeconds == Integer.valueOf(getResources().getString(R.string.setting_transcribe_end_delay_seconds_max_value))) {
@@ -194,6 +189,7 @@ class RandomQSOStartScreenFragment extends Fragment {
         bundle.putBoolean(TranscribeKeyboardSessionActivity.TARGET_ISSUE_STRINGS, targetIssueStrings);
         bundle.putInt(TranscribeKeyboardSessionActivity.AUDIO_TONE_FREQUENCY, audioToneFrequency);
         bundle.putInt(TranscribeKeyboardSessionActivity.SECOND_AUDIO_TONE_FREQUENCY, secondAudioToneFrequency);
+        bundle.putInt(TranscribeKeyboardSessionActivity.SECONDS_BETWEEN_STATION_TRANSMISSIONS, secondsBetweenStationTransmissions);
         bundle.putInt(TranscribeKeyboardSessionActivity.SESSION_START_DELAY_SECONDS, startDelaySeconds);
         bundle.putInt(TranscribeKeyboardSessionActivity.SESSION_END_DELAY_SECONDS, endDelaySeconds);
         bundle.putInt(TranscribeKeyboardSessionActivity.FADE_IN_OUT_PERCENTAGE, fadeInOutPercentage);
@@ -206,16 +202,9 @@ class RandomQSOStartScreenFragment extends Fragment {
         startActivityForResult(sendIntent, TranscribeStartScreenActivity.KEYBOARD_REQUEST_CODE);
     }
 
-    private void setupPreviousSettings(List<TranscribeTrainingSession> mostRecentSession) {
+    private void setupPreviousSettings() {
         int letterWpm = preferences.getInt(getResources().getString(R.string.setting_transcribe_letter_wpm), -1);
         int effectiveWpm = preferences.getInt(getResources().getString(R.string.setting_transcribe_effective_wpm), -1);
-        int prevDurationRequestedMinutes = preferences.getInt(getResources().getString(R.string.setting_transcribe_duration_minutes), -1);
-        List<String> prevSelectedLetters = null;
-        if (!mostRecentSession.isEmpty()) {
-            TranscribeTrainingSession session = mostRecentSession.get(0);
-            prevSelectedLetters = session.stringsRequested;
-        }
-
         if (letterWpm > 0) {
             letterWpmNumberPicker.setProgress(letterWpm);
         } else {

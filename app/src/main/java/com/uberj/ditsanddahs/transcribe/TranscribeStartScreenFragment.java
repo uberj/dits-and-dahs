@@ -97,7 +97,7 @@ public class TranscribeStartScreenFragment extends Fragment {
         }
 
         if (allTrue) {
-            builder.setNeutralButton("Reset Selected", (dialog, which) -> {
+            builder.setNeutralButton("Reset/De-select", (dialog, which) -> {
                 for (int i = 0; i < selectedStringsBooleanMap.length; i++) {
                     if (i == 0 || i == 1) {
                         selectedStringsBooleanMap[i] = true;
@@ -268,9 +268,6 @@ public class TranscribeStartScreenFragment extends Fragment {
         }
         Intent sendIntent = new Intent(view.getContext(), sessionActivityClass);
         Bundle bundle = new Bundle();
-        bundle.putInt(TranscribeKeyboardSessionActivity.LETTER_WPM_REQUESTED, letterWpmNumberPicker.getProgress());
-        bundle.putInt(TranscribeKeyboardSessionActivity.EFFECTIVE_WPM_REQUESTED, effectiveWpmNumberPicker.getProgress());
-        bundle.putInt(TranscribeKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
         boolean targetIssueStrings = preferences.getBoolean(getResources().getString(R.string.setting_transcribe_target_issue_letters), false);
         int audioToneFrequency = preferences.getInt(getResources().getString(R.string.setting_transcribe_audio_tone), 440);
         int startDelaySeconds = preferences.getInt(getResources().getString(R.string.setting_transcribe_start_delay_seconds), 3);
@@ -280,6 +277,9 @@ public class TranscribeStartScreenFragment extends Fragment {
         }
         int fadeInOutPercentage = preferences.getInt(getResources().getString(R.string.setting_fade_in_out_percentage), 30);
 
+        bundle.putInt(TranscribeKeyboardSessionActivity.LETTER_WPM_REQUESTED, letterWpmNumberPicker.getProgress());
+        bundle.putInt(TranscribeKeyboardSessionActivity.EFFECTIVE_WPM_REQUESTED, effectiveWpmNumberPicker.getProgress());
+        bundle.putInt(TranscribeKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
         bundle.putBoolean(TranscribeKeyboardSessionActivity.TARGET_ISSUE_STRINGS, targetIssueStrings);
         bundle.putInt(TranscribeKeyboardSessionActivity.AUDIO_TONE_FREQUENCY, audioToneFrequency);
         bundle.putInt(TranscribeKeyboardSessionActivity.SESSION_START_DELAY_SECONDS, startDelaySeconds);

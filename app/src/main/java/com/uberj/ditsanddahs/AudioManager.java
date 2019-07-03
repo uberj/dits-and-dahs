@@ -147,7 +147,7 @@ public class AudioManager {
         double farnsworth = calcFarnsworth(config.letterWpm, config.effectiveWpm);
         int numSymbols = numSymbols(' ', farnsworth);
         // Why scale by 70%? I'm not sure why, but if I don't do this the space just seems too long. Maybe its because of the thread context switching? probably should use a morse config flag for this
-        return (long) (symbolCountToMillis(numSymbols, config.letterWpm) * 0.7);
+        return symbolCountToMillis(numSymbols, config.letterWpm);
     }
 
     public void playIncorrectTone() {

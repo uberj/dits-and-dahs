@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"/>
 
         <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
-            app:key="@string/qso_simulator_space_between_station_transmissions"
+            app:key="@string/qso_simulator_seconds_between_station_transmissions"
             app:title="Seconds between station responses"
             app:summary="Give yourself a break between station transmissions"
             app:showSeekBarValue="true"
