@@ -13,6 +13,7 @@ import timber.log.Timber;
 public class TranscribeTrainingEngine {
     private final Runnable audioLoop;
     private final AudioManager audioManager;
+    private final String shutDownGate = "shutDownGate";
     private final String pauseGate = "pauseGate";
     private final String farnsworthPause = "farnsworthPause";
     private final Consumer<String> letterPlayedCallback;
@@ -128,7 +129,16 @@ public class TranscribeTrainingEngine {
         audioManager.destroy();
     }
 
+    public boolean isPreparedToShutDown() {
+        synchronized (shutDownGate) {
+            return awaitingShutdown;
+        }
+
+    }
+
     public void prepareForShutdown() {
-        awaitingShutdown = true;
+        synchronized (shutDownGate) {
+            awaitingShutdown = true;
+        }
     }
 }

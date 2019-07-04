@@ -16,7 +16,6 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.uberj.ditsanddahs.CountDownTimer;
 import com.uberj.ditsanddahs.DynamicKeyboard;
 import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.keyboards.Keys;
@@ -83,6 +82,10 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
         params.setFadeInOutPercentage(receiveBundle.getInt(FADE_IN_OUT_PERCENTAGE));
         params.setStringsRequested(stringsRequested);
 
+        if (endDelaySeconds == Integer.valueOf(getResources().getString(R.string.setting_transcribe_end_delay_seconds_max_value))) {
+            endDelaySeconds = -1;
+        }
+
         viewModel = ViewModelProviders
                 .of(this, new TranscribeTrainingSessionViewModel.Factory(this.getApplication(), params.build()))
                 .get(TranscribeTrainingSessionViewModel.class);
@@ -105,6 +108,9 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
             throw new RuntimeException(("Unknown session type: ") + sessionType);
         }
 
+
+        viewModel.titleText.observe(this, keyboardToolbarTitle::setText);
+
         viewModel.getLatestTrainingSession().observe(this, (possibleSession) -> {
             TranscribeTrainingSession session;
             if (possibleSession == null || possibleSession.isEmpty()) {
@@ -114,19 +120,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
             }
 
             if (startDelaySeconds > 0) {
-                new CountDownTimer(startDelaySeconds * 1000, 1000) {
-                    @Override
-                    public void onTick(long millisUntilFinished) {
-                        keyboardToolbarTitle.setText(String.format(getString(R.string.start_timer_title), millisUntilFinished/1000));
-                    }
-
-                    @Override
-                    public void onFinish() {
-                        keyboardToolbarTitle.setText("");
-                        viewModel.primeTheEngine(session);
-                        viewModel.startTheEngine();
-                    }
-                }.start();
+                viewModel.primeEngineWithCountdown(session);
             } else {
                 viewModel.primeTheEngine(session);
                 viewModel.startTheEngine();
@@ -134,31 +128,24 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
         });
 
         viewModel.sessionIsFinished.observe(this, (isFinished) -> {
-            if (!isFinished) {
-                return;
-            }
-
-            if (endDelaySeconds == 0) {
+            if (isFinished) {
                 finish();
-            } else if (endDelaySeconds < 0) {
-                // Wait for back button to be pressed
-                keyboardToolbarTitle.setText(getString(R.string.press_back_to_end_title));
-            } else {
-                // Some weird stuff going on in this CountDownTimer -- instead of fixing it, I'll just hack it until it works, thus I subtract 1
-                new CountDownTimer((endDelaySeconds * 1000) - 1, 1000) {
-
-                    @Override
-                    public void onTick(long millisUntilFinished) {
-                        keyboardToolbarTitle.setText(String.format(getString(R.string.end_timer_title), millisUntilFinished/1000));
-                    }
-
-                    @Override
-                    public void onFinish() {
-                        finish();
-                    }
-                }.start();
             }
         });
+
+        viewModel.endTimerInProgress.observe(this, inProgress -> {
+            if (inProgress) {
+                invalidateOptionsMenu();
+            }
+        });
+
+        viewModel.sessionHasBeenStarted.observe(this, hasStarted -> {
+            if (hasStarted) {
+                invalidateOptionsMenu();
+            }
+        });
+
+        int finalEndDelaySeconds = endDelaySeconds;
 
         viewModel.durationRemainingMillis.observe(this, (remainingMillis) -> {
             if (remainingMillis < 0) {
@@ -167,16 +154,22 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
                 return;
             }
 
-            if (endDelaySeconds >= 0 && remainingMillis == 0) {
-                finish();
-                return;
-            }
-
             int progress = Math.round((((float) remainingMillis / (float) viewModel.getDurationRequestedMillis())) * 1000f);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 timerProgressBar.setProgress(progress, true);
             } else {
                 timerProgressBar.setProgress(progress);
+            }
+
+            if (remainingMillis == 0) {
+                if (finalEndDelaySeconds == 0) {
+                    finish();
+                } else if (finalEndDelaySeconds < 0) {
+                    // Wait for back button to be pressed
+                    keyboardToolbarTitle.setText(getString(R.string.press_back_to_end_title));
+                } else {
+                    viewModel.finishSessionWithTimer(finalEndDelaySeconds);
+                }
             }
         });
 
@@ -198,12 +191,21 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         getMenuInflater().inflate(R.menu.transcribe_keyboard, menu);
+        MenuItem item = menu.findItem(R.id.keyboard_pause_play);
+        if (!viewModel.sessionHasBeenStarted.getValue() || viewModel.endTimerInProgress.getValue()) {
+            item.setEnabled(false);
+        } else {
+            item.setEnabled(true);
+        }
+
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public void onBackPressed() {
-        if (viewModel.durationRemainingMillis.getValue() != 0 && !viewModel.sessionIsFinished.getValue()) {
+        if (!viewModel.hasEngineBeenPrimed()) {
+            super.onBackPressed();
+        } else if (viewModel.durationRemainingMillis.getValue() != 0 && !viewModel.sessionIsFinished.getValue()) {
             viewModel.pause();
 
             // Update UI to indicate paused session. Player will need to manually trigger play to resume

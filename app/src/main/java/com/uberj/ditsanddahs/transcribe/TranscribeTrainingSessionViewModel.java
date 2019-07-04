@@ -36,6 +36,9 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     public final MutableLiveData<Boolean> sessionIsFinished = new MutableLiveData<>(false);
     public final MutableLiveData<Long> durationRemainingMillis = new MutableLiveData<>(-1L);
     public final MutableLiveData<List<String>> transcribedMessage = new MutableLiveData<>(Lists.newArrayList());
+    public final MutableLiveData<String> titleText = new MutableLiveData<>();
+    public final MutableLiveData<Boolean> sessionHasBeenStarted= new MutableLiveData<>(false);
+    public final MutableLiveData<Boolean> endTimerInProgress = new MutableLiveData<>(false);
     private final ArrayList<String> stringsRequested;
     private final boolean targetIssueLetters;
     private final int audioToneFrequency;
@@ -43,13 +46,15 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     private final int startDelaySeconds;
     private final int endDelaySeconds;
     private final int secondsBetweenStationTransmissions;
+    private final String startTimerTitleString;
+    private final String endTimerTitleString;
     private CountDownTimer countDownTimer = null;
     private TranscribeTrainingEngine engine;
-    private boolean sessionHasBeenStarted = false;
-    private static final String sessionStartLock = "lock";
     private long endTimeEpocMillis = -1;
     private List<String> playedMessage = Lists.newArrayList();
     private final int fadeInOutPercentage;
+    private CountDownTimer startTimer = null;
+    private CountDownTimer endTimer = null;
 
     public static class Params {
         private final int durationMinutesRequested;
@@ -182,6 +187,8 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
 
     public TranscribeTrainingSessionViewModel(@NonNull Application application, Params params) {
         super(application);
+        this.startTimerTitleString = application.getResources().getString(R.string.start_timer_title);
+        this.endTimerTitleString = application.getResources().getString(R.string.end_timer_title);
         this.repository = new Repository(application);
         this.durationMinutesRequested = params.durationMinutesRequested;
         this.letterWpmRequested = params.letterWpmRequested;
@@ -197,6 +204,40 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         this.secondsBetweenStationTransmissions = params.secondsBetweenStationTransmissions;
     }
 
+    public void finishSessionWithTimer(int finalEndDelaySeconds) {
+        // Some weird stuff going on in this CountDownTimer -- instead of fixing it, I'll just hack it until it works, thus I subtract 1
+        endTimer = new CountDownTimer((finalEndDelaySeconds * 1000) - 1, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                titleText.postValue(String.format(endTimerTitleString, (millisUntilFinished / 1000) + 1));
+            }
+
+            @Override
+            public void onFinish() {
+                sessionIsFinished.postValue(true);
+            }
+        };
+        endTimerInProgress.postValue(true);
+        endTimer.start();
+    }
+
+    public void primeEngineWithCountdown(TranscribeTrainingSession session) {
+        startTimer = new CountDownTimer(startDelaySeconds * 1000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                titleText.postValue(String.format(startTimerTitleString, (millisUntilFinished / 1000) + 1));
+            }
+
+            @Override
+            public void onFinish() {
+                titleText.postValue("");
+                primeTheEngine(session);
+                startTheEngine();
+            }
+        };
+        startTimer.start();
+    }
+
     public long getDurationRequestedMillis() {
         return durationMinutesRequested * 60 * 1000;
     }
@@ -209,14 +250,18 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         if (countDownTimer != null) {
             countDownTimer.pause();
         }
-        engine.pause();
+        if (engine != null) {
+            engine.pause();
+        }
     }
 
     public void resume() {
         if (countDownTimer != null) {
             countDownTimer.resume();
         }
-        engine.resume();
+        if (engine != null) {
+            engine.resume();
+        }
     }
 
     public static class Factory implements ViewModelProvider.Factory {
@@ -253,7 +298,8 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
 
         Supplier<Pair<String, AudioManager.MorseConfig>> letterSupplier;
         if (sessionType.equals(TranscribeSessionType.RANDOM_LETTER_ONLY)) {
-            countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
+            //countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
+            countDownTimer = setupCountDownTimer(1000 * 10);
             letterSupplier = new RandomLetterSupplier(buildWeightedStrings(prevSession), morseConfigBuilder.build());
         } else if (sessionType.equals(TranscribeSessionType.RANDOM_QSO)) {
             List<String> messages = RandomQSO.generate();
@@ -269,14 +315,23 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         }
 
         AudioManager audioManager = new AudioManager(getApplication().getResources());
-        engine = new TranscribeTrainingEngine(
-                audioManager,
-                this::letterPlayedCallback,
-                letterSupplier,
-                this::messagePlayingComplete,
-                secondsBetweenStationTransmissions
-        );
-        engine.prime();
+        synchronized (this) {
+            engine = new TranscribeTrainingEngine(
+                    audioManager,
+                    this::letterPlayedCallback,
+                    letterSupplier,
+                    this::messagePlayingComplete,
+                    secondsBetweenStationTransmissions
+            );
+
+            engine.prime();
+        }
+    }
+
+    public boolean hasEngineBeenPrimed() {
+        synchronized (this) {
+            return engine != null;
+        }
     }
 
     private Void messagePlayingComplete() {
@@ -322,8 +377,8 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
                     return;
                 }
 
-                // there's some off by one error somewhere, a second before the delay ends, get ready to shut down
-                if (millisUntilFinished <= endDelaySeconds * 1000) {
+                // Two seconds before the end, kill the transmitting. End Seconds Delay
+                if (!engine.isPreparedToShutDown() && millisUntilFinished <= 2000) {
                     engine.prepareForShutdown();
                 }
             }
@@ -336,17 +391,18 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     }
 
     public void startTheEngine() {
-        synchronized (sessionStartLock) {
-            if (sessionHasBeenStarted) {
-                Timber.d("Duped request to start the session");
-                return;
-            }
-            if (countDownTimer != null) {
-                countDownTimer.start();
-            }
-            engine.start();
-            sessionHasBeenStarted = true;
+        if (sessionIsFinished.getValue()) {
+            return;
         }
+        if (sessionHasBeenStarted.getValue()) {
+            Timber.d("Duped request to start the session");
+            return;
+        }
+        if (countDownTimer != null) {
+            countDownTimer.start();
+        }
+        engine.start();
+        sessionHasBeenStarted.postValue(true);
     }
 
     public void recordSessionDetails() {
@@ -383,7 +439,10 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        engine.destroy();
-        recordSessionDetails();
+        startTimer.cancel();
+        if (engine != null) {
+            engine.destroy();
+            recordSessionDetails();
+        }
     }
 }
