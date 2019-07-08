@@ -48,6 +48,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     private final int secondsBetweenStationTransmissions;
     private final String startTimerTitleString;
     private final String endTimerTitleString;
+    private final String pressBackToEndString;
     private CountDownTimer countDownTimer = null;
     private TranscribeTrainingEngine engine;
     private long endTimeEpocMillis = -1;
@@ -55,6 +56,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     private final int fadeInOutPercentage;
     private CountDownTimer startTimer = null;
     private CountDownTimer endTimer = null;
+    public MutableLiveData<Boolean> messageDonePlaying = new MutableLiveData<>(false);
 
     public static class Params {
         private final int durationMinutesRequested;
@@ -189,6 +191,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         super(application);
         this.startTimerTitleString = application.getResources().getString(R.string.start_timer_title);
         this.endTimerTitleString = application.getResources().getString(R.string.end_timer_title);
+        this.pressBackToEndString = application.getResources().getString(R.string.press_back_to_end_title);
         this.repository = new Repository(application);
         this.durationMinutesRequested = params.durationMinutesRequested;
         this.letterWpmRequested = params.letterWpmRequested;
@@ -204,9 +207,22 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         this.secondsBetweenStationTransmissions = params.secondsBetweenStationTransmissions;
     }
 
-    public void finishSessionWithTimer(int finalEndDelaySeconds) {
+    public void finishSessionWithTimer() {
         // Some weird stuff going on in this CountDownTimer -- instead of fixing it, I'll just hack it until it works, thus I subtract 1
-        endTimer = new CountDownTimer((finalEndDelaySeconds * 1000) - 1, 1000) {
+        if (endTimeEpocMillis < 0) {
+            endTimeEpocMillis = System.currentTimeMillis();
+        }
+        if (endDelaySeconds == -1) {
+            titleText.setValue(pressBackToEndString);
+            return;
+        }
+
+        if (endDelaySeconds == 0) {
+            sessionIsFinished.postValue(true);
+            return;
+        }
+
+        endTimer = new CountDownTimer((endDelaySeconds * 1000) - 1, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 titleText.postValue(String.format(endTimerTitleString, (millisUntilFinished / 1000) + 1));
@@ -335,7 +351,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     }
 
     private Void messagePlayingComplete() {
-        sessionIsFinished.postValue(true);
+        messageDonePlaying.postValue(true);
         return null;
     }
 

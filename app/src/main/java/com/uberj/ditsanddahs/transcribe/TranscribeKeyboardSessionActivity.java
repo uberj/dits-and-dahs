@@ -145,8 +145,6 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
             }
         });
 
-        int finalEndDelaySeconds = endDelaySeconds;
-
         viewModel.durationRemainingMillis.observe(this, (remainingMillis) -> {
             if (remainingMillis < 0) {
                 // invalid state
@@ -162,14 +160,13 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
             }
 
             if (remainingMillis == 0) {
-                if (finalEndDelaySeconds == 0) {
-                    finish();
-                } else if (finalEndDelaySeconds < 0) {
-                    // Wait for back button to be pressed
-                    keyboardToolbarTitle.setText(getString(R.string.press_back_to_end_title));
-                } else {
-                    viewModel.finishSessionWithTimer(finalEndDelaySeconds);
-                }
+                viewModel.messageDonePlaying.postValue(true);
+            }
+        });
+
+        viewModel.messageDonePlaying.observe(this, (donePlaying) -> {
+            if (donePlaying) {
+                viewModel.finishSessionWithTimer();
             }
         });
 
