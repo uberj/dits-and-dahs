@@ -85,3 +85,7 @@ build2/
 
 jacoco.exec
 research/calls/
+
+app/src/main/res/raw/thirty_thousand_fcc_call_signs.txt
+research/RandomCallSign.java
+
