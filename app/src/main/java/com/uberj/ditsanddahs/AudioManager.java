@@ -19,6 +19,8 @@ import timber.log.Timber;
 import static android.media.AudioManager.STREAM_MUSIC;
 
 public class AudioManager {
+    public static final char WORD_SPACE = ' ';
+    public static final char LETTER_SPACE = '_';
     private static final int sampleRateHz = 44100;
     private static int silenceSymbolsAfterDitDah = 1;
 
@@ -65,6 +67,7 @@ public class AudioManager {
             .put(",", "--..--")
             .put("?", "..--..")
             .put("=", "-...-")
+            .put("_", "_")
             .build();
 
 
@@ -226,8 +229,8 @@ public class AudioManager {
             case '-':
             case '.':
                 return false;
-            case '/':
-            case ' ':
+            case LETTER_SPACE:
+            case WORD_SPACE:
                 return true;
             default:
                 throw new RuntimeException("Unhandled silent check for char case " + c);
@@ -270,9 +273,9 @@ public class AudioManager {
                 return 3;
             case '.':
                 return 1;
-            case '/':
-                return (int) (3 * farnsworth * 0.7f);
-            case ' ':
+            case LETTER_SPACE:
+                return (int) (3 * farnsworth);
+            case WORD_SPACE:
                 return (int) (7 * farnsworth);
             default:
                 throw new RuntimeException("Unhandled char case " + c);
@@ -479,6 +482,9 @@ public class AudioManager {
         for (int i = 0; i < requestedMessage.length(); i++) {
             char c = requestedMessage.charAt(i);
             String pattern = LETTER_DEFINITIONS.get(String.valueOf(c).toUpperCase());
+            if (pattern == null) {
+                throw new RuntimeException("No letter definition found for " + c);
+            }
             symbols.append(pattern);
 
             boolean skipLetterSpace =

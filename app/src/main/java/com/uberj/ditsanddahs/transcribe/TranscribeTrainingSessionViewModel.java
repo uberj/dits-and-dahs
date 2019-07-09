@@ -314,14 +314,13 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
 
         Supplier<Pair<String, AudioManager.MorseConfig>> letterSupplier;
         if (sessionType.equals(TranscribeSessionType.RANDOM_LETTER_ONLY)) {
-            //countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
-            countDownTimer = setupCountDownTimer(1000 * 10);
+            countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
             letterSupplier = new RandomLetterSupplier(buildWeightedStrings(prevSession), morseConfigBuilder.build());
         } else if (sessionType.equals(TranscribeSessionType.RANDOM_QSO)) {
             List<String> messages = RandomQSO.generate();
             AudioManager.MorseConfig morseConfig0 = morseConfigBuilder.build();
 
-            // Make the second station morse config have the configured tone freq
+            // Second station morse config has the additional configured tone freq
             morseConfigBuilder.setToneFrequencyHz(secondAudioToneFrequency);
             AudioManager.MorseConfig morseConfig1 = morseConfigBuilder.build();
 

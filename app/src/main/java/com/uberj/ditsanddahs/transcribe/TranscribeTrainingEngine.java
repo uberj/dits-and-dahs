@@ -15,7 +15,7 @@ public class TranscribeTrainingEngine {
     private final AudioManager audioManager;
     private final String shutDownGate = "shutDownGate";
     private final String pauseGate = "pauseGate";
-    private final String farnsworthPause = "farnsworthPause";
+    private final String switchStationPause = "switchStationPause";
     private final Consumer<String> letterPlayedCallback;
     private final Callable<Void> messageFinishedPlayingCallback;
     private final Supplier<Pair<String, AudioManager.MorseConfig>> letterSupplier;
@@ -51,12 +51,15 @@ public class TranscribeTrainingEngine {
                     AudioManager.MorseConfig morseConfig = pair.getValue();
 
                     if (!awaitingShutdown && audioThreadKeepAlive) {
-                        this.letterPlayedCallback.accept(currentLetter);
+                        if (!currentLetter.equals(String.valueOf(AudioManager.LETTER_SPACE))) {
+                            this.letterPlayedCallback.accept(currentLetter);
+                        }
+
                         if (currentLetter.equals(QSOWordSupplier.STATION_SWITCH_MARKER)) {
                             Timber.d("Station switch marker");
                             // start the callback timer to play again
-                            synchronized (farnsworthPause) {
-                                farnsworthPause.wait(secondsBetweenStationTransmissions * 1000);
+                            synchronized (switchStationPause) {
+                                switchStationPause.wait(secondsBetweenStationTransmissions * 1000);
                             }
                         } else {
                             Timber.d("Playing letter: '%s'", currentLetter);
@@ -69,11 +72,6 @@ public class TranscribeTrainingEngine {
                         return;
                     }
 
-                    // start the callback timer to play again
-                    synchronized (farnsworthPause) {
-                        long millis = audioManager.wordSpaceToMillis(morseConfig);
-                        farnsworthPause.wait(millis);
-                    }
                 }
             } catch (Exception e) {
                 Timber.d(e, "Audio loop exiting");
@@ -110,10 +108,6 @@ public class TranscribeTrainingEngine {
             return;
         }
         isPaused = true;
-
-        synchronized (farnsworthPause) {
-            farnsworthPause.notify();
-        }
     }
 
     public boolean isPaused() {

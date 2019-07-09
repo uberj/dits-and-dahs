@@ -14,6 +14,7 @@ public class QSOWordSupplier implements Supplier<Pair<String, AudioManager.Morse
     private int wordIdx = 0;
     private final AudioManager.MorseConfig morseConfig0;
     private final AudioManager.MorseConfig morseConfig1;
+    private boolean pumpLetterSpace = false;
 
     public QSOWordSupplier(List<String> passedMessages, AudioManager.MorseConfig morseConfig0, AudioManager.MorseConfig morseConfig1) {
         this.messages = passedMessages;
@@ -23,9 +24,6 @@ public class QSOWordSupplier implements Supplier<Pair<String, AudioManager.Morse
 
     @Override
     public synchronized Pair<String, AudioManager.MorseConfig> get() {
-        if (sentenceIdx == 1) {
-            return null;
-        }
         if (messages.isEmpty()) {
             return null;
         }
@@ -43,12 +41,29 @@ public class QSOWordSupplier implements Supplier<Pair<String, AudioManager.Morse
                 // We are going to be done next round. just end it now
                 return null;
             } else {
+                pumpLetterSpace = false;
                 return Pair.of(STATION_SWITCH_MARKER, sentenceIdx % 2 == 0 ? morseConfig0 : morseConfig1);
             }
         }
 
-        char curChar = currSentence.charAt(wordIdx);
-        wordIdx++;
-        return Pair.of(String.valueOf(curChar), sentenceIdx % 2 == 0 ? morseConfig0 : morseConfig1);
+        if (pumpLetterSpace) {
+            pumpLetterSpace = false;
+            return Pair.of(String.valueOf(AudioManager.LETTER_SPACE), sentenceIdx % 2 == 0 ? morseConfig0 : morseConfig1);
+        } else {
+            char curChar = currSentence.charAt(wordIdx);
+            wordIdx++;
+            if (wordIdx < currSentence.length()) {
+                char anticipatedNextChar = currSentence.charAt(wordIdx);
+                if (anticipatedNextChar != AudioManager.WORD_SPACE) {
+                    pumpLetterSpace = true;
+                }
+            }
+
+            if (curChar == AudioManager.WORD_SPACE) {
+                pumpLetterSpace = false;
+            }
+
+            return Pair.of(String.valueOf(curChar), sentenceIdx % 2 == 0 ? morseConfig0 : morseConfig1);
+        }
     }
 }

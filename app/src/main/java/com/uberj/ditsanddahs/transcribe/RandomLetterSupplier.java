@@ -31,6 +31,7 @@ public class RandomLetterSupplier implements Supplier<org.apache.commons.lang3.t
 
     private int lettersLeftInGroup = LENGTH_DISTRIBUTION.sample();
     private final AudioManager.MorseConfig morseConfig;
+    private boolean pumpLetterSpace = false;
 
     public RandomLetterSupplier(List<org.apache.commons.lang3.tuple.Pair<String, Double>> inPlayLetters, AudioManager.MorseConfig morseConfig) {
         this.nextLetterDistribution = new EnumeratedDistribution<>(letterWeights(inPlayLetters));
@@ -47,10 +48,17 @@ public class RandomLetterSupplier implements Supplier<org.apache.commons.lang3.t
         if (lettersLeftInGroup <= 0) {
             lettersLeftInGroup = LENGTH_DISTRIBUTION.sample();
             Timber.d("Planning on playing %s letters", lettersLeftInGroup);
-            return org.apache.commons.lang3.tuple.Pair.of(" ", morseConfig);
+            pumpLetterSpace = false;
+            return org.apache.commons.lang3.tuple.Pair.of(String.valueOf(AudioManager.WORD_SPACE), morseConfig);
         }
 
-        lettersLeftInGroup -= 1;
+        if (pumpLetterSpace) {
+            pumpLetterSpace = false;
+            return org.apache.commons.lang3.tuple.Pair.of(String.valueOf(AudioManager.LETTER_SPACE), morseConfig);
+        } else {
+            lettersLeftInGroup -= 1;
+            pumpLetterSpace = true;
+        }
 
         return org.apache.commons.lang3.tuple.Pair.of(nextLetterDistribution.sample(), morseConfig);
     }
