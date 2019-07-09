@@ -10,11 +10,13 @@ import com.google.common.collect.Lists;
 import com.uberj.ditsanddahs.WeightUtil;
 import com.uberj.ditsanddahs.flashcard.storage.FlashcardEngineEvent;
 import com.uberj.ditsanddahs.flashcard.storage.FlashcardSessionType;
+import com.uberj.ditsanddahs.transcribe.DiffPatchMatch;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -133,13 +135,22 @@ public class FlashcardTrainingEngine {
         eventHandler.sendMessage(msg);
     }
 
-    public boolean submitGuess(String guess) {
+    public Pair<Boolean, List<DiffPatchMatch.Diff>> submitGuess(String guess) {
         Message msg = new Message();
         msg.what = SUBMIT_GUESS;
+
         boolean isCorrect = currentMessage.equals(guess);
         msg.obj = Pair.of(isCorrect, guess);
         eventHandler.sendMessage(msg);
-        return isCorrect;
+
+        if (isCorrect) {
+            return Pair.of(true, Lists.newArrayList());
+        } else {
+            DiffPatchMatch dmp = new DiffPatchMatch();
+            LinkedList<DiffPatchMatch.Diff> diff = dmp.diff_main(currentMessage, guess);
+            dmp.diff_cleanupSemantic(diff);
+            return Pair.of(false, diff);
+        }
     }
 
     private List<org.apache.commons.math3.util.Pair<String,Double>> buildPmfCompetencyWeights(String currentMessage) {

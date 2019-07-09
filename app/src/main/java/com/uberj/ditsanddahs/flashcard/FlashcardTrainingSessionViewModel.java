@@ -1,6 +1,10 @@
 package com.uberj.ditsanddahs.flashcard;
 
 import android.app.Application;
+import android.graphics.Color;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 
 import com.google.common.collect.Lists;
 import com.uberj.ditsanddahs.AudioManager;
@@ -8,16 +12,20 @@ import com.uberj.ditsanddahs.CountDownTimer;
 import com.uberj.ditsanddahs.flashcard.storage.FlashcardSessionType;
 import com.uberj.ditsanddahs.flashcard.storage.FlashcardTrainingSession;
 import com.uberj.ditsanddahs.storage.Repository;
+import com.uberj.ditsanddahs.transcribe.DiffPatchMatch;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
+
+import org.apache.commons.lang3.tuple.Pair;
+
 import timber.log.Timber;
 
 class FlashcardTrainingSessionViewModel extends AndroidViewModel {
@@ -25,6 +33,7 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
     private static final String sessionStartLock = "Lock";
     private final Repository repository;
 
+    public final MutableLiveData<SpannableStringBuilder> titleText = new MutableLiveData<>();
     public final MutableLiveData<List<String>> transcribedMessage = new MutableLiveData<>(Lists.newArrayList());
     private final long durationUnitsRequested;
     private final long durationRequestedMillis;
@@ -34,9 +43,11 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
     private final int toneFrequency;
     private final List<String> requestedMessages;
     private final int fadeInOutPercentage;
+    private final AtomicInteger wrongGuessCount = new AtomicInteger(0);
 
     private CountDownTimer countDownTimer;
-    private final MutableLiveData<Long> durationUnitsRemaining = new MutableLiveData<>(-1L);
+    public final MutableLiveData<Long> guessTrigger = new MutableLiveData<>(0L);
+    public final MutableLiveData<Long> durationUnitsRemaining = new MutableLiveData<>(-1L);
     private boolean sessiontHasBeenStarted = false;
     private long endTimeEpocMillis = -1;
     private FlashcardTrainingEngine engine;
@@ -193,11 +204,63 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
         return false;
     }
 
-    public LiveData<Long> getDurationUnitsRemaining() {
-        return durationUnitsRemaining;
-    }
-
     public void setDurationUnitsRemainingMillis(long durationUnitsRemainingMillis) {
         this.durationUnitsRemaining.setValue(durationUnitsRemainingMillis);
+    }
+
+    public boolean guess(String guess) {
+        Pair<Boolean, List<DiffPatchMatch.Diff>> guessDetails = engine.submitGuess(guess);
+        if (guessDetails.getKey()) {
+            titleText.postValue(new SpannableStringBuilder(""));
+            wrongGuessCount.set(0);
+            return true;
+        }
+        // TODO, show a diff.
+//        int count = wrongGuessCount.incrementAndGet();
+//        if (count >= 3) {
+//            SpannableStringBuilder value = buildErrorDiffText(guessDetails.getValue());
+//            titleText.postValue(value);
+//        }
+
+        return false;
+    }
+
+    private SpannableStringBuilder buildErrorDiffText(List<DiffPatchMatch.Diff> diffs) {
+        SpannableStringBuilder ssb = new SpannableStringBuilder("");
+        ForegroundColorSpan missColor = new ForegroundColorSpan(Color.RED);
+        ForegroundColorSpan hitColor = new ForegroundColorSpan(Color.GREEN);
+        List<Pair<Integer, Integer>> missSpans = Lists.newArrayList();
+        List<Pair<Integer, Integer>> hitSpans = Lists.newArrayList();
+        for (DiffPatchMatch.Diff diff : diffs) {
+            if (diff.operation.equals(DiffPatchMatch.Operation.DELETE)) {
+                for (int i = 0; i < diff.text.length(); i++) {
+                    int start = ssb.length();
+                    ssb.append("_");
+                    int end = ssb.length();
+                    missSpans.add(Pair.of(start, end));
+                }
+                ssb.append(" ");
+            } else if (diff.operation.equals(DiffPatchMatch.Operation.INSERT)) {
+            } else if (diff.operation.equals(DiffPatchMatch.Operation.EQUAL)) {
+                for (int i = 0; i < diff.text.length(); i++) {
+                    char c = diff.text.charAt(i);
+                    int start = ssb.length();
+                    ssb.append(c);
+                    int end = ssb.length();
+                    hitSpans.add(Pair.of(start, end));
+                    ssb.append(" ");
+                }
+            }
+        }
+
+        for (Pair<Integer, Integer> hitSpan : hitSpans) {
+            ssb.setSpan(hitColor, hitSpan.getLeft(), hitSpan.getRight(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+        for (Pair<Integer, Integer> missSpan : missSpans) {
+            ssb.setSpan(missColor, missSpan.getLeft(), missSpan.getRight(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+        return ssb;
     }
 }

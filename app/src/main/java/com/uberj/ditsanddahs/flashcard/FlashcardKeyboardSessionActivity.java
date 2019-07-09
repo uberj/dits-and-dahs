@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.annimon.stream.Optional;
 import com.uberj.ditsanddahs.DynamicKeyboard;
@@ -45,6 +46,7 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
     private FlashcardTrainingSessionViewModel viewModel;
     private EditText transcribeTextArea;
     private String durationUnit;
+    private ProgressBar timerProgressBar;
 
     public void keyboardButtonClicked(View v) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -63,15 +65,14 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
             } else if (type.keyName.equals(KeyConfig.ControlType.SKIP.keyName)) {
                 viewModel.getEngine().skip();
             } else if (type.keyName.equals(KeyConfig.ControlType.SUBMIT.keyName)) {
-                boolean wasCorrectGuess = viewModel.getEngine().submitGuess(currentGuess);
-                ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
-                if (!wasCorrectGuess) {
+                boolean wasCorrectGuess = viewModel.guess(currentGuess);
+                if (wasCorrectGuess) {
+                    Drawable correctDrawable = getResources().getDrawable(R.drawable.correct_guess_timer_bar_progress_background, getTheme());
+                    timerProgressBar.setProgressDrawable(correctDrawable);
+                } else {
                     Drawable incorrectDrawable = getResources().getDrawable(R.drawable.incorrect_guess_timer_bar_progress_background, getTheme());
                     timerProgressBar.setProgressDrawable(incorrectDrawable);
                     includeInMessage = false;
-                } else {
-                    Drawable correctDrawable = getResources().getDrawable(R.drawable.correct_guess_timer_bar_progress_background, getTheme());
-                    timerProgressBar.setProgressDrawable(correctDrawable);
                 }
 
                 TransitionDrawable background = (TransitionDrawable) timerProgressBar.getProgressDrawable();
@@ -107,10 +108,8 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
         Bundle receiveBundle = getIntent().getExtras();
         assert receiveBundle != null;
         Toolbar keyboardToolbar = findViewById(R.id.keyboard_toolbar);
-        if (keyboardToolbar != null) {
-            keyboardToolbar.inflateMenu(R.menu.socratic_keyboard);
-            setSupportActionBar(keyboardToolbar);
-        }
+        TextView keyboardToolbarTitle = findViewById(R.id.keyboard_toolbar_title);
+        timerProgressBar = findViewById(R.id.timer_progress_bar);
 
         int durationUnitsRequested = receiveBundle.getInt(DURATION_UNITS_REQUESTED, 0);
         durationUnit = receiveBundle.getString(DURATION_UNIT, "num_cards");
@@ -133,25 +132,13 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
                 )
         ).get(FlashcardTrainingSessionViewModel.class);
 
-        ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
-        viewModel.getDurationUnitsRemaining().observe(this, (remainingParts) -> {
-            if (remainingParts == 0) {
-                finish();
-                return;
-            }
-            int progress;
-            if (durationUnit.equals(FlashcardTrainingSessionViewModel.TIME_LIMITED_SESSION_TYPE)) {
-                float millisRequested = durationUnitsRequested * 60 * 1000;
-                progress = Math.round(((float) remainingParts / millisRequested) * 1000f);
-            } else {
-                progress = Math.round(((float) remainingParts / (float) durationUnitsRequested) * 1000f);
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                timerProgressBar.setProgress(progress, true);
-            } else {
-                timerProgressBar.setProgress(progress);
-            }
-        });
+        if (keyboardToolbar != null) {
+            keyboardToolbar.inflateMenu(R.menu.socratic_keyboard);
+            setSupportActionBar(keyboardToolbar);
+            viewModel.titleText.observe(this, keyboardToolbarTitle::setText);
+        }
+
+        viewModel.durationUnitsRemaining.observe(this, (remainingParts) -> updateProgressBar(remainingParts, durationUnitsRequested));
 
         transcribeTextArea = findViewById(R.id.transcribe_text_area);
         transcribeTextArea.requestFocus();
@@ -172,9 +159,10 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
             findViewById(R.id.keySUBMIT).setEnabled(enableSubmit);
 
         });
+
         findViewById(R.id.keyDEL).setOnLongClickListener(v -> {
             List<String> transcribedStrings = viewModel.transcribedMessage.getValue();
-            for (char c : transcribeTextArea.getText().toString().toCharArray()) {
+            for (char ignored : transcribeTextArea.getText().toString().toCharArray()) {
                 transcribedStrings.add("DEL");
             }
             viewModel.transcribedMessage.setValue(transcribedStrings);
@@ -182,11 +170,32 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
         });
     }
 
+    private void updateProgressBar(long remainingParts, int durationUnitsRequested) {
+        if (remainingParts == 0) {
+            finish();
+            return;
+        }
+
+        int progress;
+        if (durationUnit.equals(FlashcardTrainingSessionViewModel.TIME_LIMITED_SESSION_TYPE)) {
+            float millisRequested = durationUnitsRequested * 60 * 1000;
+            progress = Math.round(((float) remainingParts / millisRequested) * 1000f);
+        } else {
+            progress = Math.round(((float) remainingParts / (float) durationUnitsRequested) * 1000f);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            timerProgressBar.setProgress(progress, true);
+        } else {
+            timerProgressBar.setProgress(progress);
+        }
+    }
+
     protected abstract Keys getSessionKeys();
 
     @Override
     public void onBackPressed() {
-        if (viewModel.getDurationUnitsRemaining().getValue() != 0) {
+        if (viewModel.durationUnitsRemaining.getValue() != 0) {
             viewModel.pause();
 
             // Update UI to indicate paused session. Player will need to manually trigger play to resume
@@ -203,7 +212,7 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
             builder.setMessage("Do you want to end this session?");
             builder.setPositiveButton("Yes", (dialog, which) -> {
                 // Duration always seems to be off by -1s when back is pressed
-                viewModel.setDurationUnitsRemainingMillis(viewModel.getDurationUnitsRemaining().getValue() - 1000 );
+                viewModel.setDurationUnitsRemainingMillis(viewModel.durationUnitsRemaining.getValue() - 1000 );
                 Intent data = buildResultIntent();
                 setResult(Activity.RESULT_OK, data);
                 finish();
