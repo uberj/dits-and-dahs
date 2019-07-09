@@ -81,12 +81,15 @@ public class FlashcardTrainingEngine {
                         WeightUtil.increment(competencyWeights, currentMessage, 50);
                     }
                     events.add(FlashcardEngineEvent.correctGuessSubmitted(guess));
+                    long updatedCardsRemaining = cardsRemaining.getValue() - 1;
                     if (cardsRemaining != null) {
-                        cardsRemaining.postValue(cardsRemaining.getValue() - 1);
+                        cardsRemaining.postValue(updatedCardsRemaining);
                     }
                     audioManager.playCorrectTone();
-                    chooseDifferentMessage();
-                    playMessageAfterDelay();
+                    if (updatedCardsRemaining > 0) {
+                        chooseDifferentMessage();
+                        playMessageAfterDelay();
+                    }
                 } else {
                     if (competencyWeights != null) {
                         WeightUtil.decrement(competencyWeights, currentMessage, 20);
@@ -94,7 +97,7 @@ public class FlashcardTrainingEngine {
                     events.add(FlashcardEngineEvent.incorrectGuessSubmitted(guess));
                     audioManager.playIncorrectTone();
                     if (cardsRemaining != null) {
-                        cardsRemaining.postValue(cardsRemaining.getValue() - 1);
+                        cardsRemaining.postValue(cardsRemaining.getValue());
                     }
                 }
             } else if (message.what == PLAY_CURRENT_MESSAGE) {
