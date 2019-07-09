@@ -184,9 +184,13 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
             progress = Math.round(((float) remainingParts / (float) durationUnitsRequested) * 1000f);
         }
 
+        // You have to set the progress to zero because there is a bug in ProgressBar
+        // https://stackoverflow.com/a/4352073
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            timerProgressBar.setProgress(0, false);
             timerProgressBar.setProgress(progress, true);
         } else {
+            timerProgressBar.setProgress(0);
             timerProgressBar.setProgress(progress);
         }
     }

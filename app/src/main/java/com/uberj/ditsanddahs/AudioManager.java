@@ -490,10 +490,10 @@ public class AudioManager {
             boolean skipLetterSpace =
                             i == requestedMessage.length() - 1 ||
                             requestedMessage.charAt(i + 1) == ' ' ||
-                            c == ' ';
+                            c == WORD_SPACE;
 
             if (!skipLetterSpace) {
-                symbols.append("/");
+                symbols.append(LETTER_SPACE);
             }
         }
         return symbols.toString();
