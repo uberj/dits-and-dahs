@@ -101,7 +101,7 @@ public class AudioManager {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             double farnsworth = calcFarnsworth(config.letterWpm, config.effectiveWpm);
-            int curNumberSymbols = numSymbols(c, farnsworth);
+            int curNumberSymbols = numSymbols(c, config, farnsworth);
             int numSamplesForCurSymbol = curNumberSymbols * pcmDetails.numSamplesPerSymbol;
 
             // fill out the array with symbol
@@ -148,7 +148,7 @@ public class AudioManager {
 
     public long wordSpaceToMillis(MorseConfig config) {
         double farnsworth = calcFarnsworth(config.letterWpm, config.effectiveWpm);
-        int numSymbols = numSymbols(' ', farnsworth);
+        int numSymbols = numSymbols(' ', config, farnsworth);
         // Why scale by 70%? I'm not sure why, but if I don't do this the space just seems too long. Maybe its because of the thread context switching? probably should use a morse config flag for this
         return symbolCountToMillis(numSymbols, config.letterWpm);
     }
@@ -185,7 +185,7 @@ public class AudioManager {
         double farnsworth = calcFarnsworth(config.letterWpm, config.effectiveWpm);
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            totalNumSymbols += numSymbols(c, farnsworth);
+            totalNumSymbols += numSymbols(c, config, farnsworth);
             if (!symbolIsSilent(c)) {
                 totalNumSymbols += silenceSymbolsAfterDitDah;
             }
@@ -245,7 +245,7 @@ public class AudioManager {
     //  * 3 dits per dash
     //  * 7 dits per space
 
-    public static int numSymbolsForStringNoFarnsworth(String s) {
+    public static int numSymbolsForStringNoFarnsworth(String s, MorseConfig config) {
         int total = 0;
         String ditDahs = LETTER_DEFINITIONS.get(s);
         if (ditDahs == null) {
@@ -253,7 +253,7 @@ public class AudioManager {
         }
 
         for (char c : ditDahs.toCharArray()) {
-            total+= numSymbols(c, 1);
+            total+= numSymbols(c, config, 1);
         }
         return total;
     }
@@ -267,16 +267,16 @@ public class AudioManager {
         baud = lambda(w): w * (57.0/60) - (7.0/60)
      */
 
-    private static int numSymbols(char c, double farnsworth) {
+    private static int numSymbols(char c, MorseConfig config, double farnsworth) {
         switch (c) {
             case '-':
                 return 3;
             case '.':
                 return 1;
             case LETTER_SPACE:
-                return (int) (3 * farnsworth);
+                return (int) (config.symbolsBetweenLetters * farnsworth);
             case WORD_SPACE:
-                return (int) (7 * farnsworth);
+                return (int) (config.symbolsBetweenWords * farnsworth);
             default:
                 throw new RuntimeException("Unhandled char case " + c);
         }
@@ -390,7 +390,6 @@ public class AudioManager {
         MorseConfig.Builder builder = MorseConfig.builder();
         builder.setEffectiveWpm(30);
         builder.setLetterWpm(30);
-        builder.setFadeInOutPercentage(34);
         builder.setToneFrequencyHz(440);
         byte[] generatedSnd1 = buildSnd("... --- ...", builder.build());
         for (int j = 0; j < 44; j++) {
@@ -402,12 +401,40 @@ public class AudioManager {
         private final int letterWpm;
         private final int effectiveWpm;
         private final int fadeInOutPercentage;
+        private final int symbolsBetweenLetters;
+        private final int symbolsBetweenWords;
 
-        private MorseConfig(int toneFrequencyHz, int letterWpm, int effectiveWpm, int fadeInOutPercentage) {
+        private MorseConfig(int toneFrequencyHz, int letterWpm, int effectiveWpm, GlobalSettings globalSettings) {
             this.toneFrequencyHz = toneFrequencyHz;
             this.letterWpm = letterWpm;
             this.effectiveWpm = effectiveWpm;
-            this.fadeInOutPercentage = fadeInOutPercentage;
+            this.fadeInOutPercentage = globalSettings.getFadeInOutPercentage();
+            this.symbolsBetweenLetters = globalSettings.getSymbolsBetweenLetters();
+            this.symbolsBetweenWords = globalSettings.getSymbolsBetweenWords();
+        }
+
+        public int getToneFrequencyHz() {
+            return toneFrequencyHz;
+        }
+
+        public int getLetterWpm() {
+            return letterWpm;
+        }
+
+        public int getEffectiveWpm() {
+            return effectiveWpm;
+        }
+
+        public int getFadeInOutPercentage() {
+            return fadeInOutPercentage;
+        }
+
+        public int getSymbolsBetweenLetters() {
+            return symbolsBetweenLetters;
+        }
+
+        public int getSymbolsBetweenWords() {
+            return symbolsBetweenWords;
         }
 
         public static Builder builder() {
@@ -418,7 +445,7 @@ public class AudioManager {
             private Integer toneFrequencyHz;
             private Integer letterWpm;
             private Integer effectiveWpm;
-            private Integer fadeInOutPercentage;
+            private GlobalSettings globalSettings;
 
             public Builder setToneFrequencyHz(int toneFrequencyHz) {
                 this.toneFrequencyHz = toneFrequencyHz;
@@ -435,8 +462,8 @@ public class AudioManager {
                 return this;
             }
 
-            public Builder setFadeInOutPercentage(int fadeInOutPercentage) {
-                this.fadeInOutPercentage = fadeInOutPercentage;
+            public Builder setGlobalSettings(GlobalSettings globalSettings) {
+                this.globalSettings = globalSettings;
                 return this;
             }
 
@@ -444,11 +471,8 @@ public class AudioManager {
                 Preconditions.checkNotNull(toneFrequencyHz);
                 Preconditions.checkNotNull(letterWpm);
                 Preconditions.checkNotNull(effectiveWpm);
-                Preconditions.checkNotNull(fadeInOutPercentage);
-                if (!(fadeInOutPercentage >= 1 && fadeInOutPercentage <= 100)) {
-                    throw new RuntimeException("Not using this right. Needs to be 1-100");
-                }
-                return new MorseConfig(toneFrequencyHz, letterWpm, effectiveWpm, fadeInOutPercentage);
+                Preconditions.checkNotNull(globalSettings);
+                return new MorseConfig(toneFrequencyHz, letterWpm, effectiveWpm, globalSettings);
             }
         }
     }

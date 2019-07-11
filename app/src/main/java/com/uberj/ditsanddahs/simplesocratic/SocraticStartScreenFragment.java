@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.preference.PreferenceManager;
 import it.sephiroth.android.library.numberpicker.NumberPicker;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -29,6 +30,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import org.jetbrains.annotations.NotNull;
+
 import static com.uberj.ditsanddahs.simplesocratic.SocraticStartScreenActivity.KEYBOARD_REQUEST_CODE;
 
 
@@ -38,8 +41,8 @@ public class SocraticStartScreenFragment extends Fragment {
     private CheckBox resetLetterWeights;
     private SocraticTrainingMainScreenViewModel sessionViewModel;
     private SocraticSessionType sessionType;
-    private SharedPreferences preferences;
     private String sessionActivityClassName;
+    private SharedPreferences preferences;
 
 
     public static SocraticStartScreenFragment newInstance(SocraticSessionType sessionType, Class<? extends FragmentActivity> sessionActivityClass) {
@@ -89,11 +92,14 @@ public class SocraticStartScreenFragment extends Fragment {
         });
 
 
-        PreferenceManager.setDefaultValues(getActivity().getApplicationContext(), R.xml.socratic_settings, false);
-        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+        Context context = getActivity().getApplicationContext();
+        PreferenceManager.setDefaultValues(context, R.xml.socratic_settings, false);
+        preferences = PreferenceManager.getDefaultSharedPreferences(context);
         minutesPicker = rootView.findViewById(R.id.number_picker_minutes);
         wpmPicker = rootView.findViewById(R.id.wpm_number_picker);
         resetLetterWeights = rootView.findViewById(R.id.reset_weights);
+        registerOnChangeListeners();
+
         sessionViewModel = ViewModelProviders.of(this).get(SocraticTrainingMainScreenViewModel.class);
         sessionViewModel.getLatestEngineSettings(sessionType).observe(this, (mostRecentSettings) -> {
             int playLetterWPM = -1;
@@ -130,9 +136,6 @@ public class SocraticStartScreenFragment extends Fragment {
     }
 
     private void handleStartButtonClick(View view) {
-        int toneFrequency = preferences.getInt(getResources().getString(R.string.setting_socratic_audio_tone), 440);
-        boolean easyMode = preferences.getBoolean(getResources().getString(R.string.setting_socratic_easy_mode), true);
-        int fadeInOutPercentage = preferences.getInt(getResources().getString(R.string.setting_fade_in_out_percentage), 30);
         Class<? extends FragmentActivity> sessionActivityClass = null;
         try {
             sessionActivityClass = (Class<? extends FragmentActivity>) Class.forName(sessionActivityClassName);
@@ -141,15 +144,48 @@ public class SocraticStartScreenFragment extends Fragment {
         }
         Intent sendIntent = new Intent(view.getContext(), sessionActivityClass);
         Bundle bundle = new Bundle();
-        bundle.putInt(SocraticKeyboardSessionActivity.WPM_REQUESTED, wpmPicker.getProgress());
-        bundle.putInt(SocraticKeyboardSessionActivity.DURATION_REQUESTED_MINUTES, minutesPicker.getProgress());
         bundle.putBoolean(SocraticKeyboardSessionActivity.REQUEST_WEIGHTS_RESET, resetLetterWeights.isChecked());
-        bundle.putBoolean(SocraticKeyboardSessionActivity.EASY_MODE, easyMode);
-        bundle.putInt(SocraticKeyboardSessionActivity.FADE_IN_OUT_PERCENTAGE, fadeInOutPercentage);
-        bundle.putInt(SocraticKeyboardSessionActivity.TONE_FREQUENCY_HZ, toneFrequency);
         sendIntent.putExtras(bundle);
         sendIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivityForResult(sendIntent, KEYBOARD_REQUEST_CODE);
+    }
+    private void registerOnChangeListeners() {
+        minutesPicker.setNumberPickerChangeListener(new NumberPicker.OnNumberPickerChangeListener() {
+            @Override
+            public void onProgressChanged(@NotNull NumberPicker numberPicker, int minutes, boolean b) {
+                SharedPreferences.Editor edit = preferences.edit();
+                edit.putInt(getResources().getString(R.string.setting_transcribe_duration_minutes), minutes);
+                edit.apply();
+            }
+
+            @Override
+            public void onStartTrackingTouch(@NotNull NumberPicker numberPicker) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(@NotNull NumberPicker numberPicker) {
+
+            }
+        });
+        wpmPicker.setNumberPickerChangeListener(new NumberPicker.OnNumberPickerChangeListener() {
+            @Override
+            public void onProgressChanged(@NotNull NumberPicker numberPicker, int letterWpm, boolean b) {
+                SharedPreferences.Editor edit = preferences.edit();
+                edit.putInt(getResources().getString(R.string.setting_transcribe_letter_wpm), letterWpm);
+                edit.apply();
+            }
+
+            @Override
+            public void onStartTrackingTouch(@NotNull NumberPicker numberPicker) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(@NotNull NumberPicker numberPicker) {
+
+            }
+        });
     }
 
     private SocraticStartScreenActivity getSocraticActivity() {

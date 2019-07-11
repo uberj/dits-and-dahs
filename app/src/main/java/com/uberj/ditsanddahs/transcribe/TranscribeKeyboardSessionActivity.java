@@ -17,6 +17,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.uberj.ditsanddahs.DynamicKeyboard;
+import com.uberj.ditsanddahs.GlobalSettings;
 import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.keyboards.Keys;
 import com.uberj.ditsanddahs.transcribe.storage.TranscribeSessionType;
@@ -36,17 +37,7 @@ import timber.log.Timber;
 import static com.uberj.ditsanddahs.simplesocratic.SocraticKeyboardSessionActivity.DISABLED_BUTTON_ALPHA;
 
 public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivity implements Keys, DialogInterface.OnDismissListener {
-    public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
-    public static final String LETTER_WPM_REQUESTED = "letter-wpm-requested";
     public static final String STRINGS_REQUESTED = "strings-requested";
-    public static final String EFFECTIVE_WPM_REQUESTED = "effective-wpm-requested";
-    public static final String TARGET_ISSUE_STRINGS = "target-issue-strings";
-    public static final String AUDIO_TONE_FREQUENCY = "audio-tone-frequency";
-    public static final String SECOND_AUDIO_TONE_FREQUENCY = "second-audio-tone-frequency";
-    public static final String SESSION_START_DELAY_SECONDS = "session-start-delay-seconds";
-    public static final String SESSION_END_DELAY_SECONDS = "session-end-delay-seconds";
-    public static final String FADE_IN_OUT_PERCENTAGE = "fade-in-out-percentage";
-    public static final String SECONDS_BETWEEN_STATION_TRANSMISSIONS = "seconds-between-station-transmissions";
 
     private TranscribeTrainingSessionViewModel viewModel;
     private Menu menu;
@@ -64,27 +55,30 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
         setSupportActionBar(keyboardToolbar);
 
         ArrayList<String> stringsRequested = receiveBundle.getStringArrayList(STRINGS_REQUESTED);
-        int endDelaySeconds = receiveBundle.getInt(SESSION_END_DELAY_SECONDS);
-        int startDelaySeconds = receiveBundle.getInt(SESSION_START_DELAY_SECONDS, 3);
         TranscribeSessionType sessionType = getSessionType();
 
+        GlobalSettings globalSettings = GlobalSettings.fromContext(getApplicationContext());
+        TranscribeSettings settings = TranscribeSettings.fromContext(getApplicationContext());
         TranscribeTrainingSessionViewModel.Params.Builder params = TranscribeTrainingSessionViewModel.Params.builder();
-        params.setDurationMinutesRequested(receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0));
-        params.setLetterWpmRequested(receiveBundle.getInt(LETTER_WPM_REQUESTED));
-        params.setEffectiveWpmRequested(receiveBundle.getInt(EFFECTIVE_WPM_REQUESTED));
-        params.setTargetIssueLetters(receiveBundle.getBoolean(TARGET_ISSUE_STRINGS));
-        params.setAudioToneFrequency(receiveBundle.getInt(AUDIO_TONE_FREQUENCY));
-        params.setSessionType(sessionType);
-        params.setSecondAudioToneFrequency(receiveBundle.getInt(SECOND_AUDIO_TONE_FREQUENCY));
-        params.setSecondsBetweenStationTransmissions(receiveBundle.getInt(SECONDS_BETWEEN_STATION_TRANSMISSIONS, 1));
-        params.setStartDelaySeconds(startDelaySeconds);
-        params.setEndDelaySeconds(endDelaySeconds);
-        params.setFadeInOutPercentage(receiveBundle.getInt(FADE_IN_OUT_PERCENTAGE));
-        params.setStringsRequested(stringsRequested);
 
+        final int startDelaySeconds = settings.startDelaySeconds;
+        int endDelaySeconds = settings.endDelaySeconds;
         if (endDelaySeconds == Integer.valueOf(getResources().getString(R.string.setting_transcribe_end_delay_seconds_max_value))) {
             endDelaySeconds = -1;
         }
+
+        params.setDurationMinutesRequested(settings.durationMinutesRequested);
+        params.setLetterWpmRequested(settings.letterWpmRequested);
+        params.setEffectiveWpmRequested(settings.letterWpmRequested);
+        params.setTargetIssueLetters(settings.targetIssueStrings);
+        params.setAudioToneFrequency(settings.audioToneFrequency);
+        params.setSessionType(sessionType);
+        params.setSecondAudioToneFrequency(settings.secondAudioToneFrequency);
+        params.setSecondsBetweenStationTransmissions(settings.secondsBetweenStationTransmissions);
+        params.setStartDelaySeconds(startDelaySeconds);
+        params.setEndDelaySeconds(endDelaySeconds);
+        params.setFadeInOutPercentage(globalSettings.getFadeInOutPercentage());
+        params.setStringsRequested(stringsRequested);
 
         viewModel = ViewModelProviders
                 .of(this, new TranscribeTrainingSessionViewModel.Factory(this.getApplication(), params.build()))
@@ -122,7 +116,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
             if (startDelaySeconds > 0) {
                 viewModel.primeEngineWithCountdown(session);
             } else {
-                viewModel.primeTheEngine(session);
+                viewModel.primeTheEngine(session, GlobalSettings.fromContext(getApplicationContext()));
                 viewModel.startTheEngine();
             }
         });

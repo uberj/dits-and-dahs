@@ -18,7 +18,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 public class SocraticUtil {
-    public static Analysis analyseSession(SocraticTrainingSessionWithEvents session) {
+    public static Analysis analyseSession(SocraticTrainingSessionWithEvents session, AudioManager.MorseConfig config) {
         Analysis analysis = new Analysis();
         analysis.symbolAnalysis = buildIndividualSymbolAnalysis(session);
         double overallAccuracy = 0;
@@ -34,7 +34,7 @@ public class SocraticUtil {
         }
 
         analysis.overAllAccuracy = overallAccuracy / totalInPlay;
-        analysis.wpmAverage = calcWpmAverage(session, totalCorrectGuesses);
+        analysis.wpmAverage = calcWpmAverage(session, config, totalCorrectGuesses);
         analysis.averageNumberOfIncorrectGuessesBeforeCorrectGuess = calcAverageNumberOfIncorrectGuessesBeforeCorrectGuess(analysis.symbolAnalysis);
         analysis.overallAverageNumberPlaysBeforeCorrectGuess = calcAverageNumberPlaysBeforeCorrectGuess(analysis.symbolAnalysis);
         analysis.overallAverageSecondsBeforeCorrectGuessSeconds = calcOverallAverageSecondsBeforeCorrectGuessSeconds(analysis.symbolAnalysis);
@@ -409,18 +409,18 @@ public class SocraticUtil {
         return null;
     }
 
-    private static int calcTotalAccurateSymbolsGuessed(List<SocraticEngineEvent> events) {
+    private static int calcTotalAccurateSymbolsGuessed(List<SocraticEngineEvent> events, AudioManager.MorseConfig config) {
         int totalCorrectSymbols = 0;
         for (SocraticEngineEvent event : events) {
             if (event.eventType.equals(SocraticEngineEvent.EventType.CORRECT_GUESS)) {
-                totalCorrectSymbols += AudioManager.numSymbolsForStringNoFarnsworth(event.info);
+                totalCorrectSymbols += AudioManager.numSymbolsForStringNoFarnsworth(event.info, config);
             }
         }
         return totalCorrectSymbols;
     }
 
-    private static double calcWpmAverage(SocraticTrainingSessionWithEvents s, int totalCorrectGuesses) {
-        int totalAccurateSymbolsGuessed = calcTotalAccurateSymbolsGuessed(s.events);
+    private static double calcWpmAverage(SocraticTrainingSessionWithEvents s, AudioManager.MorseConfig config, int totalCorrectGuesses) {
+        int totalAccurateSymbolsGuessed = calcTotalAccurateSymbolsGuessed(s.events, config);
         int spacesBetweenLetters = (totalCorrectGuesses - 1) * 3;
         // accurateWords = (accurateSymbols / 50)
         double accurateSymbols = (double) (totalAccurateSymbolsGuessed + spacesBetweenLetters);

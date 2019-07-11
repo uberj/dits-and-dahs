@@ -3,6 +3,8 @@ package com.uberj.ditsanddahs.simplesocratic;
 import com.annimon.stream.function.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.uberj.ditsanddahs.AudioManager;
+import com.uberj.ditsanddahs.GlobalSettings;
 import com.uberj.ditsanddahs.ProgressGradient;
 import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.simplesocratic.storage.SocraticSessionType;
@@ -15,6 +17,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -85,7 +88,8 @@ public class SocraticNumbersScreenFragment extends Fragment {
             double overallIGBCG = -1;
             if (!mostRecentSession.isEmpty()) {
                 SocraticTrainingSessionWithEvents s = mostRecentSession.get(0);
-                SocraticUtil.Analysis analysis = SocraticUtil.analyseSession(s);
+                AudioManager.MorseConfig config = buildMorseConfigFromPreviousSession(s);
+                SocraticUtil.Analysis analysis = SocraticUtil.analyseSession(s, config);
                 wpmAverage = analysis.wpmAverage;
                 accuracy = analysis.overAllAccuracy;
                 prevDurationMillis = s.session.durationWorkedMillis;
@@ -128,6 +132,20 @@ public class SocraticNumbersScreenFragment extends Fragment {
 
 
         return rootView;
+    }
+
+    private AudioManager.MorseConfig buildMorseConfigFromPreviousSession(SocraticTrainingSessionWithEvents s) {
+        // TODO, actually save enough data on the session to calculate an accurate number here.
+        // Going to fake it for now by using current settings rather than the actual settings used by the user
+        // during the session
+        Context context = getContext();
+        SocraticSettings settings = SocraticSettings.fromContext(context);
+        AudioManager.MorseConfig.Builder builder = AudioManager.MorseConfig.builder();
+        builder.setGlobalSettings(GlobalSettings.fromContext(context));
+        builder.setToneFrequencyHz(440); // This doesn't really matter downstream
+        builder.setEffectiveWpm(settings.wpmRequested);
+        builder.setLetterWpm(settings.wpmRequested);
+        return builder.build();
     }
 
     private static class Column {

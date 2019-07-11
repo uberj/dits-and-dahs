@@ -9,6 +9,7 @@ import android.text.style.ForegroundColorSpan;
 import com.google.common.collect.Lists;
 import com.uberj.ditsanddahs.AudioManager;
 import com.uberj.ditsanddahs.CountDownTimer;
+import com.uberj.ditsanddahs.GlobalSettings;
 import com.uberj.ditsanddahs.flashcard.storage.FlashcardSessionType;
 import com.uberj.ditsanddahs.flashcard.storage.FlashcardTrainingSession;
 import com.uberj.ditsanddahs.storage.Repository;
@@ -42,18 +43,17 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
     private final FlashcardSessionType sessionType;
     private final int toneFrequency;
     private final List<String> requestedMessages;
-    private final int fadeInOutPercentage;
     private final AtomicInteger wrongGuessCount = new AtomicInteger(0);
+    private final GlobalSettings globalSettings;
 
     private CountDownTimer countDownTimer;
-    public final MutableLiveData<Long> guessTrigger = new MutableLiveData<>(0L);
     public final MutableLiveData<Long> durationUnitsRemaining = new MutableLiveData<>(-1L);
     private boolean sessiontHasBeenStarted = false;
     private long endTimeEpocMillis = -1;
     private FlashcardTrainingEngine engine;
     private AudioManager audioManager;
 
-    public FlashcardTrainingSessionViewModel(@NonNull Application application, List<String> requestedMessages, int durationUnitsRequested, String durationUnit, int wpmRequested, int toneFrequency, FlashcardSessionType sessionType, int fadeInOutPercentage) {
+    public FlashcardTrainingSessionViewModel(@NonNull Application application, List<String> requestedMessages, int durationUnitsRequested, String durationUnit, int wpmRequested, int toneFrequency, FlashcardSessionType sessionType, GlobalSettings globalSettings) {
         super(application);
         this.durationUnitsRequested = durationUnitsRequested;
         this.durationUnit = durationUnit;
@@ -63,7 +63,7 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
         this.repository = new Repository(application);
         this.sessionType = sessionType;
         this.requestedMessages = requestedMessages;
-        this.fadeInOutPercentage = fadeInOutPercentage;
+        this.globalSettings = globalSettings;
         primeTheEngine();
         startTheEngine();
     }
@@ -76,10 +76,10 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
         private final FlashcardSessionType sessionType;
         private final int toneFrequency;
         private final ArrayList<String> requestedMessages;
-        private int fadeInOutPercentage;
+        private final GlobalSettings globalSettings;
 
 
-        public Factory(Application application, ArrayList<String> requestedMessages, int durationUnitsRequested, String durationUnit, int wpmRequested, int toneFrequency, FlashcardSessionType sessionType, int fadeInOutPercentage) {
+        public Factory(Application application, ArrayList<String> requestedMessages, int durationUnitsRequested, String durationUnit, int wpmRequested, int toneFrequency, FlashcardSessionType sessionType, GlobalSettings globalSettings) {
             this.application = application;
             this.requestedMessages = requestedMessages;
             this.durationUnitsRequested = durationUnitsRequested;
@@ -87,13 +87,13 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
             this.wpmRequested = wpmRequested;
             this.toneFrequency = toneFrequency;
             this.sessionType = sessionType;
-            this.fadeInOutPercentage = fadeInOutPercentage;
+            this.globalSettings = globalSettings;
         }
 
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
-            return (T) new FlashcardTrainingSessionViewModel(application, requestedMessages, durationUnitsRequested, durationUnit, wpmRequested, toneFrequency, sessionType, fadeInOutPercentage);
+            return (T) new FlashcardTrainingSessionViewModel(application, requestedMessages, durationUnitsRequested, durationUnit, wpmRequested, toneFrequency, sessionType, globalSettings);
         }
     }
 
@@ -110,7 +110,7 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
         AudioManager.MorseConfig.Builder morseConfig = AudioManager.MorseConfig.builder();
         morseConfig.setLetterWpm(wpmRequested);
         morseConfig.setEffectiveWpm(wpmRequested);
-        morseConfig.setFadeInOutPercentage(fadeInOutPercentage);
+        morseConfig.setGlobalSettings(globalSettings);
         morseConfig.setToneFrequencyHz(toneFrequency);
         audioManager = new AudioManager(getApplication().getResources());
         if (durationUnit.equals(TIME_LIMITED_SESSION_TYPE)) {
@@ -183,7 +183,6 @@ class FlashcardTrainingSessionViewModel extends AndroidViewModel {
         }
         engine.pause();
         endTimeEpocMillis = System.currentTimeMillis();
-
     }
 
     public void resume() {

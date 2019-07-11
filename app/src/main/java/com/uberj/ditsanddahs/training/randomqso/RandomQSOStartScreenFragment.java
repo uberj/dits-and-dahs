@@ -28,21 +28,13 @@ import com.uberj.ditsanddahs.transcribe.storage.TranscribeSessionType;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Random;
-
 import it.sephiroth.android.library.numberpicker.NumberPicker;
 
 class RandomQSOStartScreenFragment extends Fragment {
-    private static final Random r = new Random();
-    private static final double SUGGEST_ADDING_MORE_LETTERS_ACCURACY_CUTOFF = 89;
-    private static final double SUGGEST_REMOVING_LETTERS_ACCURACY_CUTOFF = 45;
-    private NumberPicker minutesPicker;
     private NumberPicker letterWpmNumberPicker;
     private NumberPicker effectiveWpmNumberPicker;
     private TranscribeTrainingMainScreenViewModel sessionViewModel;
     private TranscribeSessionType sessionType;
-    private TextView selectedStringsContainer;
-    private TextView suggestAddLettersHelpText;
     private TextView additionalSettingsLink;
     private SharedPreferences preferences;
     private String sessionActivityClassName;
@@ -173,26 +165,6 @@ class RandomQSOStartScreenFragment extends Fragment {
         }
         Intent sendIntent = new Intent(view.getContext(), sessionActivityClass);
         Bundle bundle = new Bundle();
-        bundle.putInt(TranscribeKeyboardSessionActivity.LETTER_WPM_REQUESTED, letterWpmNumberPicker.getProgress());
-        bundle.putInt(TranscribeKeyboardSessionActivity.EFFECTIVE_WPM_REQUESTED, effectiveWpmNumberPicker.getProgress());
-        boolean targetIssueStrings = preferences.getBoolean(getResources().getString(R.string.setting_transcribe_target_issue_letters), false);
-        int audioToneFrequency = preferences.getInt(getResources().getString(R.string.setting_transcribe_audio_tone), 440);
-        int secondsBetweenStationTransmissions = preferences.getInt(getResources().getString(R.string.qso_simulator_seconds_between_station_transmissions), 1);
-        int secondAudioToneFrequency = preferences.getInt(getResources().getString(R.string.second_station_setting_transcribe_audio_tone), 410);
-        int startDelaySeconds = preferences.getInt(getResources().getString(R.string.setting_transcribe_start_delay_seconds), 3);
-        int endDelaySeconds = preferences.getInt(getResources().getString(R.string.setting_transcribe_end_delay_seconds), 3);
-        if (endDelaySeconds == Integer.valueOf(getResources().getString(R.string.setting_transcribe_end_delay_seconds_max_value))) {
-            endDelaySeconds = -1;
-        }
-        int fadeInOutPercentage = preferences.getInt(getResources().getString(R.string.setting_fade_in_out_percentage), 30);
-
-        bundle.putBoolean(TranscribeKeyboardSessionActivity.TARGET_ISSUE_STRINGS, targetIssueStrings);
-        bundle.putInt(TranscribeKeyboardSessionActivity.AUDIO_TONE_FREQUENCY, audioToneFrequency);
-        bundle.putInt(TranscribeKeyboardSessionActivity.SECOND_AUDIO_TONE_FREQUENCY, secondAudioToneFrequency);
-        bundle.putInt(TranscribeKeyboardSessionActivity.SECONDS_BETWEEN_STATION_TRANSMISSIONS, secondsBetweenStationTransmissions);
-        bundle.putInt(TranscribeKeyboardSessionActivity.SESSION_START_DELAY_SECONDS, startDelaySeconds);
-        bundle.putInt(TranscribeKeyboardSessionActivity.SESSION_END_DELAY_SECONDS, endDelaySeconds);
-        bundle.putInt(TranscribeKeyboardSessionActivity.FADE_IN_OUT_PERCENTAGE, fadeInOutPercentage);
         bundle.putStringArrayList(
                 TranscribeKeyboardSessionActivity.STRINGS_REQUESTED,
                 sessionViewModel.selectedStrings.getValue()

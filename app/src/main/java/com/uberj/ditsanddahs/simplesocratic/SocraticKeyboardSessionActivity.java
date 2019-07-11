@@ -27,6 +27,7 @@ import com.annimon.stream.Collectors;
 import com.annimon.stream.Optional;
 import com.annimon.stream.Stream;
 import com.uberj.ditsanddahs.DynamicKeyboard;
+import com.uberj.ditsanddahs.GlobalSettings;
 import com.uberj.ditsanddahs.KochLetterSequence;
 import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.keyboards.Keys;
@@ -39,12 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity implements DialogInterface.OnDismissListener {
-    public static final String EASY_MODE = "easy-mode";
     public static final String REQUEST_WEIGHTS_RESET = "request-weights-reset";
-    public static final String DURATION_REQUESTED_MINUTES = "duration-requested-minutes";
-    public static final String WPM_REQUESTED = "wpm-requested";
-    public static final String TONE_FREQUENCY_HZ = "tone-frequency-hz";
-    public static final String FADE_IN_OUT_PERCENTAGE = "fade-in-out-percentage";
     private static final String engineMutex = "engineMutex";
     private Menu menu;
 
@@ -199,23 +195,14 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
         setSupportActionBar(keyboardToolbar);
 
         boolean resetWeights = receiveBundle.getBoolean(REQUEST_WEIGHTS_RESET, false);
-        int durationMinutesRequested = receiveBundle.getInt(DURATION_REQUESTED_MINUTES, 0);
-        int wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
-        int toneFrequency = receiveBundle.getInt(TONE_FREQUENCY_HZ, 440);
-        boolean easyMode = receiveBundle.getBoolean(EASY_MODE, true);
-        int fadeInOutPercentage = receiveBundle.getInt(FADE_IN_OUT_PERCENTAGE, 30);
 
         viewModel = ViewModelProviders.of(this,
                 new SocraticTrainingSessionViewModel.Factory(
                         this.getApplication(),
                         resetWeights,
-                        durationMinutesRequested,
-                        wpmRequested,
-                        toneFrequency,
-                        easyMode,
                         getSessionType(),
                         getSessionKeys(),
-                        fadeInOutPercentage)
+                        SocraticSettings.fromContext(getApplicationContext()))
         ).get(SocraticTrainingSessionViewModel.class);
 
         ProgressBar timerProgressBar = findViewById(R.id.timer_progress_bar);
@@ -226,7 +213,7 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
             } else {
                 settings = prevSettings.get(0);
             }
-            viewModel.setUp(settings);
+            viewModel.setUp(settings, GlobalSettings.fromContext(getApplicationContext()));
             Keys sessionKeys = getSessionKeys();
             LinearLayout keyboardContainer = findViewById(R.id.keyboard_base);
             keyboard = new DynamicKeyboard.Builder()

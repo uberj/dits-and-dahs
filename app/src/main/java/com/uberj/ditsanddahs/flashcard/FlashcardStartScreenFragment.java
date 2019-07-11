@@ -327,8 +327,6 @@ public class FlashcardStartScreenFragment extends Fragment implements AdapterVie
         int toneFrequency = preferences.getInt(getResources().getString(R.string.setting_flashcard_audio_tone), 440);
         String numCardsDurationUnit = getResources().getString(R.string.flashcard_num_cards_option);
         String durationUnit = preferences.getString(getResources().getString(R.string.setting_flashcard_duration_unit), numCardsDurationUnit);
-        int fadeInOutPercentage = preferences.getInt(getResources().getString(R.string.setting_fade_in_out_percentage), 30);
-        String cardType = FlashcardUtil.getCardType(getResources(), spinner.getSelectedItemPosition());
         Class<? extends FragmentActivity> sessionActivityClass = null;
         try {
             sessionActivityClass = (Class<? extends FragmentActivity>) Class.forName(sessionActivityClassName);
@@ -341,7 +339,6 @@ public class FlashcardStartScreenFragment extends Fragment implements AdapterVie
         bundle.putInt(FlashcardKeyboardSessionActivity.DURATION_UNITS_REQUESTED, durationPicker.getProgress());
         bundle.putString(FlashcardKeyboardSessionActivity.DURATION_UNIT, durationUnit);
         bundle.putInt(FlashcardKeyboardSessionActivity.TONE_FREQUENCY_HZ, toneFrequency);
-        bundle.putInt(FlashcardKeyboardSessionActivity.FADE_IN_OUT_PERCENTAGE, fadeInOutPercentage);
         bundle.putString(FlashcardKeyboardSessionActivity.SESSION_TYPE, sessionType.name());
         bundle.putStringArrayList(
                 FlashcardKeyboardSessionActivity.MESSAGES_REQUESTED,

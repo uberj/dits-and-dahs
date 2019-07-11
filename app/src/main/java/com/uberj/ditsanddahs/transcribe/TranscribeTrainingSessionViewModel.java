@@ -6,6 +6,7 @@ import com.annimon.stream.function.Supplier;
 import com.google.common.base.Preconditions;
 import com.uberj.ditsanddahs.AudioManager;
 import com.uberj.ditsanddahs.CountDownTimer;
+import com.uberj.ditsanddahs.GlobalSettings;
 import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.qsolib.RandomQSO;
 import com.uberj.ditsanddahs.storage.Repository;
@@ -247,7 +248,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
             @Override
             public void onFinish() {
                 titleText.postValue("");
-                primeTheEngine(session);
+                primeTheEngine(session, GlobalSettings.fromContext(getApplication().getApplicationContext()));
                 startTheEngine();
             }
         };
@@ -305,10 +306,10 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         playedMessage.add(letter);
     }
 
-    public void primeTheEngine(TranscribeTrainingSession prevSession) {
+    public void primeTheEngine(TranscribeTrainingSession prevSession, GlobalSettings globalSettings) {
         AudioManager.MorseConfig.Builder morseConfigBuilder = AudioManager.MorseConfig.builder();
         morseConfigBuilder.setToneFrequencyHz(audioToneFrequency);
-        morseConfigBuilder.setFadeInOutPercentage(fadeInOutPercentage);
+        morseConfigBuilder.setGlobalSettings(globalSettings);
         morseConfigBuilder.setLetterWpm(letterWpmRequested);
         morseConfigBuilder.setEffectiveWpm(effectiveWpmRequested);
 
@@ -324,7 +325,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
             morseConfigBuilder.setToneFrequencyHz(secondAudioToneFrequency);
             AudioManager.MorseConfig morseConfig1 = morseConfigBuilder.build();
 
-            letterSupplier = new QSOWordSupplier(messages, morseConfig0, morseConfig1);
+            letterSupplier = new QSOWordSupplier(messages, globalSettings, morseConfig0, morseConfig1);
         } else {
             throw new RuntimeException("unknown session type: " + sessionType);
         }

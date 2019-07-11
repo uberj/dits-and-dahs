@@ -39,7 +39,6 @@
     <string name="setting_flashcard_duration_time_minutes">setting_flashcard_duration_time_minutes</string>
     <string name="setting_flashcard_duration_num_cards">setting_flashcard_duration_num_cards</string>
     <string name="letter_training_start_help_description">Choose how fast you want the letters to play and press START. Set the WPM (words per minute) to something like 20 or 25. When you learn to recognize the characters at higher speeds you\'ll have an easier time later in your training.</string>
-    <string name="setting_fade_in_out_percentage">setting_fade_in_out_percentage</string>
     <string name="list_view_title"><![CDATA[Dits & Dahs -- A CW Learning Tool]]></string>
     <string name="common_words_flashcard_type">Common Words</string>
     <string name="fcc_call_signs_flashcard_type">FCC Call Signs</string>
@@ -55,4 +54,11 @@
     <string name="start_timer_title">Starting in %d...</string>
     <string name="end_timer_title">Ending in %d...</string>
     <string name="press_back_to_end_title">Press \'Back\' to end</string>
+
+    <string name="setting_fade_in_out_percentage">setting_fade_in_out_percentage</string>
+    <string name="global_setting_collapse_prosigns">global_setting_collapse_prosigns</string>
+    <string name="global_setting_symbols_between_letters">global_setting_symbols_between_letters</string>
+    <string name="global_setting_symbols_between_words">global_setting_symbols_between_words</string>
+    <string name="setting_socratic_duration_minutes_requested">setting_socratic_duration_minutes_requested</string>
+    <string name="setting_socratic_wpm_requested">setting_socratic_wpm_requested</string>
 </resources>

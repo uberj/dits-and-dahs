@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import com.annimon.stream.Optional;
 import com.uberj.ditsanddahs.DynamicKeyboard;
+import com.uberj.ditsanddahs.GlobalSettings;
 import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.flashcard.storage.FlashcardSessionType;
 import com.uberj.ditsanddahs.keyboards.KeyConfig;
@@ -115,7 +116,8 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
         durationUnit = receiveBundle.getString(DURATION_UNIT, "num_cards");
         int wpmRequested = receiveBundle.getInt(WPM_REQUESTED);
         int toneFrequency = receiveBundle.getInt(TONE_FREQUENCY_HZ, 440);
-        int fadeInOutPercentage = receiveBundle.getInt(FADE_IN_OUT_PERCENTAGE, 30);
+
+        GlobalSettings gSettings = GlobalSettings.fromContext(getApplicationContext());
         FlashcardSessionType flashcardSessionType = FlashcardSessionType.valueOf(receiveBundle.getString(SESSION_TYPE, FlashcardSessionType.RANDOM_WORDS.name()));
         ArrayList<String> requestedMessages = receiveBundle.getStringArrayList(MESSAGES_REQUESTED);
 
@@ -128,7 +130,7 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
                         wpmRequested,
                         toneFrequency,
                         flashcardSessionType,
-                        fadeInOutPercentage
+                        gSettings
                 )
         ).get(FlashcardTrainingSessionViewModel.class);
 

@@ -27,6 +27,13 @@
             />
     </PreferenceCategory>
     <PreferenceCategory android:title="Global Settings">
+        <!--
+
+
+                        WARNING: IF YOU CHANGE THIS, MAKE SURE TO PROPAGATE THE CHANGE TO OTHER SETTING FILES
+
+
+        -->
         <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
             app:key="@string/setting_fade_in_out_percentage"
             app:title="Tone fade-in/fade-out control"
@@ -36,6 +43,35 @@
             app:min="0"
             android:max="50"
             android:defaultValue="30"
+            whatever:step_floor="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <SwitchPreferenceCompat
+            app:key="@string/global_setting_collapse_prosigns"
+            app:defaultValue="false"
+            app:title="Collapse Pro-Signs"
+            app:summary="Enable this to play pro-signs as single symbols that do not have spaces between letters"/>
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
+            app:key="@string/global_setting_symbols_between_letters"
+            app:title="Symbols between letters"
+            app:summary="Change the default number of symbols between letters"
+            app:showSeekBarValue="true"
+            whatever:value_suffix=" Symbols"
+            app:min="1"
+            android:max="10"
+            android:defaultValue="3"
+            whatever:step_floor="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
+            app:key="@string/global_setting_symbols_between_words"
+            app:title="Symbols between words"
+            app:summary="Change the default number of symbols between words"
+            app:showSeekBarValue="true"
+            whatever:value_suffix=" Symbols"
+            app:min="3"
+            android:max="20"
+            android:defaultValue="7"
             whatever:step_floor="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
