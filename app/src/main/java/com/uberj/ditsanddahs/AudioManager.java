@@ -19,8 +19,8 @@ import timber.log.Timber;
 import static android.media.AudioManager.STREAM_MUSIC;
 
 public class AudioManager {
-    public static final char WORD_SPACE = ' ';
-    public static final char LETTER_SPACE = '_';
+    public static final char WORD_SPACE = ' '; // TODO, remove coupling
+    public static final char LETTER_SPACE = '_'; // TODO, remove coupling
     private static final int sampleRateHz = 44100;
     private static int silenceSymbolsAfterDitDah = 1;
 

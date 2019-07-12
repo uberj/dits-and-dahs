@@ -23,4 +23,10 @@
         <item>@string/common_words_flashcard_type</item>
         <item>@string/fcc_call_signs_flashcard_type</item>
     </string-array>
+    <string-array name="default_enabled_prosigns" >
+        <item>QTH</item>
+        <item>CQ</item>
+        <item>QRM</item>
+        <item>QRZ</item>
+    </string-array>
 </resources>

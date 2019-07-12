@@ -87,8 +87,18 @@
         <SwitchPreferenceCompat
             app:key="@string/global_setting_collapse_prosigns"
             app:defaultValue="false"
-            app:title="Collapse Pro-Signs"
-            app:summary="Enable this to play pro-signs as single symbols that do not have spaces between letters"/>
+            app:title="Collapse Procedure signs"
+            app:summary="Enable this to play procedure signs as single symbols that do not have spaces between letters"/>
+
+        <MultiSelectListPreference
+            android:key="@string/global_setting_enabled_prosigns"
+            android:title="List of words that will be treated as procedure signs"
+            android:dependency="@string/global_setting_collapse_prosigns"
+            android:defaultValue="@array/default_enabled_prosigns"
+            android:entryValues="@array/default_enabled_prosigns"
+            android:entries="@array/default_enabled_prosigns"
+        />
+
         <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
             app:key="@string/global_setting_symbols_between_letters"
             app:title="Symbols between letters"
