@@ -24,9 +24,13 @@
         <item>@string/fcc_call_signs_flashcard_type</item>
     </string-array>
     <string-array name="default_enabled_prosigns" >
-        <item>QTH</item>
         <item>CQ</item>
-        <item>QRM</item>
-        <item>QRZ</item>
+        <item>AR</item>
+        <item>KN</item>
+        <item>BK</item>
+        <item>AS</item>
+        <item>SK</item>
+        <item>QTH</item>
+        <item>QSO</item>
     </string-array>
 </resources>

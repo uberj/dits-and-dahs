@@ -61,11 +61,6 @@
             whatever:step_floor="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
-        <SwitchPreferenceCompat
-            app:key="@string/global_setting_collapse_prosigns"
-            app:defaultValue="false"
-            app:title="Collapse Pro-Signs"
-            app:summary="Enable this to play pro-signs as single symbols that do not have spaces between letters"/>
         <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
             app:key="@string/global_setting_symbols_between_letters"
             app:title="Symbols between letters"

@@ -14,16 +14,18 @@ public class TranscribeSettings {
     public final int endDelaySeconds;
     public final int durationMinutesRequested;
     public final int letterWpmRequested;
+    public final int effectiveWpmRequested;
     public final int secondAudioToneFrequency;
     public final int secondsBetweenStationTransmissions;
 
-    private TranscribeSettings(boolean targetIssueStrings, int audioToneFrequency, int startDelaySeconds, int endDelaySeconds, int durationMinutesRequested, int letterWpmRequested, int secondAudioToneFrequency, int secondsBetweenStationTransmissions) {
+    private TranscribeSettings(boolean targetIssueStrings, int audioToneFrequency, int startDelaySeconds, int endDelaySeconds, int durationMinutesRequested, int letterWpmRequested, int effectiveWpmRequested, int secondAudioToneFrequency, int secondsBetweenStationTransmissions) {
         this.targetIssueStrings = targetIssueStrings;
         this.audioToneFrequency = audioToneFrequency;
         this.startDelaySeconds = startDelaySeconds;
         this.endDelaySeconds = endDelaySeconds;
         this.durationMinutesRequested = durationMinutesRequested;
         this.letterWpmRequested = letterWpmRequested;
+        this.effectiveWpmRequested = effectiveWpmRequested;
         this.secondAudioToneFrequency = secondAudioToneFrequency;
         this.secondsBetweenStationTransmissions = secondsBetweenStationTransmissions;
     }
@@ -42,8 +44,9 @@ public class TranscribeSettings {
             endDelaySeconds,
             preferences.getInt(context.getResources().getString(R.string.setting_transcribe_duration_minutes), 2),
             preferences.getInt(context.getResources().getString(R.string.setting_transcribe_letter_wpm), 25),
+            preferences.getInt(context.getResources().getString(R.string.setting_transcribe_effective_wpm), 5),
             preferences.getInt(context.getResources().getString(R.string.second_station_setting_transcribe_audio_tone), 470),
-            preferences.getInt(context.getResources().getString(R.string.qso_simulator_seconds_between_station_transmissions), 2)
+            preferences.getInt(context.getResources().getString(R.string.qso_simulator_seconds_between_station_transmissions), 5)
         );
     }
 }

@@ -69,7 +69,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
 
         params.setDurationMinutesRequested(settings.durationMinutesRequested);
         params.setLetterWpmRequested(settings.letterWpmRequested);
-        params.setEffectiveWpmRequested(settings.letterWpmRequested);
+        params.setEffectiveWpmRequested(settings.effectiveWpmRequested);
         params.setTargetIssueLetters(settings.targetIssueStrings);
         params.setAudioToneFrequency(settings.audioToneFrequency);
         params.setSessionType(sessionType);
