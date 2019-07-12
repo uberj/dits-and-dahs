@@ -21,7 +21,10 @@ public class QSOWordSupplier implements Supplier<Pair<String, AudioManager.Morse
     private int letterIdx = 0;
     private final AudioManager.MorseConfig morseConfig0;
     private final AudioManager.MorseConfig morseConfig1;
+    private boolean pumpWordSpace = false;
     private boolean pumpLetterSpace = false;
+    private boolean allDone = false;
+    private boolean pumpStationSpace = false;
 
     public QSOWordSupplier(List<String> passedMessages, GlobalSettings globalSettings, AudioManager.MorseConfig morseConfig0, AudioManager.MorseConfig morseConfig1) {
         this.sentences = wordSplit(passedMessages);
@@ -41,46 +44,64 @@ public class QSOWordSupplier implements Supplier<Pair<String, AudioManager.Morse
 
     @Override
     public synchronized Pair<String, AudioManager.MorseConfig> get() {
-        if (sentences.isEmpty()) {
+        AudioManager.MorseConfig config = sentenceIdx % 2 == 0 ? morseConfig0 : morseConfig1;
+
+        // Invarient: Current run is safe. Its this methods job to make sure the next run is safe
+        if (allDone || sentences.isEmpty()) {
             return null;
         }
-
-        if (sentences.size() <= sentenceIdx) {
-            // We've exhausted our sentences
-            return null;
-        }
-
-        List<String> currSentence = sentences.get(sentenceIdx);
-        if (wordIdx >= currSentence.size()) {
-            sentenceIdx++;
-            letterIdx = 0;
-            wordIdx = 0;
-            if (sentences.size() <= sentenceIdx) {
-                // We are going to be done next round. just end it now
-                return null;
-            } else {
-                pumpLetterSpace = false;
-                return Pair.of(STATION_SWITCH_MARKER, sentenceIdx % 2 == 0 ? morseConfig0 : morseConfig1);
-            }
-        }
-
 
         if (pumpLetterSpace) {
             pumpLetterSpace = false;
-            return Pair.of(String.valueOf(AudioManager.LETTER_SPACE), sentenceIdx % 2 == 0 ? morseConfig0 : morseConfig1);
-        } else {
-            String curWord = currSentence.get(wordIdx);
-
-            if (letterIdx >= curWord.length()) {
-                // This means a space is due.
-                wordIdx++;
-                letterIdx = 0;
-                return Pair.of(String.valueOf(AudioManager.WORD_SPACE), sentenceIdx % 2 == 0 ? morseConfig0 : morseConfig1);
-            } else {
-                char curChar = curWord.charAt(letterIdx);
-                pumpLetterSpace = !collapseProSigns || !prosigns.contains(curWord.toUpperCase());
-                return Pair.of(String.valueOf(curChar), sentenceIdx % 2 == 0 ? morseConfig0 : morseConfig1);
-            }
+            return Pair.of(String.valueOf(AudioManager.LETTER_SPACE), config);
         }
+
+        if (pumpWordSpace) {
+            pumpWordSpace = false;
+            return Pair.of(String.valueOf(AudioManager.WORD_SPACE), config);
+        }
+
+        if (pumpStationSpace) {
+            pumpStationSpace = false;
+            return Pair.of(STATION_SWITCH_MARKER, config);
+        }
+
+        List<String> currSentence = sentences.get(sentenceIdx);
+        // Figure out what word we are on
+        String out = setupNextRun(currSentence);
+        return Pair.of(out, config);
+    }
+
+    private String setupNextRun(List<String> currSentence) {
+        String curWord = currSentence.get(wordIdx);
+        char curLetter = curWord.charAt(letterIdx);
+        letterIdx++;
+
+        // Side affects, hell yeah
+        // Start with letter and work up to sentence
+        pumpLetterSpace = !prosigns.contains(curWord);
+
+        if (letterIdx >= curWord.length()) {
+            pumpLetterSpace = false; // Word space takes precedence
+            pumpWordSpace = true;
+            letterIdx = 0;
+            wordIdx++;
+        }
+
+        if (wordIdx >= currSentence.size()) {
+            pumpLetterSpace = false; // Station space takes precedence
+            pumpWordSpace = false; // Station space takes precedence
+            pumpStationSpace = true;
+            letterIdx = 0;
+            wordIdx = 0;
+            sentenceIdx++;
+        }
+
+        if (sentences.size() <= sentenceIdx) {
+            allDone = true;
+        }
+
+
+        return String.valueOf(curLetter);
     }
 }
