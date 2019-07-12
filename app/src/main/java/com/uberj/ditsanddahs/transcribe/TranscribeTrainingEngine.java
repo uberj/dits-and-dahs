@@ -7,6 +7,7 @@ import com.uberj.ditsanddahs.AudioManager;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import timber.log.Timber;
 
@@ -21,7 +22,7 @@ public class TranscribeTrainingEngine {
     private final Supplier<Pair<String, AudioManager.MorseConfig>> letterSupplier;
 
     private volatile boolean audioThreadKeepAlive;
-    private volatile boolean isPaused;
+    private volatile AtomicBoolean isPaused = new AtomicBoolean(false);
     private Thread audioThread;
     private volatile boolean engineIsStarted = false;
     private volatile boolean awaitingShutdown = false;
@@ -35,7 +36,7 @@ public class TranscribeTrainingEngine {
         this.audioLoop = () -> {
             try {
                 while (Thread.currentThread() == audioThread) {
-                    while (isPaused)  {
+                    while (isPaused.get())  {
                         synchronized (pauseGate) {
                             pauseGate.wait();
                         }
@@ -90,27 +91,27 @@ public class TranscribeTrainingEngine {
         audioThreadKeepAlive = true;
         audioThread.start();
         engineIsStarted = true;
-        isPaused = false;
+        isPaused.set(false);
     }
 
     public void resume() {
-        if (!isPaused || !engineIsStarted) {
+        if (!isPaused.get() || !engineIsStarted) {
             return;
         }
-        isPaused = false;
+        isPaused.set(false);
         synchronized (pauseGate) {
             pauseGate.notify();
         }
     }
 
     public void pause() {
-        if (isPaused || !engineIsStarted) {
+        if (isPaused.get() || !engineIsStarted) {
             return;
         }
-        isPaused = true;
+        isPaused.set(true);
     }
 
-    public boolean isPaused() {
+    public AtomicBoolean isPaused() {
         return isPaused;
     }
 

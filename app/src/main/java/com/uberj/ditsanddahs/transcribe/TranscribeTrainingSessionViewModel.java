@@ -19,6 +19,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -259,7 +260,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         return durationMinutesRequested * 60 * 1000;
     }
 
-    public boolean isPaused() {
+    public AtomicBoolean isPaused() {
         return engine.isPaused();
     }
 

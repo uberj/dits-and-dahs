@@ -237,7 +237,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
     }
 
     public void onClickPlayPauseHandler(MenuItem m) {
-        if (!viewModel.isPaused()) {
+        if (!viewModel.isPaused().get()) {
             // User wants pause
             m.setIcon(R.mipmap.ic_play);
             viewModel.pause();
