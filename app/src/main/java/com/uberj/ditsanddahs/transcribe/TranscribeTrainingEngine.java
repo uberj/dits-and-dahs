@@ -22,10 +22,10 @@ public class TranscribeTrainingEngine {
     private final Supplier<Pair<String, AudioManager.MorseConfig>> letterSupplier;
 
     private volatile boolean audioThreadKeepAlive;
-    private volatile AtomicBoolean isPaused = new AtomicBoolean(false);
+    private AtomicBoolean isPaused = new AtomicBoolean(false);
     private Thread audioThread;
-    private volatile boolean engineIsStarted = false;
-    private volatile boolean awaitingShutdown = false;
+    private AtomicBoolean engineIsStarted = new AtomicBoolean(false);
+    private AtomicBoolean awaitingShutdown = new AtomicBoolean(false);
 
     public TranscribeTrainingEngine(AudioManager audioManager, Consumer<String> letterPlayedCallback, Supplier<Pair<String, AudioManager.MorseConfig>> letterSupplier, Callable<Void> messageFinishedPlayingCallback, int secondsBetweenStationTransmissions) {
         this.letterSupplier = letterSupplier;
@@ -51,7 +51,7 @@ public class TranscribeTrainingEngine {
                     String currentLetter = pair.getKey();
                     AudioManager.MorseConfig morseConfig = pair.getValue();
 
-                    if (!awaitingShutdown && audioThreadKeepAlive) {
+                    if (!awaitingShutdown.get() && audioThreadKeepAlive) {
                         if (!currentLetter.equals(String.valueOf(AudioManager.LETTER_SPACE))) {
                             this.letterPlayedCallback.accept(currentLetter);
                         }
@@ -69,7 +69,7 @@ public class TranscribeTrainingEngine {
                     }
 
                     // The session is ending soon
-                    if (awaitingShutdown) {
+                    if (awaitingShutdown.get()) {
                         return;
                     }
 
@@ -90,12 +90,12 @@ public class TranscribeTrainingEngine {
     public void start() {
         audioThreadKeepAlive = true;
         audioThread.start();
-        engineIsStarted = true;
+        engineIsStarted.set(true);
         isPaused.set(false);
     }
 
     public void resume() {
-        if (!isPaused.get() || !engineIsStarted) {
+        if (!isPaused.get() || !engineIsStarted.get()) {
             return;
         }
         isPaused.set(false);
@@ -105,7 +105,7 @@ public class TranscribeTrainingEngine {
     }
 
     public void pause() {
-        if (isPaused.get() || !engineIsStarted) {
+        if (isPaused.get() || !engineIsStarted.get()) {
             return;
         }
         isPaused.set(true);
@@ -124,7 +124,7 @@ public class TranscribeTrainingEngine {
         audioManager.destroy();
     }
 
-    public boolean isPreparedToShutDown() {
+    public AtomicBoolean isPreparedToShutDown() {
         synchronized (shutDownGate) {
             return awaitingShutdown;
         }
@@ -133,7 +133,7 @@ public class TranscribeTrainingEngine {
 
     public void prepareForShutdown() {
         synchronized (shutDownGate) {
-            awaitingShutdown = true;
+            awaitingShutdown.set(true);
         }
     }
 }

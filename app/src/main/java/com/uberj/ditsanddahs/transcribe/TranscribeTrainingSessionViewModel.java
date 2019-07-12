@@ -395,7 +395,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
                 }
 
                 // Two seconds before the end, kill the transmitting. End Seconds Delay
-                if (!engine.isPreparedToShutDown() && millisUntilFinished <= 2000) {
+                if (!engine.isPreparedToShutDown().get() && millisUntilFinished <= 2000) {
                     engine.prepareForShutdown();
                 }
             }
