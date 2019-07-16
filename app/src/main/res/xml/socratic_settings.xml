@@ -22,6 +22,42 @@
             whatever:step_floor="10"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
+            app:key="@string/setting_socratic_correct_letter_points_added"
+            app:title="Points added after an correct guess"
+            app:summary="The higher this is set the faster new letters will be introduced"
+            app:showSeekBarValue="true"
+            whatever:value_suffix=" Points"
+            app:min="1"
+            android:max="25"
+            android:defaultValue="5"
+            whatever:step_floor="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
+            app:key="@string/setting_socratic_include_new_letter_cutoff_score"
+            app:title="Mastery Score Threshold"
+            app:summary="Increase this to slow the rate at which new letters are introduced. Once all letters have scores above this threshold a new letter will be introduced."
+            app:showSeekBarValue="true"
+            whatever:value_suffix=" Points"
+            app:min="1"
+            android:max="100"
+            android:defaultValue="50"
+            whatever:step_floor="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
+            app:key="@string/setting_socratic_missed_letter_points_removed"
+            app:title="Points removed after an incorrect guess"
+            app:summary="Points penalized for an incorrect guess. The letters' mastery score which would have triggered a correct guess will have points docked."
+            app:showSeekBarValue="true"
+            whatever:value_suffix=" Points"
+            app:min="1"
+            android:max="25"
+            android:defaultValue="5"
+            whatever:step_floor="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="Global Settings">
         <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
@@ -36,5 +72,9 @@
             whatever:step_floor="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
+        <com.uberj.ditsanddahs.views.ConfirmResetSettingsDialogPreference
+            app:key="@string/setting_reset_to_defaults"
+            app:title="Reset App Settings"
+            app:summary="Revert all settings back to their default."/>
     </PreferenceCategory>
 </PreferenceScreen>

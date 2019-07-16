@@ -62,4 +62,9 @@
     <string name="setting_socratic_duration_minutes_requested">setting_socratic_duration_minutes_requested</string>
     <string name="setting_socratic_wpm_requested">setting_socratic_wpm_requested</string>
     <string name="global_setting_enabled_prosigns">global_setting_enabled_prosigns</string>
+    <string name="setting_socratic_enable_auto_introduce">setting_socratic_enable_auto_introduce</string>
+    <string name="setting_socratic_missed_letter_points_removed">setting_socratic_missed_letter_points_removed</string>
+    <string name="setting_socratic_correct_letter_points_added">setting_socratic_correct_letter_points_added</string>
+    <string name="setting_socratic_include_new_letter_cutoff_score">setting_socratic_include_new_letter_cutoff_score</string>
+    <string name="setting_reset_to_defaults">setting_reset_to_defaults</string>
 </resources>

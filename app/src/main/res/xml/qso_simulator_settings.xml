@@ -123,5 +123,9 @@
             whatever:step_floor="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
+        <com.uberj.ditsanddahs.views.ConfirmResetSettingsDialogPreference
+            app:key="@string/setting_reset_to_defaults"
+            app:title="Reset App Settings"
+            app:summary="Revert all settings back to their default."/>
     </PreferenceCategory>
 </PreferenceScreen>

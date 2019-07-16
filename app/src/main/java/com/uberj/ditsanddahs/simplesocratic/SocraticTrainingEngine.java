@@ -23,19 +23,17 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 public class SocraticTrainingEngine {
-    private static final int MISSED_LETTER_POINTS_REMOVED = 5;
-    private static final int CORRECT_LETTER_POINTS_ADDED = 5;
-
     private static final String pauseGate = "pauseGate";
     private static final int LETTER_WEIGHT_MAX = 100;
-    private static final int LETTER_WEIGHT_MIN = 0;
-    private static final int INCLUSION_COMPETENCY_CUTOFF_WEIGHT = 50;
 
     private final AudioManager cwToneManager;
     private final Consumer<String> letterChosenCallback;
     private final int playLetterWPM;
     private final boolean easyMode;
     private final Handler eventHandler;
+    private final int missedLetterPointsRemoved;
+    private final int correctLetterPointsAdded;
+    private final int includeNewLetterCutoffScore;
     private volatile boolean isPaused = false;
     private volatile boolean engineIsStarted = false;
     private List<String> playableKeys;
@@ -52,15 +50,24 @@ public class SocraticTrainingEngine {
     private volatile long mostRecentEventAt;
     private final AudioManager.MorseConfig morseConfig;
 
-    public SocraticTrainingEngine(AudioManager audioManager, List<String> letterOrder, int wpm, Consumer<String> letterChosenCallback, List<String> playableKeys, @Nonnull Map<String, Integer> competencyWeights, boolean easyMode, AudioManager.MorseConfig morseConfig) {
+    public SocraticTrainingEngine(
+            AudioManager audioManager,
+            List<String> letterOrder,
+            Consumer<String> letterChosenCallback,
+            List<String> playableKeys, @Nonnull Map<String, Integer> competencyWeights,
+            AudioManager.MorseConfig morseConfig,
+            SocraticSettings socraticSettings) {
         this.cwToneManager = audioManager;
-        this.easyMode = easyMode;
+        this.easyMode = socraticSettings.easyMode;
         this.letterOrder = letterOrder;
         this.letterChosenCallback = letterChosenCallback;
         this.playableKeys = playableKeys;
         this.competencyWeights = competencyWeights;
-        this.playLetterWPM = wpm;
+        this.playLetterWPM = socraticSettings.wpmRequested;
         this.morseConfig = morseConfig;
+        this.missedLetterPointsRemoved = socraticSettings.missedLetterPointsRemoved;
+        this.correctLetterPointsAdded = socraticSettings.correctLetterPointsAdded;
+        this.includeNewLetterCutoffScore = socraticSettings.includeNewLetterCutoffScore;
         HandlerThread eventHandlerThread = new HandlerThread("GuessHandler", HandlerThread.MAX_PRIORITY);
         eventHandlerThread.start();
         eventHandler = new Handler(eventHandlerThread.getLooper(), this::eventCallback);
@@ -113,10 +120,10 @@ public class SocraticTrainingEngine {
             events.add(SocraticEngineEvent.correctGuess(currentLetter));
             chooseDifferentLetter();
             isCorrectGuess = true;
-            WeightUtil.increment(competencyWeights, guess, CORRECT_LETTER_POINTS_ADDED);
+            WeightUtil.increment(competencyWeights, guess, correctLetterPointsAdded);
         } else {
             events.add(SocraticEngineEvent.incorrectGuess(guess));
-            WeightUtil.decrement(competencyWeights, currentLetter, MISSED_LETTER_POINTS_REMOVED);
+            WeightUtil.decrement(competencyWeights, currentLetter, missedLetterPointsRemoved);
         }
 
         Message msg = new Message();
@@ -209,7 +216,7 @@ public class SocraticTrainingEngine {
             if (weight == null) {
                 throw new RuntimeException("Something is very wrong. No competency weight for furthest letter " + weight);
             }
-            if (weight < INCLUSION_COMPETENCY_CUTOFF_WEIGHT) {
+            if (weight < includeNewLetterCutoffScore) {
                 return false;
             }
         }

@@ -37,19 +37,15 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
     private final Repository repository;
 
     private final Boolean resetWeights;
-    // TODO remove minutes requested in favor of millis requested
-    private final int durationMinutesRequested;
-    private final long durationRequestedMillis;
-    private final int wpmRequested;
     private final SocraticSessionType sessionType;
     private final Keys keys;
-    private final int toneFrequency;
-    private final boolean easyMode;
     public final MediaPlayer incorrectSound;
     public final MediaPlayer correctSound;
     private final HandlerThread guessSoundHandlerThread;
     private final Handler guessHandler;
-    private final int fadeInOutPercentage;
+    private final SocraticSettings socraticSettings;
+    private final long durationRequestedMillis;
+    public boolean enableAutoLetterIntroduce;
 
     private List<String> inPlayKeyNames;
     private CountDownTimer countDownTimer;
@@ -61,25 +57,25 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
 
     public SocraticTrainingSessionViewModel(@NonNull Application application, Boolean resetWeights, SocraticSessionType sessionType, Keys keys, SocraticSettings socraticSettings) {
         super(application);
-        this.fadeInOutPercentage = socraticSettings.fadeInOutPercentage;
         guessSoundHandlerThread = new HandlerThread("GuessSoundHandler", HandlerThread.MAX_PRIORITY);
         guessSoundHandlerThread.start();
         guessHandler = new Handler(guessSoundHandlerThread.getLooper(), this::guessCallBack);
         this.incorrectSound = MediaPlayer.create(application.getBaseContext(), R.raw.incorrect_mp3);
         this.correctSound = MediaPlayer.create(application.getBaseContext(), R.raw.correct_wav);
         this.resetWeights = resetWeights;
-        this.durationMinutesRequested = socraticSettings.durationMinutesRequested;
-        this.durationRequestedMillis = 1000 * (durationMinutesRequested * 60);
-        this.wpmRequested = socraticSettings.wpmRequested;
-        this.toneFrequency = socraticSettings.toneFrequency;
-        this.easyMode = socraticSettings.easyMode;
+        this.socraticSettings = socraticSettings;
+        this.durationRequestedMillis = 1000 * (socraticSettings.durationMinutesRequested * 60);
+//        this.wpmRequested = socraticSettings.wpmRequested;
+//        this.toneFrequency = socraticSettings.toneFrequency;
+//        this.easyMode = socraticSettings.easyMode;
         this.repository = new Repository(application);
         this.sessionType = sessionType;
         this.keys = keys;
+        this.enableAutoLetterIntroduce = socraticSettings.enableAutoLetterIntroduce;
     }
 
     private boolean guessCallBack(Message message) {
-        if (easyMode) {
+        if (socraticSettings.easyMode) {
             if (message.what == CORRECT_GUESS) {
                 audioManager.playCorrectTone();
             } else if (message.what == INCORRECT_GUESS) {
@@ -136,14 +132,14 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
     public void setUp(SocraticTrainingEngineSettings previousSettings, GlobalSettings globalSettings) {
         Map<String, Integer> competencyWeights = buildInitialCompetencyWeights(resetWeights ? null : previousSettings);
         inPlayKeyNames = getInitialInPlayKeyNames(previousSettings);
-        countDownTimer = setupCountDownTimer(1000 * (durationMinutesRequested * 60 + 1));
+        countDownTimer = setupCountDownTimer(durationRequestedMillis + 1000);
         AudioManager.MorseConfig.Builder morseConfig = AudioManager.MorseConfig.builder();
-        morseConfig.setToneFrequencyHz(toneFrequency);
+        morseConfig.setToneFrequencyHz(socraticSettings.toneFrequency);
         morseConfig.setGlobalSettings(globalSettings);
-        morseConfig.setLetterWpm(wpmRequested);
-        morseConfig.setEffectiveWpm(wpmRequested);
+        morseConfig.setLetterWpm(socraticSettings.wpmRequested);
+        morseConfig.setEffectiveWpm(socraticSettings.wpmRequested);
         audioManager = new AudioManager(getApplication().getResources());
-        engine = new SocraticTrainingEngine(audioManager, KochLetterSequence.sequence, wpmRequested, this::letterChosenCallback, inPlayKeyNames, competencyWeights, easyMode, morseConfig.build());
+        engine = new SocraticTrainingEngine(audioManager, KochLetterSequence.sequence, this::letterChosenCallback, inPlayKeyNames, competencyWeights, morseConfig.build(), socraticSettings);
     }
 
     public void startTheEngine() {
@@ -241,7 +237,7 @@ class SocraticTrainingSessionViewModel extends AndroidViewModel {
         trainingSession.durationWorkedMillis = durationWorkedMillis;
         trainingSession.completed = durationWorkedMillis == 0;
         trainingSession.sessionType = sessionType.name();
-        trainingSession.easyMode = easyMode;
+        trainingSession.easyMode = socraticSettings.easyMode;
 
         repository.insertSocraticTrainingSessionAndEvents(trainingSession, engine.events);
 
