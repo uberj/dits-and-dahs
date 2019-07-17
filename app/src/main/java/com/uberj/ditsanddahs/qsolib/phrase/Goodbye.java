@@ -12,15 +12,12 @@ import static com.uberj.ditsanddahs.qsolib.RandomUtil.choose;
 import static com.uberj.ditsanddahs.qsolib.RandomUtil.randomGuard;
 
 public class Goodbye implements Phrase {
-    private final StationState stationState;
-    private final boolean theyHaveSaidGoodbye;
     private final String theirName;
     private final String greetingShort;
     private boolean includesExcuse;
     private List<Phrase> phrases = null;
 
     public Goodbye(StationState stationState) {
-        this.stationState = stationState;
         this.theirName = Name.findName(stationState.stuffSaid.allStuffTheySaid);
 
         Optional<Goodbye> possibleGoodbye = PhraseUtil.findIfPresent(stationState.stuffSaid.allStuffTheySaid, Goodbye.class);
@@ -32,7 +29,6 @@ public class Goodbye implements Phrase {
         }
 
         if (possibleGoodbye.isPresent()) {
-            this.theyHaveSaidGoodbye = true;
             this.includesExcuse = false;
             Goodbye goodbye = possibleGoodbye.get();
             if (goodbye.includesExcuse) {
@@ -49,7 +45,6 @@ public class Goodbye implements Phrase {
                 }
             }
         } else {
-            this.theyHaveSaidGoodbye = false;
             if (randomGuard(0.2)) {
                 // Add an excuse
                 this.includesExcuse = true;

@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 
 import it.sephiroth.android.library.numberpicker.NumberPicker;
 
-class RandomQSOStartScreenFragment extends Fragment {
+public class RandomQSOStartScreenFragment extends Fragment {
     private NumberPicker letterWpmNumberPicker;
     private NumberPicker effectiveWpmNumberPicker;
     private TranscribeTrainingMainScreenViewModel sessionViewModel;

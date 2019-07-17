@@ -29,7 +29,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import timber.log.Timber;
 
-class FlashcardTrainingSessionViewModel extends AndroidViewModel {
+public class FlashcardTrainingSessionViewModel extends AndroidViewModel {
     public static final String TIME_LIMITED_SESSION_TYPE = "time_limited";
     private static final String sessionStartLock = "Lock";
     private final Repository repository;

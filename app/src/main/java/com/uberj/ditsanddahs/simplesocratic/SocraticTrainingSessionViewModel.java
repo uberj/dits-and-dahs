@@ -30,7 +30,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import timber.log.Timber;
 
-class SocraticTrainingSessionViewModel extends AndroidViewModel {
+public class SocraticTrainingSessionViewModel extends AndroidViewModel {
     private static final String sessionStartLock = "Lock";
     private static final int CORRECT_GUESS = 100;
     private static final int INCORRECT_GUESS = 200;

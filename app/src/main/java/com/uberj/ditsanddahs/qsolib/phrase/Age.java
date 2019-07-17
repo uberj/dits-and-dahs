@@ -11,7 +11,7 @@ import static com.google.common.collect.ImmutableList.of;
 import static com.uberj.ditsanddahs.qsolib.RandomUtil.choose;
 import static com.uberj.ditsanddahs.qsolib.RandomUtil.randomGuard;
 
-class Age implements Phrase {
+public class Age implements Phrase {
     private final int age;
     private final boolean sameAgeResponse;
 

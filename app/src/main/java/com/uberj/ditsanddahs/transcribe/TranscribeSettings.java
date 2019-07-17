@@ -40,7 +40,7 @@ public class TranscribeSettings {
         return new TranscribeSettings(
             preferences.getBoolean(context.getResources().getString(R.string.setting_transcribe_target_issue_letters), false),
             preferences.getInt(context.getResources().getString(R.string.setting_transcribe_audio_tone), 440),
-            preferences.getInt(context.getResources().getString(R.string.setting_transcribe_start_delay_seconds), 3),
+            preferences.getInt(context.getResources().getString(R.string.setting_transcribe_start_delay_seconds), 5),
             endDelaySeconds,
             preferences.getInt(context.getResources().getString(R.string.setting_transcribe_duration_minutes), 2),
             preferences.getInt(context.getResources().getString(R.string.setting_transcribe_letter_wpm), 25),

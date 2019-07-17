@@ -2,7 +2,7 @@ package com.uberj.ditsanddahs;
 
 import android.content.Intent;
 
-class TrainingCardData {
+public class TrainingCardData {
     private final String name;
     private final int whatDescriptionId;
     private final int whyDescriptionId;

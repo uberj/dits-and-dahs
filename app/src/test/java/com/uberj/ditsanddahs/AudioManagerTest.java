@@ -7,9 +7,9 @@ public class AudioManagerTest {
     @Test
     public void testSymbolConvert() {
         String asdf = AudioManager.explodeToSymbols("asdf");
-        Assert.assertEquals(".-/.../-../..-.", asdf);
+        Assert.assertEquals(".-_..._-.._..-.", asdf);
 
         String asdfasdf = AudioManager.explodeToSymbols("asdf asdf");
-        Assert.assertEquals(".-/.../-../..-. .-/.../-../..-.", asdfasdf);
+        Assert.assertEquals(".-_..._-.._..-. .-_..._-.._..-.", asdfasdf);
     }
 }

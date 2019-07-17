@@ -38,7 +38,7 @@
             app:showSeekBarValue="true"
             app:min="1"
             android:max="10"
-            android:defaultValue="1"
+            android:defaultValue="5"
             whatever:value_suffix=" Seconds"
             whatever:step_floor="1"
             android:layout_width="match_parent"

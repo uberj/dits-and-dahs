@@ -15,10 +15,8 @@ import static com.uberj.ditsanddahs.qsolib.phrase.PhraseUtil.hasRecentlyMentione
 public class Sentence {
     private final StuffSaid stuffSaid;
     private final StationState stationState;
-    private final int round;
 
-    public Sentence(int round, StationState stationState) {
-        this.round = round;
+    public Sentence(StationState stationState) {
         this.stuffSaid = stationState.stuffSaid;
         this.stationState = stationState;
     }

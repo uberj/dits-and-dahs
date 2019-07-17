@@ -22,11 +22,7 @@ import java.text.DecimalFormat;
 import java.util.Locale;
 
 public class FlashcardNumbersScreenFragment extends Fragment {
-    private static final DecimalFormat DECIMAL_STAT_FORMATTER = new DecimalFormat("#.##");
-    private static final String SYMBOL_COLUMN_NAME = "Symbol";
-    private static final String BLANK_DETAIL = "-";
     private FlashcardTrainingMainScreenViewModel sessionViewModel;
-    private ScrollView detailsContainerScroll;
 
     public static FlashcardNumbersScreenFragment newInstance() {
         FlashcardNumbersScreenFragment fragment = new FlashcardNumbersScreenFragment();
@@ -44,21 +40,18 @@ public class FlashcardNumbersScreenFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ConstraintLayout rootView = (ConstraintLayout) inflater.inflate(R.layout.flashcard_training_numbers_screen_fragment, container, false);
 
-        detailsContainerScroll = rootView.findViewById(R.id.details_container_scroll);
         sessionViewModel = ViewModelProviders.of(this).get(FlashcardTrainingMainScreenViewModel.class);
         sessionViewModel.getLatestSession().observe(this, (mostRecentSession) -> {
             double firstGuessAccuracy = -1;
             int skipCount = -1;
             int numberCardsCompleted = -1;
             long durationUnits = -1;
-            FlashcardSessionType sessionType = null;
             if (!mostRecentSession.isEmpty()) {
                 FlashcardTrainingSessionWithEvents s = mostRecentSession.get(0);
                 durationUnits = FlashcardUtil.calcDurationMillis(s.events);
                 numberCardsCompleted = FlashcardUtil.calcNumCardsCompleted(s.events);
                 firstGuessAccuracy = FlashcardUtil.calcFirstGuessAccuracy(s.events);
                 skipCount = FlashcardUtil.calcSkipCount(s.events);
-                sessionType = FlashcardSessionType.valueOf(s.session.sessionType);
             }
             long prevDurationMinutes = (durationUnits / 1000) / 60;
             long prevDurationSeconds = (durationUnits / 1000) % 60;

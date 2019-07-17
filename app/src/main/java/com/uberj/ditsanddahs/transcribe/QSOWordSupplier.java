@@ -14,7 +14,6 @@ import java.util.Set;
 public class QSOWordSupplier implements Supplier<Pair<String, AudioManager.MorseConfig>> {
     public static final String STATION_SWITCH_MARKER = "@";
     private final List<List<String>> sentences;
-    private final boolean collapseProSigns;
     private final Set<String> prosigns;
     private int sentenceIdx = 0;
     private int wordIdx = 0;
@@ -30,7 +29,6 @@ public class QSOWordSupplier implements Supplier<Pair<String, AudioManager.Morse
         this.sentences = wordSplit(passedMessages);
         this.morseConfig0 = morseConfig0;
         this.morseConfig1 = morseConfig1;
-        this.collapseProSigns = globalSettings.shouldCollapseProSigns();
         this.prosigns = globalSettings.getEnabledProsigns();
     }
 

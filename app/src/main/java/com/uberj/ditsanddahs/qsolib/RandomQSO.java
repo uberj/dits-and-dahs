@@ -8,7 +8,6 @@ import com.uberj.ditsanddahs.qsolib.phrase.Phrase;
 import com.uberj.ditsanddahs.qsolib.phrase.PhraseUtil;
 import com.uberj.ditsanddahs.qsolib.phrase.Sentence;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static com.uberj.ditsanddahs.qsolib.phrase.PhraseUtil.hasRecentlyMentionedPhrase;
@@ -28,13 +27,13 @@ public class RandomQSO {
                 break;
             }
             if (round % 2 == 0) { // Station0
-                List<Phrase> response = p(lines, new Sentence(round, new StationState(station0Call, new StuffSaid(responses1, responses0))));
+                List<Phrase> response = p(lines, new Sentence(new StationState(station0Call, new StuffSaid(responses1, responses0))));
                 responses0 = ImmutableList.<List<Phrase>>builder()
                         .addAll(responses0)
                         .add(PhraseUtil.collectAll(response))
                         .build();
             } else { // Station1
-                List<Phrase> response = p(lines, new Sentence(round, new StationState(station1Call, new StuffSaid(responses0, responses1))));
+                List<Phrase> response = p(lines, new Sentence(new StationState(station1Call, new StuffSaid(responses0, responses1))));
                 responses1 = ImmutableList.<List<Phrase>>builder()
                         .addAll(responses1)
                         .add(PhraseUtil.collectAll(response))

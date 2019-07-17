@@ -7,7 +7,7 @@ import androidx.preference.PreferenceManager;
 
 import com.uberj.ditsanddahs.R;
 
-class SocraticSettings {
+public class SocraticSettings {
     public final int toneFrequency;
     public final boolean easyMode;
     public final int fadeInOutPercentage;

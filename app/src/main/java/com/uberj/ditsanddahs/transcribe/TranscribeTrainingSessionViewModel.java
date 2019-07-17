@@ -55,7 +55,6 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     private TranscribeTrainingEngine engine;
     private long endTimeEpocMillis = -1;
     private List<String> playedMessage = Lists.newArrayList();
-    private final int fadeInOutPercentage;
     private CountDownTimer startTimer = null;
     private CountDownTimer endTimer = null;
     public MutableLiveData<Boolean> messageDonePlaying = new MutableLiveData<>(false);
@@ -204,7 +203,6 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         this.audioToneFrequency = params.audioToneFrequency;
         this.startDelaySeconds = params.startDelaySeconds;
         this.endDelaySeconds = params.endDelaySeconds;
-        this.fadeInOutPercentage = params.fadeInOutPercentage;
         this.secondAudioToneFrequency = params.secondAudioToneFrequency;
         this.secondsBetweenStationTransmissions = params.secondsBetweenStationTransmissions;
     }
