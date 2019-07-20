@@ -186,7 +186,7 @@ public class RandomQSOStartScreenFragment extends Fragment {
         if (effectiveWpm > 0) {
             effectiveWpmNumberPicker.setProgress(effectiveWpm);
         } else {
-            effectiveWpmNumberPicker.setProgress(6);
+            effectiveWpmNumberPicker.setProgress(4);
         }
     }
 }
