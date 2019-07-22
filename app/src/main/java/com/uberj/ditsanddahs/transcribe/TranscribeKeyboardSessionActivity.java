@@ -103,7 +103,9 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
         }
 
 
-        viewModel.titleText.observe(this, keyboardToolbarTitle::setText);
+        if (keyboardToolbarTitle != null) {
+            viewModel.titleText.observe(this, keyboardToolbarTitle::setText);
+        }
 
         viewModel.getLatestTrainingSession().observe(this, (possibleSession) -> {
             TranscribeTrainingSession session;

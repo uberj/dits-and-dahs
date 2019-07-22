@@ -22,7 +22,7 @@ android {
         applicationId "com.uberj.ditsanddahs"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 9
+        versionCode 11
         versionName "3.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true

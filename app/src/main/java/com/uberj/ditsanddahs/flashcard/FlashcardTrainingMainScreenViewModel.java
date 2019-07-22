@@ -2,7 +2,7 @@ package com.uberj.ditsanddahs.flashcard;
 
 import android.app.Application;
 
-import com.uberj.ditsanddahs.flashcard.storage.FlashcardSessionType;
+import com.google.common.collect.Lists;
 import com.uberj.ditsanddahs.flashcard.storage.FlashcardTrainingSessionWithEvents;
 import com.uberj.ditsanddahs.storage.Repository;
 
@@ -16,8 +16,8 @@ import androidx.lifecycle.MutableLiveData;
 
 public class FlashcardTrainingMainScreenViewModel extends AndroidViewModel {
     private final Repository repository;
-    public final MutableLiveData<ArrayList<String>> selectedStrings = new MutableLiveData<>(null);
-    public final MutableLiveData<boolean[]> selectedStringsBooleanMap = new MutableLiveData<>(null);
+    public final MutableLiveData<ArrayList<String>> selectedStrings = new MutableLiveData<>(Lists.newArrayList());
+    public final MutableLiveData<boolean[]> selectedStringsBooleanMap = new MutableLiveData<>(new boolean[]{});
 
     public FlashcardTrainingMainScreenViewModel(@NonNull Application application) {
         super(application);
