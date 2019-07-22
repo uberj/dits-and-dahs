@@ -40,7 +40,6 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
     public static final String TONE_FREQUENCY_HZ = "tone-frequency-hz";
     public static final String MESSAGES_REQUESTED = "messages-requested";
     public static final String DURATION_UNIT = "duration-unit";
-    public static final String FADE_IN_OUT_PERCENTAGE = "fade-in-out-percentage";
     public static final String SESSION_TYPE = "flashcard-session-type";
     private Menu menu;
 
@@ -153,11 +152,7 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
             transcribeTextArea.setText(message);
             transcribeTextArea.setSelection(transcribeTextArea.getText().length());
             boolean enableSubmit;
-            if (message.isEmpty()) {
-                enableSubmit = false;
-            } else  {
-                enableSubmit = true;
-            }
+            enableSubmit = !message.isEmpty();
             findViewById(R.id.keySUBMIT).setEnabled(enableSubmit);
 
         });
