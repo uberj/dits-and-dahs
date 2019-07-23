@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"/>
         <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
             app:key="@string/setting_socratic_correct_letter_points_added"
-            app:title="Points added after an correct guess"
+            app:title="Points added after a correct guess"
             app:summary="The higher this is set the faster new letters will be introduced"
             app:showSeekBarValue="true"
             whatever:value_suffix=" Points"
@@ -48,7 +48,7 @@
             android:layout_height="wrap_content"/>
         <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
             app:key="@string/setting_socratic_missed_letter_points_removed"
-            app:title="Points removed after an incorrect guess"
+            app:title="Points removed after a incorrect guess"
             app:summary="Points penalized for an incorrect guess. The letters' mastery score which would have triggered a correct guess will have points docked."
             app:showSeekBarValue="true"
             whatever:value_suffix=" Points"
