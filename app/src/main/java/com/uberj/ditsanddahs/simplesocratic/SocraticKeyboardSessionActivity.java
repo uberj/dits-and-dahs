@@ -118,10 +118,12 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
     }
 
     public void keyboardButtonClicked(View v) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            v.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
-        } else {
-            getWindow().getDecorView().performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+        if (viewModel.enableHapticFeedback) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                v.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
+            } else {
+                getWindow().getDecorView().performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
+            }
         }
 
         String letter = keyboard.getButtonLetter(v);
@@ -202,6 +204,7 @@ public abstract class SocraticKeyboardSessionActivity extends AppCompatActivity 
                         resetWeights,
                         getSessionType(),
                         getSessionKeys(),
+                        GlobalSettings.fromContext(getApplicationContext()),
                         SocraticSettings.fromContext(getApplicationContext()))
         ).get(SocraticTrainingSessionViewModel.class);
 

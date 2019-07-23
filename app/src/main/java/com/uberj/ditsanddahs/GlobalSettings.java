@@ -15,13 +15,15 @@ public class GlobalSettings {
     private final int symbolsBetweenLetters;
     private final int symbolsBetweenWords;
     private final Set<String> enabledProsigns;
+    private final boolean enableHapticFeedback;
 
-    public GlobalSettings(int fadeInOutPercentage, boolean collapseProSigns, int symbolsBetweenLetters, int symbolsBetweenWords, Set<String> enabledProsigns) {
+    public GlobalSettings(int fadeInOutPercentage, boolean collapseProSigns, int symbolsBetweenLetters, int symbolsBetweenWords, Set<String> enabledProsigns, boolean enableHapticFeedback) {
         this.fadeInOutPercentage = fadeInOutPercentage;
         this.collapseProSigns = collapseProSigns;
         this.symbolsBetweenLetters = symbolsBetweenLetters;
         this.symbolsBetweenWords = symbolsBetweenWords;
         this.enabledProsigns = enabledProsigns;
+        this.enableHapticFeedback = enableHapticFeedback;
     }
 
     public static GlobalSettings fromContext(Context applicationContext) {
@@ -31,7 +33,8 @@ public class GlobalSettings {
                 preferences.getBoolean(applicationContext.getResources().getString(R.string.global_setting_collapse_prosigns), false),
                 preferences.getInt(applicationContext.getResources().getString(R.string.global_setting_symbols_between_letters), 3),
                 preferences.getInt(applicationContext.getResources().getString(R.string.global_setting_symbols_between_words), 7),
-                preferences.getStringSet(applicationContext.getResources().getString(R.string.global_setting_enabled_prosigns), Sets.newConcurrentHashSet())
+                preferences.getStringSet(applicationContext.getResources().getString(R.string.global_setting_enabled_prosigns), Sets.newConcurrentHashSet()),
+                preferences.getBoolean(applicationContext.getResources().getString(R.string.global_setting_enable_haptic_feedback), true)
         );
     }
 
@@ -53,5 +56,9 @@ public class GlobalSettings {
 
     public Set<String> getEnabledProsigns() {
         return enabledProsigns;
+    }
+
+    public boolean getEnableHapticFeedback() {
+        return enableHapticFeedback;
     }
 }

@@ -75,6 +75,12 @@
             whatever:step_floor="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
+        <SwitchPreferenceCompat
+            app:key="@string/global_setting_enable_haptic_feedback"
+            app:defaultValue="true"
+            app:title="Enable Key Press Vibration"
+            app:summary="If you find the buzzing annoying, turn it off with this setting"/>
+
         <com.uberj.ditsanddahs.views.ConfirmResetSettingsDialogPreference
             app:key="@string/setting_reset_to_defaults"
             app:title="Reset App Settings"

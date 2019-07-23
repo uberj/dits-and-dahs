@@ -79,6 +79,7 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
         params.setEndDelaySeconds(endDelaySeconds);
         params.setFadeInOutPercentage(globalSettings.getFadeInOutPercentage());
         params.setStringsRequested(stringsRequested);
+        params.setEnableHapticFeedback(globalSettings.getEnableHapticFeedback());
 
         viewModel = ViewModelProviders
                 .of(this, new TranscribeTrainingSessionViewModel.Factory(this.getApplication(), params.build()))
@@ -252,10 +253,12 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
 
     // Called via xml
     public void keyboardButtonClicked(View view) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
-        } else {
-            getWindow().getDecorView().performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+        if (viewModel.enableHapticFeedback) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS);
+            } else {
+                getWindow().getDecorView().performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
+            }
         }
         String buttonLetter = DynamicKeyboard.getButtonLetter(getApplicationContext(), view);
         List<String> transcribedStrings = viewModel.transcribedMessage.getValue();

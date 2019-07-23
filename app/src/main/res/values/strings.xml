@@ -67,4 +67,5 @@
     <string name="setting_socratic_correct_letter_points_added">setting_socratic_correct_letter_points_added</string>
     <string name="setting_socratic_include_new_letter_cutoff_score">setting_socratic_include_new_letter_cutoff_score</string>
     <string name="setting_reset_to_defaults">setting_reset_to_defaults</string>
+    <string name="global_setting_enable_haptic_feedback">global_setting_enable_haptic_feedback</string>
 </resources>

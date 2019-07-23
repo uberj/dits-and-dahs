@@ -9,11 +9,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Set;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class QSOWordSupplierTest {
     private AudioManager.MorseConfig morseConfig0 = mock(AudioManager.MorseConfig.class);
@@ -21,11 +19,11 @@ public class QSOWordSupplierTest {
     private GlobalSettings globalSettings;
 
     private GlobalSettings withProsignSettings(Set<String> enabledProsigns) {
-        return new GlobalSettings(0, true, 3, 7, enabledProsigns);
+        return new GlobalSettings(0, true, 3, 7, enabledProsigns, enableHapticFeedback);
     }
 
     private GlobalSettings noProsignSettings() {
-        return new GlobalSettings(0, false, 3, 7, Sets.newConcurrentHashSet());
+        return new GlobalSettings(0, false, 3, 7, Sets.newConcurrentHashSet(), enableHapticFeedback);
     }
 
     @Test

@@ -46,6 +46,7 @@ public class SocraticTrainingSessionViewModel extends AndroidViewModel {
     private final SocraticSettings socraticSettings;
     private final long durationRequestedMillis;
     public boolean enableAutoLetterIntroduce;
+    public final boolean enableHapticFeedback;
 
     private List<String> inPlayKeyNames;
     private CountDownTimer countDownTimer;
@@ -55,7 +56,7 @@ public class SocraticTrainingSessionViewModel extends AndroidViewModel {
     private SocraticTrainingEngine engine;
     private AudioManager audioManager;
 
-    public SocraticTrainingSessionViewModel(@NonNull Application application, Boolean resetWeights, SocraticSessionType sessionType, Keys keys, SocraticSettings socraticSettings) {
+    public SocraticTrainingSessionViewModel(@NonNull Application application, Boolean resetWeights, SocraticSessionType sessionType, Keys keys, GlobalSettings globalSettings, SocraticSettings socraticSettings) {
         super(application);
         guessSoundHandlerThread = new HandlerThread("GuessSoundHandler", HandlerThread.MAX_PRIORITY);
         guessSoundHandlerThread.start();
@@ -65,13 +66,11 @@ public class SocraticTrainingSessionViewModel extends AndroidViewModel {
         this.resetWeights = resetWeights;
         this.socraticSettings = socraticSettings;
         this.durationRequestedMillis = 1000 * (socraticSettings.durationMinutesRequested * 60);
-//        this.wpmRequested = socraticSettings.wpmRequested;
-//        this.toneFrequency = socraticSettings.toneFrequency;
-//        this.easyMode = socraticSettings.easyMode;
         this.repository = new Repository(application);
         this.sessionType = sessionType;
         this.keys = keys;
         this.enableAutoLetterIntroduce = socraticSettings.enableAutoLetterIntroduce;
+        this.enableHapticFeedback = globalSettings.getEnableHapticFeedback();
     }
 
     private boolean guessCallBack(Message message) {
@@ -103,20 +102,22 @@ public class SocraticTrainingSessionViewModel extends AndroidViewModel {
         private final SocraticSessionType sessionType;
         private final Keys keys;
         private final SocraticSettings socraticSettings;
+        private final GlobalSettings globalSettings;
 
 
-        public Factory(Application application, Boolean resetWeights, SocraticSessionType sessionType, Keys keys, SocraticSettings socraticSettings) {
+        public Factory(Application application, Boolean resetWeights, SocraticSessionType sessionType, Keys keys, GlobalSettings globalSettings, SocraticSettings socraticSettings) {
             this.application = application;
             this.resetWeights = resetWeights;
             this.sessionType = sessionType;
             this.keys = keys;
             this.socraticSettings = socraticSettings;
+            this.globalSettings = globalSettings;
         }
 
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
-            return (T) new SocraticTrainingSessionViewModel(application, resetWeights, sessionType, keys, socraticSettings);
+            return (T) new SocraticTrainingSessionViewModel(application, resetWeights, sessionType, keys, globalSettings, socraticSettings);
         }
     }
 

@@ -45,6 +45,7 @@ public class FlashcardTrainingSessionViewModel extends AndroidViewModel {
     private final List<String> requestedMessages;
     private final AtomicInteger wrongGuessCount = new AtomicInteger(0);
     private final GlobalSettings globalSettings;
+    public final boolean enableHapticFeedback;
 
     private CountDownTimer countDownTimer;
     public final MutableLiveData<Long> durationUnitsRemaining = new MutableLiveData<>(-1L);
@@ -64,6 +65,7 @@ public class FlashcardTrainingSessionViewModel extends AndroidViewModel {
         this.sessionType = sessionType;
         this.requestedMessages = requestedMessages;
         this.globalSettings = globalSettings;
+        this.enableHapticFeedback = globalSettings.getEnableHapticFeedback();
         primeTheEngine();
         startTheEngine();
     }

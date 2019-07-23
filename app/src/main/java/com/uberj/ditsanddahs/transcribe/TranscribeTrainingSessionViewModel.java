@@ -51,6 +51,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
     private final String startTimerTitleString;
     private final String endTimerTitleString;
     private final String pressBackToEndString;
+    public final boolean enableHapticFeedback;
     private CountDownTimer countDownTimer = null;
     private TranscribeTrainingEngine engine;
     private long endTimeEpocMillis = -1;
@@ -72,8 +73,9 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         private final int fadeInOutPercentage;
         private final int secondAudioToneFrequency;
         private final int secondsBetweenStationTransmissions;
+        private final boolean enableHapticFeedback;
 
-        private Params(int durationMinutesRequested, ArrayList<String> stringsRequested, int letterWpmRequested, int effectiveWpmRequested, boolean targetIssueLetters, TranscribeSessionType sessionType, int audioToneFrequency, int startDelaySeconds, int endDelaySeconds, int fadeInOutPercentage, int secondAudioToneFrequency, Integer secondsBetweenStationTransmissions) {
+        private Params(int durationMinutesRequested, ArrayList<String> stringsRequested, int letterWpmRequested, int effectiveWpmRequested, boolean targetIssueLetters, TranscribeSessionType sessionType, int audioToneFrequency, int startDelaySeconds, int endDelaySeconds, int fadeInOutPercentage, int secondAudioToneFrequency, Integer secondsBetweenStationTransmissions, boolean enableHapticFeedback) {
             this.durationMinutesRequested = durationMinutesRequested;
             this.stringsRequested = stringsRequested;
             this.letterWpmRequested = letterWpmRequested;
@@ -86,6 +88,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
             this.fadeInOutPercentage = fadeInOutPercentage;
             this.secondAudioToneFrequency = secondAudioToneFrequency;
             this.secondsBetweenStationTransmissions = secondsBetweenStationTransmissions;
+            this.enableHapticFeedback = enableHapticFeedback;
         }
 
         public static Builder builder() {
@@ -105,6 +108,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
             private Integer fadeInOutPercentage;
             private Integer secondAudioToneFrequency = -1;
             private Integer secondsBetweenStationTransmissions = -1;
+            private boolean enableHapticFeedback;
 
             public Builder setDurationMinutesRequested(int durationMinutesRequested) {
                 this.durationMinutesRequested = durationMinutesRequested;
@@ -166,6 +170,11 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
                 return this;
             }
 
+            public Builder setEnableHapticFeedback(boolean enableHapticFeedback) {
+                this.enableHapticFeedback = enableHapticFeedback;
+                return this;
+            }
+
             public Params build() {
                 Preconditions.checkNotNull(sessionType);
                 if (sessionType.equals(TranscribeSessionType.RANDOM_LETTER_ONLY)) {
@@ -183,7 +192,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
                 Preconditions.checkNotNull(startDelaySeconds);
                 Preconditions.checkNotNull(endDelaySeconds);
                 Preconditions.checkNotNull(fadeInOutPercentage);
-                return new Params(durationMinutesRequested, stringsRequested, letterWpmRequested, effectiveWpmRequested, targetIssueLetters, sessionType, audioToneFrequency, startDelaySeconds, endDelaySeconds, fadeInOutPercentage, secondAudioToneFrequency, secondsBetweenStationTransmissions);
+                return new Params(durationMinutesRequested, stringsRequested, letterWpmRequested, effectiveWpmRequested, targetIssueLetters, sessionType, audioToneFrequency, startDelaySeconds, endDelaySeconds, fadeInOutPercentage, secondAudioToneFrequency, secondsBetweenStationTransmissions, enableHapticFeedback);
             }
         }
     }
@@ -205,6 +214,7 @@ public class TranscribeTrainingSessionViewModel extends AndroidViewModel {
         this.endDelaySeconds = params.endDelaySeconds;
         this.secondAudioToneFrequency = params.secondAudioToneFrequency;
         this.secondsBetweenStationTransmissions = params.secondsBetweenStationTransmissions;
+        this.enableHapticFeedback = params.enableHapticFeedback;
     }
 
     public void finishSessionWithTimer() {
