@@ -90,6 +90,16 @@ public class TrainingActivityList extends Activity {
         );
         trainingActivities.add(qso_training);
 
+        Intent faq = new Intent(this, FAQActivity.class);
+        faq.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        TrainingCardData faq_card = new TrainingCardData(
+                "Something not working?",
+                R.string.faq_card_title,
+                -1,
+                faq
+        );
+        trainingActivities.add(faq_card);
+
         mAdapter = new TrainingActivityAdapter(trainingActivities);
         mRecyclerView.setAdapter(mAdapter);
     }

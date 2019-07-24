@@ -2,6 +2,7 @@ package com.uberj.ditsanddahs;
 
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -53,7 +54,11 @@ public class TrainingActivityAdapter extends RecyclerView.Adapter<TrainingActivi
         TextView activityWhatDescription = holder.mLinearLayout.findViewById(R.id.activityWhatDescription);
         activityWhatDescription.setText(trainingActivity.getWhatDescription());
         TextView activityWhyDescription = holder.mLinearLayout.findViewById(R.id.activityWhyDescription);
-        activityWhyDescription.setText(trainingActivity.getWhyDescription());
+        if (trainingActivity.getWhyDescription() < 0) {
+            activityWhyDescription.setVisibility(View.GONE);
+        } else {
+            activityWhyDescription.setText(trainingActivity.getWhyDescription());
+        }
         RelativeLayout relativeLayout = holder.mLinearLayout.findViewById(R.id.activityCard);
         relativeLayout.setOnClickListener((view) -> view.getContext().startActivity(trainingActivity.getOnClickIntent()));
 

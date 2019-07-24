@@ -3,6 +3,7 @@
 
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:allowBackup="true"
         android:icon="@drawable/ditsanddahs"
@@ -74,6 +75,8 @@
         <activity android:name="com.uberj.ditsanddahs.training.randomqso.RandomQSOSettingsActivity"
             android:screenOrientation="landscape"
             />
+
+        <activity android:name=".FAQActivity" />
 
         <meta-data
             android:name="io.fabric.ApiKey"

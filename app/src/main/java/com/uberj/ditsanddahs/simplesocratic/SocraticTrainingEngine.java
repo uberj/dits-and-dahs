@@ -68,6 +68,7 @@ public class SocraticTrainingEngine {
         this.missedLetterPointsRemoved = socraticSettings.missedLetterPointsRemoved;
         this.correctLetterPointsAdded = socraticSettings.correctLetterPointsAdded;
         this.includeNewLetterCutoffScore = socraticSettings.includeNewLetterCutoffScore;
+        this.currentLetter = letterOrder.get(0);
         HandlerThread eventHandlerThread = new HandlerThread("GuessHandler", HandlerThread.MAX_PRIORITY);
         eventHandlerThread.start();
         eventHandler = new Handler(eventHandlerThread.getLooper(), this::eventCallback);
