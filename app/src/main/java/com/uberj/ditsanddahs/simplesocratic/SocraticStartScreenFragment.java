@@ -102,11 +102,10 @@ public class SocraticStartScreenFragment extends Fragment {
 
         sessionViewModel = ViewModelProviders.of(this).get(SocraticTrainingMainScreenViewModel.class);
         sessionViewModel.getLatestEngineSettings(sessionType).observe(this, (mostRecentSettings) -> {
-            int playLetterWPM = -1;
+            int playLetterWPM = preferences.getInt(getResources().getString(R.string.setting_socratic_wpm_requested), -1);
             long prevDurationRequestedMillis = -1L;
             if (!mostRecentSettings.isEmpty()) {
                 SocraticTrainingEngineSettings engineSettings = mostRecentSettings.get(0);
-                playLetterWPM = engineSettings.playLetterWPM;
                 prevDurationRequestedMillis = engineSettings.durationRequestedMillis;
             }
 
@@ -154,7 +153,7 @@ public class SocraticStartScreenFragment extends Fragment {
             @Override
             public void onProgressChanged(@NotNull NumberPicker numberPicker, int minutes, boolean b) {
                 SharedPreferences.Editor edit = preferences.edit();
-                edit.putInt(getResources().getString(R.string.setting_transcribe_duration_minutes), minutes);
+                edit.putInt(getResources().getString(R.string.setting_socratic_duration_minutes_requested), minutes);
                 edit.apply();
             }
 
@@ -172,7 +171,7 @@ public class SocraticStartScreenFragment extends Fragment {
             @Override
             public void onProgressChanged(@NotNull NumberPicker numberPicker, int letterWpm, boolean b) {
                 SharedPreferences.Editor edit = preferences.edit();
-                edit.putInt(getResources().getString(R.string.setting_transcribe_letter_wpm), letterWpm);
+                edit.putInt(getResources().getString(R.string.setting_socratic_wpm_requested), letterWpm);
                 edit.apply();
             }
 

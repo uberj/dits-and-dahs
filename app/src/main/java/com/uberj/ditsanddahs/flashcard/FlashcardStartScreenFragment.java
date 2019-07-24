@@ -195,6 +195,59 @@ public class FlashcardStartScreenFragment extends Fragment implements AdapterVie
         TextView additionalSettingsLink = rootView.findViewById(R.id.additional_settings);
         additionalSettingsLink.setOnClickListener(this::launchSettings);
 
+        registerNumberPickerListeners();
+
+        return rootView;
+    }
+
+    private void registerNumberPickerListeners() {
+        // Letter WPM is the upper bound of the effective WPM
+        wpmPicker.setNumberPickerChangeListener(new NumberPicker.OnNumberPickerChangeListener() {
+            @Override
+            public void onProgressChanged(@NotNull NumberPicker numberPicker, int letterWpm, boolean b) {
+                int effectiveWpm = effectivePicker.getProgress();
+                if (effectiveWpm > letterWpm) {
+                    effectivePicker.setProgress(letterWpm);
+                }
+                SharedPreferences.Editor edit = preferences.edit();
+                edit.putInt(getResources().getString(R.string.setting_flashcard_letter_wpm), letterWpm);
+                edit.apply();
+            }
+
+            @Override
+            public void onStartTrackingTouch(@NotNull NumberPicker numberPicker) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(@NotNull NumberPicker numberPicker) {
+
+            }
+        });
+
+        effectivePicker.setNumberPickerChangeListener(new NumberPicker.OnNumberPickerChangeListener() {
+            @Override
+            public void onProgressChanged(@NotNull NumberPicker numberPicker, int effectiveWpm, boolean b) {
+                int letterWpm = wpmPicker.getProgress();
+                if (effectiveWpm > letterWpm) {
+                    wpmPicker.setProgress(effectiveWpm);
+                }
+                SharedPreferences.Editor edit = preferences.edit();
+                edit.putInt(getResources().getString(R.string.setting_flashcard_effective_wpm), effectiveWpm);
+                edit.apply();
+            }
+
+            @Override
+            public void onStartTrackingTouch(@NotNull NumberPicker numberPicker) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(@NotNull NumberPicker numberPicker) {
+
+            }
+        });
+
         durationPicker.setNumberPickerChangeListener(new NumberPicker.OnNumberPickerChangeListener() {
             @Override
             public void onProgressChanged(@NotNull NumberPicker durationPicker, int effectiveWpm, boolean b) {
@@ -212,8 +265,6 @@ public class FlashcardStartScreenFragment extends Fragment implements AdapterVie
 
             }
         });
-
-        return rootView;
     }
 
     private void setDurationUnits(int progress) {
