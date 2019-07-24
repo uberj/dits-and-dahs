@@ -15,6 +15,7 @@ public class QSOWordSupplier implements Supplier<Pair<String, AudioManager.Morse
     public static final String STATION_SWITCH_MARKER = "@";
     private final List<List<String>> sentences;
     private final Set<String> prosigns;
+    private final boolean shouldCollapseProsigns;
     private int sentenceIdx = 0;
     private int wordIdx = 0;
     private int letterIdx = 0;
@@ -30,6 +31,7 @@ public class QSOWordSupplier implements Supplier<Pair<String, AudioManager.Morse
         this.morseConfig0 = morseConfig0;
         this.morseConfig1 = morseConfig1;
         this.prosigns = globalSettings.getEnabledProsigns();
+        this.shouldCollapseProsigns = globalSettings.shouldCollapseProSigns();
     }
 
     private static List<List<String>> wordSplit(List<String> passedMessages) {
@@ -77,7 +79,11 @@ public class QSOWordSupplier implements Supplier<Pair<String, AudioManager.Morse
 
         // Side affects, hell yeah
         // Start with letter and work up to sentence
-        pumpLetterSpace = !prosigns.contains(curWord);
+        if (shouldCollapseProsigns) {
+            pumpLetterSpace = !prosigns.contains(curWord);
+        } else {
+            pumpLetterSpace = true;
+        }
 
         if (letterIdx >= curWord.length()) {
             pumpLetterSpace = false; // Word space takes precedence

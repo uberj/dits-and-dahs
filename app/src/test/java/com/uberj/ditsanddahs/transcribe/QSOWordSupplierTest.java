@@ -19,11 +19,11 @@ public class QSOWordSupplierTest {
     private GlobalSettings globalSettings;
 
     private GlobalSettings withProsignSettings(Set<String> enabledProsigns) {
-        return new GlobalSettings(0, true, 3, 7, enabledProsigns, enableHapticFeedback);
+        return new GlobalSettings(0, true, 3, 7, enabledProsigns, true);
     }
 
     private GlobalSettings noProsignSettings() {
-        return new GlobalSettings(0, false, 3, 7, Sets.newConcurrentHashSet(), enableHapticFeedback);
+        return new GlobalSettings(0, false, 3, 7, Sets.newConcurrentHashSet(), false);
     }
 
     @Test
@@ -119,8 +119,8 @@ public class QSOWordSupplierTest {
 
     @Test
     public void getWithProSignCollapse() {
-        globalSettings = withProsignSettings(Sets.newHashSet("QRM", "QTH", "CQ"));
-        ArrayList<String> passedMessages = Lists.newArrayList("CQ CQ CQ KI7GBN", "KI7GBN DE FOOBAR", "ABC DEF G", "QR QRM QTH TH");
+        globalSettings = withProsignSettings(Sets.newHashSet("QRM", "QTH", "CQ", "SK"));
+        ArrayList<String> passedMessages = Lists.newArrayList("CQ CQ CQ KI7GBN", "KI7GBN DE FOOBAR", "ABC DEF G", "QR QRM QTH SK TH");
         QSOWordSupplier qsoWordSupplier = new QSOWordSupplier(passedMessages, globalSettings, morseConfig0, morseConfig1);
         Assert.assertEquals("C", qsoWordSupplier.get().getKey());
         Assert.assertEquals("Q", qsoWordSupplier.get().getKey());
@@ -196,6 +196,9 @@ public class QSOWordSupplierTest {
         Assert.assertEquals("Q", qsoWordSupplier.get().getKey());
         Assert.assertEquals("T", qsoWordSupplier.get().getKey());
         Assert.assertEquals("H", qsoWordSupplier.get().getKey());
+        Assert.assertEquals(" ", qsoWordSupplier.get().getKey());
+        Assert.assertEquals("S", qsoWordSupplier.get().getKey());
+        Assert.assertEquals("K", qsoWordSupplier.get().getKey());
         Assert.assertEquals(" ", qsoWordSupplier.get().getKey());
         Assert.assertEquals("T", qsoWordSupplier.get().getKey());
         Assert.assertEquals("_", qsoWordSupplier.get().getKey());
