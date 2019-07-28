@@ -5,10 +5,12 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.CharacterStyle;
+import android.widget.EditText;
 
 import androidx.core.content.ContextCompat;
 
 import com.annimon.stream.Optional;
+import com.uberj.ditsanddahs.KeyboardUtil;
 import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.keyboards.KeyConfig;
 import com.uberj.ditsanddahs.transcribe.storage.TranscribeTrainingSession;
@@ -23,29 +25,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static com.uberj.ditsanddahs.KeyboardUtil.stripTrailingSpaces;
+
 public class TranscribeUtil {
-    public static String convertKeyPressesToString(List<String> enteredStrings) {
-        List<String> stringsToDisplay = Lists.newArrayList();
-        for (String transcribedString : enteredStrings) {
-            Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(transcribedString);
-            if (controlType.isPresent()) {
-                if (controlType.get().equals(KeyConfig.ControlType.DELETE)) {
-                    if (!stringsToDisplay.isEmpty()) {
-                        stringsToDisplay.remove(stringsToDisplay.size() - 1);
-                    }
-                } else if (controlType.get().equals(KeyConfig.ControlType.SPACE)) {
-                    stringsToDisplay.add(" ");
-                } else {
-                    throw new RuntimeException("unhandled control eventType " + transcribedString);
-                }
-            } else {
-                stringsToDisplay.add(transcribedString);
-            }
-        }
-        return Joiner.on("").join(stringsToDisplay);
+
+    private static long calcSessionDuration(TranscribeTrainingSession session) {
+        // TODO
+        return session.durationRequestedMillis;
     }
 
-    public static TranscribeSessionAnalysis analyzeSession(Context context, TranscribeTrainingSession session) {
+    public static TranscribeUtil.TranscribeSessionAnalysis analyzeSession(Context context, TranscribeTrainingSession session) {
         LinkedList<DiffPatchMatch.Diff> messageDiff = calcMessageDiff(session);
         SpannableStringBuilder messageSpan = new SpannableStringBuilder("");
         int cursor = 0;
@@ -73,30 +62,17 @@ public class TranscribeUtil {
         Map<String, Pair<Integer, Integer>> errorMap = calculateHitMap(session);
         float overallAccuracyRate = TranscribeUtil.calculateOverallAccuracyForSession(errorMap);
         long sessionDuration  = TranscribeUtil.calcSessionDuration(session);
-        return new TranscribeSessionAnalysis(messageSpan, overallAccuracyRate, errorMap, sessionDuration);
-    }
-
-    private static long calcSessionDuration(TranscribeTrainingSession session) {
-        // TODO
-        return session.durationRequestedMillis;
+        return new TranscribeUtil.TranscribeSessionAnalysis(messageSpan, overallAccuracyRate, errorMap, sessionDuration);
     }
 
     private static LinkedList<DiffPatchMatch.Diff> calcMessageDiff(TranscribeTrainingSession session) {
         List<String> transcribedKeys = stripTrailingSpaces(session.enteredKeys);
         List<String> playedKeys = stripTrailingSpaces(session.playedMessage);
 
-        String transcription = convertKeyPressesToString(transcribedKeys);
+        String transcription = KeyboardUtil.convertKeyPressesToString(transcribedKeys).getValue();
         String message = Joiner.on("").join(playedKeys);
         DiffPatchMatch dmp = new DiffPatchMatch();
         return dmp.diff_main(message, transcription);
-    }
-
-    protected static List<String> stripTrailingSpaces(List<String> inputStrings) {
-        List<String> outputStrings = Lists.newArrayList(inputStrings);
-        while (outputStrings.size() > 0 && outputStrings.get(outputStrings.size() - 1).equals("SPC")) {
-            outputStrings.remove(outputStrings.size() -1);
-        }
-        return outputStrings;
     }
 
     private static Optional<CharacterStyle> getSpanColor(Context context, DiffPatchMatch.Operation operation) {
@@ -181,6 +157,10 @@ public class TranscribeUtil {
             totalError += error.getLeft().doubleValue() / error.getRight().doubleValue();
         }
         return (float) (totalError / errorMap.size());
+    }
+
+    public static String formatKeyPress(String buttonLetter, EditText transcribeTextArea) {
+        return "v1:" + buttonLetter + ":" + transcribeTextArea.getSelectionStart() + ":" + transcribeTextArea.getSelectionEnd();
     }
 
     public static class TranscribeSessionAnalysis {

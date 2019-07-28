@@ -30,6 +30,9 @@ import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.flashcard.storage.FlashcardSessionType;
 import com.uberj.ditsanddahs.keyboards.KeyConfig;
 import com.uberj.ditsanddahs.keyboards.Keys;
+import com.uberj.ditsanddahs.transcribe.TranscribeUtil;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +89,8 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
 
         if (includeInMessage) {
             List<String> transcribedStrings = viewModel.transcribedMessage.getValue();
-            transcribedStrings.add(buttonLetter);
+            String action = TranscribeUtil.formatKeyPress(buttonLetter, transcribeTextArea);
+            transcribedStrings.add(action);
             viewModel.transcribedMessage.setValue(transcribedStrings);
         }
     }
@@ -151,12 +155,15 @@ public abstract class FlashcardKeyboardSessionActivity extends AppCompatActivity
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         viewModel.transcribedMessage.observe(this, (enteredStrings) -> {
-            String message = FlashcardUtil.convertKeyPressesToString(enteredStrings);
+            Pair<Integer, String> convert = FlashcardUtil.convertKeyPressesToString(enteredStrings);
+            Integer curSorPosition = convert.getKey();
+            String message = convert.getValue();
             transcribeTextArea.setText(message);
-            transcribeTextArea.setSelection(transcribeTextArea.getText().length());
+            transcribeTextArea.setSelection(curSorPosition);
             boolean enableSubmit;
             enableSubmit = !message.isEmpty();
             findViewById(R.id.keySUBMIT).setEnabled(enableSubmit);
+
 
         });
 

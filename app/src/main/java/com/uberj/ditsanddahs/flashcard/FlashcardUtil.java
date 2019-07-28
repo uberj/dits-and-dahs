@@ -8,10 +8,13 @@ import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.uberj.ditsanddahs.KeyboardUtil;
 import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.flashcard.storage.FlashcardEngineEvent;
 import com.uberj.ditsanddahs.flashcard.storage.FlashcardSessionType;
 import com.uberj.ditsanddahs.keyboards.KeyConfig;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -33,28 +36,9 @@ public class FlashcardUtil {
         return latestGuessInput;
     }
 
-    public static String convertKeyPressesToString(List<String> enteredStrings) {
-        List<String> stringsToDisplay = Lists.newArrayList();
+    public static Pair<Integer, String> convertKeyPressesToString(List<String> enteredStrings) {
         List<String> latestCardInput = findLatestCardInput(enteredStrings);
-        for (String transcribedString : latestCardInput) {
-            Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(transcribedString);
-            if (controlType.isPresent()) {
-                if (controlType.get().equals(KeyConfig.ControlType.DELETE)) {
-                    if (!stringsToDisplay.isEmpty()) {
-                        stringsToDisplay.remove(stringsToDisplay.size() - 1);
-                    }
-                } else if (controlType.get().equals(KeyConfig.ControlType.SPACE)) {
-                    stringsToDisplay.add(" ");
-                } else if (controlType.get().equals(KeyConfig.ControlType.AGAIN)) {
-                } else if (controlType.get().equals(KeyConfig.ControlType.SUBMIT)) {
-                } else {
-                    throw new RuntimeException("unhandled control eventType " + transcribedString);
-                }
-            } else {
-                stringsToDisplay.add(transcribedString);
-            }
-        }
-        return Joiner.on("").join(stringsToDisplay);
+        return KeyboardUtil.convertKeyPressesToString(latestCardInput);
     }
 
     protected static Map<String, List<List<FlashcardEngineEvent>>> parseSegments(List<FlashcardEngineEvent> events) {

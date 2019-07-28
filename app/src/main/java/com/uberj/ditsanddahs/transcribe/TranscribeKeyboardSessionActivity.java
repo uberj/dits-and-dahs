@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.uberj.ditsanddahs.DynamicKeyboard;
 import com.uberj.ditsanddahs.GlobalSettings;
+import com.uberj.ditsanddahs.KeyboardUtil;
 import com.uberj.ditsanddahs.R;
 import com.uberj.ditsanddahs.keyboards.Keys;
 import com.uberj.ditsanddahs.transcribe.storage.TranscribeSessionType;
@@ -31,6 +32,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProviders;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import timber.log.Timber;
 
@@ -174,9 +177,11 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         viewModel.transcribedMessage.observe(this, (enteredStrings) -> {
-            String message = TranscribeUtil.convertKeyPressesToString(enteredStrings);
+            Pair<Integer, String> convert = KeyboardUtil.convertKeyPressesToString(enteredStrings);
+            Integer curSorPosition = convert.getKey();
+            String message = convert.getValue();
             transcribeTextArea.setText(message);
-            transcribeTextArea.setSelection(transcribeTextArea.getText().length());
+            transcribeTextArea.setSelection(curSorPosition);
         });
 
     }
@@ -262,7 +267,8 @@ public abstract class TranscribeKeyboardSessionActivity extends AppCompatActivit
         }
         String buttonLetter = DynamicKeyboard.getButtonLetter(getApplicationContext(), view);
         List<String> transcribedStrings = viewModel.transcribedMessage.getValue();
-        transcribedStrings.add(buttonLetter);
+        String action = TranscribeUtil.formatKeyPress(buttonLetter, transcribeTextArea);
+        transcribedStrings.add(action);
         viewModel.transcribedMessage.setValue(transcribedStrings);
     }
 
