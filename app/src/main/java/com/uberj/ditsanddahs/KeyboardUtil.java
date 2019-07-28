@@ -10,6 +10,31 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.List;
 
 public class KeyboardUtil {
+    public static class KeyPressV1 {
+        public final String name;
+        public final int startSelection;
+        public final int endSelection;
+
+        public static boolean isV1Format(String record) {
+            return record.startsWith("v1:");
+        }
+
+        public static KeyPressV1 from(String record) {
+            String record_ = record.replace("v1:", "");
+            String[] parts = record_.split(":");
+            String buttonName = parts[0];
+            int startSelection = Integer.valueOf(parts[1]);
+            int endSelection = Integer.valueOf(parts[2]);
+            return new KeyPressV1(buttonName, startSelection, endSelection);
+        }
+
+        private KeyPressV1(String name, int startSelection, int endSelection) {
+            this.name = name;
+            this.startSelection = startSelection;
+            this.endSelection = endSelection;
+        }
+    }
+
     public static Pair<Integer, String> convertKeyPressesToString(List<String> enteredStrings) {
         for (String enteredString : enteredStrings) {
             System.out.println(enteredString);
@@ -19,7 +44,7 @@ public class KeyboardUtil {
             return Pair.of(0, "");
         }
         String first = enteredStrings.get(0);
-        if (first.startsWith("v1:")) {
+        if (KeyPressV1.isV1Format(first)) {
             return handleV1Format(enteredStrings);
         } else {
             return handleLegacyFormat(enteredStrings);
@@ -53,37 +78,32 @@ public class KeyboardUtil {
         int lastStartSelection = 0;
 
         for (int curIdx = 0; curIdx < enteredStrings.size(); curIdx++) {
-            String rawButtonPress = enteredStrings.get(curIdx);
-            rawButtonPress = rawButtonPress.replace("v1:", "");
-            String[] parts = rawButtonPress.split(":");
-            String buttonName = parts[0];
-            int startSelection = Integer.valueOf(parts[1]);
-            int endSelection = Integer.valueOf(parts[2]);
-            Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(buttonName);
+            KeyPressV1 kp = KeyPressV1.from(enteredStrings.get(curIdx));
+            Optional<KeyConfig.ControlType> controlType = KeyConfig.ControlType.fromKeyName(kp.name);
             if (controlType.isPresent()) {
                 if (controlType.get().equals(KeyConfig.ControlType.DELETE)) {
-                    if (startSelection == endSelection) {
-                        if (startSelection == 0) {
-                            lastStartSelection = startSelection;
+                    if (kp.startSelection == kp.endSelection) {
+                        if (kp.startSelection == 0) {
+                            lastStartSelection = kp.startSelection;
                         } else {
-                            lastStartSelection = startSelection - 1;
-                            for (int delIdx = lastStartSelection; delIdx < endSelection; delIdx++) {
+                            lastStartSelection = kp.startSelection - 1;
+                            for (int delIdx = lastStartSelection; delIdx < kp.endSelection; delIdx++) {
                                 currentInput.remove(delIdx);
                             }
                         }
                     } else {
-                        lastStartSelection = startSelection;
-                        if (endSelection > startSelection) {
-                            currentInput.subList(startSelection, endSelection).clear();
+                        lastStartSelection = kp.startSelection;
+                        if (kp.endSelection > kp.startSelection) {
+                            currentInput.subList(kp.startSelection, kp.endSelection).clear();
                         }
                     }
                 } else if (controlType.get().equals(KeyConfig.ControlType.SPACE)) {
-                    lastStartSelection = startSelection + 1;
-                    currentInput.add(startSelection, " ");
+                    lastStartSelection = kp.startSelection + 1;
+                    currentInput.add(kp.startSelection, " ");
                 }
             } else {
-                lastStartSelection = startSelection + 1;
-                currentInput.add(startSelection, buttonName);
+                lastStartSelection = kp.startSelection + 1;
+                currentInput.add(kp.startSelection, kp.name);
             }
         }
         return Pair.of(lastStartSelection, Joiner.on("").join(currentInput));

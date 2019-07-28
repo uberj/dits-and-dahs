@@ -28,7 +28,8 @@ public class FlashcardUtil {
         List<String> reversedStrings = Lists.newArrayList(inputStrings);
         Collections.reverse(reversedStrings);
         for (String outputString : reversedStrings) {
-            if (outputString.equals(KeyConfig.ControlType.SKIP.keyName) || outputString.equals(KeyConfig.ControlType.SUBMIT.keyName)) {
+            KeyboardUtil.KeyPressV1 kp = KeyboardUtil.KeyPressV1.from(outputString);
+            if (kp.name.equals(KeyConfig.ControlType.SKIP.keyName) || kp.name.equals(KeyConfig.ControlType.SUBMIT.keyName)) {
                 break;
             }
             latestGuessInput.add(0, outputString);
