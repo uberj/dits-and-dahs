@@ -77,10 +77,13 @@ public class SocraticTrainingSessionViewModel extends AndroidViewModel {
         if (socraticSettings.easyMode) {
             if (message.what == CORRECT_GUESS) {
                 audioManager.playCorrectTone();
-            } else if (message.what == INCORRECT_GUESS) {
-                audioManager.playIncorrectTone();
             }
         }
+
+        if (message.what == INCORRECT_GUESS) {
+            audioManager.playIncorrectTone();
+        }
+
         return true;
     }
 
