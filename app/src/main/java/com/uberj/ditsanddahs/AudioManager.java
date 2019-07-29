@@ -297,7 +297,7 @@ public class AudioManager {
                             .setSampleRate(sampleRateHz)
                             .setChannelMask(channelOutStereo)
                             .build())
-                    .setBufferSizeInBytes(minBufferSize)
+                    .setBufferSizeInBytes(minBufferSize * 2)
                     .build();
             cwplayer.play();
         } else {
