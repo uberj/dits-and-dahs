@@ -85,11 +85,11 @@ public class SocraticTrainingEngine {
         } else if (message.what == CORRECT_GUESS) {
             mostRecentEventAt = System.currentTimeMillis();
             eventHandler.removeMessages(PLAY_CURRENT_MESSAGE);
-            eventHandler.sendEmptyMessageDelayed(PLAY_CURRENT_MESSAGE, easyMode ? 350L : 10L);
+            eventHandler.sendEmptyMessageDelayed(PLAY_CURRENT_MESSAGE, easyMode ? 350L : 50L);
         } else if (message.what == INCORRECT_GUESS) {
             mostRecentEventAt = System.currentTimeMillis();
             eventHandler.removeMessages(PLAY_CURRENT_MESSAGE);
-            eventHandler.sendEmptyMessageDelayed(PLAY_CURRENT_MESSAGE, easyMode ? 1500L : 10L);
+            eventHandler.sendEmptyMessageDelayed(PLAY_CURRENT_MESSAGE, easyMode ? 1500L : 50L);
         } else if (message.what == TIME_CLICK) {
             if (mostRecentEventAt + getGuessWaitTimeMillis() <= System.currentTimeMillis()) {
                 mostRecentEventAt = System.currentTimeMillis();

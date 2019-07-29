@@ -9,7 +9,7 @@
             app:key="@string/setting_socratic_easy_mode"
             app:defaultValue="true"
             app:title="Easy Mode"
-            app:summary="Pause after a mistake is made and play an error tone"/>
+            app:summary="Play an indicator tone after a correct guess"/>
         <com.uberj.ditsanddahs.views.FormattingSeekBarPreference
             app:key="@string/setting_socratic_audio_tone"
             app:title="Tone Frequency"
