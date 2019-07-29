@@ -160,8 +160,9 @@ public class FlashcardTrainingEngine {
         ArrayList<org.apache.commons.math3.util.Pair<String, Double>> pmf = Lists.newArrayList();
         for (Map.Entry<String, Integer> entry : competencyWeights.entrySet()) {
             String letter = entry.getKey();
-            if (letter.equals(currentMessage)) {
+            if (competencyWeights.size() > 1 && letter.equals(currentMessage)) {
                 // Don't include the current letter in the pmf
+                // If there is only one word we have to allow it, though. otherwise no words are added to the pmf
                 continue;
             }
             int letterWeight = entry.getValue();
